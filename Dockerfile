@@ -8,8 +8,6 @@ FROM golang:alpine3.12 as builder
 
 ENV GOPATH /go
 
-# Install git.
-# Git is required for fetching the dependencies.
 RUN apk update && apk add alpine-sdk git bash && rm -rf /var/cache/apk/*
 
 WORKDIR /go/src/github.com/bzimmer/wta
