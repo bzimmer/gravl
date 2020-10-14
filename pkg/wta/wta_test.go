@@ -16,18 +16,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type TestDataTransport struct{}
+type TestDataTransport struct {
+	status   int
+	filename string
+}
 
 func (r *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	dir, _ := os.Getwd()
-	data, _ := ioutil.ReadFile(filepath.Join(dir, "wta_test.html"))
+	var data []byte
+	if r.filename != "" {
+		dir, _ := os.Getwd()
+		filename := filepath.Join(dir, "../../testdata", r.filename)
+		data, _ = ioutil.ReadFile(filename)
+	} else {
+		data = make([]byte, 0)
+	}
 
 	header := make(http.Header)
 	header.Add("content-type", "text/html; charset=utf-8")
 
 	return &http.Response{
-		Status:        "200 OK",
-		StatusCode:    http.StatusOK,
+		StatusCode:    r.status,
 		ContentLength: int64(len(data)),
 		Body:          ioutil.NopCloser(bytes.NewBuffer(data)),
 		Header:        header,
@@ -35,25 +43,33 @@ func (r *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	}, nil
 }
 
-func newCollector() *colly.Collector {
-	c := colly.NewCollector()
-	c.WithTransport(&TestDataTransport{})
+func newCollectorWithFilename(filename string) *colly.Collector {
+	return newCollector(http.StatusOK, filename)
+}
+
+func newCollectorWithStatus(status int) *colly.Collector {
+	return newCollector(status, "")
+}
+
+func newCollector(status int, filename string) *colly.Collector {
+	c := NewCollector()
+	c.WithTransport(&TestDataTransport{
+		status:   status,
+		filename: filename,
+	})
 	return c
 }
 
-func newTestRouter() (*gin.Engine, error) {
+func newTestRouter(c *colly.Collector) *gin.Engine {
 	gin.SetMode(gin.TestMode)
-	r := gin.Default()
-	r.GET("/regions/", RegionsHandler())
-	r.GET("/reports/:reporter", TripReportsHandler(newCollector()))
-	return r, nil
+	r := NewRouter(c)
+	return r
 }
 
 func Test_Query(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
-	q, err := Query("foobar")
-	a.NoError(err)
+	q := Query("foobar")
 	a.NotNil(q)
 }
 
@@ -61,10 +77,9 @@ func Test_GetTripReports(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	q, err := Query("foobar")
-	a.NoError(err)
-
-	reports, err := GetTripReports(newCollector(), q.String())
+	q := Query("foobar")
+	c := newCollectorWithFilename("wta_test.html")
+	reports, err := GetTripReports(c, q.String())
 	a.NoError(err)
 	a.Equal(14, len(reports))
 
@@ -82,42 +97,68 @@ func Test_TripReportsHandler(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	r, err := newTestRouter()
-	a.NoError(err)
+	// test with known good html
+	c := newCollectorWithFilename("wta_test.html")
+	r := newTestRouter(c)
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/reports/bzimmer", nil)
 	r.ServeHTTP(w, req)
-
 	a.Equal(http.StatusOK, w.Code)
 
 	var reports TripReports
 	decoder := json.NewDecoder(w.Body)
-	err = decoder.Decode(&reports)
+	err := decoder.Decode(&reports)
 	a.NoError(err)
 	a.NotNil(reports)
 	a.NotNil(reports.Reports)
 	a.Equal(14, len(reports.Reports))
+
+	// test a response with no html
+	c = newCollectorWithFilename("wta_test.json")
+	r = newTestRouter(c)
+	a.NotNil(r)
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodGet, "/reports/foobar", nil)
+	r.ServeHTTP(w, req)
+	a.Equal(http.StatusOK, w.Code)
+
+	decoder = json.NewDecoder(w.Body)
+	err = decoder.Decode(&reports)
+	a.NoError(err)
+	a.NotNil(reports)
+	a.NotNil(reports.Reports)
+	a.Equal(0, len(reports.Reports))
+
+	// test with 404 from source
+	c = newCollectorWithStatus(http.StatusNotFound)
+	r = newTestRouter(c)
+	a.NotNil(r)
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodGet, "/reports/bzimmer", nil)
+	r.ServeHTTP(w, req)
+	a.Equal(http.StatusInternalServerError, w.Code)
 }
 
 func Test_RegionsHandler(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	r, err := newTestRouter()
-	a.NoError(err)
+	c := newCollectorWithFilename("wta_test.html")
+	r := newTestRouter(c)
+	a.NotNil(r)
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/regions/", nil)
 	r.ServeHTTP(w, req)
-
 	a.Equal(http.StatusOK, w.Code)
 
 	var regions []Region
 	decoder := json.NewDecoder(w.Body)
-	err = decoder.Decode(&regions)
+	err := decoder.Decode(&regions)
 	a.NoError(err)
 	a.NotNil(regions)
 	a.NotNil(regions)

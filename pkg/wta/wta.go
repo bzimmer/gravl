@@ -10,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly/v2"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -129,8 +131,27 @@ type TripReports struct {
 	Reports  []TripReport `json:"reports"`
 }
 
+// NewCollector .
+func NewCollector() *colly.Collector {
+	c := colly.NewCollector(
+		colly.AllowedDomains("wta.org", "www.wta.org"),
+	)
+	c.SetRequestTimeout(10 * time.Second)
+	return c
+}
+
+// NewRouter .
+func NewRouter(c *colly.Collector) *gin.Engine {
+	r := gin.New()
+	r.Use(LogMiddleware(), gin.Recovery())
+	r.GET("/regions/", RegionsHandler())
+	r.GET("/reports/", TripReportsHandler(c))
+	r.GET("/reports/:reporter", TripReportsHandler(c))
+	return r
+}
+
 // Query .
-func Query(author string) (*url.URL, error) {
+func Query(author string) *url.URL {
 	v := url.Values{}
 	v.Add("author", author)
 	v.Add("b_size", "100")
@@ -143,17 +164,24 @@ func Query(author string) (*url.URL, error) {
 	v.Add("month", "all")
 	v.Add("subregion", "all")
 
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, err
-	}
+	// parsing a constant, if this fails we have other issues
+	u, _ := url.Parse(baseURL)
 	u.RawQuery = v.Encode()
-	return u, nil
+	return u
 }
 
 // GetTripReports .
 func GetTripReports(c *colly.Collector, q string) ([]TripReport, error) {
+	var visitError error
 	reports := make([]TripReport, 0)
+
+	c.OnError(func(r *colly.Response, err error) {
+		log.Warn().
+			Err(err).
+			Str("url", r.Request.URL.String()).
+			Msg("GetTripReports")
+		visitError = err
+	})
 
 	c.OnHTML("div[class=item-row]", func(e *colly.HTMLElement) {
 		tr := &TripReport{
@@ -189,7 +217,18 @@ func GetTripReports(c *colly.Collector, q string) ([]TripReport, error) {
 		reports = append(reports, *tr)
 	})
 
+	defer func(start time.Time) {
+		log.Info().
+			Str("url", q).
+			Str("op", "reports").
+			Dur("elapsed", time.Since(start)).
+			Msg("GetTripReports")
+	}(time.Now())
+
 	c.Visit(q)
+	if visitError != nil {
+		return nil, visitError
+	}
 	return reports, nil
 }
 
@@ -197,13 +236,7 @@ func GetTripReports(c *colly.Collector, q string) ([]TripReport, error) {
 func TripReportsHandler(col *colly.Collector) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		reporter := c.Param("reporter")
-		q, err := Query(reporter)
-		if err != nil {
-			c.Abort()
-			c.Error(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"status": "failed"})
-			return
-		}
+		q := Query(reporter)
 		reports, err := GetTripReports(col, q.String())
 		if err != nil {
 			c.Abort()
@@ -219,5 +252,43 @@ func TripReportsHandler(col *colly.Collector) func(c *gin.Context) {
 func RegionsHandler() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, Regions)
+	}
+}
+
+// LogMiddleware .
+func LogMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		duration := time.Since(start)
+
+		msg := "Request"
+		if len(c.Errors) > 0 {
+			msg = c.Errors.String()
+		}
+
+		var entry *zerolog.Event
+		switch {
+		case c.Writer.Status() >= http.StatusBadRequest && c.Writer.Status() < http.StatusInternalServerError:
+			{
+				entry = log.Warn()
+			}
+		case c.Writer.Status() >= http.StatusInternalServerError:
+			{
+				entry = log.Error()
+			}
+		default:
+			entry = log.Info()
+		}
+
+		entry.
+			Str("client_ip", c.ClientIP()).
+			Dur("elapsed", duration).
+			Str("method", c.Request.Method).
+			Str("path", c.Request.RequestURI).
+			Int("status", c.Writer.Status()).
+			Str("referrer", c.Request.Referer()).
+			Str("user_agent", c.Request.Header.Get("User-Agent")).
+			Msg(msg)
 	}
 }

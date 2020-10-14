@@ -27,7 +27,7 @@ tasks:
     desc: Run the application
     deps: [build]
     cmds:
-      - '{{.DIST}}/{{.APP}}'
+      - '{{.DIST}}/{{.APP}} -color serve'
 
   lint:
     desc: Runs golint
@@ -65,3 +65,15 @@ tasks:
     deps: [test]
     cmds:
       - cd cmd/{{.APP}} && go install 
+
+  docker:
+    desc: Create a docker image for {{.APP}}
+    deps: []
+    cmds:
+      - docker build -t {{.APP}} .
+
+  docker-run:
+    desc: Run the docker container for {{.APP}}
+    deps: [docker]
+    cmds:
+      - docker container run -p8080:8080 {{.APP}}
