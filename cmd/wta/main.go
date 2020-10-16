@@ -20,7 +20,7 @@ func initLogging(ctx *cli.Context) error {
 	log.Logger = log.Output(
 		zerolog.ConsoleWriter{
 			Out:     os.Stderr,
-			NoColor: !ctx.IsSet("color"),
+			NoColor: ctx.IsSet("monochrome"),
 		},
 	)
 	log.Info().Msg("configured logging")
@@ -86,9 +86,10 @@ func main() {
 		Before: initLogging,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:  "color",
-				Value: false,
-				Usage: "Colorize the console log",
+				Name:    "monochrome",
+				Value:   false,
+				Aliases: []string{"m"},
+				Usage:   "Monochrome console logs",
 			},
 		},
 		Commands: []*cli.Command{
