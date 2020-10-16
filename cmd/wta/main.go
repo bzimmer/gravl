@@ -107,7 +107,7 @@ func main() {
 				Aliases: []string{"v"},
 				Usage:   "Display the version",
 				Action: func(c *cli.Context) error {
-					log.Info().Str("version", version).Send()
+					log.Info().Str("version", version).Msg("wta")
 					os.Exit(0)
 					return nil
 				},

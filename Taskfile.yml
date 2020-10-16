@@ -68,7 +68,7 @@ tasks:
     desc: Install {{.APP}}
     deps: [test]
     cmds:
-      - cd cmd/{{.APP}} && go install 
+      - cd cmd/{{.APP}} && go install -ldflags "-X main.version={{.VERSION}}"
 
   docker:
     desc: Create a docker image for {{.APP}}
