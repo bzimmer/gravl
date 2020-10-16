@@ -144,6 +144,7 @@ func NewCollector() *colly.Collector {
 func NewRouter(c *colly.Collector) *gin.Engine {
 	r := gin.New()
 	r.Use(LogMiddleware(), gin.Recovery())
+	r.GET("/version/", VersionHandler())
 	r.GET("/regions/", RegionsHandler())
 	r.GET("/reports/", TripReportsHandler(c))
 	r.GET("/reports/:reporter", TripReportsHandler(c))
@@ -179,7 +180,7 @@ func GetTripReports(c *colly.Collector, q string) ([]TripReport, error) {
 		log.Warn().
 			Err(err).
 			Str("url", r.Request.URL.String()).
-			Msg("GetTripReports")
+			Msg("tripreports")
 		visitError = err
 	})
 
@@ -233,7 +234,7 @@ func GetTripReports(c *colly.Collector, q string) ([]TripReport, error) {
 }
 
 // TripReportsHandler .
-func TripReportsHandler(col *colly.Collector) func(c *gin.Context) {
+func TripReportsHandler(col *colly.Collector) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		reporter := c.Param("reporter")
 		q := Query(reporter)
@@ -249,9 +250,18 @@ func TripReportsHandler(col *colly.Collector) func(c *gin.Context) {
 }
 
 // RegionsHandler .
-func RegionsHandler() func(c *gin.Context) {
+func RegionsHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, Regions)
+	}
+}
+
+// VersionHandler .
+func VersionHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, map[string]string{
+			"build_version": BuildVersion,
+		})
 	}
 }
 

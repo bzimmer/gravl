@@ -172,3 +172,24 @@ func Test_RegionsHandler(t *testing.T) {
 	}
 	a.Equal("922e688d784aa95dfb80047d2d79dcf6", id)
 }
+
+func Test_VersionHandler(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	// data never used
+	c := newCollectorWithFilename("wta_test.html")
+	r := newTestRouter(c)
+	a.NotNil(r)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/version/", nil)
+	r.ServeHTTP(w, req)
+	a.Equal(http.StatusOK, w.Code)
+
+	var version map[string]string
+	decoder := json.NewDecoder(w.Body)
+	err := decoder.Decode(&version)
+	a.NoError(err)
+	a.Equal("development", version["build_version"])
+}

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/bzimmer/wta/pkg/wta"
@@ -13,8 +11,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
-
-var version string
 
 func initLogging(ctx *cli.Context) error {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
@@ -26,7 +22,9 @@ func initLogging(ctx *cli.Context) error {
 			NoColor: ctx.IsSet("monochrome"),
 		},
 	)
-	log.Info().Msg("configured logging")
+	log.Info().
+		Str("build_version", wta.BuildVersion).
+		Msg("wta")
 	return nil
 }
 
@@ -62,24 +60,11 @@ func list(ctx *cli.Context) error {
 		}
 	}
 
-	if ctx.IsSet("tab") {
-		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		defer w.Flush()
-		for _, tr := range reports {
-			elems := []string{
-				tr.Title,
-				fmt.Sprint(tr.Votes),
-				tr.HikeDate.Format("2006-01-02"),
-				tr.Region,
-				tr.Report}
-			fmt.Fprintln(w, strings.Join(elems, "\t"))
-		}
-		return nil
-	}
-
 	// json is the default
 	encoder := json.NewEncoder(os.Stdout)
-	encoder.SetIndent("", " ")
+	if !ctx.IsSet("ugly") {
+		encoder.SetIndent("", " ")
+	}
 	encoder.SetEscapeHTML(false)
 	err := encoder.Encode(reports)
 	if err != nil {
@@ -107,7 +92,7 @@ func main() {
 				Aliases: []string{"v"},
 				Usage:   "Display the version",
 				Action: func(c *cli.Context) error {
-					log.Info().Str("version", version).Msg("wta")
+					// initLogging takes care displaying version information
 					os.Exit(0)
 					return nil
 				},
@@ -130,14 +115,14 @@ func main() {
 			{
 				Name:    "list",
 				Aliases: []string{"l"},
-				Usage:   "List the results to the console (in JSON by default)",
+				Usage:   "List the results to the console in JSON format",
 				Action:  list,
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
-						Name:    "tab",
+						Name:    "ugly",
 						Value:   false,
-						Aliases: []string{"t"},
-						Usage:   "List results in tabular output",
+						Aliases: []string{"u"},
+						Usage:   "Do not pretty print JSON output",
 					},
 				},
 			},

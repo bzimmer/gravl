@@ -6,7 +6,7 @@
 
 FROM golang:alpine3.12 as builder
 
-ENV GOPATH /go
+ENV GOPATH=/go
 
 RUN apk update && apk add alpine-sdk git bash && rm -rf /var/cache/apk/*
 
@@ -23,7 +23,8 @@ ADD cmd cmd
 ADD testdata testdata
 RUN go test -v ./...
 
-RUN go build -o dist/wta cmd/wta/main.go
+ARG VERSION
+RUN go build -o dist/wta -ldflags "-X github.com/bzimmer/wta/pkg/wta.BuildVersion=$VERSION" cmd/wta/main.go
 
 ##############################
 # STEP 2 build a smaller image
@@ -38,7 +39,7 @@ WORKDIR /app
 
 COPY --from=builder /go/src/github.com/bzimmer/wta/dist/wta .
 
-ENV WTA_PORT 8080
+ENV WTA_PORT=8080
 ENV GIN_MODE=release
 
 ENTRYPOINT ["/app/wta", "serve"]

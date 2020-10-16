@@ -11,6 +11,8 @@ vars:
     sh: go list ./...
   VERSION:
     sh: git rev-parse --short HEAD
+  LDFLAGS:
+    -ldflags "-X github.com/bzimmer/wta/pkg/wta.BuildVersion={{.VERSION}}"
 
 tasks:
   default:
@@ -19,12 +21,10 @@ tasks:
 
   build:
     desc: Build the application
-    deps: []
     sources:
       - '**/*.go'
     cmds:
-
-      - 'go build -ldflags "-X main.version={{.VERSION}}" -v -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go'
+      - 'go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go'
 
   run:
     desc: Run the application
@@ -34,19 +34,16 @@ tasks:
 
   lint:
     desc: Runs golint
-    deps: []
     cmds:
       - golint {{catLines .GO_PACKAGES}}
 
   vet:
     desc: Runs golint
-    deps: []
     cmds:
       - go vet {{catLines .GO_PACKAGES}}
 
   test:
     desc: Run all tests
-    deps: []
     cmds:
       - mkdir -p {{.DIST}}
       - go test -covermode count -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
@@ -59,7 +56,6 @@ tasks:
 
   clean:
     desc: Remove build artifacts
-    deps: []
     cmds:
       - rm -rf {{.DIST}}
       - rm -rf .task
@@ -68,13 +64,12 @@ tasks:
     desc: Install {{.APP}}
     deps: [test]
     cmds:
-      - cd cmd/{{.APP}} && go install -ldflags "-X main.version={{.VERSION}}"
+      - cd cmd/{{.APP}} && go install {{.LDFLAGS}}
 
   docker:
     desc: Create a docker image for {{.APP}}
-    deps: []
     cmds:
-      - docker build -t {{.APP}} .
+      - docker build --build-arg VERSION={{.VERSION}} -t {{.APP}} .
 
   docker-run:
     desc: Run the docker container for {{.APP}}
