@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 	"time"
 
@@ -65,7 +66,13 @@ func list(ctx *cli.Context) error {
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		defer w.Flush()
 		for _, tr := range reports {
-			fmt.Fprintln(w, fmt.Sprintf("%s\t%d\t%s\t%s\t%s", tr.Title, tr.Votes, tr.HikeDate.Format("2006-01-02"), tr.Region, tr.Report))
+			elems := []string{
+				tr.Title,
+				fmt.Sprint(tr.Votes),
+				tr.HikeDate.Format("2006-01-02"),
+				tr.Region,
+				tr.Report}
+			fmt.Fprintln(w, strings.Join(elems, "\t"))
 		}
 		return nil
 	}
