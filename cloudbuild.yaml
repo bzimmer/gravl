@@ -1,7 +1,7 @@
 steps:
 # Build the container image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '--build-arg', 'VERSION=$SHORT_SHA', '-t', 'gcr.io/${PROJECT_ID}/wta:$COMMIT_SHA', 'cmd/wta/main.go']
+  args: ['build', '--build-arg', 'VERSION=$SHORT_SHA', '-t', 'gcr.io/${PROJECT_ID}/wta:$COMMIT_SHA', '.']
 # Push the container image to Container Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/${PROJECT_ID}/wta:$COMMIT_SHA']
