@@ -13,6 +13,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var version string
+
 func initLogging(ctx *cli.Context) error {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	zerolog.DurationFieldUnit = time.Millisecond
@@ -93,6 +95,16 @@ func main() {
 			},
 		},
 		Commands: []*cli.Command{
+			{
+				Name:    "version",
+				Aliases: []string{"v"},
+				Usage:   "Display the version",
+				Action: func(c *cli.Context) error {
+					log.Info().Str("version", version).Send()
+					os.Exit(0)
+					return nil
+				},
+			},
 			{
 				Name:    "serve",
 				Aliases: []string{"s"},

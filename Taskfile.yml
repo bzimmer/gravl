@@ -9,6 +9,8 @@ vars:
   MODE: dev
   GO_PACKAGES:
     sh: go list ./...
+  VERSION:
+    sh: git rev-parse --short HEAD
 
 tasks:
   default:
@@ -21,7 +23,8 @@ tasks:
     sources:
       - '**/*.go'
     cmds:
-      - 'go build -v -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go'
+
+      - 'go build -ldflags "-X main.version={{.VERSION}}" -v -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go'
 
   run:
     desc: Run the application
@@ -59,6 +62,7 @@ tasks:
     deps: []
     cmds:
       - rm -rf {{.DIST}}
+      - rm -rf .task
 
   install:
     desc: Install {{.APP}}
