@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	gn "github.com/bzimmer/wta/pkg/gnis"
 	"github.com/bzimmer/wta/pkg/wta"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -37,6 +38,27 @@ func serve(ctx *cli.Context) error {
 	address := fmt.Sprintf("0.0.0.0:%d", port)
 	if err := r.Run(address); err != nil {
 		return err
+	}
+	return nil
+}
+
+func gnis(ctx *cli.Context) error {
+	g := gn.New()
+	encoder := json.NewEncoder(os.Stdout)
+	if !ctx.IsSet("compact") {
+		encoder.SetIndent("", " ")
+	}
+	encoder.SetEscapeHTML(false)
+	for _, arg := range ctx.Args().Slice() {
+		log.Info().Str("filename", arg)
+		features, err := g.ParseFile(arg)
+		if err != nil {
+			return err
+		}
+		err = encoder.Encode(features)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -117,6 +139,20 @@ func main() {
 				Aliases: []string{"l"},
 				Usage:   "List the results to the console in JSON format",
 				Action:  list,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    "compact",
+						Value:   false,
+						Aliases: []string{"c"},
+						Usage:   "Compact instead of pretty-printed output",
+					},
+				},
+			},
+			{
+				Name:    "gnis",
+				Aliases: []string{"g"},
+				Usage:   "Display GNIS in JSON format",
+				Action:  gnis,
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "compact",
