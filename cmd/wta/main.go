@@ -23,8 +23,9 @@ func initLogging(ctx *cli.Context) error {
 		},
 	)
 	log.Info().
+		Str("url", "https://www.wta.org").
 		Str("build_version", wta.BuildVersion).
-		Msg("wta")
+		Msg("Please support the WTA")
 	return nil
 }
 
@@ -60,9 +61,8 @@ func list(ctx *cli.Context) error {
 		}
 	}
 
-	// json is the default
 	encoder := json.NewEncoder(os.Stdout)
-	if !ctx.IsSet("ugly") {
+	if !ctx.IsSet("compact") {
 		encoder.SetIndent("", " ")
 	}
 	encoder.SetEscapeHTML(false)
@@ -119,10 +119,10 @@ func main() {
 				Action:  list,
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
-						Name:    "ugly",
+						Name:    "compact",
 						Value:   false,
-						Aliases: []string{"u"},
-						Usage:   "Do not pretty print JSON output",
+						Aliases: []string{"c"},
+						Usage:   "Compact instead of pretty-printed output",
 					},
 				},
 			},
