@@ -1,11 +1,23 @@
 # WTA API
 
-This projects provides a structured JSON API for the WTA trip reports.
-
-The primary motivation was making it easier to track the upvotes on my
+This projects provides a structured JSON API for the [WTA](https://www.wta.org/) trip
+reports. I was motivated to write it so I could more easily track the upvotes on my
 trip reports.
 
+*It is not endorsed by the WTA*
+
 # Examples
+
+Sum all the upvotes on my trip reports:
+
+```sh
+~/Development/src/github.com/bzimmer/wta (master) > wta list bzimmer | jq 'map(.votes) | add | {"votes":.}'
+
+12:04PM INF Please support the WTA build_version=5cd9716 url=https://www.wta.org/
+{
+  "votes": 94
+}
+```
 
 Show the top 15 most popular trip reports:
 
@@ -14,7 +26,7 @@ Show the top 15 most popular trip reports:
     | reverse
     | map({title: .title, date: .hike_date, votes: .votes})
     | .[]' | head -15
-11:58AM INF Please support the WTA build_version=7ddc0d9 url=https://www.wta.org
+11:58AM INF Please support the WTA build_version=7ddc0d9 url=https://www.wta.org/
 {"title":"Blue Lake","date":"2020-10-14T00:00:00Z","votes":31}
 {"title":"Lake Ingalls","date":"2020-10-15T00:00:00Z","votes":29}
 {"title":"Chain Lakes Loop","date":"2020-10-15T00:00:00Z","votes":25}

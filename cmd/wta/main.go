@@ -23,7 +23,7 @@ func initLogging(ctx *cli.Context) error {
 		},
 	)
 	log.Info().
-		Str("url", "https://www.wta.org").
+		Str("url", "https://www.wta.org/").
 		Str("build_version", wta.BuildVersion).
 		Msg("Please support the WTA")
 	return nil
