@@ -219,7 +219,7 @@ func GetTripReports(c *colly.Collector, q string) ([]TripReport, error) {
 	})
 
 	defer func(start time.Time) {
-		log.Info().
+		log.Debug().
 			Str("url", q).
 			Str("op", "reports").
 			Dur("elapsed", time.Since(start)).
