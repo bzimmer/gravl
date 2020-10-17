@@ -122,7 +122,7 @@ type TripReport struct {
 	HikeDate time.Time `json:"hike_date"`
 	Votes    int       `json:"votes"`
 	Region   string    `json:"region"`
-	Photos   int       `json:"photo_count"`
+	Photos   int       `json:"photos"`
 }
 
 // TripReports .
