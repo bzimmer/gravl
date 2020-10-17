@@ -1,12 +1,12 @@
-# WTA API
+## WTA Trip Report CLI
 
 This projects provides a structured JSON API for the [WTA](https://www.wta.org/) trip
 reports. I was motivated to write it so I could more easily track the upvotes on my
 trip reports.
 
-*It is not endorsed by the WTA*
+*It is not endorsed by the WTA.*
 
-# Examples
+## Examples
 
 Sum all the upvotes on my trip reports:
 
