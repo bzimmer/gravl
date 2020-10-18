@@ -3,11 +3,9 @@ package wta
 import (
 	"context"
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gocolly/colly/v2"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -16,11 +14,10 @@ const (
 	baseURL = "https://www.wta.org/@@search_tripreport_listing/"
 )
 
-var photosRE = regexp.MustCompile(`([0-9]+)`)
-
 // Client .
 type Client struct {
-	collector *colly.Collector
+	// collector *colly.Collector
+	client *http.Client
 
 	Reports *ReportsService
 	Regions *RegionsService
@@ -36,7 +33,9 @@ type Option func(*Client) error
 // NewClient .
 func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
-		collector: NewCollector(),
+		client: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 	for _, opt := range opts {
 		err := opt(c)
@@ -45,27 +44,36 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for talking to the WTA
+	// Services used for talking to the WTA website
 	c.Reports = &ReportsService{client: c}
 	c.Regions = &RegionsService{client: c}
 
 	return c, nil
 }
 
-// NewCollector .
-func NewCollector() *colly.Collector {
-	c := colly.NewCollector(
-		colly.AllowedDomains("wta.org", "www.wta.org"),
-	)
-	c.SetRequestTimeout(10 * time.Second)
-	return c
+// WithHTTPClient client
+func WithHTTPClient(client *http.Client) Option {
+	return func(c *Client) error {
+		if client != nil {
+			c.client = client
+		}
+		return nil
+	}
 }
 
-// WithCollector collector
-func WithCollector(collector *colly.Collector) func(*Client) error {
+// WithTimeout timeout
+func WithTimeout(timeout time.Duration) Option {
 	return func(c *Client) error {
-		if collector != nil {
-			c.collector = collector
+		c.client.Timeout = timeout
+		return nil
+	}
+}
+
+// WithTransport transport
+func WithTransport(transport http.RoundTripper) Option {
+	return func(c *Client) error {
+		if transport != nil {
+			c.client.Transport = transport
 		}
 		return nil
 	}

@@ -44,14 +44,11 @@ func initLogging(ctx *cli.Context) error {
 
 func serve(ctx *cli.Context) error {
 	log.Info().Msg("configuring to serve")
-	c := wta.NewCollector()
-	client, err := wta.NewClient(
-		wta.WithCollector(c),
-	)
+	c, err := wta.NewClient()
 	if err != nil {
 		return err
 	}
-	r := wta.NewRouter(client)
+	r := wta.NewRouter(c)
 
 	port := ctx.Value("port").(int)
 	address := fmt.Sprintf("0.0.0.0:%d", port)
@@ -62,11 +59,15 @@ func serve(ctx *cli.Context) error {
 }
 
 func gnis(ctx *cli.Context) error {
-	g := gn.New()
+	g, err := gn.NewClient()
+	if err != nil {
+		return err
+	}
+	b := context.Background()
 	encoder := newEncoder(ctx.IsSet("compact"))
 	for _, arg := range ctx.Args().Slice() {
 		log.Info().Str("filename", arg)
-		features, err := g.ParseFile(arg)
+		features, err := g.GeoNames.Query(b, arg)
 		if err != nil {
 			return err
 		}
@@ -137,19 +138,14 @@ func list(ctx *cli.Context) error {
 		args = append(args, "")
 	}
 
-	c := wta.NewCollector()
-	client, err := wta.NewClient(
-		wta.WithCollector(c),
-	)
+	c, err := wta.NewClient()
 	if err != nil {
 		return err
 	}
 	b := context.Background()
 	reports := make([]wta.TripReport, 0)
 	for _, arg := range args {
-		// q := wta.Query(arg)
-		tr, err := client.Reports.TripReports(b, arg)
-		// tr, err := wta.GetTripReports(c, q.String())
+		tr, err := c.Reports.TripReports(b, arg)
 		if err != nil {
 			return err
 		}

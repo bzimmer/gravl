@@ -2,7 +2,9 @@ package wta
 
 import (
 	"context"
+	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -10,6 +12,8 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/rs/zerolog/log"
 )
+
+var photosRE = regexp.MustCompile(`([0-9]+)`)
 
 // ReportsService .
 type ReportsService service
@@ -33,13 +37,22 @@ func query(author string) *url.URL {
 	return u
 }
 
+func newCollector(client *http.Client) *colly.Collector {
+	c := colly.NewCollector(
+		colly.AllowedDomains("wta.org", "www.wta.org"),
+	)
+	c.SetClient(client)
+	return c
+}
+
 // TripReports .
 func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]TripReport, error) {
 	var visitError error
 	reports := make([]TripReport, 0)
 
 	q := query(reporter).String()
-	s.client.collector.OnError(func(r *colly.Response, err error) {
+	c := newCollector(s.client.client)
+	c.OnError(func(r *colly.Response, err error) {
 		log.Warn().
 			Err(err).
 			Str("url", r.Request.URL.String()).
@@ -47,7 +60,7 @@ func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]Tr
 		visitError = err
 	})
 
-	s.client.collector.OnHTML("div[class=item-row]", func(e *colly.HTMLElement) {
+	c.OnHTML("div[class=item-row]", func(e *colly.HTMLElement) {
 		tr := &TripReport{
 			Title:  e.ChildText(".listitem-title"),
 			Region: e.ChildText("span[class=region]"),
@@ -89,7 +102,7 @@ func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]Tr
 			Msg("GetTripReports")
 	}(time.Now())
 
-	s.client.collector.Visit(q)
+	c.Visit(q)
 	if visitError != nil {
 		return nil, visitError
 	}

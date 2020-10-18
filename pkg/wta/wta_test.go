@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gocolly/colly/v2"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,35 +43,17 @@ func (r *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	}, nil
 }
 
-func newCollectorWithFilename(filename string) *colly.Collector {
-	return newCollector(http.StatusOK, filename)
+func newClient(status int, filename string) (*Client, error) {
+	return NewClient(
+		WithTransport(&TestDataTransport{
+			status:   status,
+			filename: filename,
+		}))
 }
 
-func newCollectorWithStatus(status int) *colly.Collector {
-	return newCollector(status, "")
-}
-
-func newCollector(status int, filename string) *colly.Collector {
-	c := NewCollector()
-	c.WithTransport(&TestDataTransport{
-		status:   status,
-		filename: filename,
-	})
-	return c
-}
-
-func newClient(c *colly.Collector) (*Client, error) {
-	return NewClient(WithCollector(c))
-}
-
-func newTestRouter(c *colly.Collector) (*gin.Engine, error) {
+func newTestRouter(c *Client) *gin.Engine {
 	gin.SetMode(gin.TestMode)
-	client, err := newClient(c)
-	if err != nil {
-		return nil, err
-	}
-	r := NewRouter(client)
-	return r, nil
+	return NewRouter(c)
 }
 
 func Test_query(t *testing.T) {
@@ -86,10 +67,8 @@ func Test_GetTripReports(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	q := query("foobar")
-	c := newCollectorWithFilename("wta_test.html")
-	client, err := newClient(c)
-	reports, err := client.Reports.TripReports(context.Background(), q.String())
+	client, err := newClient(http.StatusOK, "wta_test.html")
+	reports, err := client.Reports.TripReports(context.Background(), "foobar")
 	a.NoError(err)
 	a.Equal(14, len(reports))
 
@@ -107,9 +86,8 @@ func Test_TripReportsHandler(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	// test with known good html
-	c := newCollectorWithFilename("wta_test.html")
-	r, _ := newTestRouter(c)
+	c, _ := newClient(http.StatusOK, "wta_test.html")
+	r := newTestRouter(c)
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()
@@ -126,8 +104,8 @@ func Test_TripReportsHandler(t *testing.T) {
 	a.Equal(14, len(reports.Reports))
 
 	// test a response with no html
-	c = newCollectorWithFilename("wta_test.json")
-	r, _ = newTestRouter(c)
+	c, _ = newClient(http.StatusOK, "wta_test.json")
+	r = newTestRouter(c)
 	a.NotNil(r)
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest(http.MethodGet, "/reports/foobar", nil)
@@ -142,8 +120,8 @@ func Test_TripReportsHandler(t *testing.T) {
 	a.Equal(0, len(reports.Reports))
 
 	// test with 404 from source
-	c = newCollectorWithStatus(http.StatusNotFound)
-	r, _ = newTestRouter(c)
+	c, _ = newClient(http.StatusNotFound, "")
+	r = newTestRouter(c)
 	a.NotNil(r)
 
 	w = httptest.NewRecorder()
@@ -156,9 +134,8 @@ func Test_RegionsHandler(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	c := newCollectorWithFilename("wta_test.html")
-	r, _ := newTestRouter(c)
-	a.NotNil(r)
+	c, _ := newClient(http.StatusOK, "")
+	r := newTestRouter(c)
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()
@@ -188,8 +165,8 @@ func Test_VersionHandler(t *testing.T) {
 	a := assert.New(t)
 
 	// data never used
-	c := newCollectorWithFilename("wta_test.html")
-	r, _ := newTestRouter(c)
+	c, _ := newClient(http.StatusOK, "")
+	r := newTestRouter(c)
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()

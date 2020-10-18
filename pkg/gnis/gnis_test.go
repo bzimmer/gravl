@@ -14,8 +14,7 @@ func Test_unmarshall(t *testing.T) {
 
 	line := "1516141|Barlow Pass|Gap|WA|53|Snohomish|061|480135N|1212638W|48.0264959|-121.4440005|||||721|2365|Bedal|09/10/1979|"
 
-	g := New()
-	f, err := g.unmarshal(line)
+	f, err := unmarshal(line)
 	a.Nil(err)
 	a.NotNil(f)
 
@@ -35,8 +34,7 @@ func Test_readlines(t *testing.T) {
 	dir, _ := os.Getwd()
 	filename := filepath.Join(dir, "../../testdata", "WA_Features_20200901.txt")
 
-	g := New()
-	features, err := g.ParseFile(filename)
+	features, err := parseFile(filename)
 	a.Nil(err)
 	a.NotNil(features)
 
