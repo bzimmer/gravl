@@ -20,7 +20,6 @@ var photosRE = regexp.MustCompile(`([0-9]+)`)
 
 // Client .
 type Client struct {
-	client    *http.Client
 	collector *colly.Collector
 
 	Reports *ReportsService
@@ -37,7 +36,6 @@ type Option func(*Client) error
 // NewClient .
 func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
-		client:    &http.Client{},
 		collector: NewCollector(),
 	}
 	for _, opt := range opts {
@@ -61,24 +59,6 @@ func NewCollector() *colly.Collector {
 	)
 	c.SetRequestTimeout(10 * time.Second)
 	return c
-}
-
-// WithTimeout timeout
-func WithTimeout(timeout time.Duration) func(*Client) error {
-	return func(client *Client) error {
-		client.client.Timeout = timeout
-		return nil
-	}
-}
-
-// WithHTTPClient .
-func WithHTTPClient(client *http.Client) func(c *Client) error {
-	return func(c *Client) error {
-		if client != nil {
-			c.client = client
-		}
-		return nil
-	}
 }
 
 // WithCollector collector
