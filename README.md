@@ -8,6 +8,7 @@ trip reports.
 
 ## Examples
 
+### WTA
 Sum all the upvotes on my trip reports:
 
 ```sh
@@ -75,3 +76,20 @@ sort by title, votes
 {"title":"Lake Ingalls","date":"2020-10-15","votes":17}
 {"title":"Lake Valhalla","date":"2020-10-16","votes":17}
 ```
+
+### GNIS
+
+Find the coordinates of `Barlow Pass`:
+
+```sh
+~/Development/src/github.com/bzimmer/wta (master) > wta g WA | jq '.[] | select(.name == "Barlow Pass")' 
+2:45PM INF Please support the WTA build_version=2ef8b8b url=https://www.wta.org/
+{
+  "id": 1516141,
+  "name": "Barlow Pass",
+  "class": "Gap",
+  "state": "WA",
+  "latitude": 48.0264959,
+  "longitude": -121.4440005,
+  "elevation": 2365
+}```

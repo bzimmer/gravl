@@ -4,12 +4,6 @@ import (
 	"net/http"
 )
 
-const (
-	gnisLength = 20
-	userAgent  = "github.com/bzimmer/wta"
-	baseURL    = "https://geonames.usgs.gov/docs/stategaz/%s_Features.zip"
-)
-
 // Client .
 type Client struct {
 	client *http.Client

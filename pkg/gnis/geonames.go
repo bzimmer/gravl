@@ -1,10 +1,13 @@
 package gnis
 
 import (
+	"archive/zip"
 	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -12,12 +15,43 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	gnisLength = 20
+	baseURL    = "https://geonames.usgs.gov/docs/stategaz/%s_Features.zip"
+)
+
 // GeoNamesService .
 type GeoNamesService service
 
 // Query .
-func (s *GeoNamesService) Query(ctx context.Context, q string) ([]*Feature, error) {
-	return nil, nil
+func (s *GeoNamesService) Query(ctx context.Context, state string) ([]*Feature, error) {
+	uri := fmt.Sprintf(baseURL, state)
+	res, err := s.client.client.Get(uri)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	// unfortunately the entire body needs to be read into memory first
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// open the archive
+	archive, err := zip.NewReader(bytes.NewReader(body), int64(len(body)))
+	if err != nil {
+		return nil, err
+	}
+
+	// there should be one file
+	f := archive.File[0]
+	reader, err := f.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer reader.Close()
+	return parseReader(reader)
 }
 
 func parseFile(filename string) ([]*Feature, error) {
