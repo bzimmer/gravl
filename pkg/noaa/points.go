@@ -13,7 +13,7 @@ type PointsService service
 // float64ToString converts the float to the format necessary for NOAA
 // It must have no more than four floating point values and no trailing zeros
 func float64ToString(f float64) string {
-	s := fmt.Sprintf("%0.4f", f)
+	s := fmt.Sprintf("%0.2f", f)
 	return strings.TrimRight(s, "0")
 }
 

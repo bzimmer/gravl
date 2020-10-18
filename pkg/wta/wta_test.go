@@ -2,6 +2,7 @@ package wta
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -60,16 +61,24 @@ func newCollector(status int, filename string) *colly.Collector {
 	return c
 }
 
-func newTestRouter(c *colly.Collector) *gin.Engine {
-	gin.SetMode(gin.TestMode)
-	r := NewRouter(c)
-	return r
+func newClient(c *colly.Collector) (*Client, error) {
+	return NewClient(WithCollector(c))
 }
 
-func Test_Query(t *testing.T) {
+func newTestRouter(c *colly.Collector) (*gin.Engine, error) {
+	gin.SetMode(gin.TestMode)
+	client, err := newClient(c)
+	if err != nil {
+		return nil, err
+	}
+	r := NewRouter(client)
+	return r, nil
+}
+
+func Test_query(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
-	q := Query("foobar")
+	q := query("foobar")
 	a.NotNil(q)
 }
 
@@ -77,9 +86,10 @@ func Test_GetTripReports(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	q := Query("foobar")
+	q := query("foobar")
 	c := newCollectorWithFilename("wta_test.html")
-	reports, err := GetTripReports(c, q.String())
+	client, err := newClient(c)
+	reports, err := client.Reports.TripReports(context.Background(), q.String())
 	a.NoError(err)
 	a.Equal(14, len(reports))
 
@@ -99,7 +109,7 @@ func Test_TripReportsHandler(t *testing.T) {
 
 	// test with known good html
 	c := newCollectorWithFilename("wta_test.html")
-	r := newTestRouter(c)
+	r, _ := newTestRouter(c)
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()
@@ -117,7 +127,7 @@ func Test_TripReportsHandler(t *testing.T) {
 
 	// test a response with no html
 	c = newCollectorWithFilename("wta_test.json")
-	r = newTestRouter(c)
+	r, _ = newTestRouter(c)
 	a.NotNil(r)
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest(http.MethodGet, "/reports/foobar", nil)
@@ -133,7 +143,7 @@ func Test_TripReportsHandler(t *testing.T) {
 
 	// test with 404 from source
 	c = newCollectorWithStatus(http.StatusNotFound)
-	r = newTestRouter(c)
+	r, _ = newTestRouter(c)
 	a.NotNil(r)
 
 	w = httptest.NewRecorder()
@@ -147,7 +157,7 @@ func Test_RegionsHandler(t *testing.T) {
 	a := assert.New(t)
 
 	c := newCollectorWithFilename("wta_test.html")
-	r := newTestRouter(c)
+	r, _ := newTestRouter(c)
 	a.NotNil(r)
 	a.NotNil(r)
 
@@ -179,7 +189,7 @@ func Test_VersionHandler(t *testing.T) {
 
 	// data never used
 	c := newCollectorWithFilename("wta_test.html")
-	r := newTestRouter(c)
+	r, _ := newTestRouter(c)
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()

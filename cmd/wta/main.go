@@ -44,7 +44,14 @@ func initLogging(ctx *cli.Context) error {
 
 func serve(ctx *cli.Context) error {
 	log.Info().Msg("configuring to serve")
-	r := wta.NewRouter(wta.NewCollector())
+	c := wta.NewCollector()
+	client, err := wta.NewClient(
+		wta.WithCollector(c),
+	)
+	if err != nil {
+		return err
+	}
+	r := wta.NewRouter(client)
 
 	port := ctx.Value("port").(int)
 	address := fmt.Sprintf("0.0.0.0:%d", port)
@@ -131,10 +138,18 @@ func list(ctx *cli.Context) error {
 	}
 
 	c := wta.NewCollector()
+	client, err := wta.NewClient(
+		wta.WithCollector(c),
+	)
+	if err != nil {
+		return err
+	}
+	b := context.Background()
 	reports := make([]wta.TripReport, 0)
 	for _, arg := range args {
-		q := wta.Query(arg)
-		tr, err := wta.GetTripReports(c, q.String())
+		// q := wta.Query(arg)
+		tr, err := client.Reports.TripReports(b, arg)
+		// tr, err := wta.GetTripReports(c, q.String())
 		if err != nil {
 			return err
 		}
@@ -144,7 +159,7 @@ func list(ctx *cli.Context) error {
 	}
 
 	encoder := newEncoder(ctx.IsSet("compact"))
-	err := encoder.Encode(reports)
+	err = encoder.Encode(reports)
 	if err != nil {
 		return err
 	}
