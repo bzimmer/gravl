@@ -16,7 +16,6 @@ const (
 
 // Client .
 type Client struct {
-	// collector *colly.Collector
 	client *http.Client
 
 	Reports *ReportsService

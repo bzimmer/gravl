@@ -1,6 +1,9 @@
 package noaa
 
-import "time"
+import (
+	"encoding/xml"
+	"time"
+)
 
 // Fault .
 type Fault struct {
@@ -106,4 +109,142 @@ type GridPoint struct {
 		TimeZone        string `json:"timeZone"`
 		RadarStation    string `json:"radarStation"`
 	} `json:"properties"`
+}
+
+// DWML .
+// https://vlab.ncep.noaa.gov/web/mdl/ndfd-web-services
+// https://schemas.liquid-technologies.com/DWML/0/
+type DWML struct {
+	XMLName                   xml.Name `xml:"dwml"`
+	Text                      string   `xml:",chardata"`
+	Version                   string   `xml:"version,attr"`
+	XSD                       string   `xml:"xsd,attr"`
+	XSI                       string   `xml:"xsi,attr"`
+	NoNamespaceSchemaLocation string   `xml:"noNamespaceSchemaLocation,attr"`
+	Head                      struct {
+		Text    string `xml:",chardata"`
+		Product struct {
+			Text            string `xml:",chardata"`
+			ConciseName     string `xml:"concise-name,attr"`
+			OperationalMode string `xml:"operational-mode,attr"`
+			SrsName         string `xml:"srsName,attr"`
+			CreationDate    struct {
+				Text             string `xml:",chardata"`
+				RefreshFrequency string `xml:"refresh-frequency,attr"`
+			} `xml:"creation-date"`
+		} `xml:"product"`
+		Source struct {
+			Text             string `xml:",chardata"`
+			ProductionCenter string `xml:"production-center"`
+			Credit           string `xml:"credit"`
+			MoreInformation  string `xml:"more-information"`
+		} `xml:"source"`
+	} `xml:"head"`
+	Data struct {
+		Text     string `xml:",chardata"`
+		Location struct {
+			Text        string `xml:",chardata"`
+			LocationKey string `xml:"location-key"`
+			Point       struct {
+				Text      string `xml:",chardata"`
+				Latitude  string `xml:"latitude,attr"`
+				Longitude string `xml:"longitude,attr"`
+			} `xml:"point"`
+			AreaDescription string `xml:"area-description"`
+			Height          struct {
+				Text        string `xml:",chardata"`
+				Datum       string `xml:"datum,attr"`
+				HeightUnits string `xml:"height-units,attr"`
+			} `xml:"height"`
+		} `xml:"location"`
+		MoreWeatherInformation struct {
+			Text               string `xml:",chardata"`
+			ApplicableLocation string `xml:"applicable-location,attr"`
+		} `xml:"moreWeatherInformation"`
+		TimeLayout struct {
+			Text           string   `xml:",chardata"`
+			TimeCoordinate string   `xml:"time-coordinate,attr"`
+			Summarization  string   `xml:"summarization,attr"`
+			LayoutKey      string   `xml:"layout-key"`
+			StartValidTime []string `xml:"start-valid-time"`
+			EndValidTime   []string `xml:"end-valid-time"`
+		} `xml:"time-layout"`
+		Parameters struct {
+			Text               string `xml:",chardata"`
+			ApplicableLocation string `xml:"applicable-location,attr"`
+			Temperature        []struct {
+				Text       string `xml:",chardata"`
+				Type       string `xml:"type,attr"`
+				TimeLayout string `xml:"time-layout,attr"`
+				Value      []struct {
+					Text string `xml:",chardata"`
+					Nil  string `xml:"nil,attr"`
+				} `xml:"value"`
+			} `xml:"temperature"`
+			WindSpeed []struct {
+				Text       string `xml:",chardata"`
+				Type       string `xml:"type,attr"`
+				TimeLayout string `xml:"time-layout,attr"`
+				Value      []struct {
+					Text string `xml:",chardata"`
+					Nil  string `xml:"nil,attr"`
+				} `xml:"value"`
+			} `xml:"wind-speed"`
+			CloudAmount struct {
+				Text       string   `xml:",chardata"`
+				Type       string   `xml:"type,attr"`
+				Units      string   `xml:"units,attr"`
+				TimeLayout string   `xml:"time-layout,attr"`
+				Value      []string `xml:"value"`
+			} `xml:"cloud-amount"`
+			ProbabilityOfPrecipitation struct {
+				Text       string   `xml:",chardata"`
+				Type       string   `xml:"type,attr"`
+				Units      string   `xml:"units,attr"`
+				TimeLayout string   `xml:"time-layout,attr"`
+				Value      []string `xml:"value"`
+			} `xml:"probability-of-precipitation"`
+			Humidity struct {
+				Text       string `xml:",chardata"`
+				Type       string `xml:"type,attr"`
+				Units      string `xml:"units,attr"`
+				TimeLayout string `xml:"time-layout,attr"`
+				Value      []struct {
+					Text string `xml:",chardata"`
+					Nil  string `xml:"nil,attr"`
+				} `xml:"value"`
+			} `xml:"humidity"`
+			Direction struct {
+				Text       string   `xml:",chardata"`
+				Type       string   `xml:"type,attr"`
+				Units      string   `xml:"units,attr"`
+				TimeLayout string   `xml:"time-layout,attr"`
+				Value      []string `xml:"value"`
+			} `xml:"direction"`
+			HourlyQPF struct {
+				Text       string `xml:",chardata"`
+				Type       string `xml:"type,attr"`
+				Units      string `xml:"units,attr"`
+				TimeLayout string `xml:"time-layout,attr"`
+				Value      []struct {
+					Text string `xml:",chardata"`
+					Nil  string `xml:"nil,attr"`
+				} `xml:"value"`
+			} `xml:"hourly-qpf"`
+			Weather struct {
+				Text              string `xml:",chardata"`
+				TimeLayout        string `xml:"time-layout,attr"`
+				WeatherConditions []struct {
+					Text  string `xml:",chardata"`
+					Nil   string `xml:"nil,attr"`
+					Value []struct {
+						Text        string `xml:",chardata"`
+						WeatherType string `xml:"weather-type,attr"`
+						Coverage    string `xml:"coverage,attr"`
+						Additive    string `xml:"additive,attr"`
+					} `xml:"value"`
+				} `xml:"weather-conditions"`
+			} `xml:"weather"`
+		} `xml:"parameters"`
+	} `xml:"data"`
 }
