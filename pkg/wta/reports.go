@@ -46,9 +46,9 @@ func newCollector(client *http.Client) *colly.Collector {
 }
 
 // TripReports .
-func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]TripReport, error) {
+func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]*TripReport, error) {
 	var visitError error
-	reports := make([]TripReport, 0)
+	reports := make([]*TripReport, 0)
 
 	q := query(reporter).String()
 	c := newCollector(s.client.client)
@@ -91,7 +91,7 @@ func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]Tr
 			tr.HikeDate = t
 		}
 
-		reports = append(reports, *tr)
+		reports = append(reports, tr)
 	})
 
 	defer func(start time.Time) {

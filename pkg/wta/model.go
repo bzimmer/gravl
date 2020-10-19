@@ -22,6 +22,6 @@ type TripReport struct {
 
 // TripReports .
 type TripReports struct {
-	Reporter string       `json:"reporter"`
-	Reports  []TripReport `json:"reports"`
+	Reporter string        `json:"reporter"`
+	Reports  []*TripReport `json:"reports"`
 }

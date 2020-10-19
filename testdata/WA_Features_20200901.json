@@ -1,0 +1,191 @@
+[
+    {
+        "id": 233358,
+        "name": "Pacific Crest National Scenic Trail",
+        "class": "Trail",
+        "state": "WA",
+        "latitude": 48.9998552,
+        "longitude": -120.7999909,
+        "elevation": 4396
+    },
+    {
+        "id": 1516141,
+        "name": "Barlow Pass",
+        "class": "Gap",
+        "state": "WA",
+        "latitude": 48.0264959,
+        "longitude": -121.4440005,
+        "elevation": 2365
+    },
+    {
+        "id": 1516142,
+        "name": "Barnaby Buttes",
+        "class": "Summit",
+        "state": "WA",
+        "latitude": 48.5389596,
+        "longitude": -118.4746347,
+        "elevation": 6519
+    },
+    {
+        "id": 1516143,
+        "name": "Barnaby Creek",
+        "class": "Stream",
+        "state": "WA",
+        "latitude": 48.4340619,
+        "longitude": -118.2213854,
+        "elevation": 1286
+    },
+    {
+        "id": 1516144,
+        "name": "Barnaby Slough",
+        "class": "Swamp",
+        "state": "WA",
+        "latitude": 48.4819232,
+        "longitude": -121.5509587,
+        "elevation": 239
+    },
+    {
+        "id": 1516145,
+        "name": "Barnard Saddle",
+        "class": "Gap",
+        "state": "WA",
+        "latitude": 46.9706672,
+        "longitude": -121.4431457,
+        "elevation": 5879
+    },
+    {
+        "id": 1516146,
+        "name": "Barnell Creek",
+        "class": "Stream",
+        "state": "WA",
+        "latitude": 48.482379,
+        "longitude": -119.161427,
+        "elevation": 4288
+    },
+    {
+        "id": 1516147,
+        "name": "Barnell Meadow",
+        "class": "Flat",
+        "state": "WA",
+        "latitude": 48.4934901,
+        "longitude": -119.1680941,
+        "elevation": 4327
+    },
+    {
+        "id": 1516148,
+        "name": "Barnes Creek",
+        "class": "Stream",
+        "state": "WA",
+        "latitude": 48.0561982,
+        "longitude": -123.8010323,
+        "elevation": 587
+    },
+    {
+        "id": 1516149,
+        "name": "Barnes Point",
+        "class": "Cape",
+        "state": "WA",
+        "latitude": 48.0611982,
+        "longitude": -123.7957544,
+        "elevation": 584
+    },
+    {
+        "id": 1527333,
+        "name": "Town Canal",
+        "class": "Canal",
+        "state": "WA",
+        "latitude": 46.9942924,
+        "longitude": -120.5103465,
+        "elevation": 1591
+    },
+    {
+        "id": 1527334,
+        "name": "Townsend Creek",
+        "class": "Stream",
+        "state": "WA",
+        "latitude": 47.8073133,
+        "longitude": -122.9787775,
+        "elevation": 1467
+    },
+    {
+        "id": 1527335,
+        "name": "Townsend Mountain",
+        "class": "Summit",
+        "state": "WA",
+        "latitude": 47.7987122,
+        "longitude": -121.392848,
+        "elevation": 5938
+    },
+    {
+        "id": 1527336,
+        "name": "Mount Townsend",
+        "class": "Summit",
+        "state": "WA",
+        "latitude": 47.8673032,
+        "longitude": -123.0593424,
+        "elevation": 6266
+    },
+    {
+        "id": 1527337,
+        "name": "Tozier Creek",
+        "class": "Stream",
+        "state": "WA",
+        "latitude": 48.6765264,
+        "longitude": -120.6176048,
+        "elevation": 4741
+    },
+    {
+        "id": 1527338,
+        "name": "Tracy Hill",
+        "class": "Summit",
+        "state": "WA",
+        "latitude": 45.7504284,
+        "longitude": -121.3966823,
+        "elevation": 2090
+    },
+    {
+        "id": 1527339,
+        "name": "Tradedollar Creek",
+        "class": "Stream",
+        "state": "WA",
+        "latitude": 46.3798318,
+        "longitude": -122.2481561,
+        "elevation": 1759
+    },
+    {
+        "id": 1527340,
+        "name": "Tradedollar Lake",
+        "class": "Lake",
+        "state": "WA",
+        "latitude": 46.3548385,
+        "longitude": -122.2318106,
+        "elevation": 3583
+    },
+    {
+        "id": 2807191,
+        "name": "Suncrest",
+        "class": "Populated Place",
+        "state": "WA",
+        "latitude": 47.8146716,
+        "longitude": -117.5767474,
+        "elevation": 1847
+    },
+    {
+        "id": 2807192,
+        "name": "Suncrest Census Designated Place",
+        "class": "Census",
+        "state": "WA",
+        "latitude": 47.8296774,
+        "longitude": -117.6055717,
+        "elevation": 1834
+    },
+    {
+        "id": 2813345,
+        "name": "Tehaleh Census Designated Place",
+        "class": "Census",
+        "state": "WA",
+        "latitude": 47.1165067,
+        "longitude": -122.1824493,
+        "elevation": 751
+    }
+]

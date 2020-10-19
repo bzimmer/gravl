@@ -7,11 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"time"
-
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -58,40 +55,42 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// RoundTripperFunc wraps a func to make it into a http.RoundTripper. Similar to http.HandleFunc.
-type RoundTripperFunc func(*http.Request) (*http.Response, error)
+// // WithVerboseLogging .
+// func WithVerboseLogging(debug bool) func(*Client) error {
+// 	return func(client *Client) error {
+// 		if !debug {
+// 			return nil
+// 		}
+// 		transport := client.client.Transport
+// 		if transport == nil {
+// 			transport = http.DefaultTransport
+// 		}
+// 		client.client.Transport = RoundTripperFunc(func(req *http.Request) (*http.Response, error) {
+// 			dump, _ := httputil.DumpRequestOut(req, true)
+// 			log.Debug().Str("req", string(dump)).Msg("sending")
+// 			res, err := transport.RoundTrip(req)
+// 			dump, _ = httputil.DumpResponse(res, true)
+// 			log.Debug().Str("res", string(dump)).Msg("received")
+// 			return res, err
+// 		})
+// 		return nil
+// 	}
+// }
 
-// RoundTrip .
-func (f RoundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
-}
-
-// WithVerboseLogging .
-func WithVerboseLogging(debug bool) func(*Client) error {
-	return func(client *Client) error {
-		if !debug {
-			return nil
+// WithTransport transport
+func WithTransport(transport http.RoundTripper) Option {
+	return func(c *Client) error {
+		if transport != nil {
+			c.client.Transport = transport
 		}
-		transport := client.client.Transport
-		if transport == nil {
-			transport = http.DefaultTransport
-		}
-		client.client.Transport = RoundTripperFunc(func(req *http.Request) (*http.Response, error) {
-			dump, _ := httputil.DumpRequestOut(req, true)
-			log.Debug().Str("req", string(dump)).Msg("sending")
-			res, err := transport.RoundTrip(req)
-			dump, _ = httputil.DumpResponse(res, true)
-			log.Debug().Str("res", string(dump)).Msg("received")
-			return res, err
-		})
 		return nil
 	}
 }
 
 // WithTimeout timeout
 func WithTimeout(timeout time.Duration) func(*Client) error {
-	return func(client *Client) error {
-		client.client.Timeout = timeout
+	return func(c *Client) error {
+		c.client.Timeout = timeout
 		return nil
 	}
 }
@@ -158,10 +157,22 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error
 	}
 	defer res.Body.Close()
 
-	if v != nil {
-		err := json.NewDecoder(res.Body).Decode(v)
+	httpError := res.StatusCode >= http.StatusBadRequest
+
+	var obj interface{}
+	if httpError {
+		obj = &Fault{}
+	} else {
+		obj = v
+	}
+
+	if obj != nil {
+		err := json.NewDecoder(res.Body).Decode(obj)
 		if err == io.EOF {
 			err = nil // ignore EOF errors caused by empty response body
+		}
+		if httpError {
+			return obj.(error)
 		}
 		return err
 	}

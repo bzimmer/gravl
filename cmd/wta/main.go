@@ -143,7 +143,7 @@ func list(ctx *cli.Context) error {
 		return err
 	}
 	b := context.Background()
-	reports := make([]wta.TripReport, 0)
+	reports := make([]*wta.TripReport, 0)
 	for _, arg := range args {
 		tr, err := c.Reports.TripReports(b, arg)
 		if err != nil {

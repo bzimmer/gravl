@@ -35,3 +35,13 @@ func NewClient(opts ...Option) (*Client, error) {
 
 	return c, nil
 }
+
+// WithTransport transport
+func WithTransport(transport http.RoundTripper) Option {
+	return func(c *Client) error {
+		if transport != nil {
+			c.client.Transport = transport
+		}
+		return nil
+	}
+}

@@ -94,3 +94,31 @@ Find the coordinates of `Barlow Pass`:
   "elevation": 2365
 }
 ```
+
+Convert JSON to CSV format:
+
+```sh
+~/Development/src/github.com/bzimmer/wta (master) > wta g WA | jq -r '(map(keys) | add | unique) as $cols | map(. as $row | $cols | map($row[.])) as $rows | $cols, $rows[] | @csv'
+"class","elevation","id","latitude","longitude","name","state"
+"Trail",4396,233358,48.9998552,-120.7999909,"Pacific Crest National Scenic Trail","WA"
+"Gap",2365,1516141,48.0264959,-121.4440005,"Barlow Pass","WA"
+"Summit",6519,1516142,48.5389596,-118.4746347,"Barnaby Buttes","WA"
+"Stream",1286,1516143,48.4340619,-118.2213854,"Barnaby Creek","WA"
+"Swamp",239,1516144,48.4819232,-121.5509587,"Barnaby Slough","WA"
+"Gap",5879,1516145,46.9706672,-121.4431457,"Barnard Saddle","WA"
+"Stream",4288,1516146,48.482379,-119.161427,"Barnell Creek","WA"
+"Flat",4327,1516147,48.4934901,-119.1680941,"Barnell Meadow","WA"
+"Stream",587,1516148,48.0561982,-123.8010323,"Barnes Creek","WA"
+"Cape",584,1516149,48.0611982,-123.7957544,"Barnes Point","WA"
+"Canal",1591,1527333,46.9942924,-120.5103465,"Town Canal","WA"
+"Stream",1467,1527334,47.8073133,-122.9787775,"Townsend Creek","WA"
+"Summit",5938,1527335,47.7987122,-121.392848,"Townsend Mountain","WA"
+"Summit",6266,1527336,47.8673032,-123.0593424,"Mount Townsend","WA"
+"Stream",4741,1527337,48.6765264,-120.6176048,"Tozier Creek","WA"
+"Summit",2090,1527338,45.7504284,-121.3966823,"Tracy Hill","WA"
+"Stream",1759,1527339,46.3798318,-122.2481561,"Tradedollar Creek","WA"
+"Lake",3583,1527340,46.3548385,-122.2318106,"Tradedollar Lake","WA"
+"Populated Place",1847,2807191,47.8146716,-117.5767474,"Suncrest","WA"
+"Census",1834,2807192,47.8296774,-117.6055717,"Suncrest Census Designated Place","WA"
+"Census",751,2813345,47.1165067,-122.1824493,"Tehaleh Census Designated Place","WA"
+```

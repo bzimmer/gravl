@@ -2,6 +2,20 @@ package noaa
 
 import "time"
 
+// Fault .
+type Fault struct {
+	CorrelationID string `json:"correlationId"`
+	Title         string `json:"title"`
+	Type          string `json:"type"`
+	Status        int    `json:"status"`
+	Detail        string `json:"detail"`
+	Instance      string `json:"instance"`
+}
+
+func (f *Fault) Error() string {
+	return f.Detail
+}
+
 // Elevation .
 type Elevation struct {
 	Value    float64 `json:"value"`
