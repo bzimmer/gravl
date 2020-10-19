@@ -1,6 +1,10 @@
 package common
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+	"os"
+)
 
 // RoundTripperFunc wraps a func to make it into a http.RoundTripper. Similar to http.HandleFunc.
 type RoundTripperFunc func(*http.Request) (*http.Response, error)
@@ -8,6 +12,16 @@ type RoundTripperFunc func(*http.Request) (*http.Response, error)
 // RoundTrip .
 func (f RoundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
+}
+
+// NewEncoder .
+func NewEncoder(compact bool) *json.Encoder {
+	encoder := json.NewEncoder(os.Stdout)
+	if !compact {
+		encoder.SetIndent("", " ")
+	}
+	encoder.SetEscapeHTML(false)
+	return encoder
 }
 
 // // WithVerboseLogging .

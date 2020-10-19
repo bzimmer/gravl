@@ -3,16 +3,16 @@
 version: '3'
 
 vars:
-  APP:
-    sh: basename $PWD
+  # APP:
+  #   sh: basename $PWD
+  APP: atk
   DIST: dist
-  MODE: dev
   GO_PACKAGES:
     sh: go list ./...
   VERSION:
     sh: git rev-parse --short HEAD
   LDFLAGS:
-    -ldflags "-X github.com/bzimmer/wta/pkg/wta.BuildVersion={{.VERSION}}"
+    -ldflags "-X github.com/bzimmer/wta/pkg.BuildVersion={{.VERSION}}"
 
 tasks:
   default:
@@ -24,13 +24,22 @@ tasks:
     sources:
       - '**/*.go'
     cmds:
-      - 'go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go'
+      - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} main.go
 
-  run:
+  install:
+    desc: Install {{.APP}}
+    deps: [test]
+    cmds:
+      - task: build
+        vars:
+          DIST:
+            sh: echo $GOPATH/bin
+
+  serve:
     desc: Run the application
     deps: [build]
     cmds:
-      - '{{.DIST}}/{{.APP}} -color serve'
+      - '{{.DIST}}/{{.APP}} serve'
 
   lint:
     desc: Runs golint
@@ -59,12 +68,6 @@ tasks:
     cmds:
       - rm -rf {{.DIST}}
       - rm -rf .task
-
-  install:
-    desc: Install {{.APP}}
-    deps: [test]
-    cmds:
-      - cd cmd/{{.APP}} && go install {{.LDFLAGS}}
 
   docker:
     desc: Create a docker image for {{.APP}}
