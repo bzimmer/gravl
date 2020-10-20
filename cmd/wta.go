@@ -42,9 +42,10 @@ func init() {
 }
 
 var wtaCmd = &cobra.Command{
-	Use:   "wta",
-	Short: "Run wta",
-	Long:  `Run wta`,
+	Use:     "wta",
+	Short:   "Run wta",
+	Long:    `Run wta`,
+	Aliases: []string{"w"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		log.Info().
 			Str("url", "https://www.wta.org/").

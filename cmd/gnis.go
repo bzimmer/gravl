@@ -33,8 +33,9 @@ func init() {
 }
 
 var gnisCmd = &cobra.Command{
-	Use:   "gnis",
-	Short: "Run gnis",
-	Long:  `Run gnis`,
-	RunE:  gnis,
+	Use:     "gnis",
+	Short:   "Run gnis",
+	Long:    `Run gnis`,
+	Aliases: []string{"g"},
+	RunE:    gnis,
 }

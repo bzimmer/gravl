@@ -6,9 +6,10 @@ import (
 	"time"
 
 	"github.com/bzimmer/wta/pkg/common"
+	gn "github.com/bzimmer/wta/pkg/gnis"
 	na "github.com/bzimmer/wta/pkg/noaa"
-
 	"github.com/rs/zerolog/log"
+
 	"github.com/spf13/cobra"
 )
 
@@ -20,42 +21,46 @@ func noaa(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var (
-		// point    *na.GridPoint
-		forecast *na.Forecast
-	)
+	var forecast *na.Forecast
 	switch len(args) {
+	case 0:
+		feature := &gn.Feature{}
+		decoder := common.NewDecoder()
+		err := decoder.Decode(feature)
+		if err != nil {
+			return err
+		}
+		log.Info().Interface("feature", feature).Send()
+		forecast, err = c.Points.Forecast(cmd.Context(), feature.Latitude, feature.Longitude)
 	case 2:
 		lat, err := strconv.ParseFloat(args[0], 64)
 		if err != nil {
-			log.Error().Err(err).Send()
+			return err
 		}
 		lng, err := strconv.ParseFloat(args[1], 64)
 		if err != nil {
-			log.Error().Err(err).Send()
+			return err
 		}
-		// if ctx.IsSet("point") {
-		// 	point, err = c.Points.GridPoint(cmd.Context(), lat, lng)
-		// }
 		forecast, err = c.Points.Forecast(cmd.Context(), lat, lng)
 	case 3:
-		// check for -p and err if true
 		wfo := args[0]
-		x, _ := strconv.Atoi(args[1])
-		y, _ := strconv.Atoi(args[2])
+		x, err := strconv.Atoi(args[1])
+		if err != nil {
+			return err
+		}
+		y, err := strconv.Atoi(args[2])
+		if err != nil {
+			return err
+		}
 		forecast, err = c.GridPoints.Forecast(cmd.Context(), wfo, x, y)
 	default:
-		return fmt.Errorf("only 2 or 3 arguments allowed")
+		return fmt.Errorf("only 2 or 3 arguments allowed [%v]", args)
 	}
 	if err != nil {
 		return err
 	}
 	encoder := common.NewEncoder(compact)
-	// if ctx.IsSet("point") {
-	// 	err = encoder.Encode(point)
-	// } else {
 	err = encoder.Encode(forecast)
-	// }
 	if err != nil {
 		return err
 	}
@@ -67,8 +72,9 @@ func init() {
 }
 
 var noaaCmd = &cobra.Command{
-	Use:   "noaa",
-	Short: "Run noaa",
-	Long:  `Run noaa`,
-	RunE:  noaa,
+	Use:     "noaa",
+	Short:   "Run noaa",
+	Long:    `Run noaa`,
+	Aliases: []string{"n", "f"},
+	RunE:    noaa,
 }

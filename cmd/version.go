@@ -13,9 +13,10 @@ func init() {
 }
 
 var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version number of Hugo",
-	Long:  `All software has versions. This is Hugo's`,
+	Use:     "version",
+	Short:   "Print the version number of Hugo",
+	Long:    `All software has versions. This is Hugo's`,
+	Aliases: []string{"v"},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(`{"version": "` + pkg.BuildVersion + `"}`)
 	},
