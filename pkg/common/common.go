@@ -24,6 +24,12 @@ func NewEncoder(compact bool) *json.Encoder {
 	return encoder
 }
 
+// NewDecoder .
+func NewDecoder() *json.Decoder {
+	decoder := json.NewDecoder(os.Stdin)
+	return decoder
+}
+
 // // WithVerboseLogging .
 // func WithVerboseLogging(debug bool) func(*Client) error {
 // 	return func(client *Client) error {
