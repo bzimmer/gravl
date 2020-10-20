@@ -63,7 +63,7 @@ func Test_unmarshall(t *testing.T) {
 	a.Equal("WA", f.State)
 	a.Equal(-121.4440005, f.Longitude)
 	a.Equal(48.0264959, f.Latitude)
-	a.Equal(2365, f.Elevation)
+	a.Equal(721, f.Elevation)
 }
 
 func Test_readlines(t *testing.T) {
@@ -76,7 +76,6 @@ func Test_readlines(t *testing.T) {
 	features, err := parseFile(filename)
 	a.Nil(err)
 	a.NotNil(features)
-
 	a.Equal(150, len(features))
 
 	var feature *Feature

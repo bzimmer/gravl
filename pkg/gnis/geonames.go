@@ -130,9 +130,8 @@ func unmarshal(line string) (*Feature, error) {
 		case 13: // SOURCE_LAT_DEC
 		case 14: // SOURCE_LONG_DEC
 		case 15: // ELEV_IN_M
-		case 16: // ELEV_IN_FT
 			if s == "" {
-				// not important enough to care about _though_ 0 ft elevation is a legit value -- hmmm
+				// not important enough to care about _though_ 0 m elevation is a legit value -- hmmm
 				continue
 			}
 			x, err := strconv.Atoi(s)
@@ -140,6 +139,7 @@ func unmarshal(line string) (*Feature, error) {
 				return nil, err
 			}
 			f.Elevation = x
+		case 16: // ELEV_IN_FT
 		case 17: // MAP_NAME
 		case 18: // DATE_CREATED
 		case 19: // DATE_EDITED
