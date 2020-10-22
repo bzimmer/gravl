@@ -4,7 +4,6 @@ import (
 	"github.com/bzimmer/wta/pkg/common"
 	gn "github.com/bzimmer/wta/pkg/gnis"
 
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +14,6 @@ func gnis(cmd *cobra.Command, args []string) error {
 	}
 	encoder := common.NewEncoder(compact)
 	for _, arg := range args {
-		log.Info().Str("state", arg)
 		features, err := g.GeoNames.Query(cmd.Context(), arg)
 		if err != nil {
 			return err

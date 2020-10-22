@@ -1,15 +1,15 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/bzimmer/wta/pkg/common"
-	gn "github.com/bzimmer/wta/pkg/gnis"
 	na "github.com/bzimmer/wta/pkg/noaa"
-	"github.com/rs/zerolog/log"
 
+	gj "github.com/paulmach/go.geojson"
 	"github.com/spf13/cobra"
 )
 
@@ -24,14 +24,16 @@ func noaa(cmd *cobra.Command, args []string) error {
 	var forecast *na.Forecast
 	switch len(args) {
 	case 0:
-		feature := &gn.Feature{}
+		geom := &gj.Geometry{}
 		decoder := common.NewDecoder()
-		err := decoder.Decode(feature)
+		err := decoder.Decode(geom)
 		if err != nil {
 			return err
 		}
-		log.Info().Interface("feature", feature).Send()
-		forecast, err = c.Points.Forecast(cmd.Context(), feature.Latitude, feature.Longitude)
+		if !geom.IsPoint() {
+			return errors.New("only Point geometries are supported")
+		}
+		forecast, err = c.Points.Forecast(cmd.Context(), geom.Point[1], geom.Point[0])
 	case 2:
 		lat, err := strconv.ParseFloat(args[0], 64)
 		if err != nil {

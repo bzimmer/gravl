@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	gj "github.com/paulmach/go.geojson"
 	"github.com/rs/zerolog/log"
 )
 
@@ -24,7 +25,7 @@ const (
 type GeoNamesService service
 
 // Query .
-func (s *GeoNamesService) Query(ctx context.Context, state string) ([]*Feature, error) {
+func (s *GeoNamesService) Query(ctx context.Context, state string) (*gj.FeatureCollection, error) {
 	uri := fmt.Sprintf(baseURL, state)
 	res, err := s.client.client.Get(uri)
 	if err != nil {
@@ -54,7 +55,7 @@ func (s *GeoNamesService) Query(ctx context.Context, state string) ([]*Feature, 
 	return parseReader(reader)
 }
 
-func parseFile(filename string) ([]*Feature, error) {
+func parseFile(filename string) (*gj.FeatureCollection, error) {
 	reader, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -63,8 +64,8 @@ func parseFile(filename string) ([]*Feature, error) {
 	return parseReader(reader)
 }
 
-func parseReader(reader io.Reader) ([]*Feature, error) {
-	features := make([]*Feature, 0)
+func parseReader(reader io.Reader) (*gj.FeatureCollection, error) {
+	coll := gj.NewFeatureCollection()
 	scanner := bufio.NewScanner(reader)
 
 	// skip the header row
@@ -77,17 +78,18 @@ func parseReader(reader io.Reader) ([]*Feature, error) {
 		if err != nil {
 			log.Error().Err(err).Str("line", txt).Send()
 		}
-		features = append(features, feature)
+		coll.AddFeature(feature)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
-	return features, nil
+	return coll, nil
 }
 
-func unmarshal(line string) (*Feature, error) {
-	f := &Feature{}
+func unmarshal(line string) (*gj.Feature, error) {
+	f := gj.NewFeature(
+		gj.NewPointGeometry(make([]float64, 3)))
 
 	parts := strings.Split(line, "|")
 	if len(parts) != gnisLength {
@@ -103,11 +105,11 @@ func unmarshal(line string) (*Feature, error) {
 			}
 			f.ID = x
 		case 1: // FEATURE_NAME
-			f.Name = s
+			f.Properties["name"] = s
 		case 2: // FEATURE_CLASS
-			f.Class = s
+			f.Properties["class"] = s
 		case 3: // STATE_ALPHA
-			f.State = s
+			f.Properties["state"] = s
 		case 4: // STATE_NUMERIC
 		case 5: // COUNTY_NAME
 		case 6: // COUNTY_NUMERIC
@@ -118,13 +120,13 @@ func unmarshal(line string) (*Feature, error) {
 			if err != nil {
 				return nil, err
 			}
-			f.Latitude = x
+			f.Geometry.Point[1] = x
 		case 10: // PRIM_LONG_DEC
 			x, err := strconv.ParseFloat(s, 64)
 			if err != nil {
 				return nil, err
 			}
-			f.Longitude = x
+			f.Geometry.Point[0] = x
 		case 11: // SOURCE_LAT_DMS
 		case 12: // SOURCE_LONG_DMS
 		case 13: // SOURCE_LAT_DEC
@@ -134,11 +136,11 @@ func unmarshal(line string) (*Feature, error) {
 				// not important enough to care about _though_ 0 m elevation is a legit value -- hmmm
 				continue
 			}
-			x, err := strconv.Atoi(s)
+			x, err := strconv.ParseFloat(s, 64)
 			if err != nil {
 				return nil, err
 			}
-			f.Elevation = x
+			f.Geometry.Point[2] = x
 		case 16: // ELEV_IN_FT
 		case 17: // MAP_NAME
 		case 18: // DATE_CREATED

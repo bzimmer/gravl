@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	gj "github.com/paulmach/go.geojson"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,12 +59,12 @@ func Test_unmarshall(t *testing.T) {
 	a.NotNil(f)
 
 	a.Equal(1516141, f.ID)
-	a.Equal("Barlow Pass", f.Name)
-	a.Equal("Gap", f.Class)
-	a.Equal("WA", f.State)
-	a.Equal(-121.4440005, f.Longitude)
-	a.Equal(48.0264959, f.Latitude)
-	a.Equal(721, f.Elevation)
+	a.Equal("Barlow Pass", f.Properties["name"])
+	a.Equal("Gap", f.Properties["class"])
+	a.Equal("WA", f.Properties["state"])
+	a.Equal(-121.4440005, f.Geometry.Point[0])
+	a.Equal(48.0264959, f.Geometry.Point[1])
+	a.Equal(721.0, f.Geometry.Point[2])
 }
 
 func Test_readlines(t *testing.T) {
@@ -73,14 +74,14 @@ func Test_readlines(t *testing.T) {
 	dir, _ := os.Getwd()
 	filename := filepath.Join(dir, "../../testdata", "WA_Features_20200901.txt")
 
-	features, err := parseFile(filename)
+	coll, err := parseFile(filename)
 	a.Nil(err)
-	a.NotNil(features)
-	a.Equal(150, len(features))
+	a.NotNil(coll)
+	a.Equal(150, len(coll.Features))
 
-	var feature *Feature
-	for _, f := range features {
-		if f.Name == "The Hump" {
+	var feature *gj.Feature
+	for _, f := range coll.Features {
+		if f.Properties["name"] == "The Hump" {
 			feature = f
 		}
 	}
@@ -102,9 +103,9 @@ func Test_Query(t *testing.T) {
 	a.NotNil(c)
 
 	b := context.Background()
-	features, err := c.GeoNames.Query(b, "WA")
+	coll, err := c.GeoNames.Query(b, "WA")
 	a.NoError(err)
-	a.NotNil(features)
-	a.Equal(150, len(features))
-	a.Equal("Blue Buck Ridge", features[109].Name)
+	a.NotNil(coll)
+	a.Equal(150, len(coll.Features))
+	a.Equal("Blue Buck Ridge", coll.Features[109].Properties["name"])
 }
