@@ -31,6 +31,7 @@ type Client struct {
 	client *http.Client
 
 	Users *UsersService
+	Trips *TripsService
 }
 
 type service struct {
@@ -62,6 +63,7 @@ func NewClient(opts ...Option) (*Client, error) {
 
 	// Services used for talking to RWGPS
 	c.Users = &UsersService{client: c}
+	c.Trips = &TripsService{client: c}
 
 	return c, nil
 }
