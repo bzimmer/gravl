@@ -88,7 +88,7 @@ func WithTransport(transport http.RoundTripper) Option {
 }
 
 // WithTimeout timeout
-func WithTimeout(timeout time.Duration) func(*Client) error {
+func WithTimeout(timeout time.Duration) Option {
 	return func(c *Client) error {
 		c.client.Timeout = timeout
 		return nil
@@ -96,7 +96,7 @@ func WithTimeout(timeout time.Duration) func(*Client) error {
 }
 
 // WithHTTPClient .
-func WithHTTPClient(client *http.Client) func(c *Client) error {
+func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
 		if client != nil {
 			c.client = client
@@ -106,7 +106,7 @@ func WithHTTPClient(client *http.Client) func(c *Client) error {
 }
 
 // WithAccept .
-func WithAccept(accept string) func(c *Client) error {
+func WithAccept(accept string) Option {
 	return func(c *Client) error {
 		if accept != "" {
 			c.header.Set("Accept", accept)

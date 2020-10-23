@@ -1,6 +1,7 @@
 package rwgps
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -16,12 +17,16 @@ import (
 )
 
 const (
-	rwgpsURI  = "https://ridewithgps.com"
-	userAgent = "(github.com/bzimmer/wta/rwgps)"
+	apiVersion = 2
+	rwgpsURI   = "https://ridewithgps.com"
+	userAgent  = "(github.com/bzimmer/wta/rwgps)"
 )
+
+// https://ridewithgps.com/api?lang=en
 
 // Client .
 type Client struct {
+	body   map[string]interface{}
 	header http.Header
 	client *http.Client
 
@@ -40,10 +45,14 @@ func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		client: &http.Client{},
 		header: make(http.Header),
+		body:   make(map[string]interface{}),
 	}
+	// set now, possibly overwritten with options
+	c.body["version"] = apiVersion
 	// set now, possibly overwritten with options
 	c.header.Set("User-Agent", userAgent)
 	c.header.Set("Accept", "application/json")
+	c.header.Set("Content-type", "application/json")
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
@@ -57,8 +66,32 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
+// WithAuthToken .
+func WithAuthToken(authToken string) Option {
+	return func(client *Client) error {
+		client.body["auth_token"] = authToken
+		return nil
+	}
+}
+
+// WithAPIKey .
+func WithAPIKey(apiKey string) Option {
+	return func(client *Client) error {
+		client.body["apikey"] = apiKey
+		return nil
+	}
+}
+
+// WithAPIVersion .
+func WithAPIVersion(version int) Option {
+	return func(client *Client) error {
+		client.body["version"] = version
+		return nil
+	}
+}
+
 // WithVerboseLogging .
-func WithVerboseLogging(debug bool) func(*Client) error {
+func WithVerboseLogging(debug bool) Option {
 	return func(client *Client) error {
 		if !debug {
 			return nil
@@ -90,7 +123,7 @@ func WithTransport(transport http.RoundTripper) Option {
 }
 
 // WithTimeout timeout
-func WithTimeout(timeout time.Duration) func(*Client) error {
+func WithTimeout(timeout time.Duration) Option {
 	return func(c *Client) error {
 		c.client.Timeout = timeout
 		return nil
@@ -98,7 +131,7 @@ func WithTimeout(timeout time.Duration) func(*Client) error {
 }
 
 // WithHTTPClient .
-func WithHTTPClient(client *http.Client) func(c *Client) error {
+func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
 		if client != nil {
 			c.client = client
@@ -108,7 +141,7 @@ func WithHTTPClient(client *http.Client) func(c *Client) error {
 }
 
 // WithAccept .
-func WithAccept(accept string) func(c *Client) error {
+func WithAccept(accept string) Option {
 	return func(c *Client) error {
 		if accept != "" {
 			c.header.Set("Accept", accept)
@@ -117,12 +150,26 @@ func WithAccept(accept string) func(c *Client) error {
 	}
 }
 
+func (c *Client) newBodyReader() (io.Reader, error) {
+	b := &bytes.Buffer{}
+	enc := json.NewEncoder(b)
+	err := enc.Encode(c.body)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewReader(b.Bytes()), nil
+}
+
 func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 	u, err := url.Parse(fmt.Sprintf("%s/%s", rwgpsURI, uri))
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, u.String(), nil)
+	reader, err := c.newBodyReader()
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(method, u.String(), reader)
 	if err != nil {
 		return nil, err
 	}
