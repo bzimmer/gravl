@@ -6,9 +6,9 @@ import (
 
 	"github.com/bzimmer/wta/pkg/common"
 	rw "github.com/bzimmer/wta/pkg/rwgps"
-	"github.com/rs/zerolog"
 
 	gj "github.com/paulmach/go.geojson"
+	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
 
