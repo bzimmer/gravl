@@ -51,11 +51,3 @@ type TripResponse struct {
 	Trip  *Trip  `json:"trip"`
 	Route *Trip  `json:"route"`
 }
-
-func (r *TripResponse) isTrip() bool {
-	return r.Trip != nil
-}
-
-func (r *TripResponse) isRoute() bool {
-	return r.Route != nil
-}

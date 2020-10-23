@@ -12,24 +12,22 @@ import (
 // TripsService .
 type TripsService service
 
-// Route .
-func (s *TripsService) Route(ctx context.Context, routeID int64) (*gj.FeatureCollection, error) {
-	uri := fmt.Sprintf("routes/%d.json", routeID)
-	req, err := s.client.newAPIRequest(http.MethodGet, uri)
-	if err != nil {
-		return nil, err
-	}
-	res := &TripResponse{}
-	err = s.client.Do(ctx, req, res)
-	if err != nil {
-		return nil, err
-	}
-	return newFeatureCollection("route", res.Route)
-}
+const (
+	tripType  = "trip"
+	routeType = "route"
+)
 
 // Trip .
 func (s *TripsService) Trip(ctx context.Context, tripID int64) (*gj.FeatureCollection, error) {
-	uri := fmt.Sprintf("trips/%d.json", tripID)
+	return s.trip(ctx, tripType, fmt.Sprintf("trips/%d.json", tripID))
+}
+
+// Route .
+func (s *TripsService) Route(ctx context.Context, routeID int64) (*gj.FeatureCollection, error) {
+	return s.trip(ctx, routeType, fmt.Sprintf("routes/%d.json", routeID))
+}
+
+func (s *TripsService) trip(ctx context.Context, activity, uri string) (*gj.FeatureCollection, error) {
 	req, err := s.client.newAPIRequest(http.MethodGet, uri)
 	if err != nil {
 		return nil, err
@@ -39,12 +37,20 @@ func (s *TripsService) Trip(ctx context.Context, tripID int64) (*gj.FeatureColle
 	if err != nil {
 		return nil, err
 	}
-	return newFeatureCollection("trip", res.Trip)
+	switch activity {
+	case tripType:
+		return newFeatureCollection(activity, res.Trip)
+	case routeType:
+		return newFeatureCollection(activity, res.Route)
+	}
+	return nil, fmt.Errorf("unknown activity type {%s}", activity)
 }
 
 func newFeatureCollection(activity string, trip *Trip) (*gj.FeatureCollection, error) {
+	fc := gj.NewFeatureCollection()
+
 	if trip == nil {
-		return gj.NewFeatureCollection(), nil
+		return fc, nil
 	}
 
 	coords := make([][]float64, len(trip.TrackPoints))
@@ -61,7 +67,6 @@ func newFeatureCollection(activity string, trip *Trip) (*gj.FeatureCollection, e
 		coords[i] = []float64{tp.Longitude, tp.Latitude, tp.Elevation}
 	}
 
-	fc := gj.NewFeatureCollection()
 	fc.AddFeature(feature)
 	return fc, nil
 }
