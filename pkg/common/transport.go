@@ -44,10 +44,16 @@ type TestDataTransport struct {
 
 // RoundTrip .
 func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	var data []byte
+	var (
+		err  error
+		data []byte
+	)
 	if t.Filename != "" {
 		filename := filepath.Join("testdata", t.Filename)
-		data, _ = ioutil.ReadFile(filename)
+		data, err = ioutil.ReadFile(filename)
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		data = make([]byte, 0)
 	}
