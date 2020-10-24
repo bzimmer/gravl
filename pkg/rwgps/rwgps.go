@@ -8,12 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"time"
 
 	"github.com/bzimmer/wta/pkg/common"
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -70,46 +68,37 @@ func NewClient(opts ...Option) (*Client, error) {
 
 // WithAuthToken .
 func WithAuthToken(authToken string) Option {
-	return func(client *Client) error {
-		client.body["auth_token"] = authToken
+	return func(c *Client) error {
+		c.body["auth_token"] = authToken
 		return nil
 	}
 }
 
 // WithAPIKey .
 func WithAPIKey(apiKey string) Option {
-	return func(client *Client) error {
-		client.body["apikey"] = apiKey
+	return func(c *Client) error {
+		c.body["apikey"] = apiKey
 		return nil
 	}
 }
 
 // WithAPIVersion .
 func WithAPIVersion(version int) Option {
-	return func(client *Client) error {
-		client.body["version"] = version
+	return func(c *Client) error {
+		c.body["version"] = version
 		return nil
 	}
 }
 
 // WithVerboseLogging .
 func WithVerboseLogging(debug bool) Option {
-	return func(client *Client) error {
+	return func(c *Client) error {
 		if !debug {
 			return nil
 		}
-		transport := client.client.Transport
-		if transport == nil {
-			transport = http.DefaultTransport
+		c.client.Transport = &common.VerboseTransport{
+			Transport: c.client.Transport,
 		}
-		client.client.Transport = common.RoundTripperFunc(func(req *http.Request) (*http.Response, error) {
-			dump, _ := httputil.DumpRequestOut(req, true)
-			log.Debug().Str("req", string(dump)).Msg("sending")
-			res, err := transport.RoundTrip(req)
-			dump, _ = httputil.DumpResponse(res, true)
-			log.Debug().Str("res", string(dump)).Msg("received")
-			return res, err
-		})
 		return nil
 	}
 }

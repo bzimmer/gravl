@@ -1,51 +1,27 @@
 package wta
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"sort"
 	"testing"
 
+	"github.com/bzimmer/wta/pkg/common"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
-type TestDataTransport struct {
-	status   int
-	filename string
-}
-
-func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	var data []byte
-	if t.filename != "" {
-		filename := "testdata/" + t.filename
-		data, _ = ioutil.ReadFile(filename)
-	} else {
-		data = make([]byte, 0)
-	}
-
-	header := make(http.Header)
-	header.Add("content-type", "text/html; charset=utf-8")
-
-	return &http.Response{
-		StatusCode:    t.status,
-		ContentLength: int64(len(data)),
-		Body:          ioutil.NopCloser(bytes.NewBuffer(data)),
-		Header:        header,
-		Request:       req,
-	}, nil
-}
-
 func newClient(status int, filename string) (*Client, error) {
 	return NewClient(
-		WithTransport(&TestDataTransport{
-			status:   status,
-			filename: filename,
-		}))
+		WithTransport(&common.TestDataTransport{
+			Status:      status,
+			Filename:    filename,
+			ContentType: "text/html; charset=utf-8",
+		}),
+	)
 }
 
 func newTestRouter(c *Client) *gin.Engine {

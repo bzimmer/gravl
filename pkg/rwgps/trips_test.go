@@ -1,48 +1,24 @@
-package rwgps
+package rwgps_test
 
 import (
-	"bytes"
 	"context"
-	"io/ioutil"
 	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bzimmer/wta/pkg/common"
+	rw "github.com/bzimmer/wta/pkg/rwgps"
 )
 
-type TestDataTransport struct {
-	status      int
-	filename    string
-	contentType string
-}
-
-func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	var data []byte
-	if t.filename != "" {
-		data, _ = ioutil.ReadFile("testdata/" + t.filename)
-	} else {
-		data = make([]byte, 0)
-	}
-
-	header := make(http.Header)
-	header.Add("Content-Type", t.contentType)
-
-	return &http.Response{
-		StatusCode:    t.status,
-		ContentLength: int64(len(data)),
-		Body:          ioutil.NopCloser(bytes.NewBuffer(data)),
-		Header:        header,
-		Request:       req,
-	}, nil
-}
-
-func newClient(status int, filename string) (*Client, error) {
-	return NewClient(
-		WithTransport(&TestDataTransport{
-			status:      status,
-			filename:    filename,
-			contentType: "application/json",
-		}))
+func newClient(status int, filename string) (*rw.Client, error) {
+	return rw.NewClient(
+		rw.WithTransport(&common.TestDataTransport{
+			Status:      status,
+			Filename:    filename,
+			ContentType: "application/json",
+		}),
+	)
 }
 
 func Test_Trip(t *testing.T) {

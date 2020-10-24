@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/bzimmer/wta/pkg/common"
 )
 
 const (
@@ -55,27 +57,18 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// // WithVerboseLogging .
-// func WithVerboseLogging(debug bool) func(*Client) error {
-// 	return func(client *Client) error {
-// 		if !debug {
-// 			return nil
-// 		}
-// 		transport := client.client.Transport
-// 		if transport == nil {
-// 			transport = http.DefaultTransport
-// 		}
-// 		client.client.Transport = RoundTripperFunc(func(req *http.Request) (*http.Response, error) {
-// 			dump, _ := httputil.DumpRequestOut(req, true)
-// 			log.Debug().Str("req", string(dump)).Msg("sending")
-// 			res, err := transport.RoundTrip(req)
-// 			dump, _ = httputil.DumpResponse(res, true)
-// 			log.Debug().Str("res", string(dump)).Msg("received")
-// 			return res, err
-// 		})
-// 		return nil
-// 	}
-// }
+// WithVerboseLogging .
+func WithVerboseLogging(debug bool) Option {
+	return func(c *Client) error {
+		if !debug {
+			return nil
+		}
+		c.client.Transport = &common.VerboseTransport{
+			Transport: c.client.Transport,
+		}
+		return nil
+	}
+}
 
 // WithTransport transport
 func WithTransport(transport http.RoundTripper) Option {
