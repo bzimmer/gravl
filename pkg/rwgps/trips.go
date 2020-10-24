@@ -37,13 +37,17 @@ func (s *TripsService) trip(ctx context.Context, activity, uri string) (*gj.Feat
 	if err != nil {
 		return nil, err
 	}
+
+	var t *Trip
 	switch activity {
 	case tripType:
-		return newFeatureCollection(activity, res.Trip)
+		t = res.Trip
 	case routeType:
-		return newFeatureCollection(activity, res.Route)
+		t = res.Route
+	default:
+		return nil, fmt.Errorf("unknown activity type {%s}", activity)
 	}
-	return nil, fmt.Errorf("unknown activity type {%s}", activity)
+	return newFeatureCollection(activity, t)
 }
 
 func newFeatureCollection(activity string, trip *Trip) (*gj.FeatureCollection, error) {
