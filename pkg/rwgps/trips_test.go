@@ -5,8 +5,6 @@ import (
 	"context"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,9 +19,7 @@ type TestDataTransport struct {
 func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	var data []byte
 	if t.filename != "" {
-		dir, _ := os.Getwd()
-		filename := filepath.Join(dir, "../../testdata", t.filename)
-		data, _ = ioutil.ReadFile(filename)
+		data, _ = ioutil.ReadFile("testdata/" + t.filename)
 	} else {
 		data = make([]byte, 0)
 	}

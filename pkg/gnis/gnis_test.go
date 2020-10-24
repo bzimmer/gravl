@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 	"testing"
 
 	gj "github.com/paulmach/go.geojson"
@@ -20,15 +19,14 @@ type ZipArchiveTransport struct {
 	filename string
 }
 
-func (ar *ZipArchiveTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	dir, _ := os.Getwd()
-	filename := filepath.Join(dir, "../../testdata", ar.filename)
+func (t *ZipArchiveTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	filename := "testdata/" + t.filename
 
 	// create the zipfile
 	w := &bytes.Buffer{}
 	z := zip.NewWriter(w)
 	// create the header
-	f, err := z.Create(ar.filename)
+	f, err := z.Create(t.filename)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +40,7 @@ func (ar *ZipArchiveTransport) RoundTrip(req *http.Request) (*http.Response, err
 	z.Close()
 
 	return &http.Response{
-		StatusCode: ar.status,
+		StatusCode: t.status,
 		Body:       ioutil.NopCloser(bytes.NewBuffer(w.Bytes())),
 		Header:     make(http.Header),
 	}, nil
@@ -71,10 +69,7 @@ func Test_readlines(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	dir, _ := os.Getwd()
-	filename := filepath.Join(dir, "../../testdata", "WA_Features_20200901.txt")
-
-	coll, err := parseFile(filename)
+	coll, err := parseFile("testdata/WA_Features_20200901.txt")
 	a.Nil(err)
 	a.NotNil(coll)
 	a.Equal(150, len(coll.Features))

@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"sort"
 	"testing"
 
@@ -21,11 +19,10 @@ type TestDataTransport struct {
 	filename string
 }
 
-func (r *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	var data []byte
-	if r.filename != "" {
-		dir, _ := os.Getwd()
-		filename := filepath.Join(dir, "../../testdata", r.filename)
+	if t.filename != "" {
+		filename := "testdata/" + t.filename
 		data, _ = ioutil.ReadFile(filename)
 	} else {
 		data = make([]byte, 0)
@@ -35,7 +32,7 @@ func (r *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	header.Add("content-type", "text/html; charset=utf-8")
 
 	return &http.Response{
-		StatusCode:    r.status,
+		StatusCode:    t.status,
 		ContentLength: int64(len(data)),
 		Body:          ioutil.NopCloser(bytes.NewBuffer(data)),
 		Header:        header,

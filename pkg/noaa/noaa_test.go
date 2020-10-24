@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -17,21 +15,19 @@ type TestDataTransport struct {
 	filename string
 }
 
-func (r *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	var data []byte
-	if r.filename != "" {
-		dir, _ := os.Getwd()
-		filename := filepath.Join(dir, "../../testdata", r.filename)
-		data, _ = ioutil.ReadFile(filename)
+	if t.filename != "" {
+		data, _ = ioutil.ReadFile("testdata/" + t.filename)
 	} else {
 		data = make([]byte, 0)
 	}
 
 	header := make(http.Header)
-	header.Add("content-type", "text/html; charset=utf-8")
+	header.Add("Content-Type", "application/json")
 
 	return &http.Response{
-		StatusCode:    r.status,
+		StatusCode:    t.status,
 		ContentLength: int64(len(data)),
 		Body:          ioutil.NopCloser(bytes.NewBuffer(data)),
 		Header:        header,
