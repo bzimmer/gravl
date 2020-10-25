@@ -84,7 +84,7 @@ func WithAPIKey(apiKey string) Option {
 // WithAPIVersion .
 func WithAPIVersion(version int) Option {
 	return func(c *Client) error {
-		c.body["version"] = version
+		c.body["version"] = fmt.Sprintf("%d", version)
 		return nil
 	}
 }

@@ -9,6 +9,14 @@ import (
 	rw "github.com/bzimmer/wta/pkg/rwgps"
 )
 
+var (
+	tests = map[string]string{
+		"apikey":     "fooKey",
+		"version":    "2",
+		"auth_token": "barToken",
+	}
+)
+
 func newClient(status int, filename string) (*rw.Client, error) {
 	return rw.NewClient(
 		rw.WithTransport(&common.TestDataTransport{
@@ -22,11 +30,12 @@ func newClient(status int, filename string) (*rw.Client, error) {
 				if err != nil {
 					return err
 				}
-				if body["auth_token"] != "barToken" {
-					return fmt.Errorf("expected authToke == 'barToken', not '%s'", body["auth_token"])
-				}
-				if body["apikey"] != "fooKey" {
-					return fmt.Errorf("expected authToke == 'fooKey', not '%s'", body["apikey"])
+				// confirm the body has the expected key:value pairs
+				for key, value := range tests {
+					v := body[key]
+					if v != value {
+						return fmt.Errorf("expected %s == '%v', not '%v'", key, value, v)
+					}
 				}
 				return nil
 			},
