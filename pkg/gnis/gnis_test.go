@@ -40,10 +40,14 @@ func (t *ZipArchiveTransport) RoundTrip(req *http.Request) (*http.Response, erro
 	// flush everything
 	z.Close()
 
+	header := make(http.Header)
+	header.Add("Content-Type", "text/plain")
+	header.Add("Content-Encoding", "gzip")
+
 	return &http.Response{
 		StatusCode: t.status,
 		Body:       ioutil.NopCloser(bytes.NewBuffer(w.Bytes())),
-		Header:     make(http.Header),
+		Header:     header,
 	}, nil
 }
 
