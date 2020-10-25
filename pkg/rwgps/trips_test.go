@@ -6,20 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/bzimmer/wta/pkg/common"
-	rw "github.com/bzimmer/wta/pkg/rwgps"
 )
-
-func newClient(status int, filename string) (*rw.Client, error) {
-	return rw.NewClient(
-		rw.WithTransport(&common.TestDataTransport{
-			Status:      status,
-			Filename:    filename,
-			ContentType: "application/json",
-		}),
-	)
-}
 
 func Test_Trip(t *testing.T) {
 	t.Parallel()

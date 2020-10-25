@@ -2,22 +2,23 @@ package rwgps
 
 import (
 	"context"
+	"net/http"
 )
 
 // UsersService .
 type UsersService service
 
 // AuthenticatedUser .
-func (UsersService) AuthenticatedUser(ctx context.Context) (*User, error) {
-	return nil, nil
+func (s *UsersService) AuthenticatedUser(ctx context.Context) (*User, error) {
+	uri := "users/current.json"
+	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	if err != nil {
+		return nil, err
+	}
+	res := &UserResponse{}
+	err = s.client.Do(ctx, req, res)
+	if err != nil {
+		return nil, err
+	}
+	return res.User, err
 }
-
-// // Routes .
-// func (s *TripsService) Routes(ctx context.Context, userID int64, page *Paginator) error {
-// 	return nil
-// }
-
-// // Trips .
-// func (s *TripsService) Trips(ctx context.Context, userID int64, page *Paginator) error {
-// 	return nil
-// }

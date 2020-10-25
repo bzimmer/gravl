@@ -40,6 +40,7 @@ type TestDataTransport struct {
 	Status      int
 	Filename    string
 	ContentType string
+	RequestFunc func(*http.Request) error
 }
 
 // RoundTrip .
@@ -48,6 +49,12 @@ func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error)
 		err  error
 		data []byte
 	)
+	if t.RequestFunc != nil {
+		err = t.RequestFunc(req)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if t.Filename != "" {
 		filename := filepath.Join("testdata", t.Filename)
 		data, err = ioutil.ReadFile(filename)

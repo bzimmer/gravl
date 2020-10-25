@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/bzimmer/wta/pkg/common"
 )
@@ -109,14 +108,6 @@ func WithTransport(transport http.RoundTripper) Option {
 		if transport != nil {
 			c.client.Transport = transport
 		}
-		return nil
-	}
-}
-
-// WithTimeout timeout
-func WithTimeout(timeout time.Duration) Option {
-	return func(c *Client) error {
-		c.client.Timeout = timeout
 		return nil
 	}
 }

@@ -15,6 +15,7 @@ import (
 var (
 	trip      bool
 	route     bool
+	user      bool
 	apiKey    string
 	authToken string
 )
@@ -24,10 +25,6 @@ func rwgps(cmd *cobra.Command, args []string) error {
 		err error
 		tr  *gj.FeatureCollection
 	)
-	// nothing to query
-	if len(args) == 0 {
-		return nil
-	}
 	lvl, err := zerolog.ParseLevel(verbosity)
 	if err != nil {
 		return err
@@ -41,6 +38,17 @@ func rwgps(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	encoder := common.NewEncoder(compact)
+	if user {
+		user, err := c.Users.AuthenticatedUser(cmd.Context())
+		if err != nil {
+			return err
+		}
+		err = encoder.Encode(user)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	for _, arg := range args {
 		x, err := strconv.ParseInt(arg, 0, 0)
 		if err != nil {
@@ -69,6 +77,7 @@ func init() {
 
 	rwgpsCmd.Flags().BoolVarP(&trip, "trip", "t", false, "Trip")
 	rwgpsCmd.Flags().BoolVarP(&route, "route", "r", false, "Route")
+	rwgpsCmd.Flags().BoolVarP(&user, "user", "u", false, "User")
 }
 
 var rwgpsCmd = &cobra.Command{
@@ -78,9 +87,6 @@ var rwgpsCmd = &cobra.Command{
 	Aliases: []string{"r"},
 	RunE:    rwgps,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if !(trip || route) {
-			return errors.New("one of trip or route must chosen")
-		}
 		if trip && route {
 			return errors.New("only one of trip or route allowed")
 		}

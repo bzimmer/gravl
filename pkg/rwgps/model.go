@@ -17,6 +17,7 @@ type UserResponse struct {
 type User struct {
 	AuthToken string `json:"auth_token"`
 	ID        int64  `json:"id"`
+	Name      string `json:"name"`
 }
 
 // TrackPoint .
