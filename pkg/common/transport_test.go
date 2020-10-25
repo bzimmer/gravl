@@ -16,7 +16,7 @@ func Test_VerboseTransport(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	tests := []*common.VerboseTransport{
+	tests := []http.RoundTripper{
 		&common.VerboseTransport{
 			Transport: &common.TestDataTransport{
 				Filename:    "transport.txt",
