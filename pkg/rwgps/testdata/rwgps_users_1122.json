@@ -1,0 +1,393 @@
+{
+    "user": {
+        "id": 1122,
+        "first_name": "Some",
+        "last_name": "One",
+        "email": "someone@hotmail.com",
+        "created_at": "2008-07-17T17:06:38-07:00",
+        "self_membership_id": 1877,
+        "description": "",
+        "interests": "",
+        "email_visible": false,
+        "last_login_at": "2020-10-25T02:33:58Z",
+        "total_route_distance": 55432.3,
+        "metric_units": false,
+        "hr_max": null,
+        "hr_rest": null,
+        "hr_zone_1_low": null,
+        "hr_zone_1_high": null,
+        "hr_zone_2_low": null,
+        "hr_zone_2_high": null,
+        "hr_zone_3_low": null,
+        "hr_zone_3_high": null,
+        "hr_zone_4_low": null,
+        "hr_zone_4_high": null,
+        "hr_zone_5_low": null,
+        "hr_zone_5_high": null,
+        "is_male": null,
+        "weight": null,
+        "vo2max": null,
+        "num_unread_messages": 0,
+        "lat": 48.60224151611328,
+        "lng": -121.50284576416016,
+        "display_name": "someone",
+        "locality": "Somewhere",
+        "administrative_area": "MT",
+        "postal_code": "00000",
+        "country_code": "US",
+        "email_on_message": true,
+        "email_on_comment": true,
+        "email_on_update": true,
+        "visibility": 0,
+        "time_zone": "Pacific Time (US & Canada)",
+        "facebook_id": null,
+        "account_level": 2,
+        "weeks_start_on": 1,
+        "email_bounce_count": 0,
+        "trips_included_in_totals_count": 494,
+        "site_id": 1,
+        "dob": null,
+        "deactivated": 0,
+        "updated_at": "2020-10-24T19:33:58-07:00",
+        "deactivated_at": null,
+        "locale": "en",
+        "heatmap_optout": false,
+        "name": "someone",
+        "age": null,
+        "privileges": [
+            "printing",
+            "maintenance",
+            "turn_warnings",
+            "navigate",
+            "livelog",
+            "offline",
+            "fit_export",
+            "add_poi",
+            "privacy_zones",
+            "estimated_time",
+            "user_backups",
+            "mobile_planner",
+            "training",
+            "laps",
+            "segments",
+            "garmin_write",
+            "power",
+            "join_rides",
+            "activity_center",
+            "splits",
+            "extra_histograms",
+            "route_management",
+            "advanced_planning",
+            "ride_cleanup",
+            "stationary_trips",
+            "upload_trip",
+            "upload_route"
+        ],
+        "highlighted_photo_id": 83690789,
+        "preferences": {
+            "profile_selected_tab": "trips",
+            "metric_units": false,
+            "facebook": {
+                "notify_on_activity": false,
+                "notify_on_route": false
+            },
+            "route_planner_left_sidebar_closed": false,
+            "route_viewer_active_tab": "overview",
+            "S2D:skipInstallPrompt": true,
+            "route_viewer_active_subtab": "export",
+            "feeds_default_tab": "my_friends",
+            "planner-onboarding-dismissed": true,
+            "profile_default_tab": "activity_preview",
+            "lng": -121.503,
+            "default_privacy_trip": 1,
+            "smart_export_state": "file_download",
+            "route_export_advanced_turn_notification_checked": false,
+            "smart_export_file_format": "fit",
+            "calendar_show_hr": false,
+            "show_dash_mini_onboarding": false,
+            "show_dash_onboarding_overlay": false,
+            "default_career_interval": "year",
+            "show_dash_trial_notice": false,
+            "route_viewer_enable_distance_markers": true,
+            "show_dash_expiring_trial_notice": false,
+            "route_planner_directions_type": "cycling",
+            "planner_overlay": "roadmap",
+            "routes_grid_height": "799",
+            "trsp_notice_dismissed": true,
+            "receive_segment_notifications": false,
+            "hide_zendesk_button": false,
+            "date_format": "ymd",
+            "default_gear_id": "247950",
+            "dashboard_home": "",
+            "segments_private": false,
+            "default_privacy_route": 2,
+            "route_planner_right_sidebar_closed": true,
+            "print.include_poi": true,
+            "collapse_user_dashboard": false,
+            "global_notification_dismissed": 1591893087,
+            "rr-onboarding-dismissed": true,
+            "heatmap_overlay": false
+        },
+        "gear": [
+            {
+                "id": 3066,
+                "make": "Nice",
+                "model": "Bike",
+                "year": null,
+                "description": "Like it",
+                "group_membership_id": 877,
+                "gear_type_id": null,
+                "gear_model_id": 305,
+                "created_at": "2010-01-05T00:00:00-08:00",
+                "exclude_from_totals": false,
+                "nickname": null,
+                "serial_number": null,
+                "weight": null,
+                "visibility": 0,
+                "archived": false,
+                "use_user_timezone": false,
+                "project_529_id": null,
+                "name": "Nice Bike"
+            },
+            {
+                "id": 2479050,
+                "make": "Nicer",
+                "model": "Bike",
+                "year": 2019,
+                "description": "Love it",
+                "group_membership_id": 877,
+                "gear_type_id": null,
+                "gear_model_id": 32519,
+                "created_at": "2020-06-05T11:32:49-07:00",
+                "exclude_from_totals": false,
+                "nickname": "Nicer Bike",
+                "serial_number": "",
+                "weight": 10.8862,
+                "visibility": 1,
+                "archived": false,
+                "use_user_timezone": false,
+                "project_529_id": null,
+                "name": "Nicer Bike"
+            }
+        ],
+        "unseen_updates": [
+            {
+                "key": "friends_feed",
+                "count": 1
+            }
+        ],
+        "push_applications": [],
+        "relevant_goal_participants": [
+            {
+                "id": 17734,
+                "goal_params": {
+                    "percent": 1.266354086590954,
+                    "progress_text": "127%",
+                    "trailer": "4432.2 mi"
+                },
+                "status": 1,
+                "amount_completed": 7132980,
+                "rank": 1,
+                "user": {
+                    "id": 836,
+                    "highlighted_photo_id": 8369789,
+                    "name": "someone"
+                },
+                "goal": {
+                    "id": 1544320,
+                    "name": "Annual Cycling Goal",
+                    "description": "",
+                    "icon": "/images/goal_icons/distance_standard.png",
+                    "icon_small": "/images/goal_icons/distance_small.png",
+                    "user": {
+                        "id": 836,
+                        "created_at": "2009-07-17T17:06:38-07:00",
+                        "lat": 48.60224151611328,
+                        "lng": -121.50284576416016,
+                        "locality": "Somewhere",
+                        "administrative_area": "MT",
+                        "account_level": 2,
+                        "highlighted_photo_id": 8369789,
+                        "highlighted_photo_checksum": "24dab314a1aee@@915fceeff5253913",
+                        "age": null,
+                        "name": "someone"
+                    }
+                },
+                "is_admin": true
+            }
+        ],
+        "club_ids": [
+            89,
+            2
+        ],
+        "slim_favorites": [
+            {
+                "id": 382923,
+                "associated_object_type": "route",
+                "associated_object_id": 3381098
+            },
+            {
+                "id": 382927,
+                "associated_object_type": "route",
+                "associated_object_id": 3388523
+            },
+            {
+                "id": 471552,
+                "associated_object_type": "route",
+                "associated_object_id": 34315
+            }
+        ],
+        "has_events": false,
+        "needs_password_reset": false,
+        "eligible_for_onetime_trial": false,
+        "is_shadow_user": false,
+        "auth_token": "this-is-an-auth-token",
+        "user_summary": {
+            "0": [
+                26.342632923071687,
+                7701
+            ],
+            "1": [
+                23.402284721940347,
+                4694
+            ],
+            "2": [
+                21.11867416283463,
+                3358
+            ],
+            "3": [
+                19.03785750862041,
+                3202
+            ],
+            "4": [
+                17.770274073095216,
+                3050
+            ],
+            "5": [
+                16.97637685611111,
+                2065
+            ],
+            "6": [
+                15.941397126793152,
+                1792
+            ],
+            "7": [
+                14.943641490750274,
+                1310
+            ],
+            "8": [
+                13.995611560488879,
+                1225
+            ],
+            "9": [
+                12.560261263030256,
+                864
+            ],
+            "10": [
+                11.104864000894624,
+                860
+            ],
+            "11": [
+                10.984689397517748,
+                618
+            ],
+            "12": [
+                11.204005440381598,
+                222
+            ],
+            "13": [
+                9.718892061026809,
+                102
+            ],
+            "14": [
+                10.019076388239686,
+                115
+            ],
+            "15": [
+                9.44269971076297,
+                205
+            ],
+            "-15": [
+                22.537171999007136,
+                66
+            ],
+            "-14": [
+                26.152364767595458,
+                40
+            ],
+            "-13": [
+                27.540610980295625,
+                75
+            ],
+            "-12": [
+                28.898106306762692,
+                100
+            ],
+            "-11": [
+                35.128925748829865,
+                167
+            ],
+            "-10": [
+                40.99064350466381,
+                269
+            ],
+            "-9": [
+                41.044620521837196,
+                294
+            ],
+            "-8": [
+                37.02160740388819,
+                370
+            ],
+            "-7": [
+                37.78113969781121,
+                543
+            ],
+            "-6": [
+                35.65128240709827,
+                810
+            ],
+            "-5": [
+                32.88109614954227,
+                1113
+            ],
+            "-4": [
+                31.482531003945784,
+                1585
+            ],
+            "-3": [
+                29.34111496537958,
+                1987
+            ],
+            "-2": [
+                28.514298965355444,
+                2527
+            ],
+            "-1": [
+                26.96036927928879,
+                3935
+            ]
+        }
+    },
+    "labs": {
+        "fit_export": true,
+        "rsp_redesign": true,
+        "homepage_redesign": true,
+        "pinned_in_searchbar": true,
+        "smart_export": true,
+        "mobile_home_redesign": true,
+        "can_see_homepage_opt_in": true,
+        "strava_sync": true,
+        "relive_sync": true,
+        "trsp_redesign": true,
+        "varia": true,
+        "route_planner": true
+    },
+    "additional_drawer_items": [
+        {
+            "name": "Organizations",
+            "icon": "ic_menu_clubs",
+            "target": "rwgps://app/user/organizations"
+        }
+    ]
+}

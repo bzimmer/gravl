@@ -1,4 +1,4 @@
-package noaa
+package noaa_test
 
 import (
 	"context"

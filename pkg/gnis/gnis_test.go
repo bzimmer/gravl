@@ -1,4 +1,4 @@
-package gnis
+package gnis_test
 
 import (
 	"archive/zip"
@@ -8,10 +8,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 	"testing"
 
-	gj "github.com/paulmach/go.geojson"
+	gn "github.com/bzimmer/wta/pkg/gnis"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,15 +20,14 @@ type ZipArchiveTransport struct {
 	filename string
 }
 
-func (ar *ZipArchiveTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	dir, _ := os.Getwd()
-	filename := filepath.Join(dir, "../../testdata", ar.filename)
+func (t *ZipArchiveTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	filename := "testdata/" + t.filename
 
 	// create the zipfile
 	w := &bytes.Buffer{}
 	z := zip.NewWriter(w)
 	// create the header
-	f, err := z.Create(ar.filename)
+	f, err := z.Create(t.filename)
 	if err != nil {
 		return nil, err
 	}
@@ -41,60 +40,23 @@ func (ar *ZipArchiveTransport) RoundTrip(req *http.Request) (*http.Response, err
 	// flush everything
 	z.Close()
 
+	header := make(http.Header)
+	header.Add("Content-Type", "text/plain")
+	header.Add("Content-Encoding", "gzip")
+
 	return &http.Response{
-		StatusCode: ar.status,
+		StatusCode: t.status,
 		Body:       ioutil.NopCloser(bytes.NewBuffer(w.Bytes())),
-		Header:     make(http.Header),
+		Header:     header,
 	}, nil
-}
-
-func Test_unmarshall(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-
-	line := "1516141|Barlow Pass|Gap|WA|53|Snohomish|061|480135N|1212638W|48.0264959|-121.4440005|||||721|2365|Bedal|09/10/1979|"
-
-	f, err := unmarshal(line)
-	a.Nil(err)
-	a.NotNil(f)
-
-	a.Equal(1516141, f.ID)
-	a.Equal("Barlow Pass", f.Properties["name"])
-	a.Equal("Gap", f.Properties["class"])
-	a.Equal("WA", f.Properties["state"])
-	a.Equal(-121.4440005, f.Geometry.Point[0])
-	a.Equal(48.0264959, f.Geometry.Point[1])
-	a.Equal(721.0, f.Geometry.Point[2])
-}
-
-func Test_readlines(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-
-	dir, _ := os.Getwd()
-	filename := filepath.Join(dir, "../../testdata", "WA_Features_20200901.txt")
-
-	coll, err := parseFile(filename)
-	a.Nil(err)
-	a.NotNil(coll)
-	a.Equal(150, len(coll.Features))
-
-	var feature *gj.Feature
-	for _, f := range coll.Features {
-		if f.Properties["name"] == "The Hump" {
-			feature = f
-		}
-	}
-	a.NotNil(feature)
-	a.Equal(1527040, feature.ID)
 }
 
 func Test_Query(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	c, err := NewClient(
-		WithTransport(&ZipArchiveTransport{
+	c, err := gn.NewClient(
+		gn.WithTransport(&ZipArchiveTransport{
 			status:   http.StatusOK,
 			filename: "WA_Features_20200901.txt",
 		}),

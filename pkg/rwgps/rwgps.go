@@ -1,6 +1,7 @@
-package noaa
+package rwgps
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -8,23 +9,26 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/bzimmer/wta/pkg/common"
 )
 
 const (
-	noaaURI   = "https://api.weather.gov"
-	userAgent = "(github.com/bzimmer/wta/noaa, bzimmer@ziclix.com)"
+	apiVersion = 2
+	rwgpsURI   = "https://ridewithgps.com"
+	userAgent  = "(github.com/bzimmer/wta/rwgps)"
 )
+
+// https://ridewithgps.com/api?lang=en
 
 // Client .
 type Client struct {
+	body   map[string]interface{}
 	header http.Header
 	client *http.Client
 
-	Points     *PointsService
-	GridPoints *GridPointsService
+	Users *UsersService
+	Trips *TripsService
 }
 
 type service struct {
@@ -39,10 +43,14 @@ func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		client: &http.Client{},
 		header: make(http.Header),
+		body:   make(map[string]interface{}),
 	}
 	// set now, possibly overwritten with options
+	c.body["version"] = apiVersion
+	// set now, possibly overwritten with options
 	c.header.Set("User-Agent", userAgent)
-	c.header.Set("Accept", "application/geo+json")
+	c.header.Set("Accept", "application/json")
+	c.header.Set("Content-type", "application/json")
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
@@ -50,11 +58,35 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for talking to NOAA
-	c.Points = &PointsService{client: c}
-	c.GridPoints = &GridPointsService{client: c}
+	// Services used for talking to RWGPS
+	c.Users = &UsersService{client: c}
+	c.Trips = &TripsService{client: c}
 
 	return c, nil
+}
+
+// WithAuthToken .
+func WithAuthToken(authToken string) Option {
+	return func(c *Client) error {
+		c.body["auth_token"] = authToken
+		return nil
+	}
+}
+
+// WithAPIKey .
+func WithAPIKey(apiKey string) Option {
+	return func(c *Client) error {
+		c.body["apikey"] = apiKey
+		return nil
+	}
+}
+
+// WithAPIVersion .
+func WithAPIVersion(version int) Option {
+	return func(c *Client) error {
+		c.body["version"] = fmt.Sprintf("%d", version)
+		return nil
+	}
 }
 
 // WithVerboseLogging .
@@ -80,14 +112,6 @@ func WithTransport(transport http.RoundTripper) Option {
 	}
 }
 
-// WithTimeout timeout
-func WithTimeout(timeout time.Duration) Option {
-	return func(c *Client) error {
-		c.client.Timeout = timeout
-		return nil
-	}
-}
-
 // WithHTTPClient .
 func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
@@ -108,12 +132,26 @@ func WithAccept(accept string) Option {
 	}
 }
 
-func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
-	u, err := url.Parse(fmt.Sprintf("%s/%s", noaaURI, uri))
+func (c *Client) newBodyReader() (io.Reader, error) {
+	b := &bytes.Buffer{}
+	enc := json.NewEncoder(b)
+	err := enc.Encode(c.body)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, u.String(), nil)
+	return bytes.NewReader(b.Bytes()), nil
+}
+
+func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
+	u, err := url.Parse(fmt.Sprintf("%s/%s", rwgpsURI, uri))
+	if err != nil {
+		return nil, err
+	}
+	reader, err := c.newBodyReader()
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(method, u.String(), reader)
 	if err != nil {
 		return nil, err
 	}
@@ -150,22 +188,10 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error
 	}
 	defer res.Body.Close()
 
-	httpError := res.StatusCode >= http.StatusBadRequest
-
-	var obj interface{}
-	if httpError {
-		obj = &Fault{}
-	} else {
-		obj = v
-	}
-
-	if obj != nil {
-		err := json.NewDecoder(res.Body).Decode(obj)
+	if v != nil {
+		err := json.NewDecoder(res.Body).Decode(v)
 		if err == io.EOF {
 			err = nil // ignore EOF errors caused by empty response body
-		}
-		if httpError {
-			return obj.(error)
 		}
 		return err
 	}

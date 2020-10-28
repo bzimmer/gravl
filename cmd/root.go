@@ -94,7 +94,7 @@ func initConfig(cmd *cobra.Command) error {
 
 	if config != "" {
 		// Use config file from the flag
-		viper.SetConfigFile(config)
+		v.SetConfigFile(config)
 	} else {
 		home, err := homedir.Dir()
 		if err != nil {
@@ -110,11 +110,12 @@ func initConfig(cmd *cobra.Command) error {
 	// caused by a config file not being found. Return an error
 	// if we cannot parse the config file.
 	if err := v.ReadInConfig(); err != nil {
+		log.Debug().Str("path", v.ConfigFileUsed()).Msg("config")
 		// It's okay if there isn't a config file
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			log.Warn().Err(err).Str("path", v.ConfigFileUsed()).Msg("config")
 			return err
 		}
-		log.Debug().Str("path", v.ConfigFileUsed()).Msg("config")
 	}
 
 	// When we bind flags to environment variables expect that the

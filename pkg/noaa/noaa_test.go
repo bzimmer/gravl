@@ -1,56 +1,17 @@
 package noaa
 
 import (
-	"bytes"
-	"io/ioutil"
 	"net/http"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-type TestDataTransport struct {
-	status   int
-	filename string
-}
-
-func (r *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	var data []byte
-	if r.filename != "" {
-		dir, _ := os.Getwd()
-		filename := filepath.Join(dir, "../../testdata", r.filename)
-		data, _ = ioutil.ReadFile(filename)
-	} else {
-		data = make([]byte, 0)
-	}
-
-	header := make(http.Header)
-	header.Add("content-type", "text/html; charset=utf-8")
-
-	return &http.Response{
-		StatusCode:    r.status,
-		ContentLength: int64(len(data)),
-		Body:          ioutil.NopCloser(bytes.NewBuffer(data)),
-		Header:        header,
-		Request:       req,
-	}, nil
-}
-
-func newClient(status int, filename string) (*Client, error) {
-	return NewClient(
-		WithTransport(&TestDataTransport{
-			status:   status,
-			filename: filename,
-		}))
-}
-
 func Test_Options(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
-	c, err := newClient(http.StatusOK, "")
+	c, err := NewClient()
 	a.NoError(err)
 	a.NotNil(c)
 
