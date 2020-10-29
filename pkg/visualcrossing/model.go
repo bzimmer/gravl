@@ -2,6 +2,13 @@ package visualcrossing
 
 import "time"
 
+// Fault .
+type Fault struct{}
+
+func (f *Fault) Error() string {
+	return "visualcrossing error"
+}
+
 // Column .
 type Column struct {
 	ID   string `json:"id"`
