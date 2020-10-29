@@ -10,46 +10,67 @@ type Column struct {
 	Unit string `json:"unit"`
 }
 
+// Columns .
+type Columns struct {
+	Address            Column `json:"address"`
+	CloudCover         Column `json:"cloudcover"`
+	Conditions         Column `json:"conditions"`
+	DateTime           Column `json:"datetime"`
+	Dew                Column `json:"dew"`
+	HeatIndex          Column `json:"heatindex"`
+	Humidity           Column `json:"humidity"`
+	Latitude           Column `json:"latitude"`
+	Longitude          Column `json:"longitude"`
+	LongwaveRadiation  Column `json:"lw_radiation"`
+	MaxTemp            Column `json:"maxt"`
+	MinTemp            Column `json:"mint"`
+	Name               Column `json:"name"`
+	PoP                Column `json:"pop"`
+	Precip             Column `json:"precip"`
+	ResolvedAddress    Column `json:"resolvedAddress"`
+	SeaLevelPressure   Column `json:"sealevelpressure"`
+	ShortwaveRadiation Column `json:"sw_radiation"`
+	Snow               Column `json:"snow"`
+	SnowDepth          Column `json:"snowdepth"`
+	Sunshine           Column `json:"sunshine"`
+	Temp               Column `json:"temp"`
+	Visibility         Column `json:"visibility"`
+	WindChill          Column `json:"windchill"`
+	WindDirection      Column `json:"wdir"`
+	WindGust           Column `json:"wgust"`
+	WindSpeed          Column `json:"wspd"`
+}
+
 // Alert .
 type Alert struct {
-	Event       string `json:"event"`
-	Headline    string `json:"headline"`
-	Description string `json:"description"`
-	Ends        string `json:"ends"`
-	Onset       string `json:"onset"`
-}
-
-// DateTime .
-type DateTime struct {
-	time.Time
-}
-
-// UnmarshalJSON .
-func (t *DateTime) UnmarshalJSON(data []byte) error {
-	return nil
+	Event       string    `json:"event"`
+	Headline    string    `json:"headline"`
+	Description string    `json:"description"`
+	Ends        time.Time `json:"ends"`
+	Onset       time.Time `json:"onset"`
 }
 
 // Conditions .
 type Conditions struct {
-	WindDirection    float64  `json:"wdir"`
-	Temp             float64  `json:"temp"`
-	Sunrise          string   `json:"sunrise"`
-	Visibility       float64  `json:"visibility"`
-	WindSpeed        float64  `json:"wspd"`
-	Icon             string   `json:"icon"`
-	Stations         string   `json:"stations"`
-	Heatindex        float64  `json:"heatindex"`
-	CloudCover       float64  `json:"cloudcover"`
-	Precip           float64  `json:"precip"`
-	Moonphase        float64  `json:"moonphase"`
-	SnowDepth        float64  `json:"snowdepth"`
-	SeaLevelPressure float64  `json:"sealevelpressure"`
-	Dew              float64  `json:"dew"`
-	Sunset           string   `json:"sunset"`
-	Humidity         float64  `json:"humidity"`
-	WindGust         float64  `json:"wgust"`
-	WindChill        float64  `json:"windchill"`
-	DateTime         DateTime `json:"datetime"`
+	CloudCover       float64   `json:"cloudcover"`
+	DateTime         time.Time `json:"datetimeStr"`
+	Dew              float64   `json:"dew"`
+	HeatIndex        float64   `json:"heatindex"`
+	Humidity         float64   `json:"humidity"`
+	Icon             string    `json:"icon"`
+	MoonPhase        float64   `json:"moonphase"`
+	Precip           float64   `json:"precip"`
+	SeaLevelPressure float64   `json:"sealevelpressure"`
+	SnowDepth        float64   `json:"snowdepth"`
+	Stations         string    `json:"stations"`
+	Sunrise          time.Time `json:"sunrise"`
+	Sunset           time.Time `json:"sunset"`
+	Temp             float64   `json:"temp"`
+	Visibility       float64   `json:"visibility"`
+	WindChill        float64   `json:"windchill"`
+	WindDirection    float64   `json:"wdir"`
+	WindGust         float64   `json:"wgust"`
+	WindSpeed        float64   `json:"wspd"`
 }
 
 // Location .
@@ -71,35 +92,7 @@ type Location struct {
 
 // Forecast .
 type Forecast struct {
-	Columns struct {
-		WindDirection      Column `json:"wdir"`
-		Sunshine           Column `json:"sunshine"`
-		Latitude           Column `json:"latitude"`
-		CloudCover         Column `json:"cloudcover"`
-		Pop                Column `json:"pop"`
-		MinTemp            Column `json:"mint"`
-		DateTime           Column `json:"datetime"`
-		Precip             Column `json:"precip"`
-		Dew                Column `json:"dew"`
-		Humidity           Column `json:"humidity"`
-		Longitude          Column `json:"longitude"`
-		Temp               Column `json:"temp"`
-		Address            Column `json:"address"`
-		MaxTemp            Column `json:"maxt"`
-		Visibility         Column `json:"visibility"`
-		Wspd               Column `json:"wspd"`
-		ResolvedAddress    Column `json:"resolvedAddress"`
-		HeatIndex          Column `json:"heatindex"`
-		SnowDepth          Column `json:"snowdepth"`
-		SeaLevelPressure   Column `json:"sealevelpressure"`
-		ShortwaveRadiation Column `json:"sw_radiation"`
-		Snow               Column `json:"snow"`
-		Name               Column `json:"name"`
-		WindGust           Column `json:"wgust"`
-		LongwaveRadiation  Column `json:"lw_radiation"`
-		Conditions         Column `json:"conditions"`
-		WindChill          Column `json:"windchill"`
-	} `json:"columns"`
+	Columns       Columns     `json:"columns"`
 	RemainingCost int         `json:"remainingCost"`
 	QueryCost     int         `json:"queryCost"`
 	Messages      interface{} `json:"messages"`

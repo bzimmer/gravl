@@ -13,7 +13,6 @@ import (
 func Test_Model(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
-	a.True(true)
 
 	reader, err := os.Open("testdata/98110_forecast_array.json")
 	a.NoError(err)
@@ -22,5 +21,13 @@ func Test_Model(t *testing.T) {
 	fcst := &vc.Forecast{}
 	err = decoder.Decode(fcst)
 	a.NoError(err)
+
 	a.Equal(1, fcst.QueryCost)
+	a.Equal(1, len(fcst.Locations))
+
+	loc := fcst.Locations[0]
+	a.Equal(16, len(loc.Conditions))
+
+	cond := loc.Conditions[len(loc.Conditions)-1]
+	a.Equal(32.1, cond.WindChill)
 }

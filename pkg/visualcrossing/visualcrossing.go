@@ -14,6 +14,8 @@ type Client struct {
 	header http.Header
 	client *http.Client
 
+	accessKey string
+
 	Forecast *ForecastService
 }
 
@@ -44,4 +46,12 @@ func NewClient(opts ...Option) (*Client, error) {
 	c.Forecast = &ForecastService{client: c}
 
 	return c, nil
+}
+
+// WithAccessKey .
+func WithAccessKey(accessKey string) Option {
+	return func(c *Client) error {
+		c.accessKey = accessKey
+		return nil
+	}
 }
