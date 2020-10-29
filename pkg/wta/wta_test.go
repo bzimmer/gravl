@@ -8,7 +8,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/bzimmer/wta/pkg/common"
+	"github.com/bzimmer/gravl/pkg/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

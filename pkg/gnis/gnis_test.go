@@ -10,7 +10,7 @@ import (
 	"os"
 	"testing"
 
-	gn "github.com/bzimmer/wta/pkg/gnis"
+	gn "github.com/bzimmer/gravl/pkg/gnis"
 
 	"github.com/stretchr/testify/assert"
 )

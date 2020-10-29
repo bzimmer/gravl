@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/bzimmer/wta/pkg"
-	"github.com/bzimmer/wta/pkg/common"
+	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/common"
 
 	"github.com/spf13/cobra"
 )

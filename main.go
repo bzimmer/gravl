@@ -1,6 +1,6 @@
 package main
 
-import "github.com/bzimmer/wta/cmd"
+import "github.com/bzimmer/gravl/cmd"
 
 func main() {
 	cmd.Execute()

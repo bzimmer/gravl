@@ -10,12 +10,12 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/bzimmer/wta/pkg/common"
+	"github.com/bzimmer/gravl/pkg/common"
 )
 
 const (
 	noaaURI   = "https://api.weather.gov"
-	userAgent = "(github.com/bzimmer/wta/noaa, bzimmer@ziclix.com)"
+	userAgent = "(github.com/bzimmer/gravl/noaa, bzimmer@ziclix.com)"
 )
 
 // Client .

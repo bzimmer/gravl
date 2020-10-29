@@ -10,13 +10,13 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/bzimmer/wta/pkg/common"
+	"github.com/bzimmer/gravl/pkg/common"
 )
 
 const (
 	apiVersion = 2
 	rwgpsURI   = "https://ridewithgps.com"
-	userAgent  = "(github.com/bzimmer/wta/rwgps)"
+	userAgent  = "(github.com/bzimmer/gravl/rwgps)"
 )
 
 // https://ridewithgps.com/api?lang=en

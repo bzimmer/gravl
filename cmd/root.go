@@ -17,11 +17,11 @@ import (
 
 const (
 	// The name of our config file without the file extension
-	defaultConfigFilename = ".atk"
+	defaultConfigFilename = ".gravl"
 
 	// The environment variable prefix of all environment variables bound to our command line flags.
-	// For example, --number is bound to ATK_NUMBER.
-	envPrefix = "ATK"
+	// For example, --number is bound to GRAVL_NUMBER.
+	envPrefix = "GRAVL"
 )
 
 var (
@@ -33,8 +33,8 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "atk",
-	Short: "Adventure Toolkit",
+	Use:   "gravl",
+	Short: "Tools for planning adventures",
 	Long:  `Planning outdoor adventures since 2020.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		if err := initLogging(cmd); err != nil {
@@ -59,7 +59,7 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(
-		&config, "config", "", "config file (default is $HOME/.atk.yaml)")
+		&config, "config", "", "config file (default is $HOME/.gravl.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&verbosity, "verbosity", "v",
 		zerolog.InfoLevel.String(), "Log level (trace, debug, info, warn, error, fatal, panic")
 	rootCmd.PersistentFlags().BoolVarP(&monochrome, "monochrome", "m",
@@ -120,7 +120,7 @@ func initConfig(cmd *cobra.Command) error {
 
 	// When we bind flags to environment variables expect that the
 	// environment variables are prefixed, e.g. a flag like --number
-	// binds to an environment variable ATK_NUMBER. This helps
+	// binds to an environment variable GRAVL_NUMBER. This helps
 	// avoid conflicts.
 	v.SetEnvPrefix(envPrefix)
 
@@ -132,7 +132,7 @@ func initConfig(cmd *cobra.Command) error {
 	// Bind the current command's flags to viper
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
 		// Environment variables can't have dashes in them, so bind them to their
-		// equivalent keys with underscores, e.g. --favorite-color to ATK_FAVORITE_COLOR
+		// equivalent keys with underscores, e.g. --favorite-color to GRAVL_FAVORITE_COLOR
 		if strings.Contains(f.Name, "-") {
 			envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
 			v.BindEnv(f.Name, fmt.Sprintf("%s_%s", envPrefix, envVarSuffix))
