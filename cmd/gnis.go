@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/bzimmer/wta/pkg/common"
-	gn "github.com/bzimmer/wta/pkg/gnis"
+	"github.com/bzimmer/gravl/pkg/common"
+	gn "github.com/bzimmer/gravl/pkg/gnis"
 
 	"github.com/spf13/cobra"
 )

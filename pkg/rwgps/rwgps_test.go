@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bzimmer/wta/pkg/common"
-	rw "github.com/bzimmer/wta/pkg/rwgps"
+	"github.com/bzimmer/gravl/pkg/common"
+	rw "github.com/bzimmer/gravl/pkg/rwgps"
 )
 
 var (

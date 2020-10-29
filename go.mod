@@ -1,4 +1,4 @@
-module github.com/bzimmer/wta
+module github.com/bzimmer/gravl
 
 go 1.15
 

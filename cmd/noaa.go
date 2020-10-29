@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bzimmer/wta/pkg/common"
-	na "github.com/bzimmer/wta/pkg/noaa"
+	"github.com/bzimmer/gravl/pkg/common"
+	na "github.com/bzimmer/gravl/pkg/noaa"
 
 	gj "github.com/paulmach/go.geojson"
 	"github.com/spf13/cobra"

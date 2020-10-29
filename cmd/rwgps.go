@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/bzimmer/wta/pkg/common"
-	rw "github.com/bzimmer/wta/pkg/rwgps"
+	"github.com/bzimmer/gravl/pkg/common"
+	rw "github.com/bzimmer/gravl/pkg/rwgps"
 
 	gj "github.com/paulmach/go.geojson"
 	"github.com/rs/zerolog"

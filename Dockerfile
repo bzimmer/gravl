@@ -10,7 +10,7 @@ ENV GOPATH=/go
 
 RUN apk update && apk add alpine-sdk git bash && rm -rf /var/cache/apk/*
 
-WORKDIR /go/src/github.com/bzimmer/wta
+WORKDIR /go/src/github.com/bzimmer/gravl
 
 COPY go.mod ./
 COPY go.sum ./
@@ -21,11 +21,10 @@ COPY main.go ./
 ADD pkg pkg
 ADD cmd cmd
 
-ADD testdata testdata
 RUN go test -v ./...
 
 ARG VERSION
-RUN go build -o dist/atk -ldflags "-X github.com/bzimmer/wta/pkg.BuildVersion=$VERSION" main.go
+RUN go build -o dist/gravl -ldflags "-X github.com/bzimmer/gravl/pkg.BuildVersion=$VERSION" main.go
 
 ##############################
 # STEP 2 build a smaller image
@@ -38,9 +37,9 @@ RUN apk --no-cache --update add ca-certificates
 
 WORKDIR /app
 
-COPY --from=builder /go/src/github.com/bzimmer/wta/dist/atk .
+COPY --from=builder /go/src/github.com/bzimmer/gravl/dist/gravl .
 
-ENV ATK_PORT=8080
+ENV GRAVL_PORT=8080
 ENV GIN_MODE=release
 
-ENTRYPOINT ["/app/atk", "serve"]
+ENTRYPOINT ["/app/gravl", "serve"]

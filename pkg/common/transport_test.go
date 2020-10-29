@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/wta/pkg/common"
+	"github.com/bzimmer/gravl/pkg/common"
 )
 
 func Test_VerboseTransport(t *testing.T) {
