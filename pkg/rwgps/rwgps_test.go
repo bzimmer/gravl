@@ -23,7 +23,7 @@ func newClient(status int, filename string) (*rw.Client, error) {
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json",
-			RequestFunc: func(req *http.Request) error {
+			Validator: func(req *http.Request) error {
 				var body map[string]interface{}
 				decoder := json.NewDecoder(req.Body)
 				err := decoder.Decode(&body)
