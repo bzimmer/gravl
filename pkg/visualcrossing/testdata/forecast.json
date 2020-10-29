@@ -571,12 +571,12 @@
                     "windchill": 32.1
                 }
             ],
-            "id": "Bainbridge Island, WA, 98110",
-            "address": "98110, Bainbridge Island, WA, United States",
-            "name": "Bainbridge Island, WA, 98110",
+            "id": "Portland, OR",
+            "address": "97201, Portland, OR, United States",
+            "name": "Portland, OR, 97201",
             "index": 0,
-            "latitude": 47.6293,
-            "longitude": -122.524,
+            "latitude": 45.5051,
+            "longitude": -122.6750,
             "distance": 0.0,
             "time": 0.0,
             "tz": "America/Los_Angeles",

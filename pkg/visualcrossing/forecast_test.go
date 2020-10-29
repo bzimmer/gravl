@@ -15,7 +15,7 @@ func Test_MakeValues(t *testing.T) {
 		WithAstronomy(true),
 		WithUnits(UnitsUK),
 		WithAggregateHours(12),
-		WithLocation("48.9201,-122.092", "Missoula, MT", "Basel, Switzerland"),
+		WithLocations("48.9201,-122.092", "Missoula, MT", "Basel, Switzerland"),
 		WithAlerts(AlertLevelDetail),
 	})
 	a.NoError(err)

@@ -2,11 +2,18 @@ package visualcrossing
 
 import "time"
 
-// Fault .
-type Fault struct{}
+// https://www.visualcrossing.com/resources/documentation/weather-api/weather-api-json-result-structure/
 
-func (f *Fault) Error() string {
-	return "visualcrossing error"
+// Fault .
+type Fault struct {
+	ErrorCode     int    `json:"errorCode"`
+	ExecutionTime int    `json:"executionTime"`
+	Message       string `json:"message"`
+	SessionID     string `json:"sessionId"`
+}
+
+func (f Fault) Error() string {
+	return f.Message
 }
 
 // Column .
@@ -64,7 +71,6 @@ type Conditions struct {
 	Dew              float64   `json:"dew"`
 	HeatIndex        float64   `json:"heatindex"`
 	Humidity         float64   `json:"humidity"`
-	Icon             string    `json:"icon"`
 	MoonPhase        float64   `json:"moonphase"`
 	Precip           float64   `json:"precip"`
 	SeaLevelPressure float64   `json:"sealevelpressure"`
@@ -82,19 +88,19 @@ type Conditions struct {
 
 // Location .
 type Location struct {
-	StationContributions interface{}  `json:"stationContributions"`
-	Conditions           []Conditions `json:"values"`
-	ID                   string       `json:"id"`
-	Address              string       `json:"address"`
-	Name                 string       `json:"name"`
-	Index                int          `json:"index"`
-	Latitude             float64      `json:"latitude"`
-	Longitude            float64      `json:"longitude"`
-	Distance             float64      `json:"distance"`
-	Time                 float64      `json:"time"`
-	Timezone             string       `json:"tz"`
-	CurrentConditions    Conditions   `json:"currentConditions"`
-	Alerts               []Alert      `json:"alerts"`
+	Address           string       `json:"address"`
+	Alerts            []Alert      `json:"alerts"`
+	Conditions        []Conditions `json:"values"`
+	CurrentConditions Conditions   `json:"currentConditions"`
+	Distance          float64      `json:"distance"`
+	ID                string       `json:"id"`
+	Index             int          `json:"index"`
+	Latitude          float64      `json:"latitude"`
+	Longitude         float64      `json:"longitude"`
+	Name              string       `json:"name"`
+	Time              float64      `json:"time"`
+	Timezone          string       `json:"tz"`
+	// StationContributions interface{}  `json:"stationContributions"`
 }
 
 // Forecast .

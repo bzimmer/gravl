@@ -47,14 +47,12 @@ func WithAggregateHours(hours int) ForecastOption {
 	}
 }
 
-// WithLocation .
-func WithLocation(location string, locations ...string) ForecastOption {
+// WithLocations .
+func WithLocations(locations ...string) ForecastOption {
 	return func(v *url.Values) error {
-		locs := []string{location}
-		for _, n := range locations {
-			locs = append(locs, n)
+		if len(locations) > 0 {
+			v.Set("locations", strings.Join(locations, "|"))
 		}
-		v.Set("locations", strings.Join(locs, "|"))
 		return nil
 	}
 }

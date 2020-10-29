@@ -1,6 +1,7 @@
 package visualcrossing
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -8,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/bzimmer/gravl/pkg/common"
 )
 
 // https://www.visualcrossing.com/resources/documentation/weather-api/weather-api-documentation/
@@ -69,8 +72,20 @@ func WithTransport(transport http.RoundTripper) Option {
 	}
 }
 
-func (c *Client) newAPIRequest(method, uri string, values *url.Values) (*http.Request, error) {
+// WithVerboseLogging .
+func WithVerboseLogging(debug bool) Option {
+	return func(c *Client) error {
+		if !debug {
+			return nil
+		}
+		c.client.Transport = &common.VerboseTransport{
+			Transport: c.client.Transport,
+		}
+		return nil
+	}
+}
 
+func (c *Client) newAPIRequest(method, uri string, values *url.Values) (*http.Request, error) {
 	// these are required
 	values.Set("key", c.apiKey)
 	values.Set("contentType", "json")
@@ -106,24 +121,23 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error
 	}
 	defer res.Body.Close()
 
-	httpError := res.StatusCode >= http.StatusBadRequest
+	var (
+		buf    bytes.Buffer
+		fault  Fault
+		reader = io.TeeReader(res.Body, &buf)
+	)
 
-	var obj interface{}
-	if httpError {
-		obj = &Fault{}
-	} else {
-		obj = v
+	// VC uses StatusOK for everything, sigh
+	if err = json.NewDecoder(reader).Decode(&fault); err != nil {
+		return err
+	} else if code := fault.ErrorCode; code != 0 && code != http.StatusOK {
+		return fault
 	}
 
-	if obj != nil {
-		err := json.NewDecoder(res.Body).Decode(obj)
-		if err == io.EOF {
-			err = nil // ignore EOF errors caused by empty response body
+	if v != nil {
+		if err = json.NewDecoder(&buf).Decode(v); err != nil {
+			return err
 		}
-		if httpError {
-			return obj.(error)
-		}
-		return err
 	}
 
 	return nil

@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	trip      bool
-	route     bool
-	user      bool
-	apiKey    string
-	authToken string
+	trip           bool
+	route          bool
+	user           bool
+	rwgpsAPIKey    string
+	rwgpsAuthToken string
 )
 
 func rwgps(cmd *cobra.Command, args []string) error {
@@ -30,8 +30,8 @@ func rwgps(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	c, err := rw.NewClient(
-		rw.WithAPIKey(apiKey),
-		rw.WithAuthToken(authToken),
+		rw.WithAPIKey(rwgpsAPIKey),
+		rw.WithAuthToken(rwgpsAuthToken),
 		rw.WithVerboseLogging(lvl == zerolog.DebugLevel),
 	)
 	if err != nil {
@@ -72,8 +72,8 @@ func rwgps(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddCommand(rwgpsCmd)
-	rwgpsCmd.Flags().StringVarP(&apiKey, "rwgps_apikey", "k", "", "API key")
-	rwgpsCmd.Flags().StringVarP(&authToken, "rwgps_authtoken", "a", "", "Auth token")
+	rwgpsCmd.Flags().StringVarP(&rwgpsAPIKey, "rwgps_apikey", "k", "", "API key")
+	rwgpsCmd.Flags().StringVarP(&rwgpsAuthToken, "rwgps_authtoken", "a", "", "Auth token")
 
 	rwgpsCmd.Flags().BoolVarP(&trip, "trip", "t", false, "Trip")
 	rwgpsCmd.Flags().BoolVarP(&route, "route", "r", false, "Route")
