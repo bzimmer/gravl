@@ -15,7 +15,7 @@ import (
 
 const (
 	noaaURI   = "https://api.weather.gov"
-	userAgent = "(github.com/bzimmer/gravl/noaa, bzimmer@ziclix.com)"
+	userAgent = "(github.com/bzimmer/gravl/pkg/noaa, bzimmer@ziclix.com)"
 )
 
 // Client .
@@ -50,7 +50,7 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for talking to NOAA
+	// Services used for communicating with NOAA
 	c.Points = &PointsService{client: c}
 	c.GridPoints = &GridPointsService{client: c}
 

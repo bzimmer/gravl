@@ -13,11 +13,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/common"
 )
 
-// https://www.visualcrossing.com/resources/documentation/weather-api/weather-api-documentation/
-
 const (
 	visualCrossingURI = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata"
-	userAgent         = "(github.com/bzimmer/wta/visualcrossing)"
+	userAgent         = "(github.com/bzimmer/gravl/pkg/visualcrossing)"
 )
 
 // Client .

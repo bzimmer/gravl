@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/bzimmer/gravl/pkg/common"
 	gn "github.com/bzimmer/gravl/pkg/gnis"
-
-	"github.com/spf13/cobra"
 )
 
 func gnis(cmd *cobra.Command, args []string) error {

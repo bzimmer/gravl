@@ -58,7 +58,7 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for talking to RWGPS
+	// Services used for communicating with RWGPS
 	c.Users = &UsersService{client: c}
 	c.Trips = &TripsService{client: c}
 

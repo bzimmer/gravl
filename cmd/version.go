@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/common"
-
-	"github.com/spf13/cobra"
 )
 
 func init() {

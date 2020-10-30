@@ -4,12 +4,12 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/bzimmer/gravl/pkg/common"
-	rw "github.com/bzimmer/gravl/pkg/rwgps"
-
 	gj "github.com/paulmach/go.geojson"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
+
+	"github.com/bzimmer/gravl/pkg/common"
+	rw "github.com/bzimmer/gravl/pkg/rwgps"
 )
 
 var (

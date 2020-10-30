@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"github.com/bzimmer/gravl/pkg/common"
-	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
-
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
+
+	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/bzimmer/gravl/pkg/common/wx"
+	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
 )
 
 var (
@@ -15,7 +16,7 @@ var (
 func visualcrossing(cmd *cobra.Command, args []string) error {
 	var (
 		err  error
-		fcst *vc.Forecast
+		fcst []*wx.Forecast
 	)
 	lvl, err := zerolog.ParseLevel(verbosity)
 	if err != nil {
@@ -40,8 +41,13 @@ func visualcrossing(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	fc, err := wx.NewFeatureCollection(fcst...)
+	if err != nil {
+		return err
+	}
+
 	encoder := common.NewEncoder(compact)
-	err = encoder.Encode(fcst)
+	err = encoder.Encode(fc)
 	if err != nil {
 		return err
 	}

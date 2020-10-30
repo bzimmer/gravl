@@ -6,24 +6,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-)
 
-const (
-	// AlertLevelNone .
-	AlertLevelNone = "none"
-	// AlertLevelSummary .
-	AlertLevelSummary = "summary"
-	// AlertLevelDetail .
-	AlertLevelDetail = "detail"
-
-	//UnitsUS .
-	UnitsUS = "us"
-	// UnitsUK .
-	UnitsUK = "uk"
-	// UnitsBase .
-	UnitsBase = "base"
-	// UnitsMetric .
-	UnitsMetric = "metric"
+	"github.com/bzimmer/gravl/pkg/common/wx"
 )
 
 // ForecastService .
@@ -87,7 +71,7 @@ func WithUnits(units string) ForecastOption {
 		case UnitsUS:
 		case UnitsUK:
 		case UnitsMetric:
-		case UnitsBase:
+		case UnitsSI:
 		default:
 			return fmt.Errorf("unknown units {%s}", units)
 		}
@@ -97,7 +81,7 @@ func WithUnits(units string) ForecastOption {
 }
 
 // Forecast .
-func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) (*Forecast, error) {
+func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) ([]*wx.Forecast, error) {
 	values, err := makeValues(opts)
 	if err != nil {
 		return nil, err
@@ -111,7 +95,7 @@ func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) 
 	if err != nil {
 		return nil, err
 	}
-	return fct, err
+	return fct.WxForecasts(), nil
 }
 
 func makeValues(options []ForecastOption) (*url.Values, error) {

@@ -30,7 +30,7 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for talking to the GNIS website
+	// Services used for communicating with GNIS
 	c.GeoNames = &GeoNamesService{client: c}
 
 	return c, nil

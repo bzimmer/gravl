@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/common"
-	na "github.com/bzimmer/gravl/pkg/noaa"
-
 	gj "github.com/paulmach/go.geojson"
 	"github.com/spf13/cobra"
+
+	"github.com/bzimmer/gravl/pkg/common"
+	na "github.com/bzimmer/gravl/pkg/noaa"
 )
 
 func noaa(cmd *cobra.Command, args []string) error {
@@ -77,6 +77,6 @@ var noaaCmd = &cobra.Command{
 	Use:     "noaa",
 	Short:   "Run noaa",
 	Long:    `Run noaa`,
-	Aliases: []string{"n", "f"},
+	Aliases: []string{"n"},
 	RunE:    noaa,
 }

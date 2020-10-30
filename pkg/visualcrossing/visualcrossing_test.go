@@ -30,16 +30,16 @@ func Test_ForecastSuccess(t *testing.T) {
 	a.NotNil(c)
 
 	ctx := context.Background()
-	fcst, err := c.Forecast.Forecast(ctx)
+	fcsts, err := c.Forecast.Forecast(ctx)
 	a.NoError(err)
-	a.NotNil(fcst)
-	a.Equal(1, fcst.QueryCost)
-	a.Equal(1, len(fcst.Locations))
+	a.NotNil(fcsts)
+	a.Equal(1, len(fcsts))
 
-	loc := fcst.Locations[0]
-	a.Equal(16, len(loc.Conditions))
+	fcst := fcsts[0]
+	a.Equal(16, len(fcst.Period.Conditions))
 
-	cond := loc.Conditions[len(loc.Conditions)-1]
+	conditions := fcst.Period.Conditions
+	cond := conditions[len(conditions)-1]
 	a.Equal(32.1, cond.WindChill)
 }
 

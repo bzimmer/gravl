@@ -1,4 +1,4 @@
-package wta
+package wta_test
 
 import (
 	"context"
@@ -8,15 +8,16 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/bzimmer/gravl/pkg/common"
-
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/bzimmer/gravl/pkg/wta"
 )
 
-func newClient(status int, filename string) (*Client, error) {
-	return NewClient(
-		WithTransport(&common.TestDataTransport{
+func newClient(status int, filename string) (*wta.Client, error) {
+	return wta.NewClient(
+		wta.WithTransport(&common.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "text/html; charset=utf-8",
@@ -24,16 +25,13 @@ func newClient(status int, filename string) (*Client, error) {
 	)
 }
 
-func newTestRouter(c *Client) *gin.Engine {
+func newTestRouter(c *wta.Client) *gin.Engine {
 	gin.SetMode(gin.TestMode)
-	return NewRouter(c)
-}
-
-func Test_query(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-	q := query("foobar")
-	a.NotNil(q)
+	r := gin.New()
+	r.GET("/regions/", wta.RegionsHandler())
+	r.GET("/reports/", wta.TripReportsHandler(c))
+	r.GET("/reports/:reporter", wta.TripReportsHandler(c))
+	return r
 }
 
 func Test_GetTripReports(t *testing.T) {
@@ -68,7 +66,7 @@ func Test_TripReportsHandler(t *testing.T) {
 	r.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 
-	var reports TripReports
+	var reports wta.TripReports
 	decoder := json.NewDecoder(w.Body)
 	err := decoder.Decode(&reports)
 	a.NoError(err)
@@ -116,7 +114,7 @@ func Test_RegionsHandler(t *testing.T) {
 	r.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 
-	var regions []Region
+	var regions []wta.Region
 	decoder := json.NewDecoder(w.Body)
 	err := decoder.Decode(&regions)
 	a.NoError(err)
@@ -131,25 +129,4 @@ func Test_RegionsHandler(t *testing.T) {
 		}
 	}
 	a.Equal("922e688d784aa95dfb80047d2d79dcf6", id)
-}
-
-func Test_VersionHandler(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-
-	// data never used
-	c, _ := newClient(http.StatusOK, "")
-	r := newTestRouter(c)
-	a.NotNil(r)
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/version/", nil)
-	r.ServeHTTP(w, req)
-	a.Equal(http.StatusOK, w.Code)
-
-	var version map[string]string
-	decoder := json.NewDecoder(w.Body)
-	err := decoder.Decode(&version)
-	a.NoError(err)
-	a.Equal("development", version["build_version"])
 }
