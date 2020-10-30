@@ -8,11 +8,13 @@ import (
 )
 
 func gnis(cmd *cobra.Command, args []string) error {
-	g, err := gn.NewClient()
+	g, err := gn.NewClient(
+		gn.WithVerboseLogging(debug),
+	)
 	if err != nil {
 		return err
 	}
-	encoder := common.NewEncoder(compact)
+	encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
 	for _, arg := range args {
 		features, err := g.GeoNames.Query(cmd.Context(), arg)
 		if err != nil {

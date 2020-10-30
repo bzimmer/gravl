@@ -33,7 +33,6 @@ func serve(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	r := newRouter(c)
-
 	address := fmt.Sprintf("0.0.0.0:%d", port)
 	if err := r.Run(address); err != nil {
 		return err

@@ -30,12 +30,10 @@ func Test_ForecastSuccess(t *testing.T) {
 	a.NotNil(c)
 
 	ctx := context.Background()
-	fcsts, err := c.Forecast.Forecast(ctx)
+	fcst, err := c.Forecast.Forecast(ctx)
 	a.NoError(err)
-	a.NotNil(fcsts)
-	a.Equal(1, len(fcsts))
+	a.NotNil(fcst)
 
-	fcst := fcsts[0]
 	a.Equal(16, len(fcst.Period.Conditions))
 
 	conditions := fcst.Period.Conditions

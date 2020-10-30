@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/bzimmer/gravl/pkg/common/wx"
 )
@@ -26,17 +25,17 @@ func WithAggregateHours(hours int) ForecastOption {
 		default:
 			return fmt.Errorf("unknown aggregage hours {%d}", hours)
 		}
-		v.Add("aggregateHours", fmt.Sprintf("%d", hours))
+		v.Set("aggregateHours", fmt.Sprintf("%d", hours))
 		return nil
 	}
 }
 
-// WithLocations .
-func WithLocations(locations ...string) ForecastOption {
+// WithLocation .
+func WithLocation(location string) ForecastOption {
+	// VC supports more than one location per call but we're going
+	//  to limit for sake of simplicity right now
 	return func(v *url.Values) error {
-		if len(locations) > 0 {
-			v.Set("locations", strings.Join(locations, "|"))
-		}
+		v.Set("locations", location)
 		return nil
 	}
 }
@@ -51,7 +50,7 @@ func WithAlerts(level string) ForecastOption {
 		default:
 			return fmt.Errorf("unknown alert level {%s}", level)
 		}
-		v.Add("alertLevel", level)
+		v.Set("alertLevel", level)
 		return nil
 	}
 }
@@ -59,7 +58,7 @@ func WithAlerts(level string) ForecastOption {
 // WithAstronomy .
 func WithAstronomy(astro bool) ForecastOption {
 	return func(v *url.Values) error {
-		v.Add("includeAstronomy", fmt.Sprintf("%t", astro))
+		v.Set("includeAstronomy", fmt.Sprintf("%t", astro))
 		return nil
 	}
 }
@@ -75,13 +74,13 @@ func WithUnits(units string) ForecastOption {
 		default:
 			return fmt.Errorf("unknown units {%s}", units)
 		}
-		v.Add("unitGroup", units)
+		v.Set("unitGroup", units)
 		return nil
 	}
 }
 
 // Forecast .
-func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) ([]*wx.Forecast, error) {
+func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) (*wx.Forecast, error) {
 	values, err := makeValues(opts)
 	if err != nil {
 		return nil, err
@@ -90,12 +89,12 @@ func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) 
 	if err != nil {
 		return nil, err
 	}
-	fct := &Forecast{}
+	fct := &forecast{}
 	err = s.client.Do(ctx, req, fct)
 	if err != nil {
 		return nil, err
 	}
-	return fct.WxForecasts(), nil
+	return fct.WxForecast()
 }
 
 func makeValues(options []ForecastOption) (*url.Values, error) {

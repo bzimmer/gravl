@@ -49,7 +49,7 @@ type Conditions struct {
 	NearestStormDistance       float64    `json:"nearestStormDistance,omitempty"`
 	DewPoint                   float64    `json:"dewPoint,omitempty"`
 	WindBearing                float64    `json:"windBearing,omitempty"`
-	WindChill                  float64    `json:"windchill,omitempty"`
+	WindChill                  float64    `json:"windChill,omitempty"`
 	WindGust                   float64    `json:"windGust,omitempty"`
 	WindSpeed                  float64    `json:"windSpeed,omitempty"`
 	CloudCover                 float64    `json:"cloudCover,omitempty"`
@@ -111,6 +111,9 @@ func NewFeatureCollection(forecasts ...*Forecast) (*gj.FeatureCollection, error)
 		return fc, nil
 	}
 	for _, forecast := range forecasts {
+		if forecast == nil {
+			continue
+		}
 		feature, err := forecast.Feature()
 		if err != nil {
 			return nil, err

@@ -2,12 +2,16 @@ package common
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 )
 
 // NewEncoder .
-func NewEncoder(compact bool) *json.Encoder {
-	encoder := json.NewEncoder(os.Stdout)
+func NewEncoder(writer io.Writer, compact bool) *json.Encoder {
+	if writer == nil {
+		writer = os.Stdout
+	}
+	encoder := json.NewEncoder(writer)
 	if !compact {
 		encoder.SetIndent("", " ")
 	}
@@ -16,6 +20,9 @@ func NewEncoder(compact bool) *json.Encoder {
 }
 
 // NewDecoder .
-func NewDecoder() *json.Decoder {
-	return json.NewDecoder(os.Stdin)
+func NewDecoder(reader io.Reader) *json.Decoder {
+	if reader == nil {
+		reader = os.Stdin
+	}
+	return json.NewDecoder(reader)
 }

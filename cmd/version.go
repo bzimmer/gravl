@@ -17,7 +17,7 @@ var versionCmd = &cobra.Command{
 	Long:    `All software has versions. This is Hugo's`,
 	Aliases: []string{"v"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		encoder := common.NewEncoder(compact)
+		encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
 		err := encoder.Encode(map[string]string{"version": pkg.BuildVersion})
 		if err != nil {
 			return err

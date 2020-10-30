@@ -137,6 +137,5 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error
 			return err
 		}
 	}
-
 	return nil
 }

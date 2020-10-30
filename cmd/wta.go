@@ -14,7 +14,9 @@ func wta(cmd *cobra.Command, args []string) error {
 		args = append(args, "")
 	}
 
-	c, err := w.NewClient()
+	c, err := w.NewClient(
+		w.WithVerboseLogging(debug),
+	)
 	if err != nil {
 		return err
 	}
@@ -29,7 +31,7 @@ func wta(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	encoder := common.NewEncoder(compact)
+	encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
 	err = encoder.Encode(reports)
 	if err != nil {
 		return err

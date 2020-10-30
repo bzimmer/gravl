@@ -2,18 +2,15 @@ package common
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"path/filepath"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 // VerboseTransport .
 type VerboseTransport struct {
-	Event     *zerolog.Event
 	Transport http.RoundTripper
 }
 
@@ -23,15 +20,11 @@ func (t *VerboseTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 	if t.Transport != nil {
 		transport = t.Transport
 	}
-	event := log.Debug()
-	if t.Event != nil {
-		event = t.Event
-	}
 	dump, _ := httputil.DumpRequestOut(req, true)
-	event.Str("req", string(dump)).Msg("sending")
+	fmt.Println(string(dump))
 	res, err := transport.RoundTrip(req)
 	dump, _ = httputil.DumpResponse(res, true)
-	event.Str("res", string(dump)).Msg("received")
+	fmt.Println(string(dump))
 	return res, err
 }
 

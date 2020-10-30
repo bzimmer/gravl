@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -71,6 +72,19 @@ func WithTransport(transport http.RoundTripper) Option {
 	return func(c *Client) error {
 		if transport != nil {
 			c.client.Transport = transport
+		}
+		return nil
+	}
+}
+
+// WithVerboseLogging .
+func WithVerboseLogging(debug bool) Option {
+	return func(c *Client) error {
+		if !debug {
+			return nil
+		}
+		c.client.Transport = &common.VerboseTransport{
+			Transport: c.client.Transport,
 		}
 		return nil
 	}

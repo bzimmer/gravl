@@ -16,7 +16,7 @@ const (
 	// AlertLevelDetail .
 	AlertLevelDetail = "detail"
 
-	//UnitsUS .
+	// UnitsUS .
 	UnitsUS = "us"
 	// UnitsUK .
 	UnitsUK = "uk"
@@ -38,47 +38,44 @@ func (f Fault) Error() string {
 	return f.Message
 }
 
-// Column .
-type Column struct {
+type column struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	Type int    `json:"type"`
 	Unit string `json:"unit"`
 }
 
-// Columns .
-type Columns struct {
-	Address            Column `json:"address"`
-	CloudCover         Column `json:"cloudcover"`
-	Conditions         Column `json:"conditions"`
-	DateTime           Column `json:"datetime"`
-	Dew                Column `json:"dew"`
-	HeatIndex          Column `json:"heatindex"`
-	Humidity           Column `json:"humidity"`
-	Latitude           Column `json:"latitude"`
-	Longitude          Column `json:"longitude"`
-	LongwaveRadiation  Column `json:"lw_radiation"`
-	MaxTemp            Column `json:"maxt"`
-	MinTemp            Column `json:"mint"`
-	Name               Column `json:"name"`
-	PoP                Column `json:"pop"`
-	Precip             Column `json:"precip"`
-	ResolvedAddress    Column `json:"resolvedAddress"`
-	SeaLevelPressure   Column `json:"sealevelpressure"`
-	ShortwaveRadiation Column `json:"sw_radiation"`
-	Snow               Column `json:"snow"`
-	SnowDepth          Column `json:"snowdepth"`
-	Sunshine           Column `json:"sunshine"`
-	Temp               Column `json:"temp"`
-	Visibility         Column `json:"visibility"`
-	WindChill          Column `json:"windchill"`
-	WindDirection      Column `json:"wdir"`
-	WindGust           Column `json:"wgust"`
-	WindSpeed          Column `json:"wspd"`
+type columns struct {
+	Address            column `json:"address"`
+	CloudCover         column `json:"cloudcover"`
+	Conditions         column `json:"conditions"`
+	DateTime           column `json:"datetime"`
+	Dew                column `json:"dew"`
+	HeatIndex          column `json:"heatindex"`
+	Humidity           column `json:"humidity"`
+	Latitude           column `json:"latitude"`
+	Longitude          column `json:"longitude"`
+	LongwaveRadiation  column `json:"lw_radiation"`
+	MaxTemp            column `json:"maxt"`
+	MinTemp            column `json:"mint"`
+	Name               column `json:"name"`
+	PoP                column `json:"pop"`
+	Precip             column `json:"precip"`
+	ResolvedAddress    column `json:"resolvedAddress"`
+	SeaLevelPressure   column `json:"sealevelpressure"`
+	ShortwaveRadiation column `json:"sw_radiation"`
+	Snow               column `json:"snow"`
+	SnowDepth          column `json:"snowdepth"`
+	Sunshine           column `json:"sunshine"`
+	Temp               column `json:"temp"`
+	Visibility         column `json:"visibility"`
+	WindChill          column `json:"windchill"`
+	WindDirection      column `json:"wdir"`
+	WindGust           column `json:"wgust"`
+	WindSpeed          column `json:"wspd"`
 }
 
-// Alert .
-type Alert struct {
+type alert struct {
 	Event       string     `json:"event"`
 	Headline    string     `json:"headline"`
 	Description string     `json:"description"`
@@ -86,8 +83,7 @@ type Alert struct {
 	Onset       *time.Time `json:"onset"`
 }
 
-// Conditions .
-type Conditions struct {
+type conditions struct {
 	CloudCover       float64 `json:"cloudcover"`
 	Dew              float64 `json:"dew"`
 	HeatIndex        float64 `json:"heatindex"`
@@ -103,9 +99,8 @@ type Conditions struct {
 	WindSpeed        float64 `json:"wspd"`
 }
 
-// ForecastConditions .
-type ForecastConditions struct {
-	Conditions
+type forecastConditions struct {
+	conditions
 	Description        string     `json:"conditions"`
 	DateTime           *time.Time `json:"datetimeStr"`
 	LongWaveRadiation  float64    `json:"lw_radiation"`
@@ -118,22 +113,24 @@ type ForecastConditions struct {
 }
 
 // WxConditions .
-func (c *ForecastConditions) WxConditions() *wx.Conditions {
+func (c *forecastConditions) WxConditions() *wx.Conditions {
 	return &wx.Conditions{
 		ValidFrom:         c.DateTime,
+		Summary:           c.Description,
 		Temperature:       c.Temperature,
-		WindSpeed:         c.WindSpeed,
-		WindGust:          c.WindGust,
 		WindBearing:       c.WindBearing,
+		WindChill:         c.WindChill,
+		WindGust:          c.WindGust,
+		WindSpeed:         c.WindSpeed,
 		Precip:            c.Precip,
 		PrecipProbability: c.PrecipProbability,
-		Summary:           c.Description,
+		TemperatureMax:    c.MaxTemp,
+		TemperatureMin:    c.MinTemp,
 	}
 }
 
-// CurrentConditions .
-type CurrentConditions struct {
-	Conditions
+type currentConditions struct {
+	conditions
 	DateTime  *time.Time `json:"datetime"`
 	MoonPhase float64    `json:"moonphase"`
 	Stations  string     `json:"stations"`
@@ -141,25 +138,8 @@ type CurrentConditions struct {
 	Sunset    *time.Time `json:"sunset"`
 }
 
-// Location .
-type Location struct {
-	Address            string               `json:"address"`
-	Alerts             []Alert              `json:"alerts"`
-	ForecastConditions []ForecastConditions `json:"values"`
-	CurrentConditions  CurrentConditions    `json:"currentConditions"`
-	Distance           float64              `json:"distance"`
-	ID                 string               `json:"id"`
-	Index              int                  `json:"index"`
-	Latitude           float64              `json:"latitude"`
-	Longitude          float64              `json:"longitude"`
-	Name               string               `json:"name"`
-	Time               float64              `json:"time"`
-	Timezone           string               `json:"tz"`
-}
-
 // WxConditions .
-func (loc *Location) WxConditions() *wx.Conditions {
-	c := loc.CurrentConditions
+func (c *currentConditions) WxConditions() *wx.Conditions {
 	return &wx.Conditions{
 		ValidFrom:   c.DateTime,
 		Sunrise:     c.Sunrise,
@@ -170,51 +150,49 @@ func (loc *Location) WxConditions() *wx.Conditions {
 		WindGust:    c.WindGust,
 		WindSpeed:   c.WindSpeed,
 		Precip:      c.Precip,
+		MoonPhase:   c.MoonPhase,
+		DewPoint:    c.Dew,
+		CloudCover:  c.CloudCover,
+		SnowDepth:   c.SnowDepth,
 	}
 }
 
-// WxPeriod .
-func (loc *Location) WxPeriod() *wx.Period {
-	conditions := make([]*wx.Conditions, len(loc.ForecastConditions))
-	for i, c := range loc.ForecastConditions {
-		conditions[i] = &wx.Conditions{
-			ValidFrom:         c.DateTime,
-			Temperature:       c.Temperature,
-			WindBearing:       c.WindBearing,
-			WindChill:         c.WindChill,
-			WindGust:          c.WindGust,
-			WindSpeed:         c.WindSpeed,
-			Precip:            c.Precip,
-			PrecipProbability: c.PrecipProbability,
-			TemperatureMax:    c.MaxTemp,
-			TemperatureMin:    c.MinTemp,
-		}
-	}
-	return &wx.Period{Conditions: conditions}
+type location struct {
+	Address            string               `json:"address"`
+	Alerts             []alert              `json:"alerts"`
+	ForecastConditions []forecastConditions `json:"values"`
+	CurrentConditions  currentConditions    `json:"currentConditions"`
+	Distance           float64              `json:"distance"`
+	ID                 string               `json:"id"`
+	Index              int                  `json:"index"`
+	Latitude           float64              `json:"latitude"`
+	Longitude          float64              `json:"longitude"`
+	Name               string               `json:"name"`
+	Time               float64              `json:"time"`
+	Timezone           string               `json:"tz"`
 }
 
-// Forecast .
-type Forecast struct {
-	Columns       Columns     `json:"columns"`
+type forecast struct {
+	Columns       columns     `json:"columns"`
 	RemainingCost int         `json:"remainingCost"`
 	QueryCost     int         `json:"queryCost"`
 	Messages      interface{} `json:"messages"`
-	Locations     []Location  `json:"locations"`
+	Locations     []location  `json:"locations"`
 }
 
-// WxForecasts .
-func (f *Forecast) WxForecasts() []*wx.Forecast {
-	fcsts := make([]*wx.Forecast, len(f.Locations))
-	for i, loc := range f.Locations {
-		x := &wx.Forecast{
-			ID:        loc.ID,
-			Latitude:  loc.Latitude,
-			Longitude: loc.Longitude,
-			Timezone:  loc.Timezone,
-			Current:   loc.WxConditions(),
-			Period:    loc.WxPeriod(),
-		}
-		fcsts[i] = x
+// WxForecast .
+func (f *forecast) WxForecast() (*wx.Forecast, error) {
+	loc := f.Locations[0]
+	conditions := make([]*wx.Conditions, len(loc.ForecastConditions))
+	for i, c := range loc.ForecastConditions {
+		conditions[i] = c.WxConditions()
 	}
-	return fcsts
+	return &wx.Forecast{
+		ID:        loc.ID,
+		Latitude:  loc.Latitude,
+		Longitude: loc.Longitude,
+		Timezone:  loc.Timezone,
+		Current:   loc.CurrentConditions.WxConditions(),
+		Period:    &wx.Period{Conditions: conditions},
+	}, nil
 }

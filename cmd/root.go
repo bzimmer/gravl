@@ -25,6 +25,7 @@ const (
 )
 
 var (
+	debug      bool
 	compact    bool
 	monochrome bool
 	verbosity  string
@@ -69,16 +70,17 @@ func init() {
 }
 
 func initLogging(cmd *cobra.Command) error {
-	x, err := zerolog.ParseLevel(verbosity)
+	level, err := zerolog.ParseLevel(verbosity)
 	if err != nil {
 		return err
 	}
-	zerolog.SetGlobalLevel(x)
+	debug = (level == zerolog.DebugLevel)
+	zerolog.SetGlobalLevel(level)
 	zerolog.DurationFieldUnit = time.Millisecond
 	zerolog.DurationFieldInteger = true
 	log.Logger = log.Output(
 		zerolog.ConsoleWriter{
-			Out:     os.Stderr,
+			Out:     cmd.OutOrStderr(),
 			NoColor: monochrome,
 		},
 	)

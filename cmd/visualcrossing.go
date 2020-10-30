@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 
 	"github.com/bzimmer/gravl/pkg/common"
@@ -14,42 +13,34 @@ var (
 )
 
 func visualcrossing(cmd *cobra.Command, args []string) error {
-	var (
-		err  error
-		fcst []*wx.Forecast
-	)
-	lvl, err := zerolog.ParseLevel(verbosity)
-	if err != nil {
-		return err
-	}
-
 	c, err := vc.NewClient(
 		vc.WithAPIKey(visualcrossingAPIKey),
-		vc.WithVerboseLogging(lvl == zerolog.DebugLevel),
+		vc.WithVerboseLogging(debug),
 	)
 	if err != nil {
 		return err
 	}
 
-	fcst, err = c.Forecast.Forecast(cmd.Context(),
-		vc.WithLocations(args...),
-		vc.WithAstronomy(true),
-		vc.WithUnits(vc.UnitsUS),
-		vc.WithAggregateHours(12),
-		vc.WithAlerts(vc.AlertLevelDetail))
-	if err != nil {
-		return err
-	}
-
-	fc, err := wx.NewFeatureCollection(fcst...)
-	if err != nil {
-		return err
-	}
-
-	encoder := common.NewEncoder(compact)
-	err = encoder.Encode(fc)
-	if err != nil {
-		return err
+	encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
+	for _, arg := range args {
+		fcst, err := c.Forecast.Forecast(
+			cmd.Context(),
+			vc.WithLocation(arg),
+			vc.WithAstronomy(true),
+			vc.WithUnits(vc.UnitsUS),
+			vc.WithAggregateHours(12),
+			vc.WithAlerts(vc.AlertLevelDetail))
+		if err != nil {
+			return err
+		}
+		fc, err := wx.NewFeatureCollection(fcst)
+		if err != nil {
+			return err
+		}
+		err = encoder.Encode(fc)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -17,19 +17,27 @@ func Test_MakeValues(t *testing.T) {
 		WithAstronomy(true),
 		WithUnits(UnitsUK),
 		WithAggregateHours(12),
-		WithLocations("48.9201,-122.092", "Missoula, MT", "Basel, Switzerland"),
+		WithLocation("48.9201,-122.092"),
 		WithAlerts(AlertLevelDetail),
 	})
 	a.NoError(err)
 	a.NotNil(v)
-
 	q := v.Encode()
-	a.Equal("aggregateHours=12&alertLevel=detail&includeAstronomy=true&locations=48.9201%2C-122.092%7CMissoula%2C+MT%7CBasel%2C+Switzerland&unitGroup=uk", q)
+	a.Equal("aggregateHours=12&alertLevel=detail&includeAstronomy=true&locations=48.9201%2C-122.092&unitGroup=uk", q)
+
+	// test re-using options
+	v, err = makeValues([]ForecastOption{
+		WithUnits(UnitsUS),
+		WithUnits(UnitsUK),
+		WithUnits(UnitsMetric),
+	})
+	q = v.Encode()
+	a.Equal("unitGroup=metric", q)
 
 	v = &url.Values{}
 	a.Error(WithUnits("foo")(v))
 	a.Error(WithAlerts("bar")(v))
-	a.Error(WithAggregateHours(100)(v))
+	a.Error(WithAggregateHours(-1000)(v))
 }
 
 func Test_Model(t *testing.T) {
@@ -40,7 +48,7 @@ func Test_Model(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(reader)
 
-	var fcst Forecast
+	var fcst forecast
 	err = json.NewDecoder(reader).Decode(&fcst)
 	a.NoError(err)
 

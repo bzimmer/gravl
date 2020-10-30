@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/bzimmer/gravl/pkg/common/wx"
 )
 
 // PointsService .
@@ -33,26 +35,26 @@ func (s *PointsService) GridPoint(ctx context.Context, latitude, longitude float
 }
 
 // Forecast .
-func (s *PointsService) Forecast(ctx context.Context, latitude, longitude float64) (*Forecast, error) {
+func (s *PointsService) Forecast(ctx context.Context, latitude, longitude float64) (*wx.Forecast, error) {
 	uri := fmt.Sprintf("points/%s,%s/forecast", float64ToString(latitude), float64ToString(longitude))
 	return s.forecast(ctx, uri)
 }
 
 // ForecastHourly .
-func (s *PointsService) ForecastHourly(ctx context.Context, latitude, longitude float64) (*Forecast, error) {
+func (s *PointsService) ForecastHourly(ctx context.Context, latitude, longitude float64) (*wx.Forecast, error) {
 	uri := fmt.Sprintf("points/%s,%s/forecast/hourly", float64ToString(latitude), float64ToString(longitude))
 	return s.forecast(ctx, uri)
 }
 
-func (s *PointsService) forecast(ctx context.Context, uri string) (*Forecast, error) {
+func (s *PointsService) forecast(ctx context.Context, uri string) (*wx.Forecast, error) {
 	req, err := s.client.newAPIRequest(http.MethodGet, uri)
 	if err != nil {
 		return nil, err
 	}
-	fct := &Forecast{}
+	fct := &forecast{}
 	err = s.client.Do(ctx, req, fct)
 	if err != nil {
 		return nil, err
 	}
-	return fct, err
+	return fct.WxForecasts()
 }

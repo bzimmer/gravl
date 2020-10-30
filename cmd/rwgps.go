@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	gj "github.com/paulmach/go.geojson"
-	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 
 	"github.com/bzimmer/gravl/pkg/common"
@@ -25,19 +24,15 @@ func rwgps(cmd *cobra.Command, args []string) error {
 		err error
 		tr  *gj.FeatureCollection
 	)
-	lvl, err := zerolog.ParseLevel(verbosity)
-	if err != nil {
-		return err
-	}
 	c, err := rw.NewClient(
 		rw.WithAPIKey(rwgpsAPIKey),
 		rw.WithAuthToken(rwgpsAuthToken),
-		rw.WithVerboseLogging(lvl == zerolog.DebugLevel),
+		rw.WithVerboseLogging(debug),
 	)
 	if err != nil {
 		return err
 	}
-	encoder := common.NewEncoder(compact)
+	encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
 	if user {
 		user, err := c.Users.AuthenticatedUser(cmd.Context())
 		if err != nil {
