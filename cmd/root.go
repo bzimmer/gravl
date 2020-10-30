@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -30,6 +32,7 @@ var (
 	monochrome bool
 	verbosity  string
 	config     string
+	encoder    *json.Encoder
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -44,6 +47,7 @@ var rootCmd = &cobra.Command{
 		if err := initConfig(cmd); err != nil {
 			return nil
 		}
+		encoder = common.NewEncoder(cmd.OutOrStdout(), compact)
 		return nil
 	},
 }

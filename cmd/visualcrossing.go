@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/common/wx"
 	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
 )
@@ -21,7 +20,6 @@ func visualcrossing(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
 	for _, arg := range args {
 		fcst, err := c.Forecast.Forecast(
 			cmd.Context(),

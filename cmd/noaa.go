@@ -68,7 +68,6 @@ func noaa(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
 	err = encoder.Encode(fc)
 	if err != nil {
 		return err

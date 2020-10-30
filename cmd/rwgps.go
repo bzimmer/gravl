@@ -7,7 +7,6 @@ import (
 	gj "github.com/paulmach/go.geojson"
 	"github.com/spf13/cobra"
 
-	"github.com/bzimmer/gravl/pkg/common"
 	rw "github.com/bzimmer/gravl/pkg/rwgps"
 )
 
@@ -32,7 +31,6 @@ func rwgps(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
 	if user {
 		user, err := c.Users.AuthenticatedUser(cmd.Context())
 		if err != nil {

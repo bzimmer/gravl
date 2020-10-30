@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/bzimmer/gravl/pkg/common"
 	gn "github.com/bzimmer/gravl/pkg/gnis"
 )
 
@@ -14,7 +13,6 @@ func gnis(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	encoder := common.NewEncoder(cmd.OutOrStdout(), compact)
 	for _, arg := range args {
 		features, err := g.GeoNames.Query(cmd.Context(), arg)
 		if err != nil {
