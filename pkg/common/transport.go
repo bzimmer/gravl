@@ -28,12 +28,19 @@ func (t *VerboseTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 	return res, err
 }
 
+// Requester .
+type Requester func(*http.Request) error
+
+// Responder .
+type Responder func(*http.Response) error
+
 // TestDataTransport .
 type TestDataTransport struct {
 	Status      int
 	Filename    string
 	ContentType string
-	Validator   func(*http.Request) error
+	Requester   Requester
+	Responder   Responder
 }
 
 // RoundTrip .
@@ -42,8 +49,8 @@ func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error)
 		err  error
 		data []byte
 	)
-	if t.Validator != nil {
-		err = t.Validator(req)
+	if t.Requester != nil {
+		err = t.Requester(req)
 		if err != nil {
 			return nil, err
 		}
@@ -59,13 +66,21 @@ func (t *TestDataTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	}
 
 	header := make(http.Header)
-	header.Add("Content-Type", t.ContentType)
+	header.Set("Content-Type", t.ContentType)
 
-	return &http.Response{
+	res := &http.Response{
 		StatusCode:    t.Status,
 		ContentLength: int64(len(data)),
 		Body:          ioutil.NopCloser(bytes.NewBuffer(data)),
 		Header:        header,
 		Request:       req,
-	}, nil
+	}
+	if t.Responder != nil {
+		err = t.Responder(res)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
 }

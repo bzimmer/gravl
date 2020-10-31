@@ -1,0 +1,48 @@
+package strava_test
+
+import (
+	"context"
+	"math"
+	"net/http"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func Test_Athlete(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	client, err := newClient(http.StatusOK, "athlete.json")
+	ctx := context.Background()
+	ath, err := client.Athlete.Athlete(ctx)
+	a.NoError(err, "failed decoding")
+	a.NotNil(ath)
+	a.Equal(1122, ath.ID)
+	a.Equal(1, len(ath.Bikes))
+	a.Equal(1, len(ath.Shoes))
+}
+
+func Test_AthleteNotAuthorized(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	client, err := newClient(http.StatusUnauthorized, "athlete_unauthorized.json")
+	ctx := context.Background()
+	ath, err := client.Athlete.Athlete(ctx)
+	a.Error(err)
+	a.Nil(ath)
+}
+
+func Test_AthleteStats(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	client, err := newClient(http.StatusOK, "athlete_stats.json")
+	ctx := context.Background()
+	sts, err := client.Athlete.Stats(ctx, 88273)
+	a.NoError(err, "failed decoding")
+	a.NotNil(sts)
+	a.Equal(float64(14492298), math.Trunc(sts.AllRideTotals.Distance))
+	a.Equal(12441, sts.AllSwimTotals.ElapsedTime)
+	a.Equal(float64(1597), math.Trunc(sts.BiggestClimbElevationGain))
+}
