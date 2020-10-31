@@ -6,13 +6,6 @@ import (
 	sa "github.com/bzimmer/gravl/pkg/strava"
 )
 
-var (
-	stravaAPIKey       string
-	stravaAPISecret    string
-	stravaAccessToken  string
-	stravaRefreshToken string
-)
-
 func strava(cmd *cobra.Command, args []string) error {
 	c, err := sa.NewClient(
 		sa.WithVerboseLogging(debug),

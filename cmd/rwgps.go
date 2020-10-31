@@ -10,14 +10,6 @@ import (
 	rw "github.com/bzimmer/gravl/pkg/rwgps"
 )
 
-var (
-	trip           bool
-	route          bool
-	user           bool
-	rwgpsAPIKey    string
-	rwgpsAuthToken string
-)
-
 func rwgps(cmd *cobra.Command, args []string) error {
 	var (
 		err error
@@ -31,7 +23,7 @@ func rwgps(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if user {
+	if rwgpsUser {
 		user, err := c.Users.AuthenticatedUser(cmd.Context())
 		if err != nil {
 			return err
@@ -47,7 +39,7 @@ func rwgps(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		if trip {
+		if rwgpsTrip {
 			tr, err = c.Trips.Trip(cmd.Context(), x)
 		} else {
 			tr, err = c.Trips.Route(cmd.Context(), x)
@@ -68,9 +60,9 @@ func init() {
 	rwgpsCmd.Flags().StringVarP(&rwgpsAPIKey, "rwgps_apikey", "k", "", "API key")
 	rwgpsCmd.Flags().StringVarP(&rwgpsAuthToken, "rwgps_authtoken", "a", "", "Auth token")
 
-	rwgpsCmd.Flags().BoolVarP(&trip, "trip", "t", false, "Trip")
-	rwgpsCmd.Flags().BoolVarP(&route, "route", "r", false, "Route")
-	rwgpsCmd.Flags().BoolVarP(&user, "user", "u", false, "User")
+	rwgpsCmd.Flags().BoolVarP(&rwgpsTrip, "trip", "t", false, "Trip")
+	rwgpsCmd.Flags().BoolVarP(&rwgpsRoute, "route", "r", false, "Route")
+	rwgpsCmd.Flags().BoolVarP(&rwgpsUser, "user", "u", false, "User")
 }
 
 var rwgpsCmd = &cobra.Command{
@@ -80,7 +72,7 @@ var rwgpsCmd = &cobra.Command{
 	Aliases: []string{"r"},
 	RunE:    rwgps,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if trip && route {
+		if rwgpsTrip && rwgpsRoute {
 			return errors.New("only one of trip or route allowed")
 		}
 		return nil

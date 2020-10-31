@@ -14,11 +14,12 @@ import (
 )
 
 const (
-	authKey = "_stravaAuthTokens"
+	authKey      = "_stravaAuthTokens"
+	providerName = "strava"
 )
 
 // AuthRequired is gin middleware for ensuring the user is authenticated
-func AuthRequired() func(c *gin.Context) {
+func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 		authTokensJSON := session.Get(authKey)
@@ -46,14 +47,7 @@ func AuthRequired() func(c *gin.Context) {
 
 		log.Warn().Time("expiresAt", authTokens.ExpiresAt).Time("now", now).Msg("authrequired")
 
-		name, err := gothic.GetProviderName(c.Request)
-		if err != nil {
-			c.Abort()
-			c.Error(err)
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "unable to find provider name"})
-			return
-		}
-		provider, err := goth.GetProvider(name)
+		provider, err := goth.GetProvider(providerName)
 		if err != nil {
 			c.Abort()
 			c.Error(err)
@@ -76,49 +70,53 @@ func AuthRequired() func(c *gin.Context) {
 }
 
 // AuthHandler starts the OAuth session
-func AuthHandler(c *gin.Context) {
-	gothic.BeginAuthHandler(c.Writer, c.Request)
+func AuthHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		gothic.BeginAuthHandler(c.Writer, c.Request)
+	}
 }
 
 // AuthCallbackHandler supports the callback from Strava
-func AuthCallbackHandler(c *gin.Context) {
-	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
-	if err != nil {
-		c.Abort()
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
-		return
+func AuthCallbackHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+		if err != nil {
+			c.Abort()
+			c.Error(err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		log.Info().
+			Str("athleteID", user.UserID).
+			Time("expiresAt", user.ExpiresAt).
+			Send()
+
+		athleteID, err := strconv.Atoi(user.UserID)
+		if err != nil {
+			c.Abort()
+			c.Error(err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		authTokens := AuthTokens{
+			AthleteID:    athleteID,
+			AccessToken:  user.AccessToken,
+			RefreshToken: user.RefreshToken,
+			ExpiresAt:    user.ExpiresAt,
+		}
+
+		err = saveTokens(c, authTokens)
+		if err != nil {
+			c.Abort()
+			c.Error(err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.IndentedJSON(http.StatusOK, authTokens)
 	}
-
-	log.Info().
-		Str("athleteID", user.UserID).
-		Time("expiresAt", user.ExpiresAt).
-		Send()
-
-	athID, err := strconv.Atoi(user.UserID)
-	if err != nil {
-		c.Abort()
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-
-	authTokens := AuthTokens{
-		AthleteID:    athID,
-		AccessToken:  user.AccessToken,
-		RefreshToken: user.RefreshToken,
-		ExpiresAt:    user.ExpiresAt,
-	}
-
-	err = saveTokens(c, authTokens)
-	if err != nil {
-		c.Abort()
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, authTokens)
 }
 
 // saveTokens saves the auth tokens to the database and session

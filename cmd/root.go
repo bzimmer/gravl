@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -25,32 +24,6 @@ const (
 	// For example, --number is bound to GRAVL_NUMBER.
 	envPrefix = "GRAVL"
 )
-
-var (
-	debug      bool
-	compact    bool
-	monochrome bool
-	verbosity  string
-	config     string
-	encoder    *json.Encoder
-)
-
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "gravl",
-	Short: "Tools for planning adventures",
-	Long:  `Planning outdoor adventures since 2020.`,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		if err := initLogging(cmd); err != nil {
-			return nil
-		}
-		if err := initConfig(cmd); err != nil {
-			return nil
-		}
-		encoder = common.NewEncoder(cmd.OutOrStdout(), compact)
-		return nil
-	},
-}
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -116,13 +89,13 @@ func initConfig(cmd *cobra.Command) error {
 	// caused by a config file not being found. Return an error
 	// if we cannot parse the config file.
 	if err := v.ReadInConfig(); err != nil {
-		log.Debug().Str("path", v.ConfigFileUsed()).Msg("config")
 		// It's okay if there isn't a config file
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			log.Warn().Err(err).Str("path", v.ConfigFileUsed()).Msg("config")
 			return err
 		}
 	}
+	log.Debug().Str("path", v.ConfigFileUsed()).Msg("config")
 
 	// When we bind flags to environment variables expect that the
 	// environment variables are prefixed, e.g. a flag like --number
@@ -132,7 +105,7 @@ func initConfig(cmd *cobra.Command) error {
 
 	// Bind to environment variables
 	// Works great for simple config names, but needs help for names
-	// like --favorite-color which we fix in the bindFlags function
+	// like --favorite-color which we fix below
 	v.AutomaticEnv()
 
 	// Bind the current command's flags to viper
@@ -151,4 +124,21 @@ func initConfig(cmd *cobra.Command) error {
 		}
 	})
 	return nil
+}
+
+// rootCmd represents the base command when called without any subcommands
+var rootCmd = &cobra.Command{
+	Use:   "gravl",
+	Short: "Tools for planning adventures",
+	Long:  `Planning outdoor adventures since 2020.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if err := initLogging(cmd); err != nil {
+			return nil
+		}
+		if err := initConfig(cmd); err != nil {
+			return nil
+		}
+		encoder = common.NewEncoder(cmd.OutOrStdout(), compact)
+		return nil
+	},
 }
