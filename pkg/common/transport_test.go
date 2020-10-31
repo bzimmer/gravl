@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/common"
@@ -25,7 +24,6 @@ func Test_VerboseTransport(t *testing.T) {
 			},
 		},
 		&common.VerboseTransport{
-			Event: log.Debug(),
 			Transport: &common.TestDataTransport{
 				Filename:    "transport.txt",
 				Status:      http.StatusOK,

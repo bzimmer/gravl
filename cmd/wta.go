@@ -1,11 +1,10 @@
 package cmd
 
 import (
-	"github.com/bzimmer/gravl/pkg/common"
-	w "github.com/bzimmer/gravl/pkg/wta"
-
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+
+	w "github.com/bzimmer/gravl/pkg/wta"
 )
 
 func wta(cmd *cobra.Command, args []string) error {
@@ -14,7 +13,9 @@ func wta(cmd *cobra.Command, args []string) error {
 		args = append(args, "")
 	}
 
-	c, err := w.NewClient()
+	c, err := w.NewClient(
+		w.WithVerboseLogging(debug),
+	)
 	if err != nil {
 		return err
 	}
@@ -29,7 +30,6 @@ func wta(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	encoder := common.NewEncoder(compact)
 	err = encoder.Encode(reports)
 	if err != nil {
 		return err

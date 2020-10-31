@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -43,7 +42,7 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for talking to the WTA website
+	// Services used for communicating with the WTA website
 	c.Reports = &ReportsService{client: c}
 	c.Regions = &RegionsService{client: c}
 
@@ -78,17 +77,17 @@ func WithTransport(transport http.RoundTripper) Option {
 	}
 }
 
-// ---
-
-// NewRouter .
-func NewRouter(client *Client) *gin.Engine {
-	r := gin.New()
-	r.Use(LogMiddleware(), gin.Recovery())
-	r.GET("/version/", VersionHandler())
-	r.GET("/regions/", RegionsHandler())
-	r.GET("/reports/", TripReportsHandler(client))
-	r.GET("/reports/:reporter", TripReportsHandler(client))
-	return r
+// WithVerboseLogging .
+func WithVerboseLogging(debug bool) Option {
+	return func(c *Client) error {
+		if !debug {
+			return nil
+		}
+		c.client.Transport = &common.VerboseTransport{
+			Transport: c.client.Transport,
+		}
+		return nil
+	}
 }
 
 // TripReportsHandler .
@@ -110,52 +109,5 @@ func TripReportsHandler(client *Client) gin.HandlerFunc {
 func RegionsHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, Regions)
-	}
-}
-
-// VersionHandler .
-func VersionHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, map[string]string{
-			"build_version": BuildVersion,
-		})
-	}
-}
-
-// LogMiddleware .
-func LogMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		start := time.Now()
-		c.Next()
-		duration := time.Since(start)
-
-		msg := "Request"
-		if len(c.Errors) > 0 {
-			msg = c.Errors.String()
-		}
-
-		var entry *zerolog.Event
-		switch {
-		case c.Writer.Status() >= http.StatusBadRequest && c.Writer.Status() < http.StatusInternalServerError:
-			{
-				entry = log.Warn()
-			}
-		case c.Writer.Status() >= http.StatusInternalServerError:
-			{
-				entry = log.Error()
-			}
-		default:
-			entry = log.Info()
-		}
-
-		entry.
-			Str("client_ip", c.ClientIP()).
-			Dur("elapsed", duration).
-			Str("method", c.Request.Method).
-			Str("path", c.Request.RequestURI).
-			Int("status", c.Writer.Status()).
-			Str("referrer", c.Request.Referer()).
-			Str("user_agent", c.Request.Header.Get("User-Agent")).
-			Msg(msg)
 	}
 }

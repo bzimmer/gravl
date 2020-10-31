@@ -4,20 +4,18 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/bzimmer/gravl/pkg/common"
-	rw "github.com/bzimmer/gravl/pkg/rwgps"
-
 	gj "github.com/paulmach/go.geojson"
-	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
+
+	rw "github.com/bzimmer/gravl/pkg/rwgps"
 )
 
 var (
-	trip      bool
-	route     bool
-	user      bool
-	apiKey    string
-	authToken string
+	trip           bool
+	route          bool
+	user           bool
+	rwgpsAPIKey    string
+	rwgpsAuthToken string
 )
 
 func rwgps(cmd *cobra.Command, args []string) error {
@@ -25,19 +23,14 @@ func rwgps(cmd *cobra.Command, args []string) error {
 		err error
 		tr  *gj.FeatureCollection
 	)
-	lvl, err := zerolog.ParseLevel(verbosity)
-	if err != nil {
-		return err
-	}
 	c, err := rw.NewClient(
-		rw.WithAPIKey(apiKey),
-		rw.WithAuthToken(authToken),
-		rw.WithVerboseLogging(lvl == zerolog.DebugLevel),
+		rw.WithAPIKey(rwgpsAPIKey),
+		rw.WithAuthToken(rwgpsAuthToken),
+		rw.WithVerboseLogging(debug),
 	)
 	if err != nil {
 		return err
 	}
-	encoder := common.NewEncoder(compact)
 	if user {
 		user, err := c.Users.AuthenticatedUser(cmd.Context())
 		if err != nil {
@@ -72,8 +65,8 @@ func rwgps(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddCommand(rwgpsCmd)
-	rwgpsCmd.Flags().StringVarP(&apiKey, "rwgps_apikey", "k", "", "API key")
-	rwgpsCmd.Flags().StringVarP(&authToken, "rwgps_authtoken", "a", "", "Auth token")
+	rwgpsCmd.Flags().StringVarP(&rwgpsAPIKey, "rwgps_apikey", "k", "", "API key")
+	rwgpsCmd.Flags().StringVarP(&rwgpsAuthToken, "rwgps_authtoken", "a", "", "Auth token")
 
 	rwgpsCmd.Flags().BoolVarP(&trip, "trip", "t", false, "Trip")
 	rwgpsCmd.Flags().BoolVarP(&route, "route", "r", false, "Route")

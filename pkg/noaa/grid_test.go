@@ -20,7 +20,7 @@ func Test_GridPoints_Forecast(t *testing.T) {
 	f, err := c.GridPoints.Forecast(b, "SEW", 156, 81)
 	a.NoError(err)
 	a.NotNil(f)
-	a.Equal(14, len(f.Properties.Periods))
+	a.Equal(14, len(f.Period.Conditions))
 
 	c, err = newClient(http.StatusNotFound, "unavailable_forecast.json")
 	a.NoError(err)

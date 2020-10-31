@@ -1,0 +1,6 @@
+{
+    "errorCode": 106,
+    "sessionId": "",
+    "executionTime": -1,
+    "message": "No session found with id 'null'. The session may have expired"
+}

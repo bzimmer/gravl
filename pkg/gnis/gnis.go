@@ -2,6 +2,8 @@ package gnis
 
 import (
 	"net/http"
+
+	"github.com/bzimmer/gravl/pkg/common"
 )
 
 // Client .
@@ -30,17 +32,30 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for talking to the GNIS website
+	// Services used for communicating with GNIS
 	c.GeoNames = &GeoNamesService{client: c}
 
 	return c, nil
 }
 
-// WithTransport transport
+// WithTransport .
 func WithTransport(transport http.RoundTripper) Option {
 	return func(c *Client) error {
 		if transport != nil {
 			c.client.Transport = transport
+		}
+		return nil
+	}
+}
+
+// WithVerboseLogging .
+func WithVerboseLogging(debug bool) Option {
+	return func(c *Client) error {
+		if !debug {
+			return nil
+		}
+		c.client.Transport = &common.VerboseTransport{
+			Transport: c.client.Transport,
 		}
 		return nil
 	}

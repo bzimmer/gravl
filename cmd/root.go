@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -25,10 +27,12 @@ const (
 )
 
 var (
+	debug      bool
 	compact    bool
 	monochrome bool
 	verbosity  string
 	config     string
+	encoder    *json.Encoder
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -43,6 +47,7 @@ var rootCmd = &cobra.Command{
 		if err := initConfig(cmd); err != nil {
 			return nil
 		}
+		encoder = common.NewEncoder(cmd.OutOrStdout(), compact)
 		return nil
 	},
 }
@@ -69,16 +74,17 @@ func init() {
 }
 
 func initLogging(cmd *cobra.Command) error {
-	x, err := zerolog.ParseLevel(verbosity)
+	level, err := zerolog.ParseLevel(verbosity)
 	if err != nil {
 		return err
 	}
-	zerolog.SetGlobalLevel(x)
+	debug = (level == zerolog.DebugLevel)
+	zerolog.SetGlobalLevel(level)
 	zerolog.DurationFieldUnit = time.Millisecond
 	zerolog.DurationFieldInteger = true
 	log.Logger = log.Output(
 		zerolog.ConsoleWriter{
-			Out:     os.Stderr,
+			Out:     cmd.OutOrStderr(),
 			NoColor: monochrome,
 		},
 	)

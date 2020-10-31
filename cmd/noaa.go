@@ -6,26 +6,28 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/common"
-	na "github.com/bzimmer/gravl/pkg/noaa"
-
 	gj "github.com/paulmach/go.geojson"
 	"github.com/spf13/cobra"
+
+	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/bzimmer/gravl/pkg/common/wx"
+	na "github.com/bzimmer/gravl/pkg/noaa"
 )
 
 func noaa(cmd *cobra.Command, args []string) error {
 	c, err := na.NewClient(
-		na.WithTimeout(10 * time.Second),
+		na.WithVerboseLogging(debug),
+		na.WithTimeout(10*time.Second),
 	)
 	if err != nil {
 		return err
 	}
 
-	var forecast *na.Forecast
+	var forecast *wx.Forecast
 	switch len(args) {
 	case 0:
 		geom := &gj.Geometry{}
-		decoder := common.NewDecoder()
+		decoder := common.NewDecoder(cmd.InOrStdin())
 		err := decoder.Decode(geom)
 		if err != nil {
 			return err
@@ -61,8 +63,12 @@ func noaa(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	encoder := common.NewEncoder(compact)
-	err = encoder.Encode(forecast)
+
+	fc, err := wx.NewFeatureCollection(forecast)
+	if err != nil {
+		return err
+	}
+	err = encoder.Encode(fc)
 	if err != nil {
 		return err
 	}
@@ -77,6 +83,6 @@ var noaaCmd = &cobra.Command{
 	Use:     "noaa",
 	Short:   "Run noaa",
 	Long:    `Run noaa`,
-	Aliases: []string{"n", "f"},
+	Aliases: []string{"n"},
 	RunE:    noaa,
 }
