@@ -1,17 +1,16 @@
 package strava
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/bzimmer/gravl/pkg/common"
 )
 
 const (
-	headerRateLimit = "X-Ratelimit-Limit"
-	headerRateUsage = "X-Ratelimit-Usage"
+	// HeaderRateLimit header
+	HeaderRateLimit = "X-Ratelimit-Limit"
+	// HeaderRateUsage header
+	HeaderRateUsage = "X-Ratelimit-Usage"
 )
 
 // RateLimit .
@@ -24,16 +23,14 @@ type RateLimit struct {
 }
 
 type rateLimitedTransport struct {
-	transport http.RoundTripper
 	rateLimit *RateLimit
+	transport http.RoundTripper
 }
 
 // RoundTrip .
 func (r *rateLimitedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	common.NewEncoder(nil, true).Encode(r.rateLimit)
 	if r.rateLimit != nil && r.rateLimit.IsThrottled() {
-		fmt.Println("there!")
-		return nil, r.rateLimit.NewError()
+		return nil, r.rateLimit.newError()
 	}
 
 	res, err := r.transport.RoundTrip(req)
@@ -44,7 +41,6 @@ func (r *rateLimitedTransport) RoundTrip(req *http.Request) (*http.Response, err
 			return nil, err
 		}
 		r.rateLimit = rl
-		common.NewEncoder(nil, true).Encode(r.rateLimit)
 	}
 
 	return res, err
@@ -86,8 +82,7 @@ func (r *RateLimit) IsThrottled() bool {
 	return r.PercentDaily() >= 100.0 || r.PercentWindow() >= 100.0
 }
 
-// NewError .
-func (r *RateLimit) NewError() *RateLimitError {
+func (r *RateLimit) newError() *RateLimitError {
 	return newRateLimitError(r)
 }
 
@@ -101,12 +96,12 @@ func (r *RateLimit) NewError() *RateLimitError {
 //   X-Ratelimit-Usage: 314,27536
 func parseRateLimit(res *http.Response) (*RateLimit, error) {
 	var rateLimit RateLimit
-	if limit := res.Header.Get(headerRateLimit); limit != "" {
+	if limit := res.Header.Get(HeaderRateLimit); limit != "" {
 		limits := strings.Split(limit, ",")
 		rateLimit.LimitWindow, _ = strconv.Atoi(limits[0])
 		rateLimit.LimitDaily, _ = strconv.Atoi(limits[1])
 	}
-	if usage := res.Header.Get(headerRateUsage); usage != "" {
+	if usage := res.Header.Get(HeaderRateUsage); usage != "" {
 		usages := strings.Split(usage, ",")
 		rateLimit.UsageWindow, _ = strconv.Atoi(usages[0])
 		rateLimit.UsageDaily, _ = strconv.Atoi(usages[1])

@@ -32,8 +32,8 @@ func Test_RateLimitExceeded(t *testing.T) {
 		"exceeded_rate_limit.json",
 		nil,
 		func(res *http.Response) error {
-			res.Header.Add("X-Ratelimit-Limit", "600,30000")
-			res.Header.Add("X-Ratelimit-Usage", "601,30100")
+			res.Header.Add(strava.HeaderRateLimit, "600,30000")
+			res.Header.Add(strava.HeaderRateUsage, "601,30100")
 			return nil
 		})
 	strava.WithRateLimitThrottling()(client)
@@ -68,8 +68,8 @@ func Test_RateLimitTransport(t *testing.T) {
 		"athlete_stats.json",
 		nil,
 		func(res *http.Response) error {
-			res.Header.Add("X-Ratelimit-Limit", "600,30000")
-			res.Header.Add("X-Ratelimit-Usage", "314,27536")
+			res.Header.Add(strava.HeaderRateLimit, "600,30000")
+			res.Header.Add(strava.HeaderRateUsage, "314,27536")
 			return nil
 		})
 	a.NoError(err)

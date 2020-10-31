@@ -8,39 +8,35 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bzimmer/gravl/pkg/strava"
 )
 
-// func Test_WebhookSubscribe(t *testing.T) {
-// 	t.Parallel()
-// 	a := assert.New(t)
-// 	client, err := NewTestClient(func(req *http.Request) (*http.Response, error) {
-// 		a.Equal(http.MethodPost, req.Method)
-// 		a.Equal("clientID", req.FormValue("client_id"))
-// 		a.Equal("clientSecret", req.FormValue("client_secret"))
-// 		a.Equal("https://example.com/wh/callback", req.FormValue("callback_url"))
-// 		a.Equal("verifyToken123", req.FormValue("verify_token"))
-// 		return &http.Response{
-// 			StatusCode: http.StatusOK,
-// 			Body: ioutil.NopCloser(bytes.NewBufferString(`{
-// 				"application_id":31898,
-// 				"callback_url":"https://4cbd9ddb9748.ngrok.io/strava/webhook",
-// 				"created_at":"2020-10-06T01:27:31Z",
-// 				"id":165928,
-// 				"resource_state":2,
-// 				"updated_at":"2020-10-06T01:27:31Z"}`)),
-// 			Header: make(http.Header),
-// 		}, nil
-// 	})
-// 	err = WithWebhookCredentials("clientID", "clientSecret")(client)
-// 	a.NoError(err)
-// 	ctx := context.Background()
-// 	msg, err := client.Webhook.Subscribe(ctx, "https://example.com/wh/callback", "verifyToken123")
-// 	a.NoError(err)
-// 	a.NotNil(msg)
-// }
+func Test_WebhookSubscribe(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	client, err := newClienter(
+		http.StatusOK,
+		"webhook_subscribe.json",
+		func(req *http.Request) error {
+			a.Equal(http.MethodPost, req.Method)
+			a.Equal("someID", req.FormValue("client_id"))
+			a.Equal("someSecret", req.FormValue("client_secret"))
+			a.Equal("https://example.com/wh/callback", req.FormValue("callback_url"))
+			a.Equal("verifyToken123", req.FormValue("verify_token"))
+			return nil
+		},
+		nil)
+	err = strava.WithWebhookCredentials("someID", "someSecret")(client)
+	a.NoError(err)
+	ctx := context.Background()
+	msg, err := client.Webhook.Subscribe(ctx, "https://example.com/wh/callback", "verifyToken123")
+	a.NoError(err)
+	a.NotNil(msg)
+	a.Equal(165928, msg.ID)
+}
 
 func Test_WebhookUnsubscribe(t *testing.T) {
 	t.Parallel()

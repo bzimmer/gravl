@@ -19,8 +19,8 @@ type SubscriptionAcknowledgement struct {
 	ID int `json:"id"`
 }
 
-// SubscriptionDetails describes the details of webhook subscription
-type SubscriptionDetails struct {
+// Subscription describes the details of webhook subscription
+type Subscription struct {
 	ID            int       `json:"id"`
 	ResourceState int       `json:"resource_state"`
 	ApplicationID int       `json:"application_id"`
@@ -77,13 +77,13 @@ func (s *WebhookService) Unsubscribe(ctx context.Context, subscriptionID int) er
 }
 
 // Subscriptions returns a list of subscribtions
-func (s *WebhookService) Subscriptions(ctx context.Context) (*[]SubscriptionDetails, error) {
+func (s *WebhookService) Subscriptions(ctx context.Context) (*[]Subscription, error) {
 	uri := fmt.Sprintf("push_subscriptions?client_id=%s&client_secret=%s", s.client.stravaKey, s.client.stravaSecret)
 	req, err := s.client.newWebhookRequest(http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
 	}
-	subs := &[]SubscriptionDetails{}
+	subs := &[]Subscription{}
 	err = s.client.Do(ctx, req, subs)
 	if err != nil {
 		return nil, err
