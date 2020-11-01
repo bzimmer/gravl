@@ -15,21 +15,6 @@ const (
 	pageSize = 100
 )
 
-// Activity returns the activity specified by id for an athlete
-func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, error) {
-	uri := fmt.Sprintf("activities/%d", id)
-	req, err := s.client.newAPIRequest(http.MethodGet, uri)
-	if err != nil {
-		return nil, err
-	}
-	act := &Activity{}
-	err = s.client.Do(ctx, req, act)
-	if err != nil {
-		return nil, err
-	}
-	return act, err
-}
-
 // Streams of data from the activity
 func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (map[string]*Stream, error) {
 	keys := strings.Join(streams, ",")
@@ -44,6 +29,21 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 		return nil, err
 	}
 	return m, err
+}
+
+// Activity returns the activity specified by id for an athlete
+func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, error) {
+	uri := fmt.Sprintf("activities/%d", id)
+	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	if err != nil {
+		return nil, err
+	}
+	act := &Activity{}
+	err = s.client.Do(ctx, req, act)
+	if err != nil {
+		return nil, err
+	}
+	return act, err
 }
 
 // Activities returns a page of activities for an athlete
