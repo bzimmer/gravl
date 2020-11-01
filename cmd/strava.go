@@ -23,6 +23,13 @@ func strava(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	if activity > 0 {
+		streams, err := c.Activity.Streams(cmd.Context(), activity, args...)
+		if err != nil {
+			return err
+		}
+		encoder.Encode(streams)
+	}
 	if athlete {
 		ath, err := c.Athlete.Athlete(cmd.Context())
 		if err != nil {
@@ -47,7 +54,8 @@ func init() {
 	stravaCmd.Flags().StringVarP(&stravaAccessToken, "strava_access_token", "", "", "API access token")
 	stravaCmd.Flags().StringVarP(&stravaRefreshToken, "strava_refresh_token", "", "", "API refresh token")
 
-	stravaCmd.Flags().BoolVarP(&athlete, "athlete", "a", false, "display the authenticated athlete")
+	stravaCmd.Flags().Int64VarP(&activity, "activity", "a", 0, "return stream data for the activity")
+	stravaCmd.Flags().BoolVarP(&athlete, "athlete", "t", false, "display the authenticated athlete")
 	stravaCmd.Flags().BoolVarP(&refresh, "refresh", "r", false, "refresh the access token")
 }
 

@@ -29,6 +29,15 @@ type AuthTokens struct {
 	AthleteID    int       `json:"athlete_id"`
 }
 
+// Stream of data from an activity
+// Most streams will be a []float64 except for latlng which is a [][]float64
+type Stream struct {
+	Data         []interface{} `json:"data"`
+	OriginalSize int           `json:"original_size"`
+	Resolution   string        `json:"resolution"`
+	SeriesType   string        `json:"series_type"`
+}
+
 // Gear represents gear used by the athlete
 type Gear struct {
 	ID            string  `json:"id"`

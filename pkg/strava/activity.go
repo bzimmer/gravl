@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // ActivityService .
@@ -27,6 +28,22 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 		return nil, err
 	}
 	return act, err
+}
+
+// Streams of data from the activity
+func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (map[string]*Stream, error) {
+	keys := strings.Join(streams, ",")
+	uri := fmt.Sprintf("activities/%d/streams/%s?key_by_type=true", activityID, keys)
+	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	if err != nil {
+		return nil, err
+	}
+	m := make(map[string]*Stream)
+	err = s.client.Do(ctx, req, &m)
+	if err != nil {
+		return nil, err
+	}
+	return m, err
 }
 
 // Activities returns a page of activities for an athlete

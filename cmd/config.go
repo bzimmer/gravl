@@ -17,6 +17,7 @@ var (
 
 	// strava
 	athlete            bool
+	activity           int64
 	stravaAPIKey       string
 	stravaAPISecret    string
 	stravaAccessToken  string
