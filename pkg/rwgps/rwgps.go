@@ -163,17 +163,11 @@ func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 	return req, nil
 }
 
-func withContext(ctx context.Context, req *http.Request) *http.Request {
-	// No-op
-	return req
-}
-
 // Do executes the request
 func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error {
 	if ctx == nil {
 		return errors.New("context must be non-nil")
 	}
-	req = withContext(ctx, req)
 
 	res, err := c.client.Do(req)
 	if err != nil {
