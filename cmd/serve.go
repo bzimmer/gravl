@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
-	au "github.com/markbates/goth/providers/strava"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -63,11 +62,7 @@ func serve(cmd *cobra.Command, args []string) error {
 func initAuth(cmd *cobra.Command) error {
 	callback := fmt.Sprintf("%s:%d/strava/auth/callback", origin, port)
 	log.Info().Str("callback", callback).Msg("initAuth")
-	goth.UseProviders(
-		au.New(
-			stravaAPIKey, stravaAPISecret, callback,
-			// appears to be a bug where scope varargs do not work properly
-			"read_all,profile:read_all,activity:read_all"))
+	goth.UseProviders(newStravaAuthProvider(callback))
 	gothic.Store = cookie.NewStore([]byte(sessionKey))
 	gothic.GetProviderName = func(req *http.Request) (string, error) {
 		return "strava", nil

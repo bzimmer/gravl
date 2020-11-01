@@ -16,6 +16,7 @@ var (
 	rwgpsAuthToken string
 
 	// strava
+	athlete            bool
 	stravaAPIKey       string
 	stravaAPISecret    string
 	stravaAccessToken  string
@@ -27,6 +28,7 @@ var (
 	// root
 	debug      bool
 	compact    bool
+	refresh    bool
 	monochrome bool
 	verbosity  string
 	config     string

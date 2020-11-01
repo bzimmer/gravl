@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/markbates/goth"
 )
 
 const (
@@ -26,8 +27,10 @@ type Client struct {
 	accessToken  string
 	refreshToken string
 
-	client *http.Client
+	provider goth.Provider
+	client   *http.Client
 
+	Auth     *AuthService
 	Webhook  *WebhookService
 	Athlete  *AthleteService
 	Activity *ActivityService
@@ -90,11 +93,19 @@ func WithAPICredentials(accessToken, refreshToken string) Option {
 }
 
 // WithHTTPClient .
-func WithHTTPClient(client *http.Client) func(c *Client) error {
+func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
 		if client != nil {
 			c.client = client
 		}
+		return nil
+	}
+}
+
+// WithProvider .
+func WithProvider(provider goth.Provider) Option {
+	return func(c *Client) error {
+		c.provider = provider
 		return nil
 	}
 }
@@ -110,6 +121,7 @@ func NewClient(opts ...Option) (*Client, error) {
 	}
 
 	// Services used for talking to Strava
+	c.Auth = &AuthService{client: c}
 	c.Webhook = &WebhookService{client: c}
 	c.Athlete = &AthleteService{client: c}
 	c.Activity = &ActivityService{client: c}

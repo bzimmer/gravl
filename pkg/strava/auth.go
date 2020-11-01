@@ -1,6 +1,7 @@
 package strava
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -14,12 +15,30 @@ import (
 )
 
 const (
-	authKey      = "_stravaAuthTokens"
-	providerName = "strava"
+	authKey = "_stravaAuthTokens"
 )
 
+// AuthService .
+type AuthService service
+
+// Refresh returns a new access token
+func (s *AuthService) Refresh(ctx context.Context) (*AuthTokens, error) {
+	token, err := s.client.provider.RefreshToken(s.client.refreshToken)
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now()
+	return &AuthTokens{
+		UpdatedAt:    now,
+		ExpiresAt:    token.Expiry,
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		CreatedAt:    now,
+	}, nil
+}
+
 // AuthRequired is gin middleware for ensuring the user is authenticated
-func AuthRequired() gin.HandlerFunc {
+func AuthRequired(provider goth.Provider) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 		authTokensJSON := session.Get(authKey)
@@ -47,17 +66,15 @@ func AuthRequired() gin.HandlerFunc {
 
 		log.Warn().Time("expiresAt", authTokens.ExpiresAt).Time("now", now).Msg("authrequired")
 
-		provider, err := goth.GetProvider(providerName)
-		if err != nil {
-			c.Abort()
-			c.Error(err)
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "unable to find provider"})
-			return
-		}
-
 		token, err := provider.RefreshToken(authTokens.RefreshToken)
-		authTokens.ExpiresAt = token.Expiry
-		authTokens.AccessToken = token.AccessToken
+		authTokens = AuthTokens{
+			UpdatedAt:    time.Now(),
+			ExpiresAt:    token.Expiry,
+			AccessToken:  token.AccessToken,
+			RefreshToken: token.RefreshToken,
+			CreatedAt:    authTokens.CreatedAt,
+			AthleteID:    authTokens.AthleteID,
+		}
 
 		err = saveTokens(c, authTokens)
 		if err != nil {
@@ -66,6 +83,7 @@ func AuthRequired() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
+		c.Set(authKey, authTokens)
 	}
 }
 
