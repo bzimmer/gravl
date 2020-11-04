@@ -4,7 +4,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
-	w "github.com/bzimmer/gravl/pkg/wta"
+	wa "github.com/bzimmer/gravl/pkg/wta"
 )
 
 func wta(cmd *cobra.Command, args []string) error {
@@ -13,13 +13,13 @@ func wta(cmd *cobra.Command, args []string) error {
 		args = append(args, "")
 	}
 
-	c, err := w.NewClient(
-		w.WithVerboseLogging(debug),
+	c, err := wa.NewClient(
+		wa.WithVerboseLogging(debug),
 	)
 	if err != nil {
 		return err
 	}
-	reports := make([]*w.TripReport, 0)
+	reports := make([]*wa.TripReport, 0)
 	for _, arg := range args {
 		tr, err := c.Reports.TripReports(cmd.Context(), arg)
 		if err != nil {

@@ -7,10 +7,6 @@ import (
 	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
 )
 
-var (
-	visualcrossingAPIKey string
-)
-
 func visualcrossing(cmd *cobra.Command, args []string) error {
 	c, err := vc.NewClient(
 		vc.WithAPIKey(visualcrossingAPIKey),

@@ -1,0 +1,76 @@
+{
+    "all_ride_totals": {
+        "achievement_count": 0,
+        "count": 605,
+        "distance": 14492298,
+        "elapsed_time": 2509679,
+        "elevation_gain": 225924,
+        "moving_time": 2239777
+    },
+    "all_run_totals": {
+        "achievement_count": 0,
+        "count": 186,
+        "distance": 1546024,
+        "elapsed_time": 528095,
+        "elevation_gain": 16058,
+        "moving_time": 501955
+    },
+    "all_swim_totals": {
+        "achievement_count": 0,
+        "count": 6,
+        "distance": 6203,
+        "elapsed_time": 12441,
+        "elevation_gain": 0,
+        "moving_time": 10413
+    },
+    "biggest_climb_elevation_gain": 1597.8999999999999,
+    "biggest_ride_distance": 259432,
+    "recent_ride_totals": {
+        "achievement_count": 133,
+        "count": 17,
+        "distance": 425046.203125,
+        "elapsed_time": 66229,
+        "elevation_gain": 6484,
+        "moving_time": 61011
+    },
+    "recent_run_totals": {
+        "achievement_count": 0,
+        "count": 0,
+        "distance": 0,
+        "elapsed_time": 0,
+        "elevation_gain": 0,
+        "moving_time": 0
+    },
+    "recent_swim_totals": {
+        "achievement_count": 0,
+        "count": 0,
+        "distance": 0,
+        "elapsed_time": 0,
+        "elevation_gain": 0,
+        "moving_time": 0
+    },
+    "ytd_ride_totals": {
+        "achievement_count": 0,
+        "count": 221,
+        "distance": 6624598,
+        "elapsed_time": 1154388,
+        "elevation_gain": 105385,
+        "moving_time": 1009513
+    },
+    "ytd_run_totals": {
+        "achievement_count": 0,
+        "count": 8,
+        "distance": 47161,
+        "elapsed_time": 16651,
+        "elevation_gain": 906,
+        "moving_time": 16362
+    },
+    "ytd_swim_totals": {
+        "achievement_count": 0,
+        "count": 0,
+        "distance": 0,
+        "elapsed_time": 0,
+        "elevation_gain": 0,
+        "moving_time": 0
+    }
+}
