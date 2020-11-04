@@ -1,18 +1,33 @@
 package cmd
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/markbates/goth"
 	au "github.com/markbates/goth/providers/strava"
 	"github.com/spf13/cobra"
 
+	"github.com/bzimmer/gravl/pkg/common"
 	sa "github.com/bzimmer/gravl/pkg/strava"
 )
 
 func newStravaAuthProvider(callback string) goth.Provider {
-	return au.New(
+	provider := au.New(
 		stravaAPIKey, stravaAPISecret, callback,
 		// appears to be a bug where scope varargs do not work properly
 		"read_all,profile:read_all,activity:read_all")
+	transport := http.DefaultTransport
+	if debug {
+		transport = &common.VerboseTransport{
+			Transport: transport,
+		}
+	}
+	provider.HTTPClient = &http.Client{
+		Timeout:   10 * time.Second,
+		Transport: transport,
+	}
+	return provider
 }
 
 func strava(cmd *cobra.Command, args []string) error {

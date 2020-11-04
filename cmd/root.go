@@ -51,7 +51,7 @@ func initLogging(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	debug = (level == zerolog.DebugLevel)
+	debug = (level <= zerolog.DebugLevel)
 	zerolog.SetGlobalLevel(level)
 	zerolog.DurationFieldUnit = time.Millisecond
 	zerolog.DurationFieldInteger = true
