@@ -22,11 +22,11 @@ type User struct {
 
 // TrackPoint .
 type TrackPoint struct {
-	Distance  float64 `json:"d"`
-	Elevation float64 `json:"e"`
-	Time      float64 `json:"t"`
 	Longitude float64 `json:"x"`
 	Latitude  float64 `json:"y"`
+	Elevation float64 `json:"e"` // elevation in meters
+	Distance  float64 `json:"d"` // distance in meters
+	Time      float64 `json:"t"` // seconds since epoch, unix timestamp
 }
 
 // Trip .

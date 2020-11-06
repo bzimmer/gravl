@@ -14,8 +14,9 @@ import (
 )
 
 var (
+	// https://developers.strava.com/docs/reference/#api-models-StreamSet
 	streams = []string{
-		"latlng", "altitude", "distance",
+		"latlng", "altitude", "distance", "grade_smooth",
 	}
 )
 
