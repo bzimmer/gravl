@@ -16,7 +16,7 @@ import (
 
 func noaa(cmd *cobra.Command, args []string) error {
 	c, err := na.NewClient(
-		na.WithVerboseLogging(debug),
+		na.WithHTTPTracing(httptracing),
 		na.WithTimeout(10*time.Second),
 	)
 	if err != nil {

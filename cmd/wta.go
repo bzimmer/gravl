@@ -14,7 +14,7 @@ func wta(cmd *cobra.Command, args []string) error {
 	}
 
 	c, err := wa.NewClient(
-		wa.WithVerboseLogging(debug),
+		wa.WithHTTPTracing(httptracing),
 	)
 	if err != nil {
 		return err

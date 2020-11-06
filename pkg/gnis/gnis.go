@@ -48,8 +48,8 @@ func WithTransport(transport http.RoundTripper) Option {
 	}
 }
 
-// WithVerboseLogging .
-func WithVerboseLogging(debug bool) Option {
+// WithHTTPTracing .
+func WithHTTPTracing(debug bool) Option {
 	return func(c *Client) error {
 		if !debug {
 			return nil

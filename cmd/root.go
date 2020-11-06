@@ -7,13 +7,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"github.com/bzimmer/gravl/pkg/common"
 )
 
 const (
@@ -44,6 +46,8 @@ func init() {
 		false, "Use monochrome logging, color enabled by default")
 	rootCmd.PersistentFlags().BoolVarP(&compact, "compact", "c",
 		false, "Use compact JSON output")
+	rootCmd.PersistentFlags().BoolVarP(&httptracing, "http-tracing", "",
+		false, "Log all http calls (warning: this will log ids, keys, and other sensitive information)")
 }
 
 func initLogging(cmd *cobra.Command) error {
@@ -51,7 +55,7 @@ func initLogging(cmd *cobra.Command) error {
 	if err != nil {
 		return err
 	}
-	debug = (level <= zerolog.DebugLevel)
+	color.NoColor = monochrome
 	zerolog.SetGlobalLevel(level)
 	zerolog.DurationFieldUnit = time.Millisecond
 	zerolog.DurationFieldInteger = true

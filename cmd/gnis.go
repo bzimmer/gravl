@@ -8,7 +8,7 @@ import (
 
 func gnis(cmd *cobra.Command, args []string) error {
 	g, err := gn.NewClient(
-		gn.WithVerboseLogging(debug),
+		gn.WithHTTPTracing(httptracing),
 	)
 	if err != nil {
 		return err

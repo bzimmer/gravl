@@ -18,12 +18,12 @@ func rwgps(cmd *cobra.Command, args []string) error {
 	c, err := rw.NewClient(
 		rw.WithAPIKey(rwgpsAPIKey),
 		rw.WithAuthToken(rwgpsAuthToken),
-		rw.WithVerboseLogging(debug),
+		rw.WithHTTPTracing(httptracing),
 	)
 	if err != nil {
 		return err
 	}
-	if rwgpsUser {
+	if rwgpsAthlete {
 		user, err := c.Users.AuthenticatedUser(cmd.Context())
 		if err != nil {
 			return err
@@ -62,7 +62,7 @@ func init() {
 
 	rwgpsCmd.Flags().BoolVarP(&rwgpsTrip, "trip", "t", false, "Trip")
 	rwgpsCmd.Flags().BoolVarP(&rwgpsRoute, "route", "r", false, "Route")
-	rwgpsCmd.Flags().BoolVarP(&rwgpsUser, "user", "u", false, "User")
+	rwgpsCmd.Flags().BoolVarP(&rwgpsAthlete, "athlete", "u", false, "Athlete")
 }
 
 var rwgpsCmd = &cobra.Command{

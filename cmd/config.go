@@ -11,13 +11,14 @@ var (
 	// rwgps
 	rwgpsTrip      bool
 	rwgpsRoute     bool
-	rwgpsUser      bool
+	rwgpsAthlete   bool
 	rwgpsAPIKey    string
 	rwgpsAuthToken string
 
 	// strava
-	athlete            bool
-	activity           int64
+	stravaAthlete      bool
+	stravaRefresh      bool
+	stravaActivity     bool
 	stravaAPIKey       string
 	stravaAPISecret    string
 	stravaAccessToken  string
@@ -27,11 +28,10 @@ var (
 	visualcrossingAPIKey string
 
 	// root
-	debug      bool
-	compact    bool
-	refresh    bool
-	monochrome bool
-	verbosity  string
-	config     string
-	encoder    *json.Encoder
+	compact     bool
+	monochrome  bool
+	httptracing bool
+	verbosity   string
+	config      string
+	encoder     *json.Encoder
 )
