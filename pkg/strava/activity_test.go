@@ -100,3 +100,28 @@ func Test_ActivitiesMany(t *testing.T) {
 	a.Error(err)
 	a.Nil(acts)
 }
+
+func Test_Streams(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	ctx := context.Background()
+	client, err := newClient(http.StatusOK, "streams.json")
+	a.NoError(err)
+	fc, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude")
+	a.NoError(err)
+	a.NotNil(fc)
+	a.Equal(1, len(fc.Features))
+
+	feature := fc.Features[0]
+	a.Equal(int64(154504250376), feature.ID)
+	a.True(feature.Geometry.IsLineString())
+	a.Equal(2712, len(feature.Geometry.LineString))
+
+	properties := feature.Properties
+	streams, ok := (properties["streams"]).(map[string]interface{})
+	a.True(ok)
+	grades, ok := streams["grade_smooth"]
+	a.True(ok)
+	a.Equal(2712, len(grades.([]interface{})))
+}
