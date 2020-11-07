@@ -1,0 +1,4 @@
+
+### Strava
+
+* Streams return geojson
