@@ -54,7 +54,7 @@ func Test_ForecastError(t *testing.T) {
 	a.Error(err)
 	a.Nil(fcst)
 
-	fault := err.(vc.Fault)
+	fault := err.(*vc.Fault)
 	a.Equal(106, fault.ErrorCode)
 	a.Equal("No session found with id 'null'. The session may have expired", fault.Error())
 }

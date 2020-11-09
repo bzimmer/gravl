@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	visualCrossingURI = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata"
-	userAgent         = "(github.com/bzimmer/gravl/pkg/visualcrossing)"
+	baseURL   = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata"
+	userAgent = "(github.com/bzimmer/gravl/pkg/visualcrossing)"
 )
 
 // Client .
@@ -89,7 +89,7 @@ func (c *Client) newAPIRequest(method, uri string, values *url.Values) (*http.Re
 	values.Set("contentType", "json")
 	values.Set("locationMode", "array")
 
-	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", visualCrossingURI, uri, values.Encode()))
+	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, values.Encode()))
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error
 	if err = json.NewDecoder(reader).Decode(&fault); err != nil {
 		return err
 	} else if code := fault.ErrorCode; code != 0 && code != http.StatusOK {
-		return fault
+		return &fault
 	}
 
 	if v != nil {

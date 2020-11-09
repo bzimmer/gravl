@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	stravaURI = "https://www.strava.com/api/v3"
+	baseURL = "https://www.strava.com/api/v3"
 )
 
 // Client client
@@ -133,7 +133,7 @@ func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 	if c.accessToken == "" {
 		return nil, errors.New("accessToken required")
 	}
-	u, err := url.Parse(fmt.Sprintf("%s/%s", stravaURI, uri))
+	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 }
 
 func (c *Client) newWebhookRequest(method, uri string, body map[string]string) (*http.Request, error) {
-	u, err := url.Parse(fmt.Sprintf("%s/%s", stravaURI, uri))
+	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
 	}

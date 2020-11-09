@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	noaaURI   = "https://api.weather.gov"
+	baseURL   = "https://api.weather.gov"
 	userAgent = "(github.com/bzimmer/gravl/pkg/noaa, bzimmer@ziclix.com)"
 )
 
@@ -98,7 +98,7 @@ func WithHTTPClient(client *http.Client) Option {
 }
 
 func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
-	u, err := url.Parse(fmt.Sprintf("%s/%s", noaaURI, uri))
+	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
 	}

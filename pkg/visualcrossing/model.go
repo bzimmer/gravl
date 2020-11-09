@@ -34,7 +34,7 @@ type Fault struct {
 	SessionID     string `json:"sessionId"`
 }
 
-func (f Fault) Error() string {
+func (f *Fault) Error() string {
 	return f.Message
 }
 

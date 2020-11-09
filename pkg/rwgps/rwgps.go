@@ -15,7 +15,7 @@ import (
 
 const (
 	apiVersion = 2
-	rwgpsURI   = "https://ridewithgps.com"
+	baseURL    = "https://ridewithgps.com"
 	userAgent  = "(github.com/bzimmer/gravl/rwgps)"
 )
 
@@ -143,7 +143,7 @@ func (c *Client) newBodyReader() (io.Reader, error) {
 }
 
 func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
-	u, err := url.Parse(fmt.Sprintf("%s/%s", rwgpsURI, uri))
+	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
 	}
