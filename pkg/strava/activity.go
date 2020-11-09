@@ -101,7 +101,6 @@ func (s *ActivityService) activities(ctx context.Context, total, start, count in
 			count = pageSize
 		}
 	}
-
 	return &all, nil
 }
 
