@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"strconv"
 	"strings"
 
@@ -48,15 +47,6 @@ func (s *GeoNamesService) Query(ctx context.Context, state string) (*gj.FeatureC
 	// there should be one file
 	f := archive.File[0]
 	reader, err := f.Open()
-	if err != nil {
-		return nil, err
-	}
-	defer reader.Close()
-	return parseReader(reader)
-}
-
-func parseFile(filename string) (*gj.FeatureCollection, error) {
-	reader, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}

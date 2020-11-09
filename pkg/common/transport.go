@@ -34,6 +34,7 @@ func (t *VerboseTransport) isText(header http.Header) bool {
 	//  - parameters
 	splits := strings.Split(contentType, ";")
 	switch splits[0] {
+	case "application/xml":
 	case "application/json":
 	case "application/ld+json":
 	case "application/geojson":
@@ -52,8 +53,10 @@ func (t *VerboseTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 	dump, _ := httputil.DumpRequestOut(req, t.isText(req.Header))
 	yellow.Fprintln(color.Error, string(dump))
 	res, err := transport.RoundTrip(req)
-	dump, _ = httputil.DumpResponse(res, t.isText(res.Header))
-	green.Fprintln(color.Error, string(dump))
+	if err == nil {
+		dump, _ = httputil.DumpResponse(res, t.isText(res.Header))
+		green.Fprintln(color.Error, string(dump))
+	}
 	return res, err
 }
 
