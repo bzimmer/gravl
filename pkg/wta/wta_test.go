@@ -11,13 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/wta"
+	"github.com/bzimmer/transport"
 )
 
 func newClient(status int, filename string) (*wta.Client, error) {
 	return wta.NewClient(
-		wta.WithTransport(&common.TestDataTransport{
+		wta.WithTransport(&transport.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "text/html; charset=utf-8",

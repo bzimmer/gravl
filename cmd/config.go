@@ -33,5 +33,8 @@ var (
 	httptracing bool
 	verbosity   string
 	config      string
-	encoder     *json.Encoder
+
+	// encoding
+	encoder *json.Encoder
+	decoder *json.Decoder
 )

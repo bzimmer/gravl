@@ -1,4 +1,4 @@
-package common
+package cmd
 
 import (
 	"encoding/json"
@@ -6,8 +6,7 @@ import (
 	"os"
 )
 
-// NewEncoder .
-func NewEncoder(writer io.Writer, compact bool) *json.Encoder {
+func newEncoder(writer io.Writer, compact bool) *json.Encoder {
 	if writer == nil {
 		writer = os.Stdout
 	}
@@ -19,8 +18,7 @@ func NewEncoder(writer io.Writer, compact bool) *json.Encoder {
 	return encoder
 }
 
-// NewDecoder .
-func NewDecoder(reader io.Reader) *json.Decoder {
+func newDecoder(reader io.Reader) *json.Decoder {
 	if reader == nil {
 		reader = os.Stdin
 	}

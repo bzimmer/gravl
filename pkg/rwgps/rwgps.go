@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/bzimmer/transport"
 )
 
 const (
@@ -95,7 +95,7 @@ func WithHTTPTracing(debug bool) Option {
 		if !debug {
 			return nil
 		}
-		c.client.Transport = &common.VerboseTransport{
+		c.client.Transport = &transport.VerboseTransport{
 			Transport: c.client.Transport,
 		}
 		return nil

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bzimmer/gravl/pkg/common"
 	rw "github.com/bzimmer/gravl/pkg/rwgps"
+	"github.com/bzimmer/transport"
 )
 
 var (
@@ -19,7 +19,7 @@ var (
 
 func newClient(status int, filename string) (*rw.Client, error) {
 	return rw.NewClient(
-		rw.WithTransport(&common.TestDataTransport{
+		rw.WithTransport(&transport.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json",

@@ -12,7 +12,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/bzimmer/transport"
 	"github.com/markbates/goth"
 )
 
@@ -49,7 +49,7 @@ func WithHTTPTracing(debug bool) Option {
 		if !debug {
 			return nil
 		}
-		c.client.Transport = &common.VerboseTransport{
+		c.client.Transport = &transport.VerboseTransport{
 			Transport: c.client.Transport,
 		}
 		return nil
@@ -68,26 +68,26 @@ func WithTransport(transport http.RoundTripper) Option {
 
 // WithTimeout timeout
 func WithTimeout(timeout time.Duration) Option {
-	return func(client *Client) error {
-		client.client.Timeout = timeout
+	return func(c *Client) error {
+		c.client.Timeout = timeout
 		return nil
 	}
 }
 
 // WithWebhookCredentials provides the Strava credentials
 func WithWebhookCredentials(stravaKey, stravaSecret string) Option {
-	return func(client *Client) error {
-		client.stravaKey = stravaKey
-		client.stravaSecret = stravaSecret
+	return func(c *Client) error {
+		c.stravaKey = stravaKey
+		c.stravaSecret = stravaSecret
 		return nil
 	}
 }
 
 // WithAPICredentials provides the Strava credentials
 func WithAPICredentials(accessToken, refreshToken string) Option {
-	return func(client *Client) error {
-		client.accessToken = accessToken
-		client.refreshToken = refreshToken
+	return func(c *Client) error {
+		c.accessToken = accessToken
+		c.refreshToken = refreshToken
 		return nil
 	}
 }

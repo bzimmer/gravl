@@ -9,8 +9,8 @@ import (
 	au "github.com/markbates/goth/providers/strava"
 	"github.com/spf13/cobra"
 
-	"github.com/bzimmer/gravl/pkg/common"
 	sa "github.com/bzimmer/gravl/pkg/strava"
+	"github.com/bzimmer/transport"
 )
 
 var (
@@ -25,15 +25,15 @@ func newStravaAuthProvider(callback string) goth.Provider {
 		stravaAPIKey, stravaAPISecret, callback,
 		// appears to be a bug where scope varargs do not work properly
 		"read_all,profile:read_all,activity:read_all")
-	transport := http.DefaultTransport
+	t := http.DefaultTransport
 	if httptracing {
-		transport = &common.VerboseTransport{
-			Transport: transport,
+		t = &transport.VerboseTransport{
+			Transport: t,
 		}
 	}
 	provider.HTTPClient = &http.Client{
 		Timeout:   10 * time.Second,
-		Transport: transport,
+		Transport: t,
 	}
 	return provider
 }

@@ -14,8 +14,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	"github.com/bzimmer/gravl/pkg/common"
 )
 
 const (
@@ -142,7 +140,8 @@ var rootCmd = &cobra.Command{
 		if err := initConfig(cmd); err != nil {
 			return nil
 		}
-		encoder = common.NewEncoder(cmd.OutOrStdout(), compact)
+		decoder = newDecoder(cmd.InOrStdin())
+		encoder = newEncoder(cmd.OutOrStdout(), compact)
 		return nil
 	},
 }

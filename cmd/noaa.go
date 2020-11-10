@@ -9,7 +9,6 @@ import (
 	gj "github.com/paulmach/go.geojson"
 	"github.com/spf13/cobra"
 
-	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/common/wx"
 	na "github.com/bzimmer/gravl/pkg/noaa"
 )
@@ -27,7 +26,6 @@ func noaa(cmd *cobra.Command, args []string) error {
 	switch len(args) {
 	case 0:
 		geom := &gj.Geometry{}
-		decoder := common.NewDecoder(cmd.InOrStdin())
 		err := decoder.Decode(geom)
 		if err != nil {
 			return err

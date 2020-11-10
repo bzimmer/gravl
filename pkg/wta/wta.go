@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/bzimmer/transport"
 	"github.com/gin-gonic/gin"
 )
 
@@ -83,7 +83,7 @@ func WithHTTPTracing(debug bool) Option {
 		if !debug {
 			return nil
 		}
-		c.client.Transport = &common.VerboseTransport{
+		c.client.Transport = &transport.VerboseTransport{
 			Transport: c.client.Transport,
 		}
 		return nil
