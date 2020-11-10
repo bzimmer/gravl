@@ -48,6 +48,12 @@ func init() {
 		false, "Log all http calls (warning: this will log ids, keys, and other sensitive information)")
 }
 
+func initEncoding(cmd *cobra.Command) error {
+	decoder = newDecoder(cmd.InOrStdin())
+	encoder = newEncoder(cmd.OutOrStdout(), compact)
+	return nil
+}
+
 func initLogging(cmd *cobra.Command) error {
 	level, err := zerolog.ParseLevel(verbosity)
 	if err != nil {
@@ -140,8 +146,9 @@ var rootCmd = &cobra.Command{
 		if err := initConfig(cmd); err != nil {
 			return nil
 		}
-		decoder = newDecoder(cmd.InOrStdin())
-		encoder = newEncoder(cmd.OutOrStdout(), compact)
+		if err := initEncoding(cmd); err != nil {
+			return nil
+		}
 		return nil
 	},
 }
