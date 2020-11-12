@@ -13,13 +13,6 @@ import (
 	"github.com/bzimmer/transport"
 )
 
-var (
-	// https://developers.strava.com/docs/reference/#api-models-StreamSet
-	streams = []string{
-		"latlng", "altitude", "distance", "grade_smooth",
-	}
-)
-
 func newStravaAuthProvider(callback string) goth.Provider {
 	provider := au.New(
 		stravaAPIKey, stravaAPISecret, callback,
@@ -49,11 +42,21 @@ func strava(cmd *cobra.Command, args []string) error {
 	if stravaActivity {
 		for _, arg := range args {
 			activityID, err := strconv.ParseInt(arg, 0, 64)
-			streams, err := c.Activity.Streams(cmd.Context(), activityID, streams...)
+			act, err := c.Activity.Route(cmd.Context(), activityID)
 			if err != nil {
 				return err
 			}
-			encoder.Encode(streams)
+			encoder.Encode(act)
+		}
+	}
+	if stravaRoute {
+		for _, arg := range args {
+			activityID, err := strconv.ParseInt(arg, 0, 64)
+			rte, err := c.Route.Route(cmd.Context(), activityID)
+			if err != nil {
+				return err
+			}
+			encoder.Encode(rte)
 		}
 	}
 	if stravaAthlete {
@@ -80,6 +83,7 @@ func init() {
 	stravaCmd.Flags().StringVarP(&stravaAccessToken, "strava_access_token", "", "", "API access token")
 	stravaCmd.Flags().StringVarP(&stravaRefreshToken, "strava_refresh_token", "", "", "API refresh token")
 
+	stravaCmd.Flags().BoolVarP(&stravaRoute, "route", "t", false, "Return the route data")
 	stravaCmd.Flags().BoolVarP(&stravaActivity, "activity", "a", false, "Return stream data for the activity")
 	stravaCmd.Flags().BoolVarP(&stravaAthlete, "athlete", "u", false, "Display the authenticated athlete")
 	stravaCmd.Flags().BoolVarP(&stravaRefresh, "refresh", "r", false, "Refresh the access token")

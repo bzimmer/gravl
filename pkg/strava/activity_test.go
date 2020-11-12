@@ -31,7 +31,7 @@ func Test_Activities(t *testing.T) {
 	ctx := context.Background()
 	acts, err := client.Activity.Activities(ctx)
 	a.NoError(err)
-	a.Equal(2, len(*acts))
+	a.Equal(2, len(acts))
 }
 
 func Test_ActivitiesMax(t *testing.T) {
@@ -41,7 +41,7 @@ func Test_ActivitiesMax(t *testing.T) {
 	ctx := context.Background()
 	acts, err := client.Activity.Activities(ctx, 5000)
 	a.NoError(err)
-	a.Equal(2, len(*acts))
+	a.Equal(2, len(acts))
 }
 
 type ManyTransport struct{}
@@ -82,13 +82,19 @@ func Test_ActivitiesMany(t *testing.T) {
 	acts, err := client.Activity.Activities(ctx, 352, 0, 1)
 	a.NoError(err)
 	a.NotNil(acts)
-	a.Equal(352, len(*acts))
+	a.Equal(352, len(acts))
+
+	// no specs test
+	acts, err = client.Activity.Activities(ctx)
+	a.NoError(err)
+	a.NotNil(acts)
+	a.Equal(100, len(acts))
 
 	// test total and start
 	acts, err = client.Activity.Activities(ctx, 234, 0)
 	a.NoError(err)
 	a.NotNil(acts)
-	a.Equal(234, len(*acts))
+	a.Equal(234, len(acts))
 
 	// negative test
 	acts, err = client.Activity.Activities(ctx, -1)
@@ -106,22 +112,33 @@ func Test_Streams(t *testing.T) {
 	a := assert.New(t)
 
 	ctx := context.Background()
-	client, err := newClient(http.StatusOK, "streams.json")
+	client, err := newClient(http.StatusOK, "streams_four.json")
 	a.NoError(err)
-	fc, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude")
+
+	sms, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude", "distance", "altitude")
 	a.NoError(err)
-	a.NotNil(fc)
-	a.Equal(1, len(fc.Features))
+	a.NotNil(sms)
+	a.Equal(4, len(sms))
 
-	feature := fc.Features[0]
-	a.Equal(int64(154504250376), feature.ID)
-	a.True(feature.Geometry.IsLineString())
-	a.Equal(2712, len(feature.Geometry.LineString))
+	client, err = newClient(http.StatusOK, "streams_two.json")
+	a.NoError(err)
+	sms, err = client.Activity.Streams(ctx, 154504250376, "latlng", "altitude")
+	a.NoError(err)
+	a.NotNil(sms)
+	a.Equal(2, len(sms))
+}
 
-	properties := feature.Properties
-	streams, ok := (properties["streams"]).(map[string]interface{})
-	a.True(ok)
-	grades, ok := streams["grade_smooth"]
-	a.True(ok)
-	a.Equal(2712, len(grades.([]interface{})))
+func Test_RouteFromStreams(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	ctx := context.Background()
+	client, err := newClient(http.StatusOK, "streams_four.json")
+	a.NoError(err)
+
+	rte, err := client.Activity.Route(ctx, 154504250376)
+	a.NoError(err)
+	a.NotNil(rte)
+	a.Equal("154504250376", rte.ID)
+	a.Equal(2712, len(rte.Coordinates))
 }

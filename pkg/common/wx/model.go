@@ -1,9 +1,8 @@
 package wx
 
 import (
+	"encoding/json"
 	"time"
-
-	gj "github.com/paulmach/go.geojson"
 )
 
 // Units .
@@ -87,6 +86,7 @@ type Forecast struct {
 	ID        string      `json:"id,omitempty"`
 	Latitude  float64     `json:"latitude,omitempty"`
 	Longitude float64     `json:"longitude,omitempty"`
+	Elevation float64     `json:"elevation,omitempty"`
 	Timezone  string      `json:"timezone,omitempty"`
 	Offset    float64     `json:"offset,omitempty"`
 	Current   *Conditions `json:"current,omitempty"`
@@ -94,31 +94,22 @@ type Forecast struct {
 	Alerts    []*Alert    `json:"alerts,omitempty"`
 }
 
-// Feature .
-func (f *Forecast) Feature() (*gj.Feature, error) {
-	coords := []float64{f.Longitude, f.Latitude}
-	t := gj.NewFeature(gj.NewPointGeometry(coords))
-	t.ID = f.ID
-	t.Properties["current"] = f.Current
-	t.Properties["period"] = f.Period
-	return t, nil
-}
-
-// NewFeatureCollection .
-func NewFeatureCollection(forecasts ...*Forecast) (*gj.FeatureCollection, error) {
-	fc := gj.NewFeatureCollection()
-	if forecasts == nil || len(forecasts) == 0 {
-		return fc, nil
-	}
-	for _, forecast := range forecasts {
-		if forecast == nil {
-			continue
-		}
-		feature, err := forecast.Feature()
-		if err != nil {
-			return nil, err
-		}
-		fc.AddFeature(feature)
-	}
-	return fc, nil
+// MarshalJSON produces GeoJSON
+func (f *Forecast) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		Type       string                 `json:"type"`
+		Geometry   map[string]interface{} `json:"geometry"`
+		Properties map[string]interface{} `json:"properties"`
+	}{
+		Type: "Feature",
+		Geometry: map[string]interface{}{
+			"type":        "Point",
+			"coordinates": []float64{f.Longitude, f.Latitude, f.Elevation},
+		},
+		Properties: map[string]interface{}{
+			"current": f.Current,
+			"period":  f.Period,
+			"alerts":  f.Alerts,
+		},
+	})
 }

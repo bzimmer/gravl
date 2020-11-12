@@ -16,6 +16,7 @@ var (
 	rwgpsAuthToken string
 
 	// strava
+	stravaRoute        bool
 	stravaAthlete      bool
 	stravaRefresh      bool
 	stravaActivity     bool

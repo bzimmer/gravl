@@ -4,16 +4,16 @@ import (
 	"errors"
 	"strconv"
 
-	gj "github.com/paulmach/go.geojson"
 	"github.com/spf13/cobra"
 
+	"github.com/bzimmer/gravl/pkg/common/route"
 	rw "github.com/bzimmer/gravl/pkg/rwgps"
 )
 
 func rwgps(cmd *cobra.Command, args []string) error {
 	var (
 		err error
-		tr  *gj.FeatureCollection
+		rte *route.Route
 	)
 	c, err := rw.NewClient(
 		rw.WithAPIKey(rwgpsAPIKey),
@@ -40,14 +40,14 @@ func rwgps(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		if rwgpsTrip {
-			tr, err = c.Trips.Trip(cmd.Context(), x)
+			rte, err = c.Trips.Trip(cmd.Context(), x)
 		} else {
-			tr, err = c.Trips.Route(cmd.Context(), x)
+			rte, err = c.Trips.Route(cmd.Context(), x)
 		}
 		if err != nil {
 			return err
 		}
-		err = encoder.Encode(tr)
+		err = encoder.Encode(rte)
 		if err != nil {
 			return err
 		}

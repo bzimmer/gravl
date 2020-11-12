@@ -22,7 +22,7 @@ func noaa(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var forecast *wx.Forecast
+	var fcst *wx.Forecast
 	switch len(args) {
 	case 0:
 		geom := &gj.Geometry{}
@@ -33,7 +33,7 @@ func noaa(cmd *cobra.Command, args []string) error {
 		if !geom.IsPoint() {
 			return errors.New("only Point geometries are supported")
 		}
-		forecast, err = c.Points.Forecast(cmd.Context(), geom.Point[1], geom.Point[0])
+		fcst, err = c.Points.Forecast(cmd.Context(), geom.Point[1], geom.Point[0])
 	case 2:
 		lat, err := strconv.ParseFloat(args[0], 64)
 		if err != nil {
@@ -43,7 +43,7 @@ func noaa(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		forecast, err = c.Points.Forecast(cmd.Context(), lat, lng)
+		fcst, err = c.Points.Forecast(cmd.Context(), lat, lng)
 	case 3:
 		wfo := args[0]
 		x, err := strconv.Atoi(args[1])
@@ -54,7 +54,7 @@ func noaa(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		forecast, err = c.GridPoints.Forecast(cmd.Context(), wfo, x, y)
+		fcst, err = c.GridPoints.Forecast(cmd.Context(), wfo, x, y)
 	default:
 		return fmt.Errorf("only 2 or 3 arguments allowed [%v]", args)
 	}
@@ -62,11 +62,7 @@ func noaa(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fc, err := wx.NewFeatureCollection(forecast)
-	if err != nil {
-		return err
-	}
-	err = encoder.Encode(fc)
+	err = encoder.Encode(fcst)
 	if err != nil {
 		return err
 	}

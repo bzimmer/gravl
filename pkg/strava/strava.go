@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	baseURL = "https://www.strava.com/api/v3"
+	pageSize = 100
+	baseURL  = "https://www.strava.com/api/v3"
 )
 
 // Client client
@@ -31,6 +32,7 @@ type Client struct {
 	client   *http.Client
 
 	Auth     *AuthService
+	Route    *RouteService
 	Webhook  *WebhookService
 	Athlete  *AthleteService
 	Activity *ActivityService
@@ -122,6 +124,7 @@ func NewClient(opts ...Option) (*Client, error) {
 
 	// Services used for talking to Strava
 	c.Auth = &AuthService{client: c}
+	c.Route = &RouteService{client: c}
 	c.Webhook = &WebhookService{client: c}
 	c.Athlete = &AthleteService{client: c}
 	c.Activity = &ActivityService{client: c}

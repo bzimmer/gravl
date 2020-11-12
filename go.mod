@@ -3,8 +3,7 @@ module github.com/bzimmer/gravl
 go 1.15
 
 require (
-	github.com/apex/log v1.9.0
-	github.com/bzimmer/transport v0.0.0-20201110004417-07c98af39e8f
+	github.com/bzimmer/transport v0.0.0-20201112035246-d0a8027c660c
 	github.com/fatih/color v1.10.0
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
@@ -17,4 +16,5 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
+	github.com/twpayne/go-polyline v1.0.1
 )

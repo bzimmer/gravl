@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/bzimmer/gravl/pkg/common/wx"
 	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
 )
 
@@ -21,17 +20,13 @@ func visualcrossing(cmd *cobra.Command, args []string) error {
 			cmd.Context(),
 			vc.WithLocation(arg),
 			vc.WithAstronomy(true),
-			vc.WithUnits(vc.UnitsUS),
-			vc.WithAggregateHours(12),
+			vc.WithUnits(vc.UnitsMetric),
+			vc.WithAggregateHours(1),
 			vc.WithAlerts(vc.AlertLevelDetail))
 		if err != nil {
 			return err
 		}
-		fc, err := wx.NewFeatureCollection(fcst)
-		if err != nil {
-			return err
-		}
-		err = encoder.Encode(fc)
+		err = encoder.Encode(fcst)
 		if err != nil {
 			return err
 		}
@@ -48,6 +43,6 @@ var visualcrossingCmd = &cobra.Command{
 	Use:     "vc",
 	Short:   "Run visualcrossing",
 	Long:    `Run visualcrossing`,
-	Aliases: []string{""},
+	Aliases: []string{},
 	RunE:    visualcrossing,
 }

@@ -7,19 +7,53 @@ import (
 	"net/http"
 	"strings"
 
-	gj "github.com/paulmach/go.geojson"
-	"github.com/rs/zerolog/log"
+	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
 // ActivityService .
 type ActivityService service
 
-const (
-	pageSize = 100
-)
+type activityPaginator struct {
+	service    ActivityService
+	ctx        context.Context
+	activities []*Activity
+}
 
-// Streams of data from the activity
-func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (*gj.FeatureCollection, error) {
+// Count .
+func (p *activityPaginator) Count() int {
+	return len(p.activities)
+}
+
+// Do .
+func (p *activityPaginator) Do(start, count int) (int, error) {
+	acts := make([]*Activity, count)
+	uri := fmt.Sprintf("athletes/activities?page=%d&per_page=%d", start, count)
+	req, err := p.service.client.newAPIRequest(http.MethodGet, uri)
+	if err != nil {
+		return 0, err
+	}
+	err = p.service.client.Do(p.ctx, req, &acts)
+	if err != nil {
+		return 0, err
+	}
+	for _, act := range acts {
+		p.activities = append(p.activities, act)
+	}
+	return len(acts), nil
+}
+
+// Route returns a Route from an activities stream data
+//  This is different from returning a Strava Route
+func (s *ActivityService) Route(ctx context.Context, activityID int64) (*route.Route, error) {
+	streams, err := s.Streams(ctx, activityID, "latlng", "elevation")
+	if err != nil {
+		return nil, err
+	}
+	return newRouteFromStreams(activityID, streams)
+}
+
+// Streams returns the activities data streams
+func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (map[string]*Stream, error) {
 	keys := strings.Join(streams, ",")
 	uri := fmt.Sprintf("activities/%d/streams/%s?key_by_type=true", activityID, keys)
 	req, err := s.client.newAPIRequest(http.MethodGet, uri)
@@ -31,7 +65,7 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 	if err != nil {
 		return nil, err
 	}
-	return newFeatureCollection(activityID, m)
+	return m, err
 }
 
 // Activity returns the activity specified by id for an athlete
@@ -51,88 +85,33 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 
 // Activities returns a page of activities for an athlete
 //  call with (ctx, total, start, count)
-func (s *ActivityService) Activities(ctx context.Context, specs ...int) (*[]Activity, error) {
-	var start, count, total int
-	switch len(specs) {
-	case 0:
-		total, start, count = 0, 1, pageSize
-	case 1:
-		total, start, count = specs[0], 1, pageSize
-	case 2:
-		total, start, count = specs[0], specs[1], pageSize
-	case 3:
-		total, start, count = specs[0], specs[1], specs[2]
-	default:
-		return nil, errors.New("too many varargs")
+func (s *ActivityService) Activities(ctx context.Context, specs ...int) ([]*Activity, error) {
+	p := &activityPaginator{
+		service:    *s,
+		ctx:        ctx,
+		activities: make([]*Activity, 0),
 	}
-	if total < 0 {
-		return nil, errors.New("total less than zero")
+	err := paginate(p, specs...)
+	if err != nil {
+		return nil, err
 	}
-	if total <= count {
-		count = total
-	}
-	return s.activities(ctx, total, start, count)
+	return p.activities, nil
 }
 
-func (s *ActivityService) activities(ctx context.Context, total, start, count int) (*[]Activity, error) {
-	all := make([]Activity, 0)
-
-	for {
-		acts := make([]Activity, count)
-		uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
-		req, err := s.client.newAPIRequest(http.MethodGet, uri)
-		if err != nil {
-			return nil, err
-		}
-		err = s.client.Do(ctx, req, &acts)
-		if err != nil {
-			return nil, err
-		}
-		for _, act := range acts {
-			all = append(all, act)
-		}
-		if len(acts) != count || len(all) >= total {
-			break
-		}
-		start = start + 1
-		if (total - len(all)) < pageSize {
-			count = total - len(all)
-		} else {
-			count = pageSize
-		}
-	}
-	return &all, nil
-}
-
-func newFeatureCollection(activityID int64, streams map[string]*Stream) (*gj.FeatureCollection, error) {
-	fc := gj.NewFeatureCollection()
-
-	if streams == nil {
-		return fc, nil
-	}
-
-	// The sequence of lat/long values for this stream
+func newRouteFromStreams(activityID int64, streams map[string]*Stream) (*route.Route, error) {
 	latlng, ok := streams["latlng"]
 	if !ok {
-		return nil, errors.New("missing latlng stream")
+		return nil, errors.New("missing required latlng stream")
 	}
-	delete(streams, "latlng")
-
-	n := len(latlng.Data)
-	log.Debug().Str("name", "latlng").Int("count", n).Msg("fc")
-	for name, stream := range streams {
-		if n != len(stream.Data) {
-			return nil, errors.New("inconsistent streams sizes")
-		}
-		log.Debug().Str("name", name).Int("count", len(stream.Data)).Msg("fc")
-	}
-
-	coords := make([][]float64, n)
-	feature := gj.NewFeature(gj.NewLineStringGeometry(coords))
-	feature.ID = activityID
 
 	zero := float64(0)
-	// The sequence of altitude values for this stream, in meters
+	rte := &route.Route{
+		ID:          fmt.Sprintf("%d", activityID),
+		Source:      baseURL,
+		Origin:      route.Activity,
+		Coordinates: make([][]float64, len(latlng.Data)),
+	}
+
 	altitude, ok := streams["altitude"]
 	for i, m := range latlng.Data {
 		lat := m.([]interface{})[0]
@@ -141,41 +120,47 @@ func newFeatureCollection(activityID int64, streams map[string]*Stream) (*gj.Fea
 		if ok {
 			alt = (altitude.Data[i]).(float64)
 		}
-		coords[i] = []float64{lng.(float64), lat.(float64), alt}
+		rte.Coordinates[i] = []float64{lng.(float64), lat.(float64), alt}
 	}
-	delete(streams, "altitude")
-
-	dataStreams := make(map[string]interface{})
-	for name, stream := range streams {
-		n, s := dataStream(name, stream)
-		dataStreams[n] = s
-	}
-	feature.Properties["streams"] = dataStreams
-
-	fc.AddFeature(feature)
-	return fc, nil
+	return rte, nil
 }
 
-func dataStream(name string, stream *Stream) (string, []interface{}) {
-	switch name {
-	case "time":
-		// The sequence of time values for this stream, in seconds [integer]
-	case "distance":
-		// The sequence of distance values for this stream, in meters [float]
-	case "velocity_smooth":
-		// The sequence of velocity values for this stream, in meters per second [float]
-	case "heartrate":
-		// The sequence of heart rate values for this stream, in beats per minute [integer]
-	case "cadence":
-		// The sequence of cadence values for this stream, in rotations per minute [integer]
-	case "watts":
-		// The sequence of power values for this stream, in watts [integer]
-	case "temp":
-		// The sequence of temperature values for this stream, in celsius degrees [float]
-	case "moving":
-		// The sequence of moving values for this stream, as boolean values [boolean]
-	case "grade_smooth":
-		// The sequence of grade values for this stream, as percents of a grade [float]
-	}
-	return name, stream.Data
-}
+// // https://developers.strava.com/docs/reference/#api-models-StreamSet
+// func validStream(name string) bool {
+// 	switch name {
+// 	case "latlng":
+// 		// The sequence of lat/long values for this stream [float, float]
+// 		return true
+// 	case "altitude":
+// 		// The sequence of altitude values for this stream, in meters [float]
+// 		return true
+// 	case "time":
+// 		// The sequence of time values for this stream, in seconds [integer]
+// 		return true
+// 	case "distance":
+// 		// The sequence of distance values for this stream, in meters [float]
+// 		return true
+// 	case "velocity_smooth":
+// 		// The sequence of velocity values for this stream, in meters per second [float]
+// 		return true
+// 	case "heartrate":
+// 		// The sequence of heart rate values for this stream, in beats per minute [integer]
+// 		return true
+// 	case "cadence":
+// 		// The sequence of cadence values for this stream, in rotations per minute [integer]
+// 		return true
+// 	case "watts":
+// 		// The sequence of power values for this stream, in watts [integer]
+// 		return true
+// 	case "temp":
+// 		// The sequence of temperature values for this stream, in celsius degrees [float]
+// 		return true
+// 	case "moving":
+// 		// The sequence of moving values for this stream, as boolean values [boolean]
+// 		return true
+// 	case "grade_smooth":
+// 		// The sequence of grade values for this stream, as percents of a grade [float]
+// 		return true
+// 	}
+// 	return false
+// }

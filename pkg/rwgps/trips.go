@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 
-	gj "github.com/paulmach/go.geojson"
+	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
 // TripsService .
@@ -18,16 +17,16 @@ const (
 )
 
 // Trip .
-func (s *TripsService) Trip(ctx context.Context, tripID int64) (*gj.FeatureCollection, error) {
+func (s *TripsService) Trip(ctx context.Context, tripID int64) (*route.Route, error) {
 	return s.trip(ctx, tripType, fmt.Sprintf("trips/%d.json", tripID))
 }
 
 // Route .
-func (s *TripsService) Route(ctx context.Context, routeID int64) (*gj.FeatureCollection, error) {
+func (s *TripsService) Route(ctx context.Context, routeID int64) (*route.Route, error) {
 	return s.trip(ctx, routeType, fmt.Sprintf("routes/%d.json", routeID))
 }
 
-func (s *TripsService) trip(ctx context.Context, activity, uri string) (*gj.FeatureCollection, error) {
+func (s *TripsService) trip(ctx context.Context, activity, uri string) (*route.Route, error) {
 	req, err := s.client.newAPIRequest(http.MethodGet, uri)
 	if err != nil {
 		return nil, err
@@ -47,30 +46,30 @@ func (s *TripsService) trip(ctx context.Context, activity, uri string) (*gj.Feat
 	default:
 		return nil, fmt.Errorf("unknown activity type {%s}", activity)
 	}
-	return newFeatureCollection(activity, t)
+	return newRoute(activity, t)
 }
 
-func newFeatureCollection(activity string, trip *Trip) (*gj.FeatureCollection, error) {
-	fc := gj.NewFeatureCollection()
-
-	if trip == nil {
-		return fc, nil
-	}
-
+func newRoute(activity string, trip *Trip) (*route.Route, error) {
 	coords := make([][]float64, len(trip.TrackPoints))
-	feature := gj.NewFeature(gj.NewLineStringGeometry(coords))
-
-	feature.ID = trip.ID
-	feature.Properties["type"] = activity
-	feature.Properties["name"] = trip.Name
-	feature.Properties["user_id"] = trip.UserID
-	feature.Properties["description"] = trip.Description
-	feature.Properties["departed_at"] = trip.DepartedAt.Format(time.RFC3339)
-
 	for i, tp := range trip.TrackPoints {
 		coords[i] = []float64{tp.Longitude, tp.Latitude, tp.Elevation}
 	}
+	return &route.Route{
+		ID:          fmt.Sprintf("%d", trip.ID),
+		Name:        trip.Name,
+		Source:      baseURL,
+		Origin:      routeOrigin(activity),
+		Description: trip.Description,
+		Coordinates: coords,
+	}, nil
+}
 
-	fc.AddFeature(feature)
-	return fc, nil
+func routeOrigin(activity string) route.Origin {
+	switch activity {
+	case tripType:
+		return route.Activity
+	case routeType:
+		return route.Planned
+	}
+	return route.Unknown
 }

@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
 func Test_Trip(t *testing.T) {
@@ -17,17 +19,16 @@ func Test_Trip(t *testing.T) {
 	a.NotNil(c)
 
 	ctx := context.Background()
-	fc, err := c.Trips.Trip(ctx, 94)
+	rte, err := c.Trips.Trip(ctx, 94)
 	a.NoError(err)
-	a.NotNil(fc)
-	a.Equal(94, fc.Features[0].ID)
-	a.Equal("trip", fc.Features[0].Properties["type"])
-	a.True(fc.Features[0].Geometry.IsLineString())
-	a.Equal(1465, len(fc.Features[0].Geometry.LineString))
+	a.NotNil(rte)
+	a.Equal("94", rte.ID)
+	a.Equal(route.Activity, rte.Origin)
+	a.Equal(1465, len(rte.Coordinates))
 
-	fc, err = c.Trips.Trip(nil, 94)
+	rte, err = c.Trips.Trip(nil, 94)
 	a.Error(err)
-	a.Nil(fc)
+	a.Nil(rte)
 }
 
 func Test_Route(t *testing.T) {
@@ -39,16 +40,14 @@ func Test_Route(t *testing.T) {
 	a.NotNil(c)
 
 	ctx := context.Background()
-	fc, err := c.Trips.Route(ctx, 141014)
+	rte, err := c.Trips.Route(ctx, 141014)
 	a.NoError(err)
-	a.NotNil(fc)
-	a.Equal(141014, fc.Features[0].ID)
-	a.Equal("route", fc.Features[0].Properties["type"])
-	a.Equal(1, len(fc.Features))
-	a.True(fc.Features[0].Geometry.IsLineString())
-	a.Equal(1154, len(fc.Features[0].Geometry.LineString))
+	a.NotNil(rte)
+	a.Equal("141014", rte.ID)
+	a.Equal(route.Planned, rte.Origin)
+	a.Equal(1154, len(rte.Coordinates))
 
-	fc, err = c.Trips.Route(nil, 141014)
+	rte, err = c.Trips.Route(nil, 141014)
 	a.Error(err)
-	a.Nil(fc)
+	a.Nil(rte)
 }
