@@ -1,7 +1,14 @@
 package main
 
-import "github.com/bzimmer/gravl/cmd"
+import (
+	"os"
+
+	"github.com/bzimmer/gravl/cmd/gravl"
+)
 
 func main() {
-	cmd.Execute()
+	err := gravl.Run()
+	if err != nil {
+		os.Exit(1)
+	}
 }

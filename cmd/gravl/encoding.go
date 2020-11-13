@@ -1,4 +1,4 @@
-package cmd
+package gravl
 
 import (
 	"encoding/json"

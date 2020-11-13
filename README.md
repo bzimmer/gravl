@@ -7,4 +7,5 @@
 * [Ride with GPS](pkg/rwgps/README.md)
 
 ### ToDo
-* map creation [go-staticmaps](https://github.com/flopp/go-staticmaps)
+* [static map creation](https://github.com/flopp/go-staticmaps)
+* [SRTM](https://github.com/sakisds/go-srtm)
