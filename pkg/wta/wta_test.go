@@ -39,6 +39,7 @@ func Test_GetTripReports(t *testing.T) {
 	a := assert.New(t)
 
 	client, err := newClient(http.StatusOK, "wta_test.html")
+	a.NoError(err)
 	reports, err := client.Reports.TripReports(context.Background(), "foobar")
 	a.NoError(err)
 	a.Equal(14, len(reports))

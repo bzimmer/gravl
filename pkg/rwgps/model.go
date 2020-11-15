@@ -2,12 +2,6 @@ package rwgps
 
 import "time"
 
-// Paginator .
-type Paginator struct {
-	offset int
-	limit  int
-}
-
 // UserResponse .
 type UserResponse struct {
 	User *User `json:"user"`

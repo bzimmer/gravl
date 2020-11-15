@@ -13,6 +13,7 @@ func Test_Route(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	client, err := newClient(http.StatusOK, "route.json")
+	a.NoError(err)
 	ctx := context.Background()
 	rte, err := client.Route.Route(ctx, 26587226)
 	a.NoError(err)

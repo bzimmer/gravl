@@ -102,7 +102,10 @@ func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]*T
 			Msg("GetTripReports")
 	}(time.Now())
 
-	c.Visit(q)
+	err := c.Visit(q)
+	if err != nil {
+		return nil, err
+	}
 	if visitError != nil {
 		return nil, visitError
 	}

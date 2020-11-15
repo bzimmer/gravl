@@ -29,6 +29,7 @@ func Test_WebhookSubscribe(t *testing.T) {
 			return nil
 		},
 		nil)
+	a.NoError(err)
 	err = strava.WithWebhookCredentials("someID", "someSecret")(client)
 	a.NoError(err)
 	ctx := context.Background()
@@ -42,6 +43,7 @@ func Test_WebhookUnsubscribe(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	client, err := newClient(http.StatusNoContent, "")
+	a.NoError(err)
 	ctx := context.Background()
 	err = client.Webhook.Unsubscribe(ctx, 882722)
 	a.NoError(err)
@@ -51,6 +53,7 @@ func Test_WebhookSubscriptions(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	client, err := newClient(http.StatusOK, "subscriptions.json")
+	a.NoError(err)
 	ctx := context.Background()
 	msgs, err := client.Webhook.Subscriptions(ctx)
 	a.NoError(err)

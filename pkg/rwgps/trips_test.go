@@ -10,6 +10,10 @@ import (
 	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
+func contextNil() context.Context {
+	return nil
+}
+
 func Test_Trip(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
@@ -26,11 +30,10 @@ func Test_Trip(t *testing.T) {
 	a.Equal(route.Activity, rte.Origin)
 	a.Equal(1465, len(rte.Coordinates))
 
-	rte, err = c.Trips.Trip(nil, 94)
+	rte, err = c.Trips.Trip(contextNil(), 94)
 	a.Error(err)
 	a.Nil(rte)
 }
-
 func Test_Route(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
@@ -47,7 +50,8 @@ func Test_Route(t *testing.T) {
 	a.Equal(route.Planned, rte.Origin)
 	a.Equal(1154, len(rte.Coordinates))
 
-	rte, err = c.Trips.Route(nil, 141014)
+	// keep the linter quiet by using a function to return nil
+	rte, err = c.Trips.Route(contextNil(), 141014)
 	a.Error(err)
 	a.Nil(rte)
 }

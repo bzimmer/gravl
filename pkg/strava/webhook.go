@@ -102,7 +102,7 @@ func WebhookSubscriptionHandler(subscriber WebhookSubscriber) func(c *gin.Contex
 			err := subscriber.SubscriptionRequest(challenge, verify)
 			if err != nil {
 				c.Abort()
-				c.Error(err)
+				_ = c.Error(err)
 				c.JSON(http.StatusInternalServerError, gin.H{"status": "failed"})
 				return
 			}
@@ -115,13 +115,18 @@ func WebhookSubscriptionHandler(subscriber WebhookSubscriber) func(c *gin.Contex
 func WebhookEventHandler(subscriber WebhookSubscriber) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		m := &WebhookMessage{}
-		c.BindJSON(m)
-
+		err := c.BindJSON(m)
+		if err != nil {
+			c.Abort()
+			_ = c.Error(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"status": "ok"})
+			return
+		}
 		if subscriber != nil {
 			err := subscriber.MessageReceived(m)
 			if err != nil {
 				c.Abort()
-				c.Error(err)
+				_ = c.Error(err)
 				c.JSON(http.StatusInternalServerError, gin.H{"status": "failed"})
 				return
 			}

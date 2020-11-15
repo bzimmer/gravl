@@ -115,7 +115,10 @@ var stravaCommand = &cli.Command{
 				if err != nil {
 					return err
 				}
-				encoder.Encode(rte)
+				err = encoder.Encode(rte)
+				if err != nil {
+					return err
+				}
 			}
 		}
 		if c.Bool("athlete") {
@@ -123,14 +126,20 @@ var stravaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			encoder.Encode(ath)
+			err = encoder.Encode(ath)
+			if err != nil {
+				return err
+			}
 		}
 		if c.Bool("refresh") {
 			tokens, err := client.Auth.Refresh(c.Context)
 			if err != nil {
 				return err
 			}
-			encoder.Encode(tokens)
+			err = encoder.Encode(tokens)
+			if err != nil {
+				return err
+			}
 		}
 		if c.Bool("activities") {
 			acts, err := client.Activity.Activities(c.Context, c.Int("count"))
@@ -138,7 +147,10 @@ var stravaCommand = &cli.Command{
 				return err
 			}
 			for _, act := range acts {
-				encoder.Encode(act)
+				err = encoder.Encode(act)
+				if err != nil {
+					return err
+				}
 			}
 		}
 		return nil

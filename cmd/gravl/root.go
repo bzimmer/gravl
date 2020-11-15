@@ -77,60 +77,71 @@ func initLogging(c *cli.Context) error {
 	return nil
 }
 
+func flags() ([]cli.Flag, error) {
+	home, err := homedir.Dir()
+	if err != nil {
+		return nil, err
+	}
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:    "verbosity",
+			Aliases: []string{"v"},
+			Value:   "info",
+			Usage:   "Log level (trace, debug, info, warn, error, fatal, panic)",
+		},
+		&cli.BoolFlag{
+			Name:    "monochrome",
+			Aliases: []string{"m"},
+			Value:   false,
+			Usage:   "Use monochrome logging, color enabled by default",
+		},
+		&cli.BoolFlag{
+			Name:    "compact",
+			Aliases: []string{"c"},
+			Value:   false,
+			Usage:   "Use compact JSON output",
+		},
+		&cli.BoolFlag{
+			Name:  "http-tracing",
+			Value: false,
+			Usage: "Log all http calls (warning: this will log ids, keys, and other sensitive information)",
+		},
+		&cli.StringFlag{
+			Name:  "config",
+			Value: filepath.Join(home, ".gravl.yaml"),
+			Usage: "File containing configuration settings",
+		},
+	}, nil
+}
+
+func commands() []*cli.Command {
+	return []*cli.Command{
+		serveCommand,
+		wtaCommand,
+		gnisCommand,
+		visualcrossingCommand,
+		tengoCommand,
+		rwgpsCommand,
+		noaaCommand,
+		stravaCommand,
+		versionCommand,
+	}
+}
+
 // Run .
 func Run() error {
-	home, err := homedir.Dir()
+	fs, err := flags()
 	if err != nil {
 		return err
 	}
-
 	app := &cli.App{
 		Name:      "gravl",
 		Compiled:  time.Now(),
 		HelpName:  "gravl",
 		Usage:     "Plan trips",
 		UsageText: "gravl - plan trips",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "verbosity",
-				Aliases: []string{"v"},
-				Value:   "info",
-				Usage:   "Log level (trace, debug, info, warn, error, fatal, panic)",
-			},
-			&cli.BoolFlag{
-				Name:    "monochrome",
-				Aliases: []string{"m"},
-				Value:   false,
-				Usage:   "Use monochrome logging, color enabled by default",
-			},
-			&cli.BoolFlag{
-				Name:    "compact",
-				Aliases: []string{"c"},
-				Value:   false,
-				Usage:   "Use compact JSON output",
-			},
-			&cli.BoolFlag{
-				Name:  "http-tracing",
-				Value: false,
-				Usage: "Log all http calls (warning: this will log ids, keys, and other sensitive information)",
-			},
-			&cli.StringFlag{
-				Name:  "config",
-				Value: filepath.Join(home, ".gravl.yaml"),
-				Usage: "File containing configuration settings",
-			},
-		},
-		Commands: []*cli.Command{
-			serveCommand,
-			wtaCommand,
-			gnisCommand,
-			visualcrossingCommand,
-			tengoCommand,
-			rwgpsCommand,
-			noaaCommand,
-			stravaCommand,
-			versionCommand,
-		},
+		Flags:     fs,
+		Commands:  commands(),
 		Before: func(c *cli.Context) error {
 			fns := []cli.BeforeFunc{initFlags, initLogging, initEncoding, initConfig}
 			for _, fn := range fns {

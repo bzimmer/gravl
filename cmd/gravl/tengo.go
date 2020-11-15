@@ -41,7 +41,7 @@ each([a, b, c, d], func(x) {
 		// retrieve values
 		sum := compiled.Get("sum")
 		mul := compiled.Get("mul")
-		encoder.Encode([]int{sum.Int(), mul.Int()})
+		_ = encoder.Encode([]int{sum.Int(), mul.Int()})
 		return nil
 	},
 }

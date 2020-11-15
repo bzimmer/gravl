@@ -14,6 +14,7 @@ func Test_Athlete(t *testing.T) {
 	a := assert.New(t)
 
 	client, err := newClient(http.StatusOK, "athlete.json")
+	a.NoError(err)
 	ctx := context.Background()
 	ath, err := client.Athlete.Athlete(ctx)
 	a.NoError(err, "failed decoding")
@@ -27,6 +28,7 @@ func Test_AthleteNotAuthorized(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	client, err := newClient(http.StatusUnauthorized, "athlete_unauthorized.json")
+	a.NoError(err)
 	ctx := context.Background()
 	ath, err := client.Athlete.Athlete(ctx)
 	a.Error(err)
@@ -38,6 +40,7 @@ func Test_AthleteStats(t *testing.T) {
 	a := assert.New(t)
 
 	client, err := newClient(http.StatusOK, "athlete_stats.json")
+	a.NoError(err)
 	ctx := context.Background()
 	sts, err := client.Athlete.Stats(ctx, 88273)
 	a.NoError(err, "failed decoding")

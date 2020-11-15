@@ -16,7 +16,8 @@ func Test_Options(t *testing.T) {
 	a.NotNil(c)
 
 	a.Equal(0*time.Second, c.client.Timeout)
-	WithTimeout(15 * time.Millisecond)(c)
+	err = WithTimeout(15 * time.Millisecond)(c)
+	a.NoError(err)
 	a.Equal(15*time.Millisecond, c.client.Timeout)
 
 	req, err := c.newAPIRequest(http.MethodGet, "/foo")
@@ -26,6 +27,7 @@ func Test_Options(t *testing.T) {
 
 	m := &http.Client{Timeout: 100 * time.Millisecond}
 	a.NotEqual(m, c.client)
-	WithHTTPClient(m)(c)
+	err = WithHTTPClient(m)(c)
+	a.NoError(err)
 	a.Equal(m, c.client)
 }

@@ -38,6 +38,9 @@ var noaaCommand = &cli.Command{
 				return errors.New("only Point geometries are supported")
 			}
 			fcst, err = client.Points.Forecast(c.Context, geom.Point[1], geom.Point[0])
+			if err != nil {
+				return err
+			}
 		case 2:
 			lat, err := strconv.ParseFloat(args[0], 64)
 			if err != nil {
@@ -48,6 +51,9 @@ var noaaCommand = &cli.Command{
 				return err
 			}
 			fcst, err = client.Points.Forecast(c.Context, lat, lng)
+			if err != nil {
+				return err
+			}
 		case 3:
 			wfo := args[0]
 			x, err := strconv.Atoi(args[1])
@@ -59,11 +65,11 @@ var noaaCommand = &cli.Command{
 				return err
 			}
 			fcst, err = client.GridPoints.Forecast(c.Context, wfo, x, y)
+			if err != nil {
+				return err
+			}
 		default:
 			return fmt.Errorf("only 2 or 3 arguments allowed [%v]", args)
-		}
-		if err != nil {
-			return err
 		}
 		err = encoder.Encode(fcst)
 		if err != nil {

@@ -33,6 +33,9 @@ func (t *ZipArchiveTransport) RoundTrip(req *http.Request) (*http.Response, erro
 	}
 	// copy the contents of the file from disk to the buffer
 	datafile, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
 	_, err = io.Copy(f, datafile)
 	if err != nil {
 		return nil, err

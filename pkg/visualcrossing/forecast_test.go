@@ -32,6 +32,7 @@ func Test_MakeValues(t *testing.T) {
 		WithUnits(UnitsMetric),
 	})
 	q = v.Encode()
+	a.NoError(err)
 	a.Equal("unitGroup=metric", q)
 
 	v = &url.Values{}

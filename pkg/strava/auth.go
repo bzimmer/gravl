@@ -52,7 +52,7 @@ func AuthRequired(provider goth.Provider) gin.HandlerFunc {
 		err := json.Unmarshal(authTokensJSON.([]byte), &authTokens)
 		if err != nil {
 			c.Abort()
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid session value"})
 			return
 		}
@@ -67,6 +67,13 @@ func AuthRequired(provider goth.Provider) gin.HandlerFunc {
 		log.Warn().Time("expiresAt", authTokens.ExpiresAt).Time("now", now).Msg("authrequired")
 
 		token, err := provider.RefreshToken(authTokens.RefreshToken)
+		if err != nil {
+			c.Abort()
+			_ = c.Error(err)
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
 		authTokens = AuthTokens{
 			UpdatedAt:    time.Now(),
 			ExpiresAt:    token.Expiry,
@@ -79,7 +86,7 @@ func AuthRequired(provider goth.Provider) gin.HandlerFunc {
 		err = saveTokens(c, authTokens)
 		if err != nil {
 			c.Abort()
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
@@ -100,7 +107,7 @@ func AuthCallbackHandler() gin.HandlerFunc {
 		user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
 		if err != nil {
 			c.Abort()
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
@@ -113,7 +120,7 @@ func AuthCallbackHandler() gin.HandlerFunc {
 		athleteID, err := strconv.Atoi(user.UserID)
 		if err != nil {
 			c.Abort()
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
@@ -128,7 +135,7 @@ func AuthCallbackHandler() gin.HandlerFunc {
 		err = saveTokens(c, authTokens)
 		if err != nil {
 			c.Abort()
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}

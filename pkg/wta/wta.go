@@ -97,7 +97,7 @@ func TripReportsHandler(client *Client) gin.HandlerFunc {
 		reports, err := client.Reports.TripReports(context.Background(), reporter)
 		if err != nil {
 			c.Abort()
-			c.Error(err)
+			_ = c.Error(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"status": "failed"})
 			return
 		}

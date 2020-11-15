@@ -97,6 +97,7 @@ func (c *Client) newAPIRequest(method, uri string, values *url.Values) (*http.Re
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("User-Agent", userAgent)
 	return req, nil
 }
 

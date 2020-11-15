@@ -25,7 +25,9 @@ func Test_Refresh(t *testing.T) {
 		},
 	}
 	client, err := newClient(http.StatusOK, "")
-	strava.WithProvider(provider)(client)
+	a.NoError(err)
+	err = strava.WithProvider(provider)(client)
+	a.NoError(err)
 
 	ctx := context.Background()
 	tokens, err := client.Auth.Refresh(ctx)
