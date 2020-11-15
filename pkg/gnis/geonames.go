@@ -77,6 +77,7 @@ func parseReader(reader io.Reader) (*gj.FeatureCollection, error) {
 	return coll, nil
 }
 
+// nolint:golint,funlen
 func unmarshal(line string) (*gj.Feature, error) {
 	f := gj.NewFeature(
 		gj.NewPointGeometry(make([]float64, 3)))
@@ -100,11 +101,11 @@ func unmarshal(line string) (*gj.Feature, error) {
 			f.Properties["class"] = s
 		case 3: // STATE_ALPHA
 			f.Properties["state"] = s
-		// case 4: // STATE_NUMERIC
-		// case 5: // COUNTY_NAME
-		// case 6: // COUNTY_NUMERIC
-		// case 7: // PRIMARY_LAT_DMS
-		// case 8: // PRIM_LONG_DMS
+		case 4: // STATE_NUMERIC
+		case 5: // COUNTY_NAME
+		case 6: // COUNTY_NUMERIC
+		case 7: // PRIMARY_LAT_DMS
+		case 8: // PRIM_LONG_DMS
 		case 9: // PRIM_LAT_DEC
 			x, err := strconv.ParseFloat(s, 64)
 			if err != nil {
@@ -117,10 +118,10 @@ func unmarshal(line string) (*gj.Feature, error) {
 				return nil, err
 			}
 			f.Geometry.Point[0] = x
-		// case 11: // SOURCE_LAT_DMS
-		// case 12: // SOURCE_LONG_DMS
-		// case 13: // SOURCE_LAT_DEC
-		// case 14: // SOURCE_LONG_DEC
+		case 11: // SOURCE_LAT_DMS
+		case 12: // SOURCE_LONG_DMS
+		case 13: // SOURCE_LAT_DEC
+		case 14: // SOURCE_LONG_DEC
 		case 15: // ELEV_IN_M
 			if s == "" {
 				// not important enough to care about _though_ 0 m elevation is a legit value -- hmmm
@@ -131,10 +132,10 @@ func unmarshal(line string) (*gj.Feature, error) {
 				return nil, err
 			}
 			f.Geometry.Point[2] = x
-		// case 16: // ELEV_IN_FT
-		// case 17: // MAP_NAME
-		// case 18: // DATE_CREATED
-		// case 19: // DATE_EDITED
+		case 16: // ELEV_IN_FT
+		case 17: // MAP_NAME
+		case 18: // DATE_CREATED
+		case 19: // DATE_EDITED
 		default:
 		}
 	}

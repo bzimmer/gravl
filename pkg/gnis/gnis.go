@@ -14,7 +14,7 @@ type Client struct {
 }
 
 type service struct {
-	client *Client
+	client *Client //nolint:golint,structcheck
 }
 
 // Option .
@@ -22,9 +22,7 @@ type Option func(*Client) error
 
 // NewClient .
 func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{
-		client: &http.Client{},
-	}
+	c := &Client{client: &http.Client{}}
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {

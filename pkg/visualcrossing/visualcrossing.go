@@ -27,7 +27,7 @@ type Client struct {
 }
 
 type service struct {
-	client *Client
+	client *Client //nolint:golint,structcheck
 }
 
 // Option .

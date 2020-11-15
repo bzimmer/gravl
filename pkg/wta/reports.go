@@ -39,61 +39,71 @@ func query(author string) *url.URL {
 
 func newCollector(client *http.Client) *colly.Collector {
 	c := colly.NewCollector(
-		colly.AllowedDomains("wta.org", "www.wta.org"),
-	)
+		colly.AllowedDomains("wta.org", "www.wta.org"))
 	c.SetClient(client)
 	return c
 }
 
+type itemRow struct {
+	reports []*TripReport
+}
+
+func (r *itemRow) onHTML(e *colly.HTMLElement) {
+	tr := &TripReport{
+		Title:  e.ChildText(".listitem-title"),
+		Region: e.ChildText("span[class=region]"),
+	}
+
+	creator := strings.Split(e.ChildTexts("div[class=CreatorInfo]")[0], "\n")
+
+	tr.Report = e.ChildAttr(".listitem-title", "href")
+	tr.Reporter = creator[0]
+	txt := e.ChildText(".UpvoteCount")
+	if txt != "" {
+		vote, err := strconv.Atoi(txt)
+		if err == nil {
+			tr.Votes = vote
+		}
+	}
+	txt = e.ChildText(".media-indicator")
+	if txt != "" {
+		n := photosRE.FindString(txt)
+		photos, err := strconv.Atoi(n)
+		if err == nil {
+			tr.Photos = photos
+		}
+	}
+	attr := e.ChildAttr(".elapsed-time", "title")
+	if attr != "" {
+		t, _ := time.Parse("Jan 02, 2006", attr)
+		tr.HikeDate = t
+	}
+	r.reports = append(r.reports, tr)
+}
+
+type visitError struct {
+	err error
+}
+
+func (v *visitError) onError(r *colly.Response, err error) {
+	log.Warn().
+		Err(err).
+		Str("url", r.Request.URL.String()).
+		Msg("tripreports")
+	v.err = err
+}
+
 // TripReports .
 func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]*TripReport, error) {
-	var visitError error
-	reports := make([]*TripReport, 0)
+	c := newCollector(s.client.client)
+
+	v := &visitError{err: nil}
+	c.OnError(v.onError)
+
+	w := &itemRow{reports: make([]*TripReport, 0)}
+	c.OnHTML("div[class=item-row]", w.onHTML)
 
 	q := query(reporter).String()
-	c := newCollector(s.client.client)
-	c.OnError(func(r *colly.Response, err error) {
-		log.Warn().
-			Err(err).
-			Str("url", r.Request.URL.String()).
-			Msg("tripreports")
-		visitError = err
-	})
-
-	c.OnHTML("div[class=item-row]", func(e *colly.HTMLElement) {
-		tr := &TripReport{
-			Title:  e.ChildText(".listitem-title"),
-			Region: e.ChildText("span[class=region]"),
-		}
-
-		creator := strings.Split(e.ChildTexts("div[class=CreatorInfo]")[0], "\n")
-
-		tr.Report = e.ChildAttr(".listitem-title", "href")
-		tr.Reporter = creator[0]
-		txt := e.ChildText(".UpvoteCount")
-		if txt != "" {
-			vote, err := strconv.Atoi(txt)
-			if err == nil {
-				tr.Votes = vote
-			}
-		}
-		txt = e.ChildText(".media-indicator")
-		if txt != "" {
-			n := photosRE.FindString(txt)
-			photos, err := strconv.Atoi(n)
-			if err == nil {
-				tr.Photos = photos
-			}
-		}
-		attr := e.ChildAttr(".elapsed-time", "title")
-		if attr != "" {
-			t, _ := time.Parse("Jan 02, 2006", attr)
-			tr.HikeDate = t
-		}
-
-		reports = append(reports, tr)
-	})
-
 	defer func(start time.Time) {
 		log.Debug().
 			Str("url", q).
@@ -106,8 +116,8 @@ func (s *ReportsService) TripReports(ctx context.Context, reporter string) ([]*T
 	if err != nil {
 		return nil, err
 	}
-	if visitError != nil {
-		return nil, visitError
+	if v.err != nil {
+		return nil, v.err
 	}
-	return reports, nil
+	return w.reports, nil
 }
