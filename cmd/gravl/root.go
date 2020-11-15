@@ -145,8 +145,8 @@ func Run() error {
 		Before: func(c *cli.Context) error {
 			fns := []cli.BeforeFunc{initFlags, initLogging, initEncoding, initConfig}
 			for _, fn := range fns {
-				if err := fn(c); err != nil {
-					return err
+				if e := fn(c); e != nil {
+					return e
 				}
 			}
 			return nil

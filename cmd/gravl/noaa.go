@@ -30,43 +30,43 @@ var noaaCommand = &cli.Command{
 		switch len(args) {
 		case 0:
 			geom := &geojson.Geometry{}
-			err := decoder.Decode(geom)
-			if err != nil {
-				return err
+			e := decoder.Decode(geom)
+			if e != nil {
+				return e
 			}
 			if !geom.IsPoint() {
 				return errors.New("only Point geometries are supported")
 			}
-			fcst, err = client.Points.Forecast(c.Context, geom.Point[1], geom.Point[0])
-			if err != nil {
-				return err
+			fcst, e = client.Points.Forecast(c.Context, geom.Point[1], geom.Point[0])
+			if e != nil {
+				return e
 			}
 		case 2:
-			lat, err := strconv.ParseFloat(args[0], 64)
-			if err != nil {
-				return err
+			lat, e := strconv.ParseFloat(args[0], 64)
+			if e != nil {
+				return e
 			}
-			lng, err := strconv.ParseFloat(args[1], 64)
-			if err != nil {
-				return err
+			lng, e := strconv.ParseFloat(args[1], 64)
+			if e != nil {
+				return e
 			}
-			fcst, err = client.Points.Forecast(c.Context, lat, lng)
-			if err != nil {
-				return err
+			fcst, e = client.Points.Forecast(c.Context, lat, lng)
+			if e != nil {
+				return e
 			}
 		case 3:
 			wfo := args[0]
-			x, err := strconv.Atoi(args[1])
-			if err != nil {
-				return err
+			x, e := strconv.Atoi(args[1])
+			if e != nil {
+				return e
 			}
-			y, err := strconv.Atoi(args[2])
-			if err != nil {
-				return err
+			y, e := strconv.Atoi(args[2])
+			if e != nil {
+				return e
 			}
-			fcst, err = client.GridPoints.Forecast(c.Context, wfo, x, y)
-			if err != nil {
-				return err
+			fcst, e = client.GridPoints.Forecast(c.Context, wfo, x, y)
+			if e != nil {
+				return e
 			}
 		default:
 			return fmt.Errorf("only 2 or 3 arguments allowed [%v]", args)

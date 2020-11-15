@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// AthleteService .
+// AthleteService is the API for athlete endpoints
 type AthleteService service
 
 // Athlete returns the currently authenticated athlete

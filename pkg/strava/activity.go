@@ -12,7 +12,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
-// ActivityService .
+// ActivityService is the API for activity endpoints
 type ActivityService service
 
 type activityPaginator struct {
@@ -21,12 +21,12 @@ type activityPaginator struct {
 	activities []*route.Route
 }
 
-// Count .
+// Count returns the number of activities
 func (p *activityPaginator) Count() int {
 	return len(p.activities)
 }
 
-// Do .
+// Do executes the querying of activities
 func (p *activityPaginator) Do(start, count int) (int, error) {
 	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
 	req, err := p.service.client.newAPIRequest(http.MethodGet, uri)
@@ -109,17 +109,18 @@ func newRouteFromActivity(a *Activity) (*route.Route, error) {
 	var coords [][]float64
 	// unclear which of the polylines will be valid
 	for _, p := range []string{a.Map.Polyline, a.Map.SummaryPolyline} {
-		if p != "" {
-			c, _, err := polyline.DecodeCoords([]byte(p))
-			if err != nil {
-				return nil, err
-			}
-			coords = make([][]float64, len(c))
-			for i, x := range c {
-				coords[i] = []float64{x[1], x[0], zero}
-			}
-			break
+		if p == "" {
+			continue
 		}
+		c, _, err := polyline.DecodeCoords([]byte(p))
+		if err != nil {
+			return nil, err
+		}
+		coords = make([][]float64, len(c))
+		for i, x := range c {
+			coords[i] = []float64{x[1], x[0], zero}
+		}
+		break
 	}
 	rte := &route.Route{
 		ID:          fmt.Sprintf("%d", a.ID),

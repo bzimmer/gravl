@@ -56,7 +56,7 @@ func doPaginate(paginator Paginator, total, start, count int) error {
 		if n != count || all >= total {
 			break
 		}
-		start = start + 1
+		start++
 		if (total - all) < pageSize {
 			count = total - all
 		} else {

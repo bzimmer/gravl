@@ -51,7 +51,7 @@ tasks:
     desc: Runs golint
     cmds:
       - golint {{catLines .GO_PACKAGES}}
-      - golangci-lint run -E exhaustive,funlen
+      - golangci-lint -v run
 
   vet:
     desc: Runs golint

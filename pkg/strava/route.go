@@ -10,7 +10,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
-// RouteService .
+// RouteService is the API for route endpoints
 type RouteService service
 
 type routePaginator struct {

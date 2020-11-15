@@ -58,11 +58,11 @@ func WithHTTPTracing(debug bool) Option {
 	}
 }
 
-// WithTransport transport
-func WithTransport(transport http.RoundTripper) Option {
+// WithTransport configures the http client to use the provided transport
+func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
-		if transport != nil {
-			c.client.Transport = transport
+		if t != nil {
+			c.client.Transport = t
 		}
 		return nil
 	}

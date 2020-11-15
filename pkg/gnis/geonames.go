@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -26,7 +27,11 @@ type GeoNamesService service
 // Query .
 func (s *GeoNamesService) Query(ctx context.Context, state string) (*gj.FeatureCollection, error) {
 	uri := fmt.Sprintf(baseURL, state)
-	res, err := s.client.client.Get(uri)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, err
+	}
+	res, err := s.client.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -77,8 +82,7 @@ func parseReader(reader io.Reader) (*gj.FeatureCollection, error) {
 	return coll, nil
 }
 
-// nolint:golint,funlen
-func unmarshal(line string) (*gj.Feature, error) {
+func unmarshal(line string) (*gj.Feature, error) { // nolint:gocyclo
 	f := gj.NewFeature(
 		gj.NewPointGeometry(make([]float64, 3)))
 

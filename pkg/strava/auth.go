@@ -18,7 +18,7 @@ const (
 	authKey = "_stravaAuthTokens"
 )
 
-// AuthService .
+// AuthService is the API for auth endpoints
 type AuthService service
 
 // Refresh returns a new access token
@@ -48,8 +48,8 @@ func AuthRequired(provider goth.Provider) gin.HandlerFunc {
 			return
 		}
 
-		authTokens := AuthTokens{}
-		err := json.Unmarshal(authTokensJSON.([]byte), &authTokens)
+		authTokens := &AuthTokens{}
+		err := json.Unmarshal(authTokensJSON.([]byte), authTokens)
 		if err != nil {
 			c.Abort()
 			_ = c.Error(err)
@@ -74,7 +74,7 @@ func AuthRequired(provider goth.Provider) gin.HandlerFunc {
 			return
 		}
 
-		authTokens = AuthTokens{
+		authTokens = &AuthTokens{
 			UpdatedAt:    time.Now(),
 			ExpiresAt:    token.Expiry,
 			AccessToken:  token.AccessToken,
@@ -125,7 +125,7 @@ func AuthCallbackHandler() gin.HandlerFunc {
 			return
 		}
 
-		authTokens := AuthTokens{
+		authTokens := &AuthTokens{
 			AthleteID:    athleteID,
 			AccessToken:  user.AccessToken,
 			RefreshToken: user.RefreshToken,
@@ -145,7 +145,7 @@ func AuthCallbackHandler() gin.HandlerFunc {
 }
 
 // saveTokens saves the auth tokens to the database and session
-func saveTokens(c *gin.Context, authToken AuthTokens) error {
+func saveTokens(c *gin.Context, authToken *AuthTokens) error {
 	session := sessions.Default(c)
 	accessTokenJSON, err := json.Marshal(authToken)
 	if err != nil {

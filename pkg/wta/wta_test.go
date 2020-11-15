@@ -63,7 +63,7 @@ func Test_TripReportsHandler(t *testing.T) {
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/reports/bzimmer", nil)
+	req, _ := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/reports/bzimmer", nil)
 	r.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 
@@ -80,7 +80,7 @@ func Test_TripReportsHandler(t *testing.T) {
 	r = newTestRouter(c)
 	a.NotNil(r)
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest(http.MethodGet, "/reports/foobar", nil)
+	req, _ = http.NewRequestWithContext(context.TODO(), http.MethodGet, "/reports/foobar", nil)
 	r.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 
@@ -97,7 +97,7 @@ func Test_TripReportsHandler(t *testing.T) {
 	a.NotNil(r)
 
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest(http.MethodGet, "/reports/bzimmer", nil)
+	req, _ = http.NewRequestWithContext(context.TODO(), http.MethodGet, "/reports/bzimmer", nil)
 	r.ServeHTTP(w, req)
 	a.Equal(http.StatusInternalServerError, w.Code)
 }
@@ -111,7 +111,7 @@ func Test_RegionsHandler(t *testing.T) {
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/regions/", nil)
+	req, _ := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/regions/", nil)
 	r.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 

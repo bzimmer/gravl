@@ -11,7 +11,7 @@ import (
 
 //  API documented at https://developers.strava.com/docs/webhooks/
 
-// WebhookService .
+// WebhookService is the API for webhook endpoints
 type WebhookService service
 
 // SubscriptionAcknowledgement describes the details of webhook subscription
@@ -76,7 +76,7 @@ func (s *WebhookService) Unsubscribe(ctx context.Context, subscriptionID int) er
 	return s.client.Do(ctx, req, nil)
 }
 
-// Subscriptions returns a list of subscribtions
+// Subscriptions returns a list of subscriptions
 func (s *WebhookService) Subscriptions(ctx context.Context) (*[]Subscription, error) {
 	uri := fmt.Sprintf("push_subscriptions?client_id=%s&client_secret=%s", s.client.stravaKey, s.client.stravaSecret)
 	req, err := s.client.newWebhookRequest(http.MethodGet, uri, nil)

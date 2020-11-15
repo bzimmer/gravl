@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var photosRE = regexp.MustCompile(`([0-9]+)`)
+var photosRE = regexp.MustCompile(`(\d+)`)
 
 // ReportsService .
 type ReportsService service
@@ -22,7 +22,6 @@ func query(author string) *url.URL {
 	v := url.Values{}
 	v.Add("author", author)
 	v.Add("b_size", "100")
-	// v.Add("b_start:int", "0")
 	v.Add("filter", "Search")
 	v.Add("hiketypes:list", "day-hike")
 	v.Add("hiketypes:list", "multi-night-backpack")
