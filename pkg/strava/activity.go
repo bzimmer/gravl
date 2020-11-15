@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/twpayne/go-polyline"
+
 	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
@@ -16,7 +18,7 @@ type ActivityService service
 type activityPaginator struct {
 	service    ActivityService
 	ctx        context.Context
-	activities []*Activity
+	activities []*route.Route
 }
 
 // Count .
@@ -26,18 +28,22 @@ func (p *activityPaginator) Count() int {
 
 // Do .
 func (p *activityPaginator) Do(start, count int) (int, error) {
-	acts := make([]*Activity, count)
-	uri := fmt.Sprintf("athletes/activities?page=%d&per_page=%d", start, count)
+	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
 	req, err := p.service.client.newAPIRequest(http.MethodGet, uri)
 	if err != nil {
 		return 0, err
 	}
+	acts := make([]*Activity, count)
 	err = p.service.client.Do(p.ctx, req, &acts)
 	if err != nil {
 		return 0, err
 	}
 	for _, act := range acts {
-		p.activities = append(p.activities, act)
+		r, err := newRouteFromActivity(act)
+		if err != nil {
+			return 0, err
+		}
+		p.activities = append(p.activities, r)
 	}
 	return len(acts), nil
 }
@@ -85,17 +91,45 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 
 // Activities returns a page of activities for an athlete
 //  call with (ctx, total, start, count)
-func (s *ActivityService) Activities(ctx context.Context, specs ...int) ([]*Activity, error) {
+func (s *ActivityService) Activities(ctx context.Context, specs ...int) ([]*route.Route, error) {
 	p := &activityPaginator{
 		service:    *s,
 		ctx:        ctx,
-		activities: make([]*Activity, 0),
+		activities: make([]*route.Route, 0),
 	}
 	err := paginate(p, specs...)
 	if err != nil {
 		return nil, err
 	}
 	return p.activities, nil
+}
+
+func newRouteFromActivity(a *Activity) (*route.Route, error) {
+	zero := float64(0)
+	var coords [][]float64
+	// unclear which of the polylines will be valid
+	for _, p := range []string{a.Map.Polyline, a.Map.SummaryPolyline} {
+		if p != "" {
+			c, _, err := polyline.DecodeCoords([]byte(p))
+			if err != nil {
+				return nil, err
+			}
+			coords = make([][]float64, len(c))
+			for i, x := range c {
+				coords[i] = []float64{x[1], x[0], zero}
+			}
+			break
+		}
+	}
+	rte := &route.Route{
+		ID:          fmt.Sprintf("%d", a.ID),
+		Name:        a.Name,
+		Description: a.Description,
+		Source:      baseURL,
+		Origin:      route.Activity,
+		Coordinates: coords,
+	}
+	return rte, nil
 }
 
 func newRouteFromStreams(activityID int64, streams map[string]*Stream) (*route.Route, error) {

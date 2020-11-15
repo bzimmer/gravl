@@ -73,6 +73,18 @@ var stravaCommand = &cli.Command{
 			Usage:   "Athlete",
 		},
 		&cli.BoolFlag{
+			Name:    "activities",
+			Aliases: []string{"c"},
+			Value:   false,
+			Usage:   "Activities",
+		},
+		&cli.IntFlag{
+			Name:    "count",
+			Aliases: []string{"N"},
+			Value:   10,
+			Usage:   "Count",
+		},
+		&cli.BoolFlag{
 			Name:  "refresh",
 			Value: false,
 			Usage: "Refresh",
@@ -119,6 +131,15 @@ var stravaCommand = &cli.Command{
 				return err
 			}
 			encoder.Encode(tokens)
+		}
+		if c.Bool("activities") {
+			acts, err := client.Activity.Activities(c.Context, c.Int("count"))
+			if err != nil {
+				return err
+			}
+			for _, act := range acts {
+				encoder.Encode(act)
+			}
 		}
 		return nil
 	},
