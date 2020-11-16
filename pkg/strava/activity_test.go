@@ -8,9 +8,12 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/bzimmer/transport"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/stretchr/testify/assert"
 )
 
 func Test_Activity(t *testing.T) {
@@ -144,4 +147,40 @@ func Test_RouteFromStreams(t *testing.T) {
 	a.NotNil(rte)
 	a.Equal("154504250376", rte.ID)
 	a.Equal(2712, len(rte.Coordinates))
+}
+
+func TestTimeout(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	client, err := strava.NewClient(
+		strava.WithAPICredentials("fooKey", "barToken"),
+		strava.WithTransport(&transport.SleepingTransport{
+			Duration: time.Millisecond * 100,
+			Transport: &transport.TestDataTransport{
+				Status:      http.StatusOK,
+				Filename:    "activity.json",
+				ContentType: "application/json",
+			}}))
+	a.NoError(err)
+	a.NotNil(client)
+
+	// timeout lt sleep => failure
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*10)
+	defer cancel()
+
+	act, err := client.Activity.Activity(ctx, 154504250376823)
+	a.Error(err)
+	a.Nil(act)
+
+	// timeout gt sleep => success
+	ctx = context.Background()
+	ctx, cancel = context.WithTimeout(ctx, time.Millisecond*200)
+	defer cancel()
+
+	act, err = client.Activity.Activity(ctx, 154504250376823)
+	a.NoError(err)
+	a.NotNil(act)
+	a.Equal(int64(154504250376823), act.ID)
 }

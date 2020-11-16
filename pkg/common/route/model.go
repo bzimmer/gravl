@@ -44,10 +44,12 @@ func (r *Route) Route() Coordinates {
 // MarshalJSON produces GeoJSON
 func (r *Route) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
+		ID         string                 `json:"id"`
 		Type       string                 `json:"type"`
 		Geometry   map[string]interface{} `json:"geometry,omitempty"`
 		Properties map[string]interface{} `json:"properties,omitempty"`
 	}{
+		ID:   r.ID,
 		Type: "Feature",
 		Geometry: map[string]interface{}{
 			"type":        "MultiPoint",

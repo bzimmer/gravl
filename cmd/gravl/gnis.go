@@ -1,6 +1,8 @@
 package gravl
 
 import (
+	"context"
+
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/gnis"
@@ -19,7 +21,9 @@ var gnisCommand = &cli.Command{
 		}
 		args := c.Args()
 		for i := 0; i < args.Len(); i++ {
-			features, err := client.GeoNames.Query(c.Context, args.Get(i))
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			features, err := client.GeoNames.Query(ctx, args.Get(i))
 			if err != nil {
 				return err
 			}

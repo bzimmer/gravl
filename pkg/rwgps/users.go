@@ -11,12 +11,12 @@ type UsersService service
 // AuthenticatedUser .
 func (s *UsersService) AuthenticatedUser(ctx context.Context) (*User, error) {
 	uri := "users/current.json"
-	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
 	}
 	res := &UserResponse{}
-	err = s.client.Do(ctx, req, res)
+	err = s.client.Do(req, res)
 	if err != nil {
 		return nil, err
 	}

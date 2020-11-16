@@ -27,12 +27,12 @@ func (s *TripsService) Route(ctx context.Context, routeID int64) (*route.Route, 
 }
 
 func (s *TripsService) trip(ctx context.Context, activity, uri string) (*route.Route, error) {
-	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
 	}
 	res := &TripResponse{}
-	err = s.client.Do(ctx, req, res)
+	err = s.client.Do(req, res)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/bzimmer/transport"
 )
@@ -79,14 +78,6 @@ func WithTransport(t http.RoundTripper) Option {
 	}
 }
 
-// WithTimeout timeout
-func WithTimeout(timeout time.Duration) Option {
-	return func(c *Client) error {
-		c.client.Timeout = timeout
-		return nil
-	}
-}
-
 // WithHTTPClient .
 func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
@@ -97,12 +88,12 @@ func WithHTTPClient(client *http.Client) Option {
 	}
 }
 
-func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
+func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) {
 	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +107,8 @@ func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 }
 
 // Do executes the request
-func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error {
+func (c *Client) Do(req *http.Request, v interface{}) error {
+	ctx := req.Context()
 	if ctx == nil {
 		return errors.New("context must be non-nil")
 	}

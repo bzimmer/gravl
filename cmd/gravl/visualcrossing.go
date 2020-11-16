@@ -1,6 +1,8 @@
 package gravl
 
 import (
+	"context"
+
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
@@ -26,8 +28,9 @@ var visualcrossingCommand = &cli.Command{
 			return err
 		}
 		for i := 0; i < c.Args().Len(); i++ {
-			fcst, err := client.Forecast.Forecast(
-				c.Context,
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			fcst, err := client.Forecast.Forecast(ctx,
 				visualcrossing.WithLocation(c.Args().Get(i)),
 				visualcrossing.WithAstronomy(true),
 				visualcrossing.WithUnits(visualcrossing.UnitsMetric),

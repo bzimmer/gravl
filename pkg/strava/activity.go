@@ -29,12 +29,12 @@ func (p *activityPaginator) Count() int {
 // Do executes the querying of activities
 func (p *activityPaginator) Do(start, count int) (int, error) {
 	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
-	req, err := p.service.client.newAPIRequest(http.MethodGet, uri)
+	req, err := p.service.client.newAPIRequest(p.ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
 	}
 	acts := make([]*Activity, count)
-	err = p.service.client.Do(p.ctx, req, &acts)
+	err = p.service.client.Do(req, &acts)
 	if err != nil {
 		return 0, err
 	}
@@ -62,12 +62,12 @@ func (s *ActivityService) Route(ctx context.Context, activityID int64) (*route.R
 func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (map[string]*Stream, error) {
 	keys := strings.Join(streams, ",")
 	uri := fmt.Sprintf("activities/%d/streams/%s?key_by_type=true", activityID, keys)
-	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
 	}
 	m := make(map[string]*Stream)
-	err = s.client.Do(ctx, req, &m)
+	err = s.client.Do(req, &m)
 	if err != nil {
 		return nil, err
 	}
@@ -77,12 +77,12 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 // Activity returns the activity specified by id for an athlete
 func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, error) {
 	uri := fmt.Sprintf("activities/%d", id)
-	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
 	}
 	act := &Activity{}
-	err = s.client.Do(ctx, req, act)
+	err = s.client.Do(req, act)
 	if err != nil {
 		return nil, err
 	}

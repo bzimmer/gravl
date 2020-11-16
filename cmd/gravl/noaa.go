@@ -1,10 +1,10 @@
 package gravl
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
-	"time"
 
 	geojson "github.com/paulmach/go.geojson"
 	"github.com/urfave/cli/v2"
@@ -18,9 +18,10 @@ var noaaCommand = &cli.Command{
 	Category: "forecast",
 	Usage:    "Query NOAA for forecasts",
 	Action: func(c *cli.Context) error {
+		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+		defer cancel()
 		client, err := noaa.NewClient(
 			noaa.WithHTTPTracing(c.Bool("http-tracing")),
-			noaa.WithTimeout(10*time.Second),
 		)
 		if err != nil {
 			return err
@@ -37,7 +38,7 @@ var noaaCommand = &cli.Command{
 			if !geom.IsPoint() {
 				return errors.New("only Point geometries are supported")
 			}
-			fcst, e = client.Points.Forecast(c.Context, geom.Point[1], geom.Point[0])
+			fcst, e = client.Points.Forecast(ctx, geom.Point[1], geom.Point[0])
 			if e != nil {
 				return e
 			}
@@ -50,7 +51,7 @@ var noaaCommand = &cli.Command{
 			if e != nil {
 				return e
 			}
-			fcst, e = client.Points.Forecast(c.Context, lat, lng)
+			fcst, e = client.Points.Forecast(ctx, lat, lng)
 			if e != nil {
 				return e
 			}
@@ -64,7 +65,7 @@ var noaaCommand = &cli.Command{
 			if e != nil {
 				return e
 			}
-			fcst, e = client.GridPoints.Forecast(c.Context, wfo, x, y)
+			fcst, e = client.GridPoints.Forecast(ctx, wfo, x, y)
 			if e != nil {
 				return e
 			}

@@ -1,6 +1,7 @@
 package gravl
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"time"
@@ -100,17 +101,20 @@ var stravaCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
 		r := c.Bool("route")
 		a := c.Bool("activity")
 		if r || a {
 			args := c.Args()
 			var rte *route.Route
 			for i := 0; i < args.Len(); i++ {
+				ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+				defer cancel()
 				activityID, err := strconv.ParseInt(args.Get(i), 0, 64)
 				if r {
-					rte, err = client.Route.Route(c.Context, activityID)
+					rte, err = client.Route.Route(ctx, activityID)
 				} else if a {
-					rte, err = client.Activity.Route(c.Context, activityID)
+					rte, err = client.Activity.Route(ctx, activityID)
 				}
 				if err != nil {
 					return err
@@ -122,7 +126,9 @@ var stravaCommand = &cli.Command{
 			}
 		}
 		if c.Bool("athlete") {
-			ath, err := client.Athlete.Athlete(c.Context)
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			ath, err := client.Athlete.Athlete(ctx)
 			if err != nil {
 				return err
 			}
@@ -132,7 +138,9 @@ var stravaCommand = &cli.Command{
 			}
 		}
 		if c.Bool("refresh") {
-			tokens, err := client.Auth.Refresh(c.Context)
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			tokens, err := client.Auth.Refresh(ctx)
 			if err != nil {
 				return err
 			}
@@ -142,7 +150,9 @@ var stravaCommand = &cli.Command{
 			}
 		}
 		if c.Bool("activities") {
-			acts, err := client.Activity.Activities(c.Context, c.Int("count"))
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			acts, err := client.Activity.Activities(ctx, c.Int("count"))
 			if err != nil {
 				return err
 			}

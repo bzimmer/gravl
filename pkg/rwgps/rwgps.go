@@ -142,7 +142,7 @@ func (c *Client) newBodyReader() (io.Reader, error) {
 	return bytes.NewReader(b.Bytes()), nil
 }
 
-func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
+func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) {
 	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
@@ -151,7 +151,7 @@ func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, u.String(), reader)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), reader)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,8 @@ func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 }
 
 // Do executes the request
-func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error {
+func (c *Client) Do(req *http.Request, v interface{}) error {
+	ctx := req.Context()
 	if ctx == nil {
 		return errors.New("context must be non-nil")
 	}

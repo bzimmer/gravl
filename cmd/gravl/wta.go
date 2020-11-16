@@ -1,6 +1,8 @@
 package gravl
 
 import (
+	"context"
+
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/wta"
@@ -17,13 +19,14 @@ var wtaCommand = &cli.Command{
 			args = append(args, "")
 		}
 		client, err := wta.NewClient(
-			wta.WithHTTPTracing(c.Bool("http-tracing")),
-		)
+			wta.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {
 			return err
 		}
 		for _, arg := range args {
-			reports, err := client.Reports.TripReports(c.Context, arg)
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			reports, err := client.Reports.TripReports(ctx, arg)
 			if err != nil {
 				return err
 			}

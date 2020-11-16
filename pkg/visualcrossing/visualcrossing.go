@@ -83,7 +83,7 @@ func WithHTTPTracing(debug bool) Option {
 	}
 }
 
-func (c *Client) newAPIRequest(method, uri string, values *url.Values) (*http.Request, error) {
+func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
 	// these are required
 	values.Set("key", c.apiKey)
 	values.Set("contentType", "json")
@@ -93,7 +93,7 @@ func (c *Client) newAPIRequest(method, uri string, values *url.Values) (*http.Re
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,8 @@ func (c *Client) newAPIRequest(method, uri string, values *url.Values) (*http.Re
 }
 
 // Do executes the request
-func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error {
+func (c *Client) Do(req *http.Request, v interface{}) error {
+	ctx := req.Context()
 	if ctx == nil {
 		return errors.New("context must be non-nil")
 	}

@@ -1,6 +1,7 @@
 package gravl
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/urfave/cli/v2"
@@ -45,10 +46,6 @@ var rwgpsCommand = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		var (
-			err error
-			rte *route.Route
-		)
 		client, err := rwgps.NewClient(
 			rwgps.WithAPIKey(c.String("rwgps.api-key")),
 			rwgps.WithAuthToken(c.String("rwgps.auth-token")),
@@ -57,8 +54,11 @@ var rwgpsCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
 		if c.Bool("athlete") {
-			user, err := client.Users.AuthenticatedUser(c.Context)
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			user, err := client.Users.AuthenticatedUser(ctx)
 			if err != nil {
 				return err
 			}
@@ -68,15 +68,19 @@ var rwgpsCommand = &cli.Command{
 			}
 			return nil
 		}
+
+		var rte *route.Route
 		for i := 0; i < c.Args().Len(); i++ {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
 			x, err := strconv.ParseInt(c.Args().Get(i), 0, 0)
 			if err != nil {
 				return err
 			}
 			if c.Bool("trip") {
-				rte, err = client.Trips.Trip(c.Context, x)
+				rte, err = client.Trips.Trip(ctx, x)
 			} else {
-				rte, err = client.Trips.Route(c.Context, x)
+				rte, err = client.Trips.Route(ctx, x)
 			}
 			if err != nil {
 				return err

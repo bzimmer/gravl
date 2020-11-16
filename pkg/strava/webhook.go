@@ -53,13 +53,13 @@ type WebhookSubscriber interface {
 // Subscribe to a webhook
 func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken string) (*SubscriptionAcknowledgement, error) {
 	uri := "push_subscriptions"
-	req, err := s.client.newWebhookRequest(http.MethodPost, uri,
+	req, err := s.client.newWebhookRequest(ctx, http.MethodPost, uri,
 		map[string]string{"callback_url": callbackURL, "verify_token": verifyToken})
 	if err != nil {
 		return nil, err
 	}
 	ack := &SubscriptionAcknowledgement{}
-	err = s.client.Do(ctx, req, ack)
+	err = s.client.Do(req, ack)
 	if err != nil {
 		return nil, err
 	}
@@ -69,22 +69,22 @@ func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken
 // Unsubscribe to a webhook
 func (s *WebhookService) Unsubscribe(ctx context.Context, subscriptionID int) error {
 	uri := fmt.Sprintf("push_subscriptions/%d", subscriptionID)
-	req, err := s.client.newWebhookRequest(http.MethodDelete, uri, make(map[string]string))
+	req, err := s.client.newWebhookRequest(ctx, http.MethodDelete, uri, make(map[string]string))
 	if err != nil {
 		return err
 	}
-	return s.client.Do(ctx, req, nil)
+	return s.client.Do(req, nil)
 }
 
 // Subscriptions returns a list of subscriptions
 func (s *WebhookService) Subscriptions(ctx context.Context) (*[]Subscription, error) {
 	uri := fmt.Sprintf("push_subscriptions?client_id=%s&client_secret=%s", s.client.stravaKey, s.client.stravaSecret)
-	req, err := s.client.newWebhookRequest(http.MethodGet, uri, nil)
+	req, err := s.client.newWebhookRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
 	}
 	subs := &[]Subscription{}
-	err = s.client.Do(ctx, req, subs)
+	err = s.client.Do(req, subs)
 	if err != nil {
 		return nil, err
 	}

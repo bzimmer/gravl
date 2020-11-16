@@ -22,12 +22,12 @@ func float64ToString(f float64) string {
 // GridPoint .
 func (s *PointsService) GridPoint(ctx context.Context, latitude, longitude float64) (*GridPoint, error) {
 	uri := fmt.Sprintf("points/%s,%s", float64ToString(latitude), float64ToString(longitude))
-	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
 	}
 	gpt := &GridPoint{}
-	err = s.client.Do(ctx, req, gpt)
+	err = s.client.Do(req, gpt)
 	if err != nil {
 		return nil, err
 	}
@@ -47,12 +47,12 @@ func (s *PointsService) ForecastHourly(ctx context.Context, latitude, longitude 
 }
 
 func (s *PointsService) forecast(ctx context.Context, uri string) (*wx.Forecast, error) {
-	req, err := s.client.newAPIRequest(http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
 	}
 	fct := &forecast{}
-	err = s.client.Do(ctx, req, fct)
+	err = s.client.Do(req, fct)
 	if err != nil {
 		return nil, err
 	}

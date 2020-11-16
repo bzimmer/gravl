@@ -3,7 +3,7 @@ module github.com/bzimmer/gravl
 go 1.15
 
 require (
-	github.com/bzimmer/transport v0.0.0-20201113025813-3eaae083d066
+	github.com/bzimmer/transport v0.0.0-20201116032716-01cc91a08bb3
 	github.com/d5/tengo/v2 v2.6.2
 	github.com/fatih/color v1.10.0
 	github.com/gin-contrib/sessions v0.0.3

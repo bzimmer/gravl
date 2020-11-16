@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/bzimmer/transport"
 	"github.com/markbates/goth"
@@ -64,14 +63,6 @@ func WithTransport(t http.RoundTripper) Option {
 		if t != nil {
 			c.client.Transport = t
 		}
-		return nil
-	}
-}
-
-// WithTimeout timeout
-func WithTimeout(timeout time.Duration) Option {
-	return func(c *Client) error {
-		c.client.Timeout = timeout
 		return nil
 	}
 }
@@ -132,7 +123,7 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
+func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) { // nolint:unparam
 	if c.accessToken == "" {
 		return nil, errors.New("accessToken required")
 	}
@@ -140,7 +131,7 @@ func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +139,7 @@ func (c *Client) newAPIRequest(method, uri string) (*http.Request, error) {
 	return req, nil
 }
 
-func (c *Client) newWebhookRequest(method, uri string, body map[string]string) (*http.Request, error) {
+func (c *Client) newWebhookRequest(ctx context.Context, method, uri string, body map[string]string) (*http.Request, error) {
 	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
@@ -165,7 +156,7 @@ func (c *Client) newWebhookRequest(method, uri string, body map[string]string) (
 		buf = ioutil.NopCloser(bytes.NewBufferString(form.Encode()))
 	}
 
-	req, err := http.NewRequest(method, u.String(), buf)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), buf)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +169,8 @@ func (c *Client) newWebhookRequest(method, uri string, body map[string]string) (
 }
 
 // Do executes the request
-func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) error {
+func (c *Client) Do(req *http.Request, v interface{}) error {
+	ctx := req.Context()
 	if ctx == nil {
 		return errors.New("context must be non-nil")
 	}

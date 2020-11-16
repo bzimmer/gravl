@@ -111,6 +111,12 @@ func flags() ([]cli.Flag, error) {
 			Value: filepath.Join(home, ".gravl.yaml"),
 			Usage: "File containing configuration settings",
 		},
+		&cli.DurationFlag{
+			Name:    "timeout",
+			Aliases: []string{"t"},
+			Value:   time.Millisecond * 10000,
+			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
+		},
 	}, nil
 }
 

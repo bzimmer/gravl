@@ -85,12 +85,12 @@ func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) 
 	if err != nil {
 		return nil, err
 	}
-	req, err := s.client.newAPIRequest(http.MethodGet, "forecast", values)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, "forecast", values)
 	if err != nil {
 		return nil, err
 	}
 	fct := &forecast{}
-	err = s.client.Do(ctx, req, fct)
+	err = s.client.Do(req, fct)
 	if err != nil {
 		return nil, err
 	}

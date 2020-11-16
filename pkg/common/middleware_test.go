@@ -1,6 +1,7 @@
 package common_test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -27,7 +28,7 @@ func Test_VersionHandler(t *testing.T) {
 	a.NotNil(r)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/version/", nil)
+	req, _ := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/version/", nil)
 	r.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 

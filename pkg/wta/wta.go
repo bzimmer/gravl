@@ -59,14 +59,6 @@ func WithHTTPClient(client *http.Client) Option {
 	}
 }
 
-// WithTimeout timeout
-func WithTimeout(timeout time.Duration) Option {
-	return func(c *Client) error {
-		c.client.Timeout = timeout
-		return nil
-	}
-}
-
 // WithTransport transport
 func WithTransport(transport http.RoundTripper) Option {
 	return func(c *Client) error {

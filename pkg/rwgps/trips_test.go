@@ -14,7 +14,7 @@ func contextNil() context.Context {
 	return nil
 }
 
-func Test_Trip(t *testing.T) {
+func Test_Trip(t *testing.T) { // nolint
 	t.Parallel()
 	a := assert.New(t)
 
@@ -34,7 +34,7 @@ func Test_Trip(t *testing.T) {
 	a.Error(err)
 	a.Nil(rte)
 }
-func Test_Route(t *testing.T) {
+func Test_Route(t *testing.T) { // nolint
 	t.Parallel()
 	a := assert.New(t)
 
