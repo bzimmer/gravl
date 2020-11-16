@@ -54,6 +54,8 @@ github.com/bzimmer/transport v0.0.0-20201113025813-3eaae083d066 h1:c+zxDzspfoomd
 github.com/bzimmer/transport v0.0.0-20201113025813-3eaae083d066/go.mod h1:hIOck7mOJFUhEau55/Ru8fuq7qO1zxbZAenpMExpPCA=
 github.com/bzimmer/transport v0.0.0-20201116032716-01cc91a08bb3 h1:PsuJ8brpK+ctWqicoNCP8nT+3ijcF87a5BAy9BYjEGM=
 github.com/bzimmer/transport v0.0.0-20201116032716-01cc91a08bb3/go.mod h1:hIOck7mOJFUhEau55/Ru8fuq7qO1zxbZAenpMExpPCA=
+github.com/bzimmer/transport v0.0.0-20201116154911-4723f0ce61ec h1:MTI8pSttDfJv7LtocLCde1PTQGmi95MUf8SvDGNWjX8=
+github.com/bzimmer/transport v0.0.0-20201116154911-4723f0ce61ec/go.mod h1:hIOck7mOJFUhEau55/Ru8fuq7qO1zxbZAenpMExpPCA=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=

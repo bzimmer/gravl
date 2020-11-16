@@ -171,10 +171,6 @@ func (c *Client) newWebhookRequest(ctx context.Context, method, uri string, body
 // Do executes the request
 func (c *Client) Do(req *http.Request, v interface{}) error {
 	ctx := req.Context()
-	if ctx == nil {
-		return errors.New("context must be non-nil")
-	}
-
 	res, err := c.client.Do(req)
 	if err != nil {
 		// If we got an error, and the context has been canceled,
