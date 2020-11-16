@@ -31,9 +31,15 @@ func (s *GeoNamesService) Query(ctx context.Context, state string) (*gj.FeatureC
 	if err != nil {
 		return nil, err
 	}
+	ctx = req.Context()
 	res, err := s.client.client.Do(req)
 	if err != nil {
-		return nil, err
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+			return nil, err
+		}
 	}
 	defer res.Body.Close()
 

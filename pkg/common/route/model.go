@@ -20,7 +20,7 @@ type Origin string
 const (
 	// Activity is a route originated from a gps track
 	Activity Origin = "Activity"
-	// Planned is a route originated from looking at maps
+	// Planned is a route originated from creating a route with a route builder
 	Planned Origin = "Planned"
 	// Unknown origin
 	Unknown Origin = "Unknown"
@@ -46,8 +46,8 @@ func (r *Route) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		ID         string                 `json:"id"`
 		Type       string                 `json:"type"`
-		Geometry   map[string]interface{} `json:"geometry,omitempty"`
-		Properties map[string]interface{} `json:"properties,omitempty"`
+		Geometry   map[string]interface{} `json:"geometry"`
+		Properties map[string]interface{} `json:"properties"`
 	}{
 		ID:   r.ID,
 		Type: "Feature",
