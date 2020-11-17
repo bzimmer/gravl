@@ -18,7 +18,7 @@ vars:
   VERSION:
     sh: git rev-parse --short HEAD
   LDFLAGS:
-    -ldflags "-X {{.PKG}}/pkg.BuildVersion={{.VERSION}}"
+    -ldflags "-X {{.PKG}}/pkg.BuildVersion={{.VERSION}} -X {{.PKG}}/pkg.BuildTime="{{now | date "2006-01-02T15:04:05Z07:00"}}""
 
 tasks:
   default:

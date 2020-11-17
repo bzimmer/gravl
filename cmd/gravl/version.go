@@ -11,10 +11,9 @@ var versionCommand = &cli.Command{
 	Category: "api",
 	Usage:    "Version",
 	Action: func(c *cli.Context) error {
-		err := encoder.Encode(map[string]string{"version": pkg.BuildVersion})
-		if err != nil {
-			return err
-		}
-		return nil
+		return encoder.Encode(map[string]string{
+			"version":   pkg.BuildVersion,
+			"timestamp": pkg.BuildTime,
+		})
 	},
 }

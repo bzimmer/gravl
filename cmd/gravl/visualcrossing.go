@@ -18,6 +18,12 @@ var visualcrossingCommand = &cli.Command{
 			Name:  "vc.api-key",
 			Usage: "API key for VC API",
 		}),
+		&cli.IntFlag{
+			Name:    "interval",
+			Aliases: []string{"i"},
+			Value:   12,
+			Usage:   "Forecast interval (eg 1, 12, 24)",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		client, err := visualcrossing.NewClient(
@@ -27,6 +33,7 @@ var visualcrossingCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+		interval := c.Int("interval")
 		for i := 0; i < c.Args().Len(); i++ {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
@@ -34,7 +41,7 @@ var visualcrossingCommand = &cli.Command{
 				visualcrossing.WithLocation(c.Args().Get(i)),
 				visualcrossing.WithAstronomy(true),
 				visualcrossing.WithUnits(visualcrossing.UnitsMetric),
-				visualcrossing.WithAggregateHours(1),
+				visualcrossing.WithAggregateHours(interval),
 				visualcrossing.WithAlerts(visualcrossing.AlertLevelDetail))
 			if err != nil {
 				return err

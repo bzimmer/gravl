@@ -99,10 +99,12 @@ type Forecast struct {
 // MarshalJSON produces GeoJSON
 func (f *Forecast) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
+		ID         string                 `json:"id"`
 		Type       string                 `json:"type"`
 		Geometry   map[string]interface{} `json:"geometry"`
 		Properties map[string]interface{} `json:"properties"`
 	}{
+		ID:   f.ID,
 		Type: "Feature",
 		Geometry: map[string]interface{}{
 			"type":        "Point",
