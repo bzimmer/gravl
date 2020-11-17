@@ -50,6 +50,10 @@ func ToTengo(v interface{}) (ret tengo.Object, err error) {
 }
 
 func service(args ...tengo.Object) (ret tengo.Object, err error) {
+	if len(args) == 0 {
+		err = tengo.ErrWrongNumArguments
+		return
+	}
 	access, ok := tengo.ToString(args[0])
 	if !ok {
 		err = tengo.ErrInvalidArgumentType{
@@ -68,6 +72,10 @@ func service(args ...tengo.Object) (ret tengo.Object, err error) {
 }
 
 func athlete(args ...tengo.Object) (ret tengo.Object, err error) {
+	if len(args) != 0 {
+		err = tengo.ErrWrongNumArguments
+		return
+	}
 	service, ok := ToService(args[0])
 	if !ok {
 		err = tengo.ErrInvalidArgumentType{
@@ -86,6 +94,10 @@ func athlete(args ...tengo.Object) (ret tengo.Object, err error) {
 }
 
 func activities(args ...tengo.Object) (ret tengo.Object, err error) {
+	if len(args) != 0 {
+		err = tengo.ErrWrongNumArguments
+		return
+	}
 	service, ok := ToService(args[0])
 	if !ok {
 		err = tengo.ErrInvalidArgumentType{
@@ -121,7 +133,7 @@ func activity(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 	if !ok {
 		err = tengo.ErrInvalidArgumentType{
 			Name:     "second",
-			Expected: "activityID",
+			Expected: "int64",
 			Found:    args[1].TypeName(),
 		}
 		return
@@ -152,7 +164,7 @@ func routes(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 	if !ok {
 		err = tengo.ErrInvalidArgumentType{
 			Name:     "second",
-			Expected: "activityID",
+			Expected: "int",
 			Found:    args[1].TypeName(),
 		}
 		return

@@ -7,18 +7,18 @@ import (
 
 	"github.com/chzyer/readline"
 	"github.com/d5/tengo/v2"
-	tlib "github.com/d5/tengo/v2/stdlib"
+	"github.com/d5/tengo/v2/stdlib"
 	"github.com/mitchellh/go-homedir"
 	"github.com/urfave/cli/v2"
 
-	gtengo "github.com/bzimmer/gravl/pkg/tengo"
-	glib "github.com/bzimmer/gravl/pkg/tengo/stdlib"
+	"github.com/bzimmer/gravl/pkg/tengo/console"
+	gravllib "github.com/bzimmer/gravl/pkg/tengo/stdlib"
 )
 
 func modules() *tengo.ModuleMap {
 	m := tengo.NewModuleMap()
-	m.AddMap(tlib.GetModuleMap(tlib.AllModuleNames()...))
-	m.AddMap(glib.GetModuleMap(glib.AllModuleNames()...))
+	m.AddMap(stdlib.GetModuleMap(stdlib.AllModuleNames()...))
+	m.AddMap(gravllib.GetModuleMap(gravllib.AllModuleNames()...))
 	return m
 }
 
@@ -43,7 +43,7 @@ var tengoCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		console := gtengo.NewConsole(rl)
+		console := console.NewConsole(rl)
 		err = console.Run(modules())
 		if err == io.EOF {
 			return nil

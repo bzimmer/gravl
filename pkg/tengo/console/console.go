@@ -1,11 +1,10 @@
-package tengo
+package console
 
 import (
 	"fmt"
 	"io"
 	"strings"
 
-	"github.com/bzimmer/gravl/pkg"
 	"github.com/chzyer/readline"
 	"github.com/d5/tengo/v2"
 	"github.com/d5/tengo/v2/parser"
@@ -42,7 +41,7 @@ func decorate(file *parser.File) *parser.File {
 	}
 }
 
-func tengoPrintln(out io.Writer) *tengo.UserFunction {
+func replPrintln(out io.Writer) *tengo.UserFunction {
 	return &tengo.UserFunction{
 		Name: "__repl_println__",
 		Value: func(args ...tengo.Object) (ret tengo.Object, err error) {
@@ -59,69 +58,31 @@ func tengoPrintln(out io.Writer) *tengo.UserFunction {
 	}
 }
 
-func tengoVersion() *tengo.UserFunction {
-	return &tengo.UserFunction{
-		Name: "version",
-		Value: func(args ...tengo.Object) (ret tengo.Object, err error) {
-			x, err := tengo.FromInterface(pkg.BuildVersion)
-			if err != nil {
-				return nil, err
-			}
-			return x, nil
-		},
-	}
-}
-
-type accumulator struct {
-	lines []string
-}
-
-func (a *accumulator) String() string {
-	if len(a.lines) == 0 {
-		return ""
-	}
-	return strings.Join(a.lines, "")
-}
-
-func (a *accumulator) push(line string) {
-	a.lines = append(a.lines, line)
-}
-
-func (a *accumulator) reset() *accumulator {
-	a.lines = make([]string, 0)
-	return a
-}
-
 type Console struct {
+	globals     []tengo.Object
 	readline    *readline.Instance
 	symbolTable *tengo.SymbolTable
-	globals     []tengo.Object
 }
 
 func NewConsole(readline *readline.Instance) *Console {
-	return &Console{
-		readline: readline,
+	c := &Console{
+		readline:    readline,
+		symbolTable: tengo.NewSymbolTable(),
+		globals:     make([]tengo.Object, tengo.GlobalsSize),
 	}
-}
-
-func (c *Console) init() {
-	c.symbolTable = tengo.NewSymbolTable()
-	c.globals = make([]tengo.Object, tengo.GlobalsSize)
-
 	for idx, fn := range tengo.GetAllBuiltinFunctions() {
 		c.symbolTable.DefineBuiltin(idx, fn.Name)
 	}
-
-	for _, f := range []*tengo.UserFunction{tengoPrintln(c.readline.Config.Stdout), tengoVersion()} {
+	fns := []*tengo.UserFunction{replPrintln(readline.Config.Stdout)}
+	for _, f := range fns {
 		symbol := c.symbolTable.Define(f.Name)
 		c.globals[symbol.Index] = f
 	}
+	return c
 }
 
 func (c *Console) Run(modules *tengo.ModuleMap) error {
-	c.init()
-
-	acc := (&accumulator{}).reset()
+	acc := NewAccumulator()
 	fileSet := parser.NewFileSet()
 	var constants []tengo.Object
 	for {
@@ -129,7 +90,7 @@ func (c *Console) Run(modules *tengo.ModuleMap) error {
 		if err != nil {
 			return err
 		}
-		acc.push(line)
+		acc.Push(line)
 
 		cmd := acc.String()
 		srcFile := fileSet.AddFile("repl", -1, len(cmd))
@@ -147,7 +108,7 @@ func (c *Console) Run(modules *tengo.ModuleMap) error {
 		}
 
 		c.readline.SetPrompt(">>> ")
-		acc.reset()
+		acc.Reset()
 
 		file = decorate(file)
 		compiler := tengo.NewCompiler(srcFile, c.symbolTable, constants, modules, nil)
