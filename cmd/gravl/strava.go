@@ -75,9 +75,15 @@ var stravaCommand = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:    "activities",
-			Aliases: []string{"c"},
+			Aliases: []string{"A"},
 			Value:   false,
 			Usage:   "Activities",
+		},
+		&cli.BoolFlag{
+			Name:    "routes",
+			Aliases: []string{"R"},
+			Value:   false,
+			Usage:   "Routes",
 		},
 		&cli.IntFlag{
 			Name:    "count",
@@ -158,6 +164,24 @@ var stravaCommand = &cli.Command{
 			}
 			for _, act := range acts {
 				err = encoder.Encode(act)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		if c.Bool("routes") {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			ath, err := client.Athlete.Athlete(c.Context)
+			if err != nil {
+				return err
+			}
+			rts, err := client.Route.Routes(ctx, ath.ID)
+			if err != nil {
+				return err
+			}
+			for _, rt := range rts {
+				err = encoder.Encode(rt)
 				if err != nil {
 					return err
 				}

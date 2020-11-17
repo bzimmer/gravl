@@ -15,6 +15,7 @@ var stravaModule = map[string]tengo.Object{
 	"athlete":    &tengo.UserFunction{Name: "athlete", Value: athlete},
 	"activities": &tengo.UserFunction{Name: "activities", Value: activities},
 	"activity":   &tengo.UserFunction{Name: "activity", Value: activity},
+	"routes":     &tengo.UserFunction{Name: "routes", Value: routes},
 }
 
 type Strava struct {
@@ -102,7 +103,7 @@ func activities(args ...tengo.Object) (ret tengo.Object, err error) {
 	return
 }
 
-func activity(args ...tengo.Object) (ret tengo.Object, err error) {
+func activity(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 	if len(args) != 2 {
 		err = tengo.ErrWrongNumArguments
 		return
@@ -130,5 +131,36 @@ func activity(args ...tengo.Object) (ret tengo.Object, err error) {
 		return nil, err
 	}
 	ret, err = ToTengo(act)
+	return
+}
+
+func routes(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
+	if len(args) != 2 {
+		err = tengo.ErrWrongNumArguments
+		return
+	}
+	service, ok := ToService(args[0])
+	if !ok {
+		err = tengo.ErrInvalidArgumentType{
+			Name:     "first",
+			Expected: "strava",
+			Found:    args[0].TypeName(),
+		}
+		return
+	}
+	athleteID, ok := tengo.ToInt(args[1])
+	if !ok {
+		err = tengo.ErrInvalidArgumentType{
+			Name:     "second",
+			Expected: "activityID",
+			Found:    args[1].TypeName(),
+		}
+		return
+	}
+	rts, err := service.Route.Routes(context.Background(), athleteID)
+	if err != nil {
+		return nil, err
+	}
+	ret, err = ToTengo(rts)
 	return
 }

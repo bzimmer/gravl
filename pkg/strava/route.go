@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/twpayne/go-polyline"
-
 	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
@@ -79,14 +77,9 @@ func (s *RouteService) Route(ctx context.Context, routeID int64) (*route.Route, 
 }
 
 func newRouteFromRoute(r *Route) (*route.Route, error) {
-	c, _, err := polyline.DecodeCoords([]byte(r.Map.Polyline))
+	coords, err := polylineToCoords(r.Map.Polyline, r.Map.SummaryPolyline)
 	if err != nil {
 		return nil, err
-	}
-	zero := float64(0)
-	coords := make([][]float64, len(c))
-	for i, x := range c {
-		coords[i] = []float64{x[1], x[0], zero}
 	}
 	rte := &route.Route{
 		ID:          fmt.Sprintf("%d", r.ID),

@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/twpayne/go-polyline"
-
 	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
@@ -105,22 +103,9 @@ func (s *ActivityService) Activities(ctx context.Context, specs ...int) ([]*rout
 }
 
 func newRouteFromActivity(a *Activity) (*route.Route, error) {
-	zero := float64(0)
-	var coords [][]float64
-	// unclear which of the polylines will be valid
-	for _, p := range []string{a.Map.Polyline, a.Map.SummaryPolyline} {
-		if p == "" {
-			continue
-		}
-		c, _, err := polyline.DecodeCoords([]byte(p))
-		if err != nil {
-			return nil, err
-		}
-		coords = make([][]float64, len(c))
-		for i, x := range c {
-			coords[i] = []float64{x[1], x[0], zero}
-		}
-		break
+	coords, err := polylineToCoords(a.Map.Polyline, a.Map.SummaryPolyline)
+	if err != nil {
+		return nil, err
 	}
 	rte := &route.Route{
 		ID:          fmt.Sprintf("%d", a.ID),
