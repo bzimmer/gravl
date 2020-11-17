@@ -1,6 +1,6 @@
 package route
 
-//go:generate stringer -type=Origin
+// go:generate stringer -type=Origin
 
 import "encoding/json"
 

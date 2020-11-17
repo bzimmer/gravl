@@ -1,6 +1,6 @@
 package wx
 
-//go:generate stringer -type=Units
+// go:generate stringer -type=Units
 
 import (
 	"encoding/json"

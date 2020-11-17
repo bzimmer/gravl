@@ -19,10 +19,7 @@ var version = &tengo.UserFunction{
 			err = tengo.ErrWrongNumArguments
 			return
 		}
-		x, err := tengo.FromInterface(pkg.BuildVersion)
-		if err != nil {
-			return nil, err
-		}
-		return x, nil
+		ret, err = tengo.FromInterface(pkg.BuildVersion)
+		return
 	},
 }

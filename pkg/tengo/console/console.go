@@ -73,11 +73,9 @@ func NewConsole(readline *readline.Instance) *Console {
 	for idx, fn := range tengo.GetAllBuiltinFunctions() {
 		c.symbolTable.DefineBuiltin(idx, fn.Name)
 	}
-	fns := []*tengo.UserFunction{replPrintln(readline.Config.Stdout)}
-	for _, f := range fns {
-		symbol := c.symbolTable.Define(f.Name)
-		c.globals[symbol.Index] = f
-	}
+	fn := replPrintln(readline.Config.Stdout)
+	symbol := c.symbolTable.Define(fn.Name)
+	c.globals[symbol.Index] = fn
 	return c
 }
 
@@ -98,12 +96,16 @@ func (c *Console) Run(modules *tengo.ModuleMap) error {
 		file, err := p.ParseFile()
 		if err != nil {
 			list, ok := err.(parser.ErrorList)
-			if ok {
+			if ok && len(list) == 1 {
 				x := list[0]
 				if strings.Contains(x.Error(), "found 'EOF'") {
 					c.readline.SetPrompt("... ")
+					continue
 				}
 			}
+			fmt.Println(err.Error())
+			c.readline.SetPrompt(">>> ")
+			acc.Reset()
 			continue
 		}
 

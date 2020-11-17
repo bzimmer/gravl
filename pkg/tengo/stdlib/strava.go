@@ -72,7 +72,7 @@ func service(args ...tengo.Object) (ret tengo.Object, err error) {
 }
 
 func athlete(args ...tengo.Object) (ret tengo.Object, err error) {
-	if len(args) != 0 {
+	if len(args) != 1 {
 		err = tengo.ErrWrongNumArguments
 		return
 	}
@@ -160,7 +160,7 @@ func routes(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 		}
 		return
 	}
-	athleteID, ok := tengo.ToInt(args[1])
+	id, ok := tengo.ToInt(args[1])
 	if !ok {
 		err = tengo.ErrInvalidArgumentType{
 			Name:     "second",
@@ -169,7 +169,7 @@ func routes(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 		}
 		return
 	}
-	rts, err := service.Route.Routes(context.Background(), athleteID)
+	rts, err := service.Route.Routes(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
