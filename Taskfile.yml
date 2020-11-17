@@ -30,6 +30,7 @@ tasks:
     sources:
       - '**/*.go'
     cmds:
+      - go generate ./...
       - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} main.go
 
   install:

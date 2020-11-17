@@ -1,20 +1,22 @@
 package wx
 
+//go:generate stringer -type=Units
+
 import (
 	"encoding/json"
 	"time"
 )
 
 // Units .
-type Units string
+type Units int
 
 const (
 	// SI .
-	SI Units = "si"
+	SI Units = iota
 	// US .
-	US Units = "us"
+	US
 	// UK .
-	UK Units = "uk"
+	UK
 )
 
 // Conditions .

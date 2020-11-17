@@ -1,5 +1,7 @@
 package route
 
+//go:generate stringer -type=Origin
+
 import "encoding/json"
 
 // Coordinates of a Route
@@ -15,15 +17,15 @@ type Routeable interface {
 type Source string
 
 // Origin of the Route
-type Origin string
+type Origin int
 
 const (
 	// Activity is a route originated from a gps track
-	Activity Origin = "Activity"
+	Activity Origin = iota
 	// Planned is a route originated from creating a route with a route builder
-	Planned Origin = "Planned"
+	Planned
 	// Unknown origin
-	Unknown Origin = "Unknown"
+	Unknown
 )
 
 // Route represents a series of one or more points
@@ -58,7 +60,7 @@ func (r *Route) MarshalJSON() ([]byte, error) {
 		Properties: map[string]interface{}{
 			"name":        r.Name,
 			"source":      r.Source,
-			"origin":      r.Origin,
+			"origin":      r.Origin.String(),
 			"description": r.Description,
 		},
 	})

@@ -127,7 +127,7 @@ type Lap struct {
 	Distance           float64   `json:"distance"`
 	StartIndex         int       `json:"start_index"`
 	EndIndex           int       `json:"end_index"`
-	TotalElevationGain int       `json:"total_elevation_gain"`
+	TotalElevationGain float64   `json:"total_elevation_gain"`
 	AverageSpeed       float64   `json:"average_speed"`
 	MaxSpeed           float64   `json:"max_speed"`
 	AverageCadence     float64   `json:"average_cadence"`

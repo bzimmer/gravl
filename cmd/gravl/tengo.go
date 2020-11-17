@@ -1,47 +1,53 @@
 package gravl
 
 import (
+	"io"
+	"io/ioutil"
+	"path/filepath"
+
+	"github.com/chzyer/readline"
 	"github.com/d5/tengo/v2"
+	tlib "github.com/d5/tengo/v2/stdlib"
+	"github.com/mitchellh/go-homedir"
 	"github.com/urfave/cli/v2"
+
+	gtengo "github.com/bzimmer/gravl/pkg/tengo"
+	glib "github.com/bzimmer/gravl/pkg/tengo/stdlib"
 )
+
+func modules() *tengo.ModuleMap {
+	m := tengo.NewModuleMap()
+	m.AddMap(tlib.GetModuleMap(tlib.AllModuleNames()...))
+	m.AddMap(glib.GetModuleMap(glib.AllModuleNames()...))
+	return m
+}
 
 var tengoCommand = &cli.Command{
 	Name:     "tengo",
 	Category: "api",
 	Usage:    "Run tengo",
 	Action: func(c *cli.Context) error {
-		// Tengo script code
-		src := `
-each := func(seq, fn) {
-    for x in seq { fn(x) }
-}
-
-sum := 0
-mul := 1
-each([a, b, c, d], func(x) {
-	sum += x
-	mul *= x
-})`
-
-		// create a new Script instance
-		script := tengo.NewScript([]byte(src))
-
-		// set values
-		_ = script.Add("a", 1)
-		_ = script.Add("b", 9)
-		_ = script.Add("c", 8)
-		_ = script.Add("d", 4)
-
-		// run the script
-		compiled, err := script.RunContext(c.Context)
+		home, err := homedir.Dir()
 		if err != nil {
 			return err
 		}
-
-		// retrieve values
-		sum := compiled.Get("sum")
-		mul := compiled.Get("mul")
-		_ = encoder.Encode([]int{sum.Int(), mul.Int()})
-		return nil
+		rl, err := readline.NewEx(&readline.Config{
+			Prompt:            ">>> ",
+			HistoryFile:       filepath.Join(home, ".gravl_history"),
+			InterruptPrompt:   "^C",
+			EOFPrompt:         "exit",
+			Stdin:             ioutil.NopCloser(c.App.Reader),
+			Stdout:            c.App.Writer,
+			HistorySearchFold: true,
+		})
+		if err != nil {
+			return err
+		}
+		console := gtengo.NewConsole(rl)
+		err = console.Run(modules())
+		if err == io.EOF {
+			return nil
+		}
+		return err
 	},
 }
