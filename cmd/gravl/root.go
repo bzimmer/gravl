@@ -48,7 +48,6 @@ func initConfig(c *cli.Context) error {
 }
 
 func initFlags(c *cli.Context) error {
-	// httptracing = c.Bool("http-tracing")
 	return nil
 }
 
@@ -142,7 +141,6 @@ func Run() error {
 	}
 	app := &cli.App{
 		Name:      "gravl",
-		Compiled:  time.Now(),
 		HelpName:  "gravl",
 		Usage:     "Plan trips",
 		UsageText: "gravl - plan trips",

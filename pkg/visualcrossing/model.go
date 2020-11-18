@@ -158,18 +158,18 @@ func (c *currentConditions) WxConditions() *wx.Conditions {
 }
 
 type location struct {
-	Address            string               `json:"address"`
-	Alerts             []alert              `json:"alerts"`
-	ForecastConditions []forecastConditions `json:"values"`
-	CurrentConditions  currentConditions    `json:"currentConditions"`
-	Distance           float64              `json:"distance"`
-	ID                 string               `json:"id"`
-	Index              int                  `json:"index"`
-	Latitude           float64              `json:"latitude"`
-	Longitude          float64              `json:"longitude"`
-	Name               string               `json:"name"`
-	Time               float64              `json:"time"`
-	Timezone           string               `json:"tz"`
+	Address            string                `json:"address"`
+	Alerts             []*alert              `json:"alerts"`
+	ForecastConditions []*forecastConditions `json:"values"`
+	CurrentConditions  *currentConditions    `json:"currentConditions"`
+	Distance           float64               `json:"distance"`
+	ID                 string                `json:"id"`
+	Index              int                   `json:"index"`
+	Latitude           float64               `json:"latitude"`
+	Longitude          float64               `json:"longitude"`
+	Name               string                `json:"name"`
+	Time               float64               `json:"time"`
+	Timezone           string                `json:"tz"`
 }
 
 type forecast struct {

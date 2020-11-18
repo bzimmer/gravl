@@ -31,16 +31,23 @@ func (s *Strava) TypeName() string {
 	return s.String()
 }
 
-func ToService(o tengo.Object) (v *strava.Client, ok bool) {
+func toService(o tengo.Object) (v *strava.Client, err error) {
 	switch o := o.(type) {
 	case *Strava:
 		v = o.Value
-		ok = true
+		err = nil
+	default:
+		v = nil
+		err = tengo.ErrInvalidArgumentType{
+			Name:     "first",
+			Expected: "strava",
+			Found:    o.TypeName(),
+		}
 	}
 	return
 }
 
-func ToTengo(v interface{}) (ret tengo.Object, err error) {
+func toTengo(v interface{}) (ret tengo.Object, err error) {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return
@@ -76,20 +83,15 @@ func athlete(args ...tengo.Object) (ret tengo.Object, err error) {
 		err = tengo.ErrWrongNumArguments
 		return
 	}
-	service, ok := ToService(args[0])
-	if !ok {
-		err = tengo.ErrInvalidArgumentType{
-			Name:     "first",
-			Expected: "strava",
-			Found:    args[0].TypeName(),
-		}
-		return
+	service, err := toService(args[0])
+	if err != nil {
+		return nil, err
 	}
 	ath, err := service.Athlete.Athlete(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	ret, err = ToTengo(ath)
+	ret, err = toTengo(ath)
 	return
 }
 
@@ -98,20 +100,15 @@ func activities(args ...tengo.Object) (ret tengo.Object, err error) {
 		err = tengo.ErrWrongNumArguments
 		return
 	}
-	service, ok := ToService(args[0])
-	if !ok {
-		err = tengo.ErrInvalidArgumentType{
-			Name:     "first",
-			Expected: "strava",
-			Found:    args[0].TypeName(),
-		}
-		return
+	service, err := toService(args[0])
+	if err != nil {
+		return nil, err
 	}
 	acts, err := service.Activity.Activities(context.Background(), 10)
 	if err != nil {
 		return nil, err
 	}
-	ret, err = ToTengo(acts)
+	ret, err = toTengo(acts)
 	return
 }
 
@@ -120,14 +117,9 @@ func activity(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 		err = tengo.ErrWrongNumArguments
 		return
 	}
-	service, ok := ToService(args[0])
-	if !ok {
-		err = tengo.ErrInvalidArgumentType{
-			Name:     "first",
-			Expected: "strava",
-			Found:    args[0].TypeName(),
-		}
-		return
+	service, err := toService(args[0])
+	if err != nil {
+		return nil, err
 	}
 	id, ok := tengo.ToInt64(args[1])
 	if !ok {
@@ -142,7 +134,7 @@ func activity(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 	if err != nil {
 		return nil, err
 	}
-	ret, err = ToTengo(act)
+	ret, err = toTengo(act)
 	return
 }
 
@@ -151,14 +143,9 @@ func routes(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 		err = tengo.ErrWrongNumArguments
 		return
 	}
-	service, ok := ToService(args[0])
-	if !ok {
-		err = tengo.ErrInvalidArgumentType{
-			Name:     "first",
-			Expected: "strava",
-			Found:    args[0].TypeName(),
-		}
-		return
+	service, err := toService(args[0])
+	if err != nil {
+		return nil, err
 	}
 	id, ok := tengo.ToInt(args[1])
 	if !ok {
@@ -173,6 +160,6 @@ func routes(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 	if err != nil {
 		return nil, err
 	}
-	ret, err = ToTengo(rts)
+	ret, err = toTengo(rts)
 	return
 }

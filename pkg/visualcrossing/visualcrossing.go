@@ -60,10 +60,10 @@ func WithAPIKey(apiKey string) Option {
 }
 
 // WithTransport transport
-func WithTransport(transport http.RoundTripper) Option {
+func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
-		if transport != nil {
-			c.client.Transport = transport
+		if t != nil {
+			c.client.Transport = t
 		}
 		return nil
 	}
@@ -121,14 +121,16 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 	)
 
 	// VC uses StatusOK for everything, sigh
-	if err = json.NewDecoder(reader).Decode(&fault); err != nil {
+	err = json.NewDecoder(reader).Decode(&fault)
+	if err != nil {
 		return err
 	} else if code := fault.ErrorCode; code != 0 && code != http.StatusOK {
 		return &fault
 	}
 
 	if v != nil {
-		if err = json.NewDecoder(&buf).Decode(v); err != nil {
+		err := json.NewDecoder(&buf).Decode(v)
+		if err != nil {
 			return err
 		}
 	}

@@ -21,10 +21,10 @@ const (
 	baseURL    = "https://geonames.usgs.gov/docs/stategaz/%s_Features.zip"
 )
 
-// GeoNamesService .
+// GeoNamesService used to query geonames
 type GeoNamesService service
 
-// Query .
+// Query GNIS for geonames
 func (s *GeoNamesService) Query(ctx context.Context, state string) (*gj.FeatureCollection, error) {
 	uri := fmt.Sprintf(baseURL, state)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)

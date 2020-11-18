@@ -33,11 +33,6 @@ func Test_Points_Forecast(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(f)
 	a.Equal(156, len(f.Period.Conditions))
-	// a.Equal("2020-10-23T16:00:00-07:00", f.Period.Conditions[118].ValidFrom)
-	// tm, err := time.Parse(time.RFC3339, "2020-10-23T16:00:00-07:00")
-	// a.NoError(err)
-	// a.NotNil(tm)
-	// a.Equal(tm, f.Period.Conditions[118].ValidFrom)
 	fmt.Println(f.Period.Conditions[118])
 	a.Equal("2020-10-23T16:00:00-07:00", f.Period.Conditions[118].ValidFrom.Format(time.RFC3339))
 

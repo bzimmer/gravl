@@ -64,16 +64,16 @@ type Console struct {
 	symbolTable *tengo.SymbolTable
 }
 
-func NewConsole(readline *readline.Instance) *Console {
+func NewConsole(readl *readline.Instance) *Console {
 	c := &Console{
-		readline:    readline,
+		readline:    readl,
 		symbolTable: tengo.NewSymbolTable(),
 		globals:     make([]tengo.Object, tengo.GlobalsSize),
 	}
 	for idx, fn := range tengo.GetAllBuiltinFunctions() {
 		c.symbolTable.DefineBuiltin(idx, fn.Name)
 	}
-	fn := replPrintln(readline.Config.Stdout)
+	fn := replPrintln(readl.Config.Stdout)
 	symbol := c.symbolTable.Define(fn.Name)
 	c.globals[symbol.Index] = fn
 	return c

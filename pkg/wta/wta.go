@@ -60,10 +60,10 @@ func WithHTTPClient(client *http.Client) Option {
 }
 
 // WithTransport transport
-func WithTransport(transport http.RoundTripper) Option {
+func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
-		if transport != nil {
-			c.client.Transport = transport
+		if t != nil {
+			c.client.Transport = t
 		}
 		return nil
 	}

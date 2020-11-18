@@ -26,13 +26,9 @@ func LogMiddleware() gin.HandlerFunc {
 		var entry *zerolog.Event
 		switch {
 		case c.Writer.Status() >= http.StatusBadRequest && c.Writer.Status() < http.StatusInternalServerError:
-			{
-				entry = log.Warn()
-			}
+			entry = log.Warn()
 		case c.Writer.Status() >= http.StatusInternalServerError:
-			{
-				entry = log.Error()
-			}
+			entry = log.Error()
 		default:
 			entry = log.Info()
 		}

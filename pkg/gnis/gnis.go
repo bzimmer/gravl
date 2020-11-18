@@ -6,7 +6,7 @@ import (
 	"github.com/bzimmer/transport"
 )
 
-// Client .
+// Client used to communicate with GNIS
 type Client struct {
 	client *http.Client
 
@@ -17,10 +17,10 @@ type service struct {
 	client *Client // nolint
 }
 
-// Option .
+// Option is used to configure the client
 type Option func(*Client) error
 
-// NewClient .
+// NewClient returns a client ready to query GNIS
 func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{client: &http.Client{}}
 	for _, opt := range opts {
@@ -36,17 +36,17 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// WithTransport .
-func WithTransport(transport http.RoundTripper) Option {
+// WithTransport option used to configure the RoundTripper
+func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
-		if transport != nil {
-			c.client.Transport = transport
+		if t != nil {
+			c.client.Transport = t
 		}
 		return nil
 	}
 }
 
-// WithHTTPTracing .
+// WithHTTPTracing used to configure http tracing
 func WithHTTPTracing(debug bool) Option {
 	return func(c *Client) error {
 		if !debug {
