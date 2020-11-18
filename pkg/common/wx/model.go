@@ -1,6 +1,6 @@
 package wx
 
-// go:generate stringer -type=Units
+//go:generate stringer -type=Units
 
 import (
 	"encoding/json"
@@ -11,8 +11,8 @@ import (
 type Units int
 
 const (
-	// SI .
-	SI Units = iota
+	// METRIC .
+	METRIC Units = iota
 	// US .
 	US
 	// UK .

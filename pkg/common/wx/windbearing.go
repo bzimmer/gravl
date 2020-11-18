@@ -3,7 +3,7 @@ package wx
 import "fmt"
 
 // WindBearing .
-func WindBearing(bearing string) (float64, error) { // nolint
+func WindBearing(bearing string) (float64, error) { // nolint:funlen,gocyclo
 	switch bearing {
 	case "N": // North
 		return 0.0, nil
