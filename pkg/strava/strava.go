@@ -16,8 +16,7 @@ import (
 )
 
 const (
-	pageSize = 100
-	baseURL  = "https://www.strava.com/api/v3"
+	baseURL = "https://www.strava.com/api/v3"
 )
 
 // Client client
