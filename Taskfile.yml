@@ -25,12 +25,16 @@ tasks:
     cmds:
       - task: build
 
+  generate:
+    cmds:
+      - go generate -x ./...
+
   build:
     desc: Build the application
+    deps: [generate]
     sources:
       - '**/*.go'
     cmds:
-      - go generate ./...
       - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} main.go
 
   install:
@@ -61,6 +65,7 @@ tasks:
 
   test:
     desc: Run all tests
+    deps: [generate]
     cmds:
       - mkdir -p {{.DIST}}
       - go test -covermode count -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}

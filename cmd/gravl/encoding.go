@@ -10,12 +10,12 @@ func newEncoder(writer io.Writer, compact bool) *json.Encoder {
 	if writer == nil {
 		writer = os.Stdout
 	}
-	encoder := json.NewEncoder(writer)
+	m := json.NewEncoder(writer)
 	if !compact {
-		encoder.SetIndent("", " ")
+		m.SetIndent("", " ")
 	}
-	encoder.SetEscapeHTML(false)
-	return encoder
+	m.SetEscapeHTML(false)
+	return m
 }
 
 func newDecoder(reader io.Reader) *json.Decoder {
