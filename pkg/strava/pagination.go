@@ -1,6 +1,7 @@
 package strava
 
 import (
+	"context"
 	"errors"
 
 	"github.com/rs/zerolog/log"
@@ -26,10 +27,10 @@ type Paginator interface {
 	// Count of the number of resources queried
 	Count() int
 	// Do the querying
-	Do(start, count int) (int, error)
+	Do(ctx context.Context, start, count int) (int, error)
 }
 
-func paginate(paginator Paginator, spec Pagination) error {
+func paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
 	var (
 		start = spec.Start
 		count = spec.Count
@@ -63,17 +64,17 @@ func paginate(paginator Paginator, spec Pagination) error {
 		Int("count", count).
 		Int("total", total).
 		Msg("paginate")
-	return do(paginator, total, start, count)
+	return do(ctx, paginator, total, start, count)
 }
 
-func do(paginator Paginator, total, start, count int) error {
+func do(ctx context.Context, paginator Paginator, total, start, count int) error {
 	for {
 		log.Debug().
 			Int("start", start).
 			Int("count", count).
 			Int("total", total).
 			Msg("do")
-		n, err := paginator.Do(start, count)
+		n, err := paginator.Do(ctx, start, count)
 		if err != nil {
 			return err
 		}

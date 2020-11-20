@@ -14,7 +14,6 @@ type RouteService service
 type routePaginator struct {
 	athleteID int
 	routes    []*route.Route
-	ctx       context.Context
 	service   RouteService
 }
 
@@ -24,9 +23,9 @@ func (p *routePaginator) Count() int {
 }
 
 // Do .
-func (p *routePaginator) Do(start, count int) (int, error) {
+func (p *routePaginator) Do(ctx context.Context, start, count int) (int, error) {
 	uri := fmt.Sprintf("athletes/%d/routes?page=%d&per_page=%d", p.athleteID, start, count)
-	req, err := p.service.client.newAPIRequest(p.ctx, http.MethodGet, uri)
+	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
 	}
@@ -50,10 +49,9 @@ func (s *RouteService) Routes(ctx context.Context, athleteID int, spec Paginatio
 	p := &routePaginator{
 		service:   *s,
 		athleteID: athleteID,
-		ctx:       ctx,
 		routes:    make([]*route.Route, 0),
 	}
-	err := paginate(p, spec)
+	err := paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err
 	}

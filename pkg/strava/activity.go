@@ -15,7 +15,6 @@ type ActivityService service
 
 type activityPaginator struct {
 	service    ActivityService
-	ctx        context.Context
 	activities []*route.Route
 }
 
@@ -25,9 +24,9 @@ func (p *activityPaginator) Count() int {
 }
 
 // Do executes the querying of activities
-func (p *activityPaginator) Do(start, count int) (int, error) {
+func (p *activityPaginator) Do(ctx context.Context, start, count int) (int, error) {
 	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
-	req, err := p.service.client.newAPIRequest(p.ctx, http.MethodGet, uri)
+	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
 	}
@@ -91,10 +90,9 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 func (s *ActivityService) Activities(ctx context.Context, spec Pagination) ([]*route.Route, error) {
 	p := &activityPaginator{
 		service:    *s,
-		ctx:        ctx,
 		activities: make([]*route.Route, 0),
 	}
-	err := paginate(p, spec)
+	err := paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err
 	}

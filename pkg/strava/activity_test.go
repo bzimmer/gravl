@@ -163,7 +163,7 @@ func TestTimeout(t *testing.T) {
 	client, err := strava.NewClient(
 		strava.WithAPICredentials("fooKey", "barToken"),
 		strava.WithTransport(&transport.SleepingTransport{
-			Duration: time.Millisecond * 15,
+			Duration: time.Millisecond * 30,
 			Transport: &transport.TestDataTransport{
 				Status:      http.StatusOK,
 				Filename:    "activity.json",
@@ -174,7 +174,7 @@ func TestTimeout(t *testing.T) {
 
 	// timeout lt sleep => failure
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*5)
+	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*15)
 	defer cancel()
 
 	act, err := client.Activity.Activity(ctx, 154504250376823)
@@ -183,7 +183,7 @@ func TestTimeout(t *testing.T) {
 
 	// timeout gt sleep => success
 	ctx = context.Background()
-	ctx, cancel = context.WithTimeout(ctx, time.Millisecond*25)
+	ctx, cancel = context.WithTimeout(ctx, time.Millisecond*45)
 	defer cancel()
 
 	act, err = client.Activity.Activity(ctx, 154504250376823)
