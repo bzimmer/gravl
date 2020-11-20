@@ -69,8 +69,9 @@ func initLogging(c *cli.Context) error {
 	zerolog.DurationFieldInteger = true
 	log.Logger = log.Output(
 		zerolog.ConsoleWriter{
-			Out:     c.App.ErrWriter,
-			NoColor: monochrome,
+			Out:        c.App.ErrWriter,
+			NoColor:    monochrome,
+			TimeFormat: time.RFC3339,
 		},
 	)
 	return nil

@@ -31,7 +31,7 @@ func (p *activityPaginator) Do(start, count int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	acts := make([]*Activity, count)
+	var acts []*Activity
 	err = p.service.client.Do(req, &acts)
 	if err != nil {
 		return 0, err
@@ -88,14 +88,13 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 }
 
 // Activities returns a page of activities for an athlete
-//  call with (ctx, total, start, count)
-func (s *ActivityService) Activities(ctx context.Context, specs ...int) ([]*route.Route, error) {
+func (s *ActivityService) Activities(ctx context.Context, spec Pagination) ([]*route.Route, error) {
 	p := &activityPaginator{
 		service:    *s,
 		ctx:        ctx,
 		activities: make([]*route.Route, 0),
 	}
-	err := paginate(p, specs...)
+	err := paginate(p, spec)
 	if err != nil {
 		return nil, err
 	}

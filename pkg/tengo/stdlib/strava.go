@@ -104,7 +104,7 @@ func activities(args ...tengo.Object) (ret tengo.Object, err error) {
 	if err != nil {
 		return nil, err
 	}
-	acts, err := service.Activity.Activities(context.Background(), 10)
+	acts, err := service.Activity.Activities(context.Background(), strava.Pagination{Total: 10})
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func activities(args ...tengo.Object) (ret tengo.Object, err error) {
 	return
 }
 
-func activity(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
+func activity(args ...tengo.Object) (ret tengo.Object, err error) {
 	if len(args) != 2 {
 		err = tengo.ErrWrongNumArguments
 		return
@@ -138,7 +138,7 @@ func activity(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 	return
 }
 
-func routes(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
+func routes(args ...tengo.Object) (ret tengo.Object, err error) {
 	if len(args) != 2 {
 		err = tengo.ErrWrongNumArguments
 		return
@@ -156,7 +156,7 @@ func routes(args ...tengo.Object) (ret tengo.Object, err error) { // nolint
 		}
 		return
 	}
-	rts, err := service.Route.Routes(context.Background(), id)
+	rts, err := service.Route.Routes(context.Background(), id, strava.Pagination{})
 	if err != nil {
 		return nil, err
 	}

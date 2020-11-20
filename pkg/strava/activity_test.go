@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
-	"strconv"
-	"strings"
 	"testing"
 	"time"
 
@@ -17,7 +15,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
-func Test_Activity(t *testing.T) {
+func TestActivity(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	client, err := newClient(http.StatusOK, "activity.json")
@@ -29,80 +27,67 @@ func Test_Activity(t *testing.T) {
 	a.Equal(int64(154504250376823), act.ID)
 }
 
-func Test_Activities(t *testing.T) {
+func TestActivities(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	client, err := newClient(http.StatusOK, "activities.json")
 	a.NoError(err)
 	ctx := context.Background()
-	acts, err := client.Activity.Activities(ctx)
+	acts, err := client.Activity.Activities(ctx, strava.Pagination{})
 	a.NoError(err)
 	a.Equal(2, len(acts))
 }
 
-func Test_ActivitiesMax(t *testing.T) {
+type F struct {
+	n int
+}
+
+func (f *F) X(res *http.Response) error {
+	if f.n == 1 {
+		// on the second iteration return an empty body signaling no more activities exist
+		res.ContentLength = int64(0)
+		res.Body = ioutil.NopCloser(bytes.NewBuffer([]byte{}))
+	}
+	f.n++
+	return nil
+}
+
+func TestActivitiesRequestedGTAvailable(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
-	client, err := newClient(http.StatusOK, "activities.json")
+
+	client, err := newClienter(http.StatusOK, "activities.json", nil, (&F{}).X)
 	a.NoError(err)
 	ctx := context.Background()
-	acts, err := client.Activity.Activities(ctx, 5000)
+	acts, err := client.Activity.Activities(ctx, strava.Pagination{Total: 325})
 	a.NoError(err)
 	a.Equal(2, len(acts))
 }
 
-type ManyTransport struct{}
-
-func (t *ManyTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	q := req.URL.Query()
-	n, _ := strconv.Atoi(q.Get("per_page"))
-
-	data, err := ioutil.ReadFile("testdata/activity.json")
-	if err != nil {
-		return nil, err
-	}
-
-	acts := make([]string, 0)
-	for i := 0; i < n; i++ {
-		acts = append(acts, string(data))
-	}
-
-	res := strings.Join(acts, ",")
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(bytes.NewBufferString("[" + res + "]")),
-		Header:     make(http.Header),
-	}, nil
-}
-
-func Test_ActivitiesMany(t *testing.T) {
+func TestActivitiesMany(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
 	ctx := context.Background()
 	client, err := strava.NewClient(
-		strava.WithTransport(&ManyTransport{}),
+		strava.WithTransport(&ManyTransport{
+			Filename: "testdata/activity.json",
+		}),
 		strava.WithAPICredentials("fooKey", "barToken"))
 	a.NoError(err)
 
 	// test total, start, and count
 	// success: the requested number of activities because count/pagesize == 1
-	acts, err := client.Activity.Activities(ctx, 352, 0, 1)
+	acts, err := client.Activity.Activities(ctx, strava.Pagination{Total: 127, Start: 0, Count: 1})
 	a.NoError(err)
 	a.NotNil(acts)
-	a.Equal(352, len(acts))
-
-	// no specs test
-	acts, err = client.Activity.Activities(ctx)
-	a.NoError(err)
-	a.NotNil(acts)
-	a.Equal(strava.PageSize, len(acts))
+	a.Equal(127, len(acts))
 
 	// test total and start
 	// success: the requested number of activities is exceeded because count/pagesize not specified
 	x := 234
 	n := int(math.Floor(float64(x)/strava.PageSize)*strava.PageSize + strava.PageSize)
-	acts, err = client.Activity.Activities(ctx, x, 0)
+	acts, err = client.Activity.Activities(ctx, strava.Pagination{Total: x, Start: 0})
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(n, len(acts))
@@ -110,23 +95,32 @@ func Test_ActivitiesMany(t *testing.T) {
 	// test total and start less than PageSize
 	// success: the requested number of activities because count/pagesize <= strava.PageSize
 	a.True(27 < strava.PageSize)
-	acts, err = client.Activity.Activities(ctx, 27, 0)
+	acts, err = client.Activity.Activities(ctx, strava.Pagination{Total: 27, Start: 0})
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(27, len(acts))
 
-	// negative test
-	acts, err = client.Activity.Activities(ctx, -1)
-	a.Error(err)
-	a.Nil(acts)
+	// test different Count values
+	count := strava.PageSize + 100
+	for _, x = range []int{27, 350, strava.PageSize} {
+		acts, err = client.Activity.Activities(ctx, strava.Pagination{Total: x, Start: 0, Count: count})
+		a.NoError(err)
+		a.NotNil(acts)
 
-	// test too many varargs
-	acts, err = client.Activity.Activities(ctx, 1, 2, 3, 4, 5, 6)
+		n = x
+		if x > strava.PageSize {
+			n = int(math.Floor(float64(x)/strava.PageSize)*strava.PageSize + strava.PageSize)
+		}
+		a.Equal(n, len(acts))
+	}
+
+	// negative test
+	acts, err = client.Activity.Activities(ctx, strava.Pagination{Total: -1})
 	a.Error(err)
 	a.Nil(acts)
 }
 
-func Test_Streams(t *testing.T) {
+func TestStreams(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
@@ -147,7 +141,7 @@ func Test_Streams(t *testing.T) {
 	a.Equal(2, len(sms))
 }
 
-func Test_RouteFromStreams(t *testing.T) {
+func TestRouteFromStreams(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
@@ -169,7 +163,7 @@ func TestTimeout(t *testing.T) {
 	client, err := strava.NewClient(
 		strava.WithAPICredentials("fooKey", "barToken"),
 		strava.WithTransport(&transport.SleepingTransport{
-			Duration: time.Millisecond * 100,
+			Duration: time.Millisecond * 15,
 			Transport: &transport.TestDataTransport{
 				Status:      http.StatusOK,
 				Filename:    "activity.json",
@@ -180,7 +174,7 @@ func TestTimeout(t *testing.T) {
 
 	// timeout lt sleep => failure
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*10)
+	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*5)
 	defer cancel()
 
 	act, err := client.Activity.Activity(ctx, 154504250376823)
@@ -189,7 +183,7 @@ func TestTimeout(t *testing.T) {
 
 	// timeout gt sleep => success
 	ctx = context.Background()
-	ctx, cancel = context.WithTimeout(ctx, time.Millisecond*200)
+	ctx, cancel = context.WithTimeout(ctx, time.Millisecond*25)
 	defer cancel()
 
 	act, err = client.Activity.Activity(ctx, 154504250376823)

@@ -25,12 +25,12 @@ func (p *routePaginator) Count() int {
 
 // Do .
 func (p *routePaginator) Do(start, count int) (int, error) {
-	rtes := make([]*Route, count)
 	uri := fmt.Sprintf("athletes/%d/routes?page=%d&per_page=%d", p.athleteID, start, count)
 	req, err := p.service.client.newAPIRequest(p.ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
 	}
+	var rtes []*Route
 	err = p.service.client.Do(req, &rtes)
 	if err != nil {
 		return 0, err
@@ -46,15 +46,14 @@ func (p *routePaginator) Do(start, count int) (int, error) {
 }
 
 // Routes returns a page of routes for an athlete
-//  call with (ctx, total, start, count)
-func (s *RouteService) Routes(ctx context.Context, athleteID int, specs ...int) ([]*route.Route, error) {
+func (s *RouteService) Routes(ctx context.Context, athleteID int, spec Pagination) ([]*route.Route, error) {
 	p := &routePaginator{
 		service:   *s,
 		athleteID: athleteID,
 		ctx:       ctx,
 		routes:    make([]*route.Route, 0),
 	}
-	err := paginate(p, specs...)
+	err := paginate(p, spec)
 	if err != nil {
 		return nil, err
 	}

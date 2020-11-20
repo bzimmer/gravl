@@ -11,38 +11,58 @@ const (
 	PageSize = 100
 )
 
+// Pagination provides guidance on how to paginate through resources
+type Pagination struct {
+	// Total of resources to query
+	Total int
+	// Start at this page
+	Start int
+	// Count of the number of resources to query per page
+	Count int
+}
+
 // Paginator paginates through results
 type Paginator interface {
+	// Count of the number of resources queried
 	Count() int
+	// Do the querying
 	Do(start, count int) (int, error)
 }
 
-func paginate(paginator Paginator, specs ...int) error {
-	var start, count, total int
-	switch len(specs) {
-	case 0:
-		total, start, count = 0, 1, PageSize
-	case 1:
-		total, start, count = specs[0], 1, PageSize
-	case 2:
-		total, start, count = specs[0], specs[1], PageSize
-	case 3:
-		total, start, count = specs[0], specs[1], specs[2]
-	default:
-		return errors.New("too many varargs")
-	}
+func paginate(paginator Paginator, spec Pagination) error {
+	var (
+		start = spec.Start
+		count = spec.Count
+		total = spec.Total
+	)
 	log.Debug().
+		Str("prepared", "pre").
 		Int("start", start).
 		Int("count", count).
 		Int("total", total).
-		Ints("specs", specs).
 		Msg("paginate")
 	if total < 0 {
 		return errors.New("total less than zero")
 	}
+	if start <= 0 {
+		start = 1
+	}
+	if count <= 0 {
+		count = PageSize
+	}
 	if total > 0 && total <= count {
 		count = total
 	}
+	// if requesting only one page of data then optimize
+	if start <= 1 && total < PageSize {
+		count = total
+	}
+	log.Debug().
+		Str("prepared", "post").
+		Int("start", start).
+		Int("count", count).
+		Int("total", total).
+		Msg("paginate")
 	return do(paginator, total, start, count)
 }
 
@@ -58,25 +78,14 @@ func do(paginator Paginator, total, start, count int) error {
 			return err
 		}
 		all := paginator.Count()
-		if n != count || all >= total {
+
+		// Strava documentation says receiving fewer than requested results is a
+		// possible scenario so break only if 0 results were returned or we have
+		// enough to fulfill the request
+		if n == 0 || all >= total {
 			break
 		}
 		start++
-
-		// The original implementation of pagination reset the count from `pageSize`
-		// to the number of records required to fulfill the request if the remainder
-		// was less than `pageSize`. This results in Strava returning the right number
-		// of remaining records but they are duplicates from the first page! I was able
-		// to reproduce this consistently. The Strava pagination document basically
-		// reads as a best effort approach (eg ignore the result count and just keep
-		// paging until no records are returned).
-		if count > PageSize {
-			// do not optimize count, Strava doesn't like
-			count = PageSize
-		} else if start <= 1 && total < PageSize {
-			// unless it's the first pass through and you will not need further pagination
-			count = total
-		}
 	}
 	return nil
 }

@@ -158,7 +158,7 @@ var stravaCommand = &cli.Command{
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			acts, err := client.Activity.Activities(ctx, c.Int("count"))
+			acts, err := client.Activity.Activities(ctx, strava.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}
@@ -176,7 +176,7 @@ var stravaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			rts, err := client.Route.Routes(ctx, ath.ID)
+			rts, err := client.Route.Routes(ctx, ath.ID, strava.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}
