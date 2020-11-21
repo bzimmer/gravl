@@ -71,6 +71,6 @@ func Test_Query(t *testing.T) {
 	coll, err := c.GeoNames.Query(b, "WA")
 	a.NoError(err)
 	a.NotNil(coll)
-	a.Equal(150, len(coll.Features))
-	a.Equal("Blue Buck Ridge", coll.Features[109].Properties["name"])
+	a.Equal(150, len(coll))
+	a.Equal("Blue Buck Ridge", coll[109].Name)
 }

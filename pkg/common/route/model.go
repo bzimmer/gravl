@@ -54,7 +54,7 @@ func (r *Route) MarshalJSON() ([]byte, error) {
 		ID:   r.ID,
 		Type: "Feature",
 		Geometry: map[string]interface{}{
-			"type":        "MultiPoint",
+			"type":        "LineString",
 			"coordinates": r.Coordinates,
 		},
 		Properties: map[string]interface{}{
@@ -62,6 +62,46 @@ func (r *Route) MarshalJSON() ([]byte, error) {
 			"source":      r.Source,
 			"origin":      r.Origin.String(),
 			"description": r.Description,
+		},
+	})
+}
+
+// GeographicName information about the official name for places, features, and areas
+type GeographicName struct {
+	ID          string
+	Name        string
+	Source      Source
+	Class       string
+	Locale      string
+	Description string
+	Coordinates Coordinates
+}
+
+// Route returns the coordinates of the route
+func (g *GeographicName) Route() Coordinates {
+	return g.Coordinates
+}
+
+// MarshalJSON produces GeoJSON
+func (g *GeographicName) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		ID         string                 `json:"id"`
+		Type       string                 `json:"type"`
+		Geometry   map[string]interface{} `json:"geometry"`
+		Properties map[string]interface{} `json:"properties"`
+	}{
+		ID:   g.ID,
+		Type: "Feature",
+		Geometry: map[string]interface{}{
+			"type":        "MultiPoint",
+			"coordinates": g.Coordinates,
+		},
+		Properties: map[string]interface{}{
+			"name":        g.Name,
+			"source":      g.Source,
+			"class":       g.Class,
+			"locale":      g.Locale,
+			"description": g.Description,
 		},
 	})
 }

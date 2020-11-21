@@ -1,6 +1,7 @@
 package wx
 
 //go:generate stringer -type=Units
+//go:generate go run genbearing.go
 
 import (
 	"encoding/json"

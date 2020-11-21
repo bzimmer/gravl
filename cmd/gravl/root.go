@@ -122,15 +122,15 @@ func flags() ([]cli.Flag, error) {
 
 func commands() []*cli.Command {
 	return []*cli.Command{
-		serveCommand,
-		wtaCommand,
 		gnisCommand,
-		visualcrossingCommand,
-		tengoCommand,
-		rwgpsCommand,
 		noaaCommand,
+		rwgpsCommand,
+		serveCommand,
 		stravaCommand,
+		tengoCommand,
 		versionCommand,
+		visualcrossingCommand,
+		wtaCommand,
 	}
 }
 

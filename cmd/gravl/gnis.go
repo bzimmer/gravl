@@ -27,9 +27,11 @@ var gnisCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			err = encoder.Encode(features)
-			if err != nil {
-				return err
+			for _, x := range features {
+				err = encoder.Encode(x)
+				if err != nil {
+					return err
+				}
 			}
 		}
 		return nil

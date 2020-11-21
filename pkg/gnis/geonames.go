@@ -12,21 +12,21 @@ import (
 	"strconv"
 	"strings"
 
-	gj "github.com/paulmach/go.geojson"
 	"github.com/rs/zerolog/log"
+
+	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
 const (
 	gnisLength = 20
-	baseURL    = "https://geonames.usgs.gov/docs/stategaz/%s_Features.zip"
 )
 
 // GeoNamesService used to query geonames
 type GeoNamesService service
 
 // Query GNIS for geonames
-func (s *GeoNamesService) Query(ctx context.Context, state string) (*gj.FeatureCollection, error) {
-	uri := fmt.Sprintf(baseURL, state)
+func (s *GeoNamesService) Query(ctx context.Context, state string) ([]*route.GeographicName, error) {
+	uri := fmt.Sprintf("%s/docs/stategaz/%s_Features.zip", baseURL, state)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
@@ -65,32 +65,33 @@ func (s *GeoNamesService) Query(ctx context.Context, state string) (*gj.FeatureC
 	return parseReader(reader)
 }
 
-func parseReader(reader io.Reader) (*gj.FeatureCollection, error) {
-	coll := gj.NewFeatureCollection()
+func parseReader(reader io.Reader) ([]*route.GeographicName, error) {
 	scanner := bufio.NewScanner(reader)
 
 	// skip the header row
 	scanner.Scan()
 
-	// now process the data
+	names := make([]*route.GeographicName, 0)
 	for scanner.Scan() {
 		txt := scanner.Text()
-		feature, err := unmarshal(txt)
+		name, err := unmarshal(txt)
 		if err != nil {
 			log.Error().Err(err).Str("line", txt).Send()
 		}
-		coll.AddFeature(feature)
+		names = append(names, name)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
-	return coll, nil
+	return names, nil
 }
 
-func unmarshal(line string) (*gj.Feature, error) { // nolint:gocyclo
-	f := gj.NewFeature(
-		gj.NewPointGeometry(make([]float64, 3)))
+func unmarshal(line string) (*route.GeographicName, error) { // nolint:gocyclo
+	f := &route.GeographicName{
+		Source:      baseURL,
+		Coordinates: [][]float64{{0, 0, 0}},
+	}
 
 	parts := strings.Split(line, "|")
 	if len(parts) != gnisLength {
@@ -100,17 +101,13 @@ func unmarshal(line string) (*gj.Feature, error) { // nolint:gocyclo
 	for i, s := range parts {
 		switch i {
 		case 0: // FEATURE_ID
-			x, err := strconv.Atoi(s)
-			if err != nil {
-				return nil, err
-			}
-			f.ID = x
+			f.ID = s
 		case 1: // FEATURE_NAME
-			f.Properties["name"] = s
+			f.Name = s
 		case 2: // FEATURE_CLASS
-			f.Properties["class"] = s
+			f.Class = s
 		case 3: // STATE_ALPHA
-			f.Properties["state"] = s
+			f.Locale = s
 		case 4: // STATE_NUMERIC
 		case 5: // COUNTY_NAME
 		case 6: // COUNTY_NUMERIC
@@ -121,13 +118,13 @@ func unmarshal(line string) (*gj.Feature, error) { // nolint:gocyclo
 			if err != nil {
 				return nil, err
 			}
-			f.Geometry.Point[1] = x
+			f.Coordinates[0][1] = x
 		case 10: // PRIM_LONG_DEC
 			x, err := strconv.ParseFloat(s, 64)
 			if err != nil {
 				return nil, err
 			}
-			f.Geometry.Point[0] = x
+			f.Coordinates[0][0] = x
 		case 11: // SOURCE_LAT_DMS
 		case 12: // SOURCE_LONG_DMS
 		case 13: // SOURCE_LAT_DEC
@@ -141,7 +138,7 @@ func unmarshal(line string) (*gj.Feature, error) { // nolint:gocyclo
 			if err != nil {
 				return nil, err
 			}
-			f.Geometry.Point[2] = x
+			f.Coordinates[0][2] = x
 		case 16: // ELEV_IN_FT
 		case 17: // MAP_NAME
 		case 18: // DATE_CREATED

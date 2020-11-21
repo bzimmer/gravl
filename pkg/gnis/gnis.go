@@ -6,6 +6,10 @@ import (
 	"github.com/bzimmer/transport"
 )
 
+const (
+	baseURL = "https://geonames.usgs.gov"
+)
+
 // Client used to communicate with GNIS
 type Client struct {
 	client *http.Client
