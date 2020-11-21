@@ -16,3 +16,4 @@
 * [static map creation](https://github.com/flopp/go-staticmaps)
 * [SRTM](https://github.com/sakisds/go-srtm)
 * [charts](https://github.com/marianogappa/chart)
+* [OpenWeather API](https://openweathermap.org/api)
