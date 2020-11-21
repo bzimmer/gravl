@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func newClient(status int, filename string) (*vc.Client, error) {
 	return vc.NewClient(
-		vc.WithTransport(&transport.TestDataTransport{
+		vc.WithTransport(&httpwares.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json",

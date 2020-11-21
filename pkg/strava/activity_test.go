@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/strava"
@@ -162,9 +162,9 @@ func TestTimeout(t *testing.T) {
 
 	client, err := strava.NewClient(
 		strava.WithAPICredentials("fooKey", "barToken"),
-		strava.WithTransport(&transport.SleepingTransport{
+		strava.WithTransport(&httpwares.SleepingTransport{
 			Duration: time.Millisecond * 30,
-			Transport: &transport.TestDataTransport{
+			Transport: &httpwares.TestDataTransport{
 				Status:      http.StatusOK,
 				Filename:    "activity.json",
 				ContentType: "application/json",

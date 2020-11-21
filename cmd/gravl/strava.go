@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 	"github.com/markbates/goth"
 	auth "github.com/markbates/goth/providers/strava"
 	"github.com/urfave/cli/v2"
@@ -23,7 +23,7 @@ func newStravaAuthProvider(c *cli.Context, callback string) goth.Provider {
 		"read_all,profile:read_all,activity:read_all")
 	t := http.DefaultTransport
 	if c.Bool("http-tracing") {
-		t = &transport.VerboseTransport{
+		t = &httpwares.VerboseTransport{
 			Transport: t,
 		}
 	}

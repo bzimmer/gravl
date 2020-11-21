@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 )
 
 func Test_Refresh(t *testing.T) {
@@ -18,7 +18,7 @@ func Test_Refresh(t *testing.T) {
 
 	provider := au.New("foo", "bar", "", "read")
 	provider.HTTPClient = &http.Client{
-		Transport: &transport.TestDataTransport{
+		Transport: &httpwares.TestDataTransport{
 			Status:      http.StatusOK,
 			Filename:    "refresh.json",
 			ContentType: "application/json",

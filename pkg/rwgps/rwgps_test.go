@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	rw "github.com/bzimmer/gravl/pkg/rwgps"
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 )
 
 var (
@@ -19,7 +19,7 @@ var (
 
 func newClient(status int, filename string) (*rw.Client, error) {
 	return rw.NewClient(
-		rw.WithTransport(&transport.TestDataTransport{
+		rw.WithTransport(&httpwares.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json",

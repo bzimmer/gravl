@@ -8,16 +8,16 @@ import (
 	"strings"
 
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 )
 
 func newClient(status int, filename string) (*strava.Client, error) {
 	return newClienter(status, filename, nil, nil)
 }
 
-func newClienter(status int, filename string, requester transport.Requester, responder transport.Responder) (*strava.Client, error) {
+func newClienter(status int, filename string, requester httpwares.Requester, responder httpwares.Responder) (*strava.Client, error) {
 	return strava.NewClient(
-		strava.WithTransport(&transport.TestDataTransport{
+		strava.WithTransport(&httpwares.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json",

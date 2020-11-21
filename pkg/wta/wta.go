@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -75,7 +75,7 @@ func WithHTTPTracing(debug bool) Option {
 		if !debug {
 			return nil
 		}
-		c.client.Transport = &transport.VerboseTransport{
+		c.client.Transport = &httpwares.VerboseTransport{
 			Transport: c.client.Transport,
 		}
 		return nil

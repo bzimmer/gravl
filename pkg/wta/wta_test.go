@@ -12,12 +12,12 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/wta"
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 )
 
 func newClient(status int, filename string) (*wta.Client, error) {
 	return wta.NewClient(
-		wta.WithTransport(&transport.TestDataTransport{
+		wta.WithTransport(&httpwares.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "text/html; charset=utf-8",
