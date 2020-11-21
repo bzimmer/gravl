@@ -56,10 +56,10 @@ var stravaCommand = &cli.Command{
 			Usage: "Refresh token for Strava API",
 		}),
 		&cli.BoolFlag{
-			Name:    "trip",
+			Name:    "activity",
 			Aliases: []string{"t"},
 			Value:   false,
-			Usage:   "Trip",
+			Usage:   "Activity",
 		},
 		&cli.BoolFlag{
 			Name:    "route",
@@ -130,6 +130,7 @@ var stravaCommand = &cli.Command{
 					return err
 				}
 			}
+			return nil
 		}
 		if c.Bool("athlete") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -142,6 +143,7 @@ var stravaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
+			return nil
 		}
 		if c.Bool("refresh") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -154,6 +156,7 @@ var stravaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
+			return nil
 		}
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -168,6 +171,7 @@ var stravaCommand = &cli.Command{
 					return err
 				}
 			}
+			return nil
 		}
 		if c.Bool("routes") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -186,6 +190,7 @@ var stravaCommand = &cli.Command{
 					return err
 				}
 			}
+			return nil
 		}
 		return nil
 	},
