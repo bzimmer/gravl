@@ -101,6 +101,10 @@ tasks:
     # https://marcofranssen.nl/manage-go-tools-via-go-modules/
     desc: Install build tools
     deps: [download]
+    vars:
+      TOOLS:
+        # the braces need to be escaped or they are interpreted by Taskfile
+        sh: go list -f "{{"{{"}}range .Imports{{"}}"}}{{"{{"}}.{{"}}"}} {{"{{"}}end{{"}}"}}" tools.go
     cmds:
-      - go list -f '{{range .Imports}}{{.}} {{end}}' tools.go | xargs go install
+      - echo {{.TOOLS}} | xargs go install
       - go mod tidy
