@@ -1,10 +1,10 @@
-package strava
+package geo
 
 import (
 	"github.com/twpayne/go-polyline"
 )
 
-func polylineToCoords(polylines ...string) ([][]float64, error) {
+func PolylineToCoords(polylines ...string) ([][]float64, error) {
 	zero := float64(0)
 	var coords [][]float64
 	for _, p := range polylines {

@@ -2,12 +2,9 @@ package strava
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
 // ActivityService is the API for activity endpoints
@@ -15,7 +12,7 @@ type ActivityService service
 
 type activityPaginator struct {
 	service    ActivityService
-	activities []*route.Route
+	activities []*Activity
 }
 
 // Count returns the number of activities
@@ -36,39 +33,28 @@ func (p *activityPaginator) Do(ctx context.Context, start, count int) (int, erro
 		return 0, err
 	}
 	for _, act := range acts {
-		r, err := newRouteFromActivity(act)
 		if err != nil {
 			return 0, err
 		}
-		p.activities = append(p.activities, r)
+		p.activities = append(p.activities, act)
 	}
 	return len(acts), nil
 }
 
-// Route returns a Route from an activities stream data
-//  This is different from returning a Strava Route
-func (s *ActivityService) Route(ctx context.Context, activityID int64) (*route.Route, error) {
-	streams, err := s.Streams(ctx, activityID, "latlng", "elevation")
-	if err != nil {
-		return nil, err
-	}
-	return newRouteFromStreams(activityID, streams)
-}
-
 // Streams returns the activities data streams
-func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (map[string]*Stream, error) {
+func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (*Streams, error) {
 	keys := strings.Join(streams, ",")
 	uri := fmt.Sprintf("activities/%d/streams/%s?key_by_type=true", activityID, keys)
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
 	}
-	m := make(map[string]*Stream)
-	err = s.client.Do(req, &m)
+	sts := make(map[string]*Stream)
+	err = s.client.Do(req, &sts)
 	if err != nil {
 		return nil, err
 	}
-	return m, err
+	return &Streams{ID: activityID, Streams: sts}, err
 }
 
 // Activity returns the activity specified by id for an athlete
@@ -87,59 +73,16 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 }
 
 // Activities returns a page of activities for an athlete
-func (s *ActivityService) Activities(ctx context.Context, spec Pagination) ([]*route.Route, error) {
+func (s *ActivityService) Activities(ctx context.Context, spec Pagination) ([]*Activity, error) {
 	p := &activityPaginator{
 		service:    *s,
-		activities: make([]*route.Route, 0),
+		activities: make([]*Activity, 0),
 	}
 	err := paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err
 	}
 	return p.activities, nil
-}
-
-func newRouteFromActivity(a *Activity) (*route.Route, error) {
-	coords, err := polylineToCoords(a.Map.Polyline, a.Map.SummaryPolyline)
-	if err != nil {
-		return nil, err
-	}
-	rte := &route.Route{
-		ID:          fmt.Sprintf("%d", a.ID),
-		Name:        a.Name,
-		Description: a.Description,
-		Source:      baseURL,
-		Origin:      route.Activity,
-		Coordinates: coords,
-	}
-	return rte, nil
-}
-
-func newRouteFromStreams(activityID int64, streams map[string]*Stream) (*route.Route, error) {
-	latlng, ok := streams["latlng"]
-	if !ok {
-		return nil, errors.New("missing required latlng stream")
-	}
-
-	zero := float64(0)
-	rte := &route.Route{
-		ID:          fmt.Sprintf("%d", activityID),
-		Source:      baseURL,
-		Origin:      route.Activity,
-		Coordinates: make([][]float64, len(latlng.Data)),
-	}
-
-	altitude, ok := streams["altitude"]
-	for i, m := range latlng.Data {
-		lat := m.([]interface{})[0]
-		lng := m.([]interface{})[1]
-		alt := zero
-		if ok {
-			alt = (altitude.Data[i]).(float64)
-		}
-		rte.Coordinates[i] = []float64{lng.(float64), lat.(float64), alt}
-	}
-	return rte, nil
 }
 
 // // https://developers.strava.com/docs/reference/#api-models-StreamSet

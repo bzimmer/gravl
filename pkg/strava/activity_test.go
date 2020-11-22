@@ -131,14 +131,14 @@ func TestStreams(t *testing.T) {
 	sms, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude", "distance", "altitude")
 	a.NoError(err)
 	a.NotNil(sms)
-	a.Equal(4, len(sms))
+	a.Equal(4, len(sms.Streams))
 
 	client, err = newClient(http.StatusOK, "streams_two.json")
 	a.NoError(err)
 	sms, err = client.Activity.Streams(ctx, 154504250376, "latlng", "altitude")
 	a.NoError(err)
 	a.NotNil(sms)
-	a.Equal(2, len(sms))
+	a.Equal(2, len(sms.Streams))
 }
 
 func TestRouteFromStreams(t *testing.T) {
@@ -149,11 +149,17 @@ func TestRouteFromStreams(t *testing.T) {
 	client, err := newClient(http.StatusOK, "streams_four.json")
 	a.NoError(err)
 
-	rte, err := client.Activity.Route(ctx, 154504250376)
+	sms, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude")
 	a.NoError(err)
-	a.NotNil(rte)
-	a.Equal("154504250376", rte.ID)
-	a.Equal(2712, len(rte.Coordinates))
+	a.NotNil(sms)
+	a.Equal(4, len(sms.Streams))
+	a.Equal(int64(154504250376), sms.ID)
+	a.Equal(2712, len(sms.Streams["latlng"].Data))
+
+	trk, err := sms.Track()
+	a.NoError(err)
+	a.NotNil(trk)
+	a.Equal(2712, len(trk.Coordinates))
 }
 
 func TestTimeout(t *testing.T) {

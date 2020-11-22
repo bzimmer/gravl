@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-
-	"github.com/bzimmer/gravl/pkg/common/route"
 )
 
 // RouteService is the API for route endpoints
@@ -13,7 +11,7 @@ type RouteService service
 
 type routePaginator struct {
 	athleteID int
-	routes    []*route.Route
+	routes    []*Route
 	service   RouteService
 }
 
@@ -35,21 +33,20 @@ func (p *routePaginator) Do(ctx context.Context, start, count int) (int, error) 
 		return 0, err
 	}
 	for _, rte := range rtes {
-		r, err := newRouteFromRoute(rte)
 		if err != nil {
 			return 0, err
 		}
-		p.routes = append(p.routes, r)
+		p.routes = append(p.routes, rte)
 	}
 	return len(rtes), nil
 }
 
 // Routes returns a page of routes for an athlete
-func (s *RouteService) Routes(ctx context.Context, athleteID int, spec Pagination) ([]*route.Route, error) {
+func (s *RouteService) Routes(ctx context.Context, athleteID int, spec Pagination) ([]*Route, error) {
 	p := &routePaginator{
 		service:   *s,
 		athleteID: athleteID,
-		routes:    make([]*route.Route, 0),
+		routes:    make([]*Route, 0),
 	}
 	err := paginate(ctx, p, spec)
 	if err != nil {
@@ -59,7 +56,7 @@ func (s *RouteService) Routes(ctx context.Context, athleteID int, spec Paginatio
 }
 
 // Route .
-func (s *RouteService) Route(ctx context.Context, routeID int64) (*route.Route, error) {
+func (s *RouteService) Route(ctx context.Context, routeID int64) (*Route, error) {
 	uri := fmt.Sprintf("routes/%d", routeID)
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
@@ -69,22 +66,6 @@ func (s *RouteService) Route(ctx context.Context, routeID int64) (*route.Route, 
 	err = s.client.Do(req, &rte)
 	if err != nil {
 		return nil, err
-	}
-	return newRouteFromRoute(rte)
-}
-
-func newRouteFromRoute(r *Route) (*route.Route, error) {
-	coords, err := polylineToCoords(r.Map.Polyline, r.Map.SummaryPolyline)
-	if err != nil {
-		return nil, err
-	}
-	rte := &route.Route{
-		ID:          fmt.Sprintf("%d", r.ID),
-		Name:        r.Name,
-		Description: r.Description,
-		Source:      baseURL,
-		Origin:      route.Planned,
-		Coordinates: coords,
 	}
 	return rte, nil
 }

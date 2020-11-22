@@ -12,7 +12,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/common/route"
+	"github.com/bzimmer/gravl/pkg/common/geo"
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
@@ -62,6 +62,12 @@ var stravaCommand = &cli.Command{
 			Usage:   "Activity",
 		},
 		&cli.BoolFlag{
+			Name:    "stream",
+			Aliases: []string{"s"},
+			Value:   false,
+			Usage:   "Stream",
+		},
+		&cli.BoolFlag{
 			Name:    "route",
 			Aliases: []string{"r"},
 			Value:   false,
@@ -108,25 +114,30 @@ var stravaCommand = &cli.Command{
 			return err
 		}
 
-		r := c.Bool("route")
-		a := c.Bool("activity")
-		if r || a {
+		if c.Bool("route") || c.Bool("activity") || c.Bool("stream") {
 			args := c.Args()
-			var rte *route.Route
+			var tck geo.Trackable
 			for i := 0; i < args.Len(); i++ {
 				ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 				defer cancel()
 				activityID, err := strconv.ParseInt(args.Get(i), 0, 64)
-				if r {
-					rte, err = client.Route.Route(ctx, activityID)
-				} else if a {
-					rte, err = client.Activity.Route(ctx, activityID)
+				if c.Bool("route") {
+					tck, err = client.Route.Route(ctx, activityID)
+				}
+				if c.Bool("activity") {
+					tck, err = client.Activity.Activity(ctx, activityID)
+				}
+				if c.Bool("stream") {
+					tck, err = client.Activity.Streams(ctx, activityID, "latlng", "altitude")
 				}
 				if err != nil {
 					return err
 				}
-				err = encoder.Encode(rte)
+				t, err := tck.Track()
 				if err != nil {
+					return err
+				}
+				if err = encoder.Encode(t); err != nil {
 					return err
 				}
 			}

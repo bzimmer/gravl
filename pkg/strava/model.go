@@ -1,6 +1,12 @@
 package strava
 
-import "time"
+import (
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/bzimmer/gravl/pkg/common/geo"
+)
 
 // Error .
 type Error struct {
@@ -36,6 +42,12 @@ type Stream struct {
 	OriginalSize int           `json:"original_size"`
 	Resolution   string        `json:"resolution"`
 	SeriesType   string        `json:"series_type"`
+}
+
+// Streams of data for the activity
+type Streams struct {
+	ID      int64
+	Streams map[string]*Stream
 }
 
 // Gear represents gear used by the athlete
@@ -333,4 +345,63 @@ type Route struct {
 	ID                  int        `json:"id"`
 	Map                 *Map       `json:"map"`
 	Timestamp           int        `json:"timestamp"`
+}
+
+func (a *Activity) Track() (*geo.Track, error) {
+	coords, err := geo.PolylineToCoords(a.Map.Polyline, a.Map.SummaryPolyline)
+	if err != nil {
+		return nil, err
+	}
+	rte := &geo.Track{
+		ID:          fmt.Sprintf("%d", a.ID),
+		Name:        a.Name,
+		Description: a.Description,
+		Source:      baseURL,
+		Origin:      geo.Activity,
+		Coordinates: coords,
+	}
+	return rte, nil
+}
+
+func (s *Streams) Track() (*geo.Track, error) {
+	latlng, ok := s.Streams["latlng"]
+	if !ok {
+		return nil, errors.New("missing required latlng stream")
+	}
+
+	zero := float64(0)
+	rte := &geo.Track{
+		ID:          fmt.Sprintf("%d", s.ID),
+		Source:      baseURL,
+		Origin:      geo.Activity,
+		Coordinates: make([][]float64, len(latlng.Data)),
+	}
+
+	altitude, ok := s.Streams["altitude"]
+	for i, m := range latlng.Data {
+		lat := m.([]interface{})[0]
+		lng := m.([]interface{})[1]
+		alt := zero
+		if ok {
+			alt = (altitude.Data[i]).(float64)
+		}
+		rte.Coordinates[i] = []float64{lng.(float64), lat.(float64), alt}
+	}
+	return rte, nil
+}
+
+func (r *Route) Track() (*geo.Track, error) {
+	coords, err := geo.PolylineToCoords(r.Map.Polyline, r.Map.SummaryPolyline)
+	if err != nil {
+		return nil, err
+	}
+	rte := &geo.Track{
+		ID:          fmt.Sprintf("%d", r.ID),
+		Name:        r.Name,
+		Description: r.Description,
+		Source:      baseURL,
+		Origin:      geo.Planned,
+		Coordinates: coords,
+	}
+	return rte, nil
 }

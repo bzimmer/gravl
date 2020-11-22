@@ -1,4 +1,4 @@
-package route
+package geo
 
 //go:generate stringer -type=Origin
 
@@ -6,12 +6,6 @@ import "encoding/json"
 
 // Coordinates of a Route
 type Coordinates [][]float64
-
-// Routeable returns a route
-type Routeable interface {
-	// Route represents a series of one or more points
-	Route() Coordinates
-}
 
 // Source of the Route
 type Source string
@@ -28,8 +22,8 @@ const (
 	Unknown
 )
 
-// Route represents a series of one or more points
-type Route struct {
+// Track represents a series of one or more points
+type Track struct {
 	ID          string
 	Name        string
 	Source      Source
@@ -38,13 +32,14 @@ type Route struct {
 	Coordinates Coordinates
 }
 
-// Route returns the coordinates of the route
-func (r *Route) Route() Coordinates {
-	return r.Coordinates
+// Trackable instances can return a Track
+type Trackable interface {
+	// Track returns an instance of a Track
+	Track() (*Track, error)
 }
 
 // MarshalJSON produces GeoJSON
-func (r *Route) MarshalJSON() ([]byte, error) {
+func (r *Track) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		ID         string                 `json:"id"`
 		Type       string                 `json:"type"`
@@ -68,18 +63,9 @@ func (r *Route) MarshalJSON() ([]byte, error) {
 
 // GeographicName information about the official name for places, features, and areas
 type GeographicName struct {
-	ID          string
-	Name        string
-	Source      Source
-	Class       string
-	Locale      string
-	Description string
-	Coordinates Coordinates
-}
-
-// Route returns the coordinates of the route
-func (g *GeographicName) Route() Coordinates {
-	return g.Coordinates
+	Track
+	Class  string
+	Locale string
 }
 
 // MarshalJSON produces GeoJSON
