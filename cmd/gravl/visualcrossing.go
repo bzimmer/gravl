@@ -16,7 +16,7 @@ var visualcrossingCommand = &cli.Command{
 	Flags: []cli.Flag{
 		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  "vc.api-key",
-			Usage: "API key for VC API",
+			Usage: "API key for Visual Crossing API",
 		}),
 		&cli.IntFlag{
 			Name:    "interval",

@@ -3,12 +3,13 @@ package openweather
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
-	"github.com/bzimmer/transport"
+	"github.com/bzimmer/httpwares"
 )
 
 const (
@@ -74,7 +75,7 @@ func WithHTTPTracing(debug bool) Option {
 		if !debug {
 			return nil
 		}
-		c.client.Transport = &transport.VerboseTransport{
+		c.client.Transport = &httpwares.VerboseTransport{
 			Transport: c.client.Transport,
 		}
 		return nil
@@ -82,6 +83,9 @@ func WithHTTPTracing(debug bool) Option {
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
+	if c.apiKey == "" {
+		return nil, errors.New("apiKey required")
+	}
 	values.Set("appid", c.apiKey)
 	values.Set("mode", "json")
 	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, values.Encode()))

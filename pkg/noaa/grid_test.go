@@ -17,16 +17,16 @@ func Test_GridPoints_Forecast(t *testing.T) {
 	a.NotNil(c)
 
 	b := context.Background()
-	f, err := c.GridPoints.Forecast(b, "SEW", 156, 81)
+	fcst, err := c.GridPoints.Forecast(b, "SEW", 156, 81)
 	a.NoError(err)
-	a.NotNil(f)
-	a.Equal(14, len(f.Period.Conditions))
+	a.NotNil(fcst)
+	a.Equal(14, len(fcst.Properties.Periods))
 
 	c, err = newClient(http.StatusNotFound, "unavailable_forecast.json")
 	a.NoError(err)
 	a.NotNil(c)
-	f, err = c.GridPoints.Forecast(b, "SEW", 156, 81)
+	fcst, err = c.GridPoints.Forecast(b, "SEW", 156, 81)
 	a.Error(err)
-	a.Nil(f)
+	a.Nil(fcst)
 	a.Equal("Unable to provide data for requested point 2.0265,-121.444", err.Error())
 }

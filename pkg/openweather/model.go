@@ -1,6 +1,10 @@
 package openweather
 
-import "github.com/bzimmer/gravl/pkg/common/wx"
+import (
+	"errors"
+
+	"github.com/bzimmer/gravl/pkg/common/wx"
+)
 
 // Fault .
 type Fault struct {
@@ -70,7 +74,7 @@ type Hourly struct {
 	WindSpeed  float64    `json:"wind_speed"`
 	WindDeg    int        `json:"wind_deg"`
 	Weather    []*Weather `json:"weather"`
-	Pop        int        `json:"pop"`
+	Pop        float64    `json:"pop"`
 	Rain       *Rain      `json:"rain,omitempty"`
 }
 
@@ -107,6 +111,6 @@ type Forecast struct {
 	Daily          []*Daily    `json:"daily"`
 }
 
-func (f *Forecast) WxForecast() (*wx.Forecast, error) {
-	return nil, nil
+func (f *Forecast) Forecast() (*wx.Forecast, error) {
+	return nil, errors.New("not implemented")
 }

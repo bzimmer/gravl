@@ -97,6 +97,12 @@ type Forecast struct {
 	Alerts    []*Alert    `json:"alerts,omitempty"`
 }
 
+// Forecastable instances can return a Forecast
+type Forecastable interface {
+	// Forecast returns an instance of a Forecast
+	Forecast() (*Forecast, error)
+}
+
 // MarshalJSON produces GeoJSON
 func (f *Forecast) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {

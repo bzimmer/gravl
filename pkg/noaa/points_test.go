@@ -2,10 +2,8 @@ package noaa_test
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -23,7 +21,7 @@ func Test_Points_Forecast(t *testing.T) {
 	f, err := c.Points.Forecast(b, 48.0264959, -121.4440005)
 	a.NoError(err)
 	a.NotNil(f)
-	a.Equal(14, len(f.Period.Conditions))
+	a.Equal(14, len(f.Properties.Periods))
 
 	// hourly
 	c, err = newClient(http.StatusOK, "barlow_pass_forecast_hourly.json")
@@ -32,9 +30,7 @@ func Test_Points_Forecast(t *testing.T) {
 	f, err = c.Points.ForecastHourly(b, 48.0264959, -121.4440005)
 	a.NoError(err)
 	a.NotNil(f)
-	a.Equal(156, len(f.Period.Conditions))
-	fmt.Println(f.Period.Conditions[118])
-	a.Equal("2020-10-23T16:00:00-07:00", f.Period.Conditions[118].ValidFrom.Format(time.RFC3339))
+	a.Equal(156, len(f.Properties.Periods))
 
 	// failure
 	c, err = newClient(http.StatusNotFound, "unavailable_forecast.json")

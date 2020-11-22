@@ -20,12 +20,12 @@ func (f *Fault) Error() string {
 	return f.Detail
 }
 
-type elevation struct {
+type Elevation struct {
 	Value    float64 `json:"value"`
 	UnitCode string  `json:"unitCode"`
 }
 
-type period struct {
+type Period struct {
 	Number           int    `json:"number"`
 	Name             string `json:"name"`
 	StartTime        string `json:"startTime"`
@@ -41,7 +41,7 @@ type period struct {
 	DetailedForecast string `json:"detailedForecast"`
 }
 
-type forecast struct {
+type Forecast struct {
 	Context  []interface{} `json:"@context"`
 	Type     string        `json:"type"`
 	Geometry struct {
@@ -56,13 +56,13 @@ type forecast struct {
 		UpdateTime        time.Time `json:"updateTime"`
 		// formatted as => 2020-10-17T15:00:00+00:00/P7DT10H
 		ValidTimes string     `json:"validTimes"`
-		Elevation  *elevation `json:"elevation"`
-		Periods    []*period  `json:"periods"`
+		Elevation  *Elevation `json:"elevation"`
+		Periods    []*Period  `json:"periods"`
 	} `json:"properties"`
 }
 
-// WxForecasts .
-func (f *forecast) WxForecasts() (*wx.Forecast, error) {
+// Forecast .
+func (f *Forecast) Forecast() (*wx.Forecast, error) {
 	fcst := &wx.Forecast{
 		Longitude: f.Geometry.Coordinates[0][0][0],
 		Latitude:  f.Geometry.Coordinates[0][0][1],

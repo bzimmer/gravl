@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-
-	"github.com/bzimmer/gravl/pkg/common/wx"
 )
 
 // ForecastService .
@@ -80,7 +78,7 @@ func WithUnits(units string) ForecastOption {
 }
 
 // Forecast .
-func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) (*wx.Forecast, error) {
+func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) (*Forecast, error) {
 	values, err := makeValues(opts)
 	if err != nil {
 		return nil, err
@@ -89,12 +87,12 @@ func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) 
 	if err != nil {
 		return nil, err
 	}
-	fct := &forecast{}
+	fct := &Forecast{}
 	err = s.client.Do(req, fct)
 	if err != nil {
 		return nil, err
 	}
-	return fct.WxForecast()
+	return fct, nil
 }
 
 func makeValues(options []ForecastOption) (*url.Values, error) {

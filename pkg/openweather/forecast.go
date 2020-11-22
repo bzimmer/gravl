@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-
-	"github.com/bzimmer/gravl/pkg/common/wx"
 )
 
 // ForecastService .
@@ -24,9 +22,8 @@ func WithLocation(longitude, latitude float64) ForecastOption {
 	}
 }
 
-// Forecast for current weather, minute forecast for 1 hour, hourly forecast for 48 hours,
-//  daily forecast for 7 days and government weather alerts
-func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) (*wx.Forecast, error) {
+// Forecast returns a forecast
+func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) (*Forecast, error) {
 	values, err := makeValues(opts)
 	if err != nil {
 		return nil, err
@@ -40,7 +37,7 @@ func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) 
 	if err != nil {
 		return nil, err
 	}
-	return fct.WxForecast()
+	return fct, nil
 }
 
 func makeValues(options []ForecastOption) (*url.Values, error) {

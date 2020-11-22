@@ -1,65 +1,54 @@
-package visualcrossing
+package visualcrossing_test
 
 import (
-	"encoding/json"
-	"net/url"
-	"os"
+	"context"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
 )
 
-func Test_MakeValues(t *testing.T) {
+func Test_ForecastSuccess(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	v, err := makeValues([]ForecastOption{
-		WithAstronomy(true),
-		WithUnits(UnitsUK),
-		WithAggregateHours(12),
-		WithLocation("48.9201,-122.092"),
-		WithAlerts(AlertLevelDetail),
-	})
+	c, err := newClient(http.StatusOK, "forecast.json")
 	a.NoError(err)
-	a.NotNil(v)
-	q := v.Encode()
-	a.Equal("aggregateHours=12&alertLevel=detail&includeAstronomy=true&locations=48.9201%2C-122.092&unitGroup=uk", q)
+	a.NotNil(c)
 
-	// test re-using options
-	v, err = makeValues([]ForecastOption{
-		WithUnits(UnitsUS),
-		WithUnits(UnitsUK),
-		WithUnits(UnitsMetric),
-	})
-	q = v.Encode()
+	ctx := context.Background()
+	fcst, err := c.Forecast.Forecast(ctx)
 	a.NoError(err)
-	a.Equal("unitGroup=metric", q)
-
-	v = &url.Values{}
-	a.Error(WithUnits("foo")(v))
-	a.Error(WithAlerts("bar")(v))
-	a.Error(WithAggregateHours(-1000)(v))
-}
-
-func Test_Model(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-
-	reader, err := os.Open("testdata/forecast.json")
-	a.NoError(err)
-	a.NotNil(reader)
-
-	var fcst forecast
-	err = json.NewDecoder(reader).Decode(&fcst)
-	a.NoError(err)
-
-	a.Equal(1, fcst.QueryCost)
-	a.Equal(1, len(fcst.Locations))
+	a.NotNil(fcst)
 
 	loc := fcst.Locations[0]
-	fc := loc.ForecastConditions
-	a.Equal(16, len(fc))
+	a.Equal(16, len(loc.ForecastConditions))
 
-	cond := fc[len(fc)-1]
+	conditions := loc.ForecastConditions
+	cond := conditions[len(conditions)-1]
 	a.Equal(32.1, cond.WindChill)
+
+	f, err := fcst.Forecast()
+	a.NoError(err)
+	a.NotNil(f)
+}
+
+func Test_ForecastError(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	c, err := newClient(http.StatusOK, "error.json")
+	a.NoError(err)
+	a.NotNil(c)
+
+	ctx := context.Background()
+	fcst, err := c.Forecast.Forecast(ctx)
+	a.Error(err)
+	a.Nil(fcst)
+
+	fault := err.(*vc.Fault)
+	a.Equal(106, fault.ErrorCode)
+	a.Equal("No session found with id 'null'. The session may have expired", fault.Error())
 }

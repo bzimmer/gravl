@@ -124,6 +124,7 @@ func commands() []*cli.Command {
 	return []*cli.Command{
 		gnisCommand,
 		noaaCommand,
+		openweatherCommand,
 		rwgpsCommand,
 		serveCommand,
 		stravaCommand,

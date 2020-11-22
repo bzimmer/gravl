@@ -26,7 +26,7 @@ var noaaCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		var fcst *wx.Forecast
+		var fcst wx.Forecastable
 		args := c.Args().Slice()
 		switch len(args) {
 		case 0:
@@ -43,11 +43,11 @@ var noaaCommand = &cli.Command{
 				return e
 			}
 		case 2:
-			lat, e := strconv.ParseFloat(args[0], 64)
+			lng, e := strconv.ParseFloat(args[0], 64)
 			if e != nil {
 				return e
 			}
-			lng, e := strconv.ParseFloat(args[1], 64)
+			lat, e := strconv.ParseFloat(args[1], 64)
 			if e != nil {
 				return e
 			}
@@ -72,8 +72,11 @@ var noaaCommand = &cli.Command{
 		default:
 			return fmt.Errorf("only 2 or 3 arguments allowed [%v]", args)
 		}
-		err = encoder.Encode(fcst)
+		f, err := fcst.Forecast()
 		if err != nil {
+			return err
+		}
+		if err = encoder.Encode(f); err != nil {
 			return err
 		}
 		return nil
