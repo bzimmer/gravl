@@ -26,15 +26,15 @@ func Test_Trip(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(trk)
 	a.Equal(94, trk.ID)
-	a.Equal(rwgps.TripOrigin, trk.Origin)
+	a.Equal(rwgps.OriginTrip, trk.Origin)
 	a.Equal(1465, len(trk.TrackPoints))
-	a.Equal("TripOrigin", trk.Origin.String())
+	a.Equal("OriginTrip", trk.Origin.String())
 
 	ttt, err := trk.Track()
 	a.NoError(err)
 	a.NotNil(ttt)
 	a.Equal(1465, len(ttt.Coordinates))
-	a.Equal("Activity", ttt.Origin.String())
+	a.Equal("OriginActivity", ttt.Origin.String())
 
 	trk, err = c.Trips.Trip(contextNil(), 94)
 	a.Error(err)
@@ -55,7 +55,7 @@ func Test_Route(t *testing.T) {
 	a.NotNil(rte)
 	a.Equal(1154, len(rte.TrackPoints))
 	a.Equal(141014, rte.ID)
-	a.Equal(rwgps.RouteOrigin, rte.Origin)
+	a.Equal(rwgps.OriginRoute, rte.Origin)
 
 	trk, err := rte.Track()
 	a.NoError(err)

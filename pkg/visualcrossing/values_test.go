@@ -16,7 +16,7 @@ func Test_MakeValues(t *testing.T) {
 		WithUnits(UnitsUK),
 		WithAggregateHours(12),
 		WithLocation("48.9201,-122.092"),
-		WithAlerts(AlertLevelDetail),
+		WithAlertLevel(AlertLevelDetail),
 	})
 	a.NoError(err)
 	a.NotNil(v)
@@ -34,7 +34,5 @@ func Test_MakeValues(t *testing.T) {
 	a.Equal("unitGroup=metric", q)
 
 	v = &url.Values{}
-	a.Error(WithUnits("foo")(v))
-	a.Error(WithAlerts("bar")(v))
 	a.Error(WithAggregateHours(-1000)(v))
 }

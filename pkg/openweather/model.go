@@ -1,9 +1,24 @@
 package openweather
 
+//go:generate stringer -type=Units -output=model_string.go
+
 import (
 	"errors"
 
 	"github.com/bzimmer/gravl/pkg/common/wx"
+)
+
+// Units of measure
+//  https://openweathermap.org/api/one-call-api#data
+type Units int
+
+const (
+	// UnitsMetric fo temperature in Celsius and wind speed in meter/sec
+	UnitsMetric Units = iota
+	// UnitsImperial for temperature in Fahrenheit and wind speed in miles/hour
+	UnitsImperial
+	// UnitsStandard for temperature in Kelvin and wind speed in meter/sec
+	UnitsStandard
 )
 
 // Fault .
@@ -24,58 +39,58 @@ type Weather struct {
 }
 
 type Temperature struct {
-	Day   float64 `json:"day"`
-	Min   float64 `json:"min"`
-	Max   float64 `json:"max"`
-	Night float64 `json:"night"`
-	Eve   float64 `json:"eve"`
-	Morn  float64 `json:"morn"`
+	Day     float64 `json:"day"`
+	Min     float64 `json:"min"`
+	Max     float64 `json:"max"`
+	Night   float64 `json:"night"`
+	Evening float64 `json:"eve"`
+	Morning float64 `json:"morn"`
 }
 
 type FeelsLike struct {
-	Day   float64 `json:"day"`
-	Night float64 `json:"night"`
-	Eve   float64 `json:"eve"`
-	Morn  float64 `json:"morn"`
+	Day     float64 `json:"day"`
+	Night   float64 `json:"night"`
+	Evening float64 `json:"eve"`
+	Morning float64 `json:"morn"`
 }
 
 type Current struct {
-	Datetime   int        `json:"dt"`
-	Sunrise    int        `json:"sunrise"`
-	Sunset     int        `json:"sunset"`
-	Temp       float64    `json:"temp"`
-	FeelsLike  float64    `json:"feels_like"`
-	Pressure   int        `json:"pressure"`
-	Humidity   int        `json:"humidity"`
-	DewPoint   float64    `json:"dew_point"`
-	UVI        float64    `json:"uvi"`
-	Clouds     int        `json:"clouds"`
-	Visibility int        `json:"visibility"`
-	WindSpeed  float64    `json:"wind_speed"`
-	WindDeg    int        `json:"wind_deg"`
-	WindGust   float64    `json:"wind_gust"`
-	Weather    []*Weather `json:"weather"`
+	Datetime    int        `json:"dt"`
+	Sunrise     int        `json:"sunrise"`
+	Sunset      int        `json:"sunset"`
+	Temperature float64    `json:"temp"`
+	FeelsLike   float64    `json:"feels_like"`
+	Pressure    float64    `json:"pressure"`
+	Humidity    float64    `json:"humidity"`
+	DewPoint    float64    `json:"dew_point"`
+	UVI         float64    `json:"uvi"`
+	Clouds      float64    `json:"clouds"`
+	Visibility  float64    `json:"visibility"`
+	WindSpeed   float64    `json:"wind_speed"`
+	WindDeg     float64    `json:"wind_deg"`
+	WindGust    float64    `json:"wind_gust"`
+	Weather     []*Weather `json:"weather"`
 }
 
 type Minutely struct {
-	Datetime      int `json:"dt"`
-	Precipitation int `json:"precipitation"`
+	Datetime      int     `json:"dt"`
+	Precipitation float64 `json:"precipitation"`
 }
 
 type Hourly struct {
-	Datetime   int        `json:"dt"`
-	Temp       float64    `json:"temp"`
-	FeelsLike  float64    `json:"feels_like"`
-	Pressure   int        `json:"pressure"`
-	Humidity   int        `json:"humidity"`
-	DewPoint   float64    `json:"dew_point"`
-	Clouds     int        `json:"clouds"`
-	Visibility int        `json:"visibility"`
-	WindSpeed  float64    `json:"wind_speed"`
-	WindDeg    int        `json:"wind_deg"`
-	Weather    []*Weather `json:"weather"`
-	Pop        float64    `json:"pop"`
-	Rain       *Rain      `json:"rain,omitempty"`
+	Datetime          int        `json:"dt"`
+	Temperature       float64    `json:"temp"`
+	FeelsLike         float64    `json:"feels_like"`
+	Pressure          float64    `json:"pressure"`
+	Humidity          float64    `json:"humidity"`
+	DewPoint          float64    `json:"dew_point"`
+	Clouds            float64    `json:"clouds"`
+	Visibility        float64    `json:"visibility"`
+	WindSpeed         float64    `json:"wind_speed"`
+	WindDegree        float64    `json:"wind_deg"`
+	Weather           []*Weather `json:"weather"`
+	PrecipProbability float64    `json:"pop"`
+	Rain              *Rain      `json:"rain,omitempty"`
 }
 
 type Rain struct {
@@ -83,21 +98,21 @@ type Rain struct {
 }
 
 type Daily struct {
-	Datetime    int         `json:"dt"`
-	Sunrise     int         `json:"sunrise"`
-	Sunset      int         `json:"sunset"`
-	Temperature Temperature `json:"temp"`
-	FeelsLike   FeelsLike   `json:"feels_like"`
-	Pressure    int         `json:"pressure"`
-	Humidity    int         `json:"humidity"`
-	DewPoint    float64     `json:"dew_point"`
-	WindSpeed   float64     `json:"wind_speed"`
-	WindDegree  int         `json:"wind_deg"`
-	Weather     []*Weather  `json:"weather"`
-	Clouds      int         `json:"clouds"`
-	Pop         float64     `json:"pop"`
-	Rain        float64     `json:"rain,omitempty"`
-	UVI         float64     `json:"uvi"`
+	Datetime          int         `json:"dt"`
+	Sunrise           int         `json:"sunrise"`
+	Sunset            int         `json:"sunset"`
+	Temperature       Temperature `json:"temp"`
+	FeelsLike         FeelsLike   `json:"feels_like"`
+	Pressure          float64     `json:"pressure"`
+	Humidity          float64     `json:"humidity"`
+	DewPoint          float64     `json:"dew_point"`
+	WindSpeed         float64     `json:"wind_speed"`
+	WindDegree        float64     `json:"wind_deg"`
+	Weather           []*Weather  `json:"weather"`
+	Clouds            float64     `json:"clouds"`
+	PrecipProbability float64     `json:"pop"`
+	Rain              float64     `json:"rain,omitempty"`
+	UVI               float64     `json:"uvi"`
 }
 
 type Forecast struct {

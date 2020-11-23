@@ -87,6 +87,7 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	values.Set("key", c.apiKey)
 	values.Set("contentType", "json")
 	values.Set("locationMode", "array")
+	values.Set("shortColumnNames", "false")
 
 	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, values.Encode()))
 	if err != nil {

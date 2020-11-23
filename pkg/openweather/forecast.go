@@ -14,10 +14,29 @@ type ForecastService service
 type ForecastOption func(*url.Values) error
 
 // WithLocation .
-func WithLocation(longitude, latitude float64) ForecastOption {
+func WithCoordinates(longitude, latitude float64) ForecastOption {
 	return func(v *url.Values) error {
-		v.Set("lat", fmt.Sprintf("%f", latitude))
-		v.Set("lon", fmt.Sprintf("%f", longitude))
+		v.Set("lat", fmt.Sprintf("%0.4f", latitude))
+		v.Set("lon", fmt.Sprintf("%0.4f", longitude))
+		return nil
+	}
+}
+
+// WithUnits sets the unit family to use
+func WithUnits(units Units) ForecastOption {
+	return func(v *url.Values) error {
+		var s string
+		switch units {
+		case UnitsImperial:
+			s = "imperial"
+		case UnitsMetric:
+			s = "metric"
+		case UnitsStandard:
+			s = "standard"
+		default:
+			return fmt.Errorf("unknown units {%s}", units)
+		}
+		v.Set("units", s)
 		return nil
 	}
 }

@@ -1,5 +1,7 @@
 package visualcrossing
 
+//go:generate stringer -type=Units,AlertLevel -output model_string.go
+
 import (
 	"time"
 
@@ -8,22 +10,30 @@ import (
 
 // https://www.visualcrossing.com/resources/documentation/weather-api/weather-api-json-result-structure/
 
-const (
-	// AlertLevelNone .
-	AlertLevelNone = "none"
-	// AlertLevelSummary .
-	AlertLevelSummary = "summary"
-	// AlertLevelDetail .
-	AlertLevelDetail = "detail"
+// Units of measure
+//  https://www.visualcrossing.com/resources/documentation/weather-api/unit-groups-and-measurement-units/
+type Units int
 
-	// UnitsUS .
-	UnitsUS = "us"
-	// UnitsUK .
-	UnitsUK = "uk"
-	// UnitsSI .
-	UnitsSI = "base"
-	// UnitsMetric .
-	UnitsMetric = "metric"
+// AlertLevel of alerts, warnings and other high priority information issued by local weather organizations
+//  https://www.visualcrossing.com/resources/documentation/weather-data/weather-alerts/
+type AlertLevel int
+
+const (
+	// UnitsUS for temperature in Fahrenheit and wind speed in miles/hour
+	UnitsUS Units = iota
+	// UnitsUK for temperature in Celsius and wind speed in miles/hour
+	UnitsUK
+	// UnitsStandard for temperature in Kelvin and wind speed in meter/sec
+	UnitsStandard
+	// UnitsMetric fo temperature in Celsius and wind speed in km/hour
+	UnitsMetric
+
+	// None does not retrieve alert information (equivalent of omitting the parameter)
+	AlertLevelNone AlertLevel = iota
+	// Summary does not retrieve the detail field text of the alert
+	AlertLevelSummary
+	// Detail returns a full description of the alert including the detail
+	AlertLevelDetail
 )
 
 // Fault .

@@ -38,17 +38,29 @@ func WithLocation(location string) ForecastOption {
 	}
 }
 
-// WithAlerts .
-func WithAlerts(level string) ForecastOption {
+// WithCoordinates .
+func WithCoordinates(lat, lng float64) ForecastOption {
 	return func(v *url.Values) error {
+		v.Set("locations", fmt.Sprintf("%f,%f", lat, lng))
+		return nil
+	}
+}
+
+// WithAlertLevel .
+func WithAlertLevel(level AlertLevel) ForecastOption {
+	return func(v *url.Values) error {
+		var s string
 		switch level {
 		case AlertLevelNone:
+			s = "none"
 		case AlertLevelSummary:
+			s = "summary"
 		case AlertLevelDetail:
+			s = "detail"
 		default:
 			return fmt.Errorf("unknown alert level {%s}", level)
 		}
-		v.Set("alertLevel", level)
+		v.Set("alertLevel", s)
 		return nil
 	}
 }
@@ -61,18 +73,23 @@ func WithAstronomy(astro bool) ForecastOption {
 	}
 }
 
-// WithUnits .
-func WithUnits(units string) ForecastOption {
+// WithUnits sets the unit family to use
+func WithUnits(units Units) ForecastOption {
 	return func(v *url.Values) error {
+		var s string
 		switch units {
 		case UnitsUS:
+			s = "us"
 		case UnitsUK:
+			s = "uk"
 		case UnitsMetric:
-		case UnitsSI:
+			s = "metric"
+		case UnitsStandard:
+			s = "standard"
 		default:
 			return fmt.Errorf("unknown units {%s}", units)
 		}
-		v.Set("unitGroup", units)
+		v.Set("unitGroup", s)
 		return nil
 	}
 }

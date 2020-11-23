@@ -26,7 +26,7 @@ func Test_Route(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(trk)
 	a.Equal(2076, len(trk.Coordinates))
-	a.Equal(geo.Planned, trk.Origin)
+	a.Equal(geo.OriginPlanned, trk.Origin)
 }
 
 func Test_Routes(t *testing.T) {

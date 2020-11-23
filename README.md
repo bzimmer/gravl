@@ -8,6 +8,7 @@
 ### Forecasts
 * [NOAA](pkg/noaa/README.md)
 * [VisualCrossing](pkg/visualcrossing/README.md)
+* [OpenWeather API](https://openweathermap.org/api)
 
 ### Reports
 * [WTA](pkg/wta/README.md)
@@ -16,4 +17,4 @@
 * [static map creation](https://github.com/flopp/go-staticmaps)
 * [SRTM](https://github.com/sakisds/go-srtm)
 * [charts](https://github.com/marianogappa/chart)
-* [OpenWeather API](https://openweathermap.org/api)
+* [ClimaCell](https://developer.climacell.co/)

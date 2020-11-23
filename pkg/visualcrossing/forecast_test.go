@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bzimmer/gravl/pkg/visualcrossing"
 	"github.com/stretchr/testify/assert"
-
-	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
 )
 
 func Test_ForecastSuccess(t *testing.T) {
@@ -48,7 +47,7 @@ func Test_ForecastError(t *testing.T) {
 	a.Error(err)
 	a.Nil(fcst)
 
-	fault := err.(*vc.Fault)
+	fault := err.(*visualcrossing.Fault)
 	a.Equal(106, fault.ErrorCode)
 	a.Equal("No session found with id 'null'. The session may have expired", fault.Error())
 }

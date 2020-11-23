@@ -357,7 +357,7 @@ func (a *Activity) Track() (*geo.Track, error) {
 		Name:        a.Name,
 		Description: a.Description,
 		Source:      baseURL,
-		Origin:      geo.Activity,
+		Origin:      geo.OriginActivity,
 		Coordinates: coords,
 	}
 	return rte, nil
@@ -373,7 +373,7 @@ func (s *Streams) Track() (*geo.Track, error) {
 	rte := &geo.Track{
 		ID:          fmt.Sprintf("%d", s.ID),
 		Source:      baseURL,
-		Origin:      geo.Activity,
+		Origin:      geo.OriginActivity,
 		Coordinates: make([][]float64, len(latlng.Data)),
 	}
 
@@ -400,7 +400,7 @@ func (r *Route) Track() (*geo.Track, error) {
 		Name:        r.Name,
 		Description: r.Description,
 		Source:      baseURL,
-		Origin:      geo.Planned,
+		Origin:      geo.OriginPlanned,
 		Coordinates: coords,
 	}
 	return rte, nil

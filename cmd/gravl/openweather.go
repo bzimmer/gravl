@@ -30,8 +30,7 @@ var openweatherCommand = &cli.Command{
 	Action: func(c *cli.Context) error {
 		client, err := openweather.NewClient(
 			openweather.WithAPIKey(c.String("ow.api-key")),
-			openweather.WithHTTPTracing(c.Bool("http-tracing")),
-		)
+			openweather.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {
 			return err
 		}
@@ -46,7 +45,9 @@ var openweatherCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		fcst, err := client.Forecast.Forecast(ctx, openweather.WithLocation(lng, lat))
+		fcst, err := client.Forecast.Forecast(ctx,
+			openweather.WithCoordinates(lng, lat),
+			openweather.WithUnits(openweather.UnitsMetric))
 		if err != nil {
 			return err
 		}

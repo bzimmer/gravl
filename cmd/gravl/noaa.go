@@ -76,9 +76,6 @@ var noaaCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		if err = encoder.Encode(f); err != nil {
-			return err
-		}
-		return nil
+		return encoder.Encode(f)
 	},
 }

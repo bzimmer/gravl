@@ -97,14 +97,19 @@ tasks:
     cmds:
       - go mod download
 
+  tidy:
+    desc: Clean up dependencies
+    cmds:
+      - go mod tidy
+
   install-tools:
     # https://marcofranssen.nl/manage-go-tools-via-go-modules/
-    desc: Install build tools
+    desc: Install build tools for {{.APP}}
     deps: [download]
     vars:
       TOOLS:
         # the braces need to be escaped or they are interpreted by Taskfile
-        sh: go list -f "{{"{{"}}range .Imports{{"}}"}}{{"{{"}}.{{"}}"}} {{"{{"}}end{{"}}"}}" tools.go
+        sh: go list -f '{{"{{range .Imports}}{{.}} {{end}}"}}' tools.go
     cmds:
-      - echo {{.TOOLS}} | xargs go install
-      - go mod tidy
+      - go install {{.TOOLS}}
+      - task: tidy

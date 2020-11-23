@@ -1,6 +1,6 @@
 package geo
 
-//go:generate stringer -type=Origin
+//go:generate stringer -type=Origin -output=model_string.go
 
 import "encoding/json"
 
@@ -14,12 +14,12 @@ type Source string
 type Origin int
 
 const (
-	// Activity is a route originated from a gps track
-	Activity Origin = iota
-	// Planned is a route originated from creating a route with a route builder
-	Planned
-	// Unknown origin
-	Unknown
+	// OriginActivity is a route originated from a gps track
+	OriginActivity Origin = iota
+	// OriginPlanned is a route originated from creating a route with a route builder
+	OriginPlanned
+	// OriginUnknown origin
+	OriginUnknown
 )
 
 // Track represents a series of one or more points
@@ -55,7 +55,7 @@ func (r *Track) MarshalJSON() ([]byte, error) {
 		Properties: map[string]interface{}{
 			"name":        r.Name,
 			"source":      r.Source,
-			"origin":      r.Origin.String(),
+			"origin":      r.Origin,
 			"description": r.Description,
 		},
 	})

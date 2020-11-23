@@ -1,6 +1,6 @@
 package rwgps
 
-//go:generate stringer -type=Origin
+//go:generate stringer -type=Origin -output=model_string.go
 
 import (
 	"fmt"
@@ -13,10 +13,10 @@ import (
 type Origin int
 
 const (
-	// TripOrigin is a ride which was recorded by GPS
-	TripOrigin Origin = iota
-	// RouteOrigin is a ride which was planned on the RWGPS route builder
-	RouteOrigin
+	// OriginTrip is a ride which was recorded by GPS
+	OriginTrip Origin = iota
+	// OriginRoute is a ride which was planned on the RWGPS route builder
+	OriginRoute
 )
 
 // UserResponse .
@@ -73,10 +73,10 @@ func (t *Trip) Track() (*geo.Track, error) {
 
 	var q geo.Origin
 	switch t.Origin {
-	case TripOrigin:
-		q = geo.Activity
-	case RouteOrigin:
-		q = geo.Planned
+	case OriginTrip:
+		q = geo.OriginActivity
+	case OriginRoute:
+		q = geo.OriginPlanned
 	}
 
 	return &geo.Track{

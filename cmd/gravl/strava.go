@@ -123,11 +123,9 @@ var stravaCommand = &cli.Command{
 				activityID, err := strconv.ParseInt(args.Get(i), 0, 64)
 				if c.Bool("route") {
 					tck, err = client.Route.Route(ctx, activityID)
-				}
-				if c.Bool("activity") {
+				} else if c.Bool("activity") {
 					tck, err = client.Activity.Activity(ctx, activityID)
-				}
-				if c.Bool("stream") {
+				} else if c.Bool("stream") {
 					tck, err = client.Activity.Streams(ctx, activityID, "latlng", "altitude")
 				}
 				if err != nil {
@@ -150,11 +148,7 @@ var stravaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			err = encoder.Encode(ath)
-			if err != nil {
-				return err
-			}
-			return nil
+			return encoder.Encode(ath)
 		}
 		if c.Bool("refresh") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -163,11 +157,7 @@ var stravaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			err = encoder.Encode(tokens)
-			if err != nil {
-				return err
-			}
-			return nil
+			return encoder.Encode(tokens)
 		}
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))

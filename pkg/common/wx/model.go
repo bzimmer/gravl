@@ -1,6 +1,6 @@
 package wx
 
-//go:generate stringer -type=Units
+//go:generate stringer -type=Units -output=model_string.go
 //go:generate go run genbearing.go
 
 import (
@@ -12,12 +12,12 @@ import (
 type Units int
 
 const (
-	// METRIC .
-	METRIC Units = iota
-	// US .
-	US
-	// UK .
-	UK
+	// UnitsMetric .
+	UnitsMetric Units = iota
+	// UnitsUS .
+	UnitsUS
+	// UnitsUK .
+	UnitsUK
 )
 
 // Conditions .
