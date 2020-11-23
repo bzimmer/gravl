@@ -98,8 +98,15 @@ func TripReportsHandler(client *Client) gin.HandlerFunc {
 }
 
 // RegionsHandler .
-func RegionsHandler() gin.HandlerFunc {
+func RegionsHandler(client *Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, Regions)
+		regions, err := client.Regions.Regions(context.Background())
+		if err != nil {
+			c.Abort()
+			_ = c.Error(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"status": "failed"})
+			return
+		}
+		c.IndentedJSON(http.StatusOK, regions)
 	}
 }

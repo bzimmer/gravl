@@ -6,7 +6,7 @@ import "time"
 type Region struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
-	Subregions *[]Region `json:"subregions,omitempty"`
+	SubRegions []*Region `json:"subregions,omitempty"`
 }
 
 // TripReport .

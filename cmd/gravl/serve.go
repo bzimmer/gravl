@@ -34,7 +34,7 @@ func newRouter(client *wta.Client) *gin.Engine {
 	r.GET("/version/", common.VersionHandler())
 
 	p := r.Group("/wta")
-	p.GET("/regions/", wta.RegionsHandler())
+	p.GET("/regions/", wta.RegionsHandler(client))
 	p.GET("/reports/", wta.TripReportsHandler(client))
 	p.GET("/reports/:reporter", wta.TripReportsHandler(client))
 

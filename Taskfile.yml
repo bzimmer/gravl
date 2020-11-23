@@ -31,7 +31,7 @@ tasks:
 
   build:
     desc: Build the application
-    deps: [generate]
+    deps: []
     sources:
       - '**/*.go'
     cmds:
@@ -65,7 +65,7 @@ tasks:
 
   test:
     desc: Run all tests
-    deps: [generate]
+    deps: []
     cmds:
       - mkdir -p {{.DIST}}
       - go test -covermode count -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}

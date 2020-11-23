@@ -49,7 +49,8 @@ func LogMiddleware() gin.HandlerFunc {
 func VersionHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, map[string]string{
-			"build_version": pkg.BuildVersion,
+			"build_version":   pkg.BuildVersion,
+			"build_timestamp": pkg.BuildTime,
 		})
 	}
 }

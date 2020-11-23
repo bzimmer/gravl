@@ -28,7 +28,7 @@ func newClient(status int, filename string) (*wta.Client, error) {
 func newTestRouter(c *wta.Client) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.GET("/regions/", wta.RegionsHandler())
+	r.GET("/regions/", wta.RegionsHandler(c))
 	r.GET("/reports/", wta.TripReportsHandler(c))
 	r.GET("/reports/:reporter", wta.TripReportsHandler(c))
 	return r
