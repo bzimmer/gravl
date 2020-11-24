@@ -2,7 +2,7 @@
 
 package wta
 
-// regions of WTA trip reports
+// The list of regions on which WTA trips are reported
 var regions = []*Region{
 	&Region{ID: "b4845d8a21ad6a202944425c86b6e85f", Name: "Central Cascades",
 		SubRegions: []*Region{
@@ -27,7 +27,7 @@ var regions = []*Region{
 			&Region{ID: "fe742c316d095b81d23d712efa977d3d", Name: "Okanogan Highlands/Kettle River Range"},
 			&Region{ID: "3eff611193d7d4b57590df1f40b48800", Name: "Palouse and Blue Mountains"},
 			&Region{ID: "d305615b5db417f18661c5233d2ce950", Name: "Selkirk Range"},
-			&Region{ID: "bec6f9858a88f32a0912ed21d9c63b51", Name: "Spokane Area/Coeur d'Alene"},
+			&Region{ID: "bec6f9858a88f32a0912ed21d9c63b51", Name: "Spokane Area/Coeur d&#39;Alene"},
 		},
 	},
 	&Region{ID: "592fcc9afd9208db3b81fdf93dada567", Name: "Issaquah Alps",
