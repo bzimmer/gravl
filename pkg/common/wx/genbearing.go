@@ -6,12 +6,12 @@ import (
 	"bytes"
 	"encoding/csv"
 	"go/format"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/rs/zerolog/log"
 )
@@ -32,6 +32,26 @@ const (
 			{{- end}}
 			default:
 				return 0.0, fmt.Errorf("unknown bearing: %s", bearing)
+		}
+	}
+
+	func between(bearing, lower, upper float64) bool {
+		if lower > upper {
+			// this is the case for North which straddles 360°
+			return (bearing >= lower && bearing <= 360.0) || (bearing >= 0.0 && bearing < upper)
+		}
+		return bearing >= lower && bearing < upper
+	}
+
+	// CompassPoint converts a wind bearing to the text compass point name
+	func CompassPoint(bearing float64) (string, error) { // nolint:gocyclo
+		switch {
+			{{- range .}}
+			case between(bearing, {{index .Bounds 0}}, {{index .Bounds 2}}):
+				return "{{.Abbreviation}}", nil
+			{{- end}}
+			default:
+				return "", fmt.Errorf("unknown bearing: %0.3f", bearing)
 		}
 	}`
 

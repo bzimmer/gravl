@@ -6,13 +6,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"go/format"
-	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
 	"sort"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/bzimmer/httpwares"
@@ -77,7 +77,7 @@ func (r *RegionScraper) SubRegion(e *colly.HTMLElement) {
 }
 
 func (r *RegionScraper) ToSource() ([]byte, error) {
-	sort.SliceStable(r.Regions, func(i, j int) bool {
+	sort.Slice(r.Regions, func(i, j int) bool {
 		return r.Regions[i].Name < r.Regions[j].Name
 	})
 	regions := make([]Region, 0)
@@ -89,7 +89,7 @@ func (r *RegionScraper) ToSource() ([]byte, error) {
 				region.SubRegions = append(region.SubRegions, r)
 			}
 		}
-		sort.SliceStable(region.SubRegions, func(i, j int) bool {
+		sort.Slice(region.SubRegions, func(i, j int) bool {
 			return region.SubRegions[i].Name < region.SubRegions[j].Name
 		})
 		regions = append(regions, region)
