@@ -103,11 +103,7 @@ func Bearings() ([]*Bearing, error) {
 				b.CompassPoint = row[i]
 			case 2:
 				b.Abbreviation = row[i]
-			case 4:
-				fallthrough
-			case 5:
-				fallthrough
-			case 6:
+			case 4, 5, 6:
 				x, err := strconv.ParseFloat(row[i], 64)
 				if err != nil {
 					log.Fatal().Err(err).Msg("preparing bearings")
