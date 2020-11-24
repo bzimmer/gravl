@@ -58,6 +58,11 @@ tasks:
       - golint {{catLines .GO_PACKAGES}}
       - golangci-lint -v run
 
+  security:
+    desc: Run security checks
+    cmds:
+      - gosec ./...
+
   vet:
     desc: Runs golint
     cmds:
