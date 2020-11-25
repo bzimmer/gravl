@@ -42,8 +42,6 @@ func newClient(status int, filename string) (*rw.Client, error) {
 		}),
 		rw.WithAPIKey("fooKey"),
 		rw.WithAuthToken("barToken"),
-		rw.WithAPIVersion(2),
 		rw.WithHTTPTracing(true),
-		rw.WithAccept("application/json"),
 	)
 }

@@ -25,16 +25,6 @@ func (f *Fault) Error() string {
 	return f.Message
 }
 
-// AuthTokens hold the authentation tokens
-type AuthTokens struct {
-	ExpiresAt    time.Time `json:"expires_at"`
-	RefreshToken string    `json:"refresh_token"`
-	AccessToken  string    `json:"access_token"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	AthleteID    int       `json:"athlete_id"`
-}
-
 // Stream of data from an activity
 // Most streams will be a []float64 except for latlng which is a [][]float64
 type Stream struct {

@@ -2,6 +2,8 @@ package gravl
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -19,6 +21,23 @@ var (
 	encoder *json.Encoder
 	decoder *json.Decoder
 )
+
+func mustRandomString(n int) string {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic(err)
+	}
+	return base64.URLEncoding.EncodeToString(b)
+}
+
+func merge(flags ...[]cli.Flag) []cli.Flag {
+	f := make([]cli.Flag, 0)
+	for _, x := range flags {
+		f = append(f, x...)
+	}
+	return f
+}
 
 func before(befores ...cli.BeforeFunc) cli.BeforeFunc {
 	return func(c *cli.Context) error {
@@ -122,6 +141,7 @@ func flags() ([]cli.Flag, error) {
 
 func commands() []*cli.Command {
 	return []*cli.Command{
+		cyclinganalyticsCommand,
 		gnisCommand,
 		noaaCommand,
 		openweatherCommand,

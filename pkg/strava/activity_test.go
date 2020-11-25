@@ -73,7 +73,7 @@ func TestActivitiesMany(t *testing.T) {
 		strava.WithTransport(&ManyTransport{
 			Filename: "testdata/activity.json",
 		}),
-		strava.WithAPICredentials("fooKey", "barToken"))
+		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}))
 	a.NoError(err)
 
 	// test total, start, and count
@@ -167,7 +167,7 @@ func TestTimeout(t *testing.T) {
 	a := assert.New(t)
 
 	client, err := strava.NewClient(
-		strava.WithAPICredentials("fooKey", "barToken"),
+		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}),
 		strava.WithTransport(&httpwares.SleepingTransport{
 			Duration: time.Millisecond * 30,
 			Transport: &httpwares.TestDataTransport{

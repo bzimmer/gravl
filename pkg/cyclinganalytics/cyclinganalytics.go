@@ -1,4 +1,4 @@
-package openweather
+package cyclinganalytics
 
 import (
 	"context"
@@ -8,21 +8,25 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
+
+	"golang.org/x/oauth2"
 
 	"github.com/bzimmer/httpwares"
 )
 
 const (
-	baseURL   = "http://api.openweathermap.org/data/2.5"
-	userAgent = "(github.com/bzimmer/gravl/pkg/openweather)"
+	baseURL   = "https://www.cyclinganalytics.com/api"
+	userAgent = "(github.com/bzimmer/gravl/pkg/cyclinganalytics)"
 )
 
 // Client .
 type Client struct {
-	apiKey string
+	config oauth2.Config
+	token  oauth2.Token
 	client *http.Client
 
-	Forecast *ForecastService
+	Rides *RidesService
 }
 
 type service struct {
@@ -32,10 +36,21 @@ type service struct {
 // Option .
 type Option func(*Client) error
 
+// Endpoint is CyclingAnalytics's OAuth 2.0 endpoint
+var Endpoint = oauth2.Endpoint{
+	AuthURL:   fmt.Sprintf("%s/auth", baseURL),
+	TokenURL:  fmt.Sprintf("%s/token", baseURL),
+	AuthStyle: oauth2.AuthStyleAutoDetect,
+}
+
 // NewClient .
 func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		client: &http.Client{},
+		token:  oauth2.Token{},
+		config: oauth2.Config{
+			Endpoint: Endpoint,
+		},
 	}
 	// set now, possibly overwritten with options
 	for _, opt := range opts {
@@ -45,15 +60,33 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	c.Forecast = &ForecastService{client: c}
+	c.Rides = &RidesService{client: c}
 
 	return c, nil
 }
 
-// WithAPIKey .
-func WithAPIKey(apiKey string) Option {
+func WithConfig(config oauth2.Config) Option {
 	return func(c *Client) error {
-		c.apiKey = apiKey
+		c.config = config
+		return nil
+	}
+}
+
+// WithTokenCredentials provides the tokens for an authenticated user
+func WithTokenCredentials(accessToken, refreshToken string, expiry time.Time) Option {
+	return func(c *Client) error {
+		c.token.AccessToken = accessToken
+		c.token.RefreshToken = refreshToken
+		c.token.Expiry = expiry
+		return nil
+	}
+}
+
+// WithAPICredentials provides the client api credentials for the application
+func WithClientCredentials(clientID, clientSecret string) Option {
+	return func(c *Client) error {
+		c.config.ClientID = clientID
+		c.config.ClientSecret = clientSecret
 		return nil
 	}
 }
@@ -82,12 +115,14 @@ func WithHTTPTracing(debug bool) Option {
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
-	if c.apiKey == "" {
-		return nil, errors.New("apiKey required")
+	if c.token.AccessToken == "" {
+		return nil, errors.New("accessToken required")
 	}
-	values.Set("appid", c.apiKey)
-	values.Set("mode", "json")
-	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, values.Encode()))
+	params := ""
+	if values != nil {
+		params = values.Encode()
+	}
+	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, params))
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +131,8 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 		return nil, err
 	}
 	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", c.token.AccessToken))
 	return req, nil
 }
 

@@ -1,38 +1,32 @@
 package strava_test
 
-import (
-	"context"
-	"net/http"
-	"testing"
+// type TokenSource struct{}
 
-	au "github.com/markbates/goth/providers/strava"
-	"github.com/stretchr/testify/assert"
+// func (s TokenSource) Token() (*oauth2.Token, error) {
+// 	return nil, nil
+// }
 
-	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/httpwares"
-)
+// type Config struct {
+// 	oauth2.Config
+// }
 
-func Test_Refresh(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
+// func (c *Config) TokenSource(ctx context.Context) oauth2.TokenSource {
+// 	return TokenSource{}
+// }
 
-	provider := au.New("foo", "bar", "", "read")
-	provider.HTTPClient = &http.Client{
-		Transport: &httpwares.TestDataTransport{
-			Status:      http.StatusOK,
-			Filename:    "refresh.json",
-			ContentType: "application/json",
-		},
-	}
-	client, err := newClient(http.StatusOK, "")
-	a.NoError(err)
-	err = strava.WithProvider(provider)(client)
-	a.NoError(err)
+// func Test_Refresh(t *testing.T) {
+// 	t.Parallel()
+// 	a := assert.New(t)
 
-	ctx := context.Background()
-	tokens, err := client.Auth.Refresh(ctx)
-	a.NoError(err, "failed to refresh")
-	a.NotNil(tokens)
-	a.Equal("andthisbetherefreshtoken", tokens.RefreshToken)
-	a.Equal("andthisbetheaccesstoken", tokens.AccessToken)
-}
+// 	client, err := newClient(http.StatusOK, "refresh.json")
+// 	a.NoError(err)
+
+// 	// cfg := Config{}
+// 	// err = strava.WithConfig(cfg)(client)
+// 	// a.NoError(err)
+
+// 	ctx := context.Background()
+// 	tokens, err := client.Auth.Refresh(ctx)
+// 	a.NoError(err, "failed to refresh")
+// 	a.NotNil(tokens)
+// }

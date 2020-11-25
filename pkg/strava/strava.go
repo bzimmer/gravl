@@ -10,9 +10,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/bzimmer/httpwares"
-	"github.com/markbates/goth"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -21,13 +22,9 @@ const (
 
 // Client client
 type Client struct {
-	stravaKey    string
-	stravaSecret string
-	accessToken  string
-	refreshToken string
-
-	provider goth.Provider
-	client   *http.Client
+	config oauth2.Config
+	token  oauth2.Token
+	client *http.Client
 
 	Auth     *AuthService
 	Route    *RouteService
@@ -42,6 +39,13 @@ type service struct {
 
 // Option .
 type Option func(*Client) error
+
+// Endpoint is Strava's OAuth 2.0 endpoint
+var Endpoint = oauth2.Endpoint{
+	AuthURL:   "https://www.strava.com/oauth/authorize",
+	TokenURL:  "https://www.strava.com/oauth/token",
+	AuthStyle: oauth2.AuthStyleAutoDetect,
+}
 
 // WithHTTPTracing .
 func WithHTTPTracing(debug bool) Option {
@@ -66,20 +70,28 @@ func WithTransport(t http.RoundTripper) Option {
 	}
 }
 
-// WithWebhookCredentials provides the Strava credentials
-func WithWebhookCredentials(stravaKey, stravaSecret string) Option {
+func WithConfig(config oauth2.Config) Option {
 	return func(c *Client) error {
-		c.stravaKey = stravaKey
-		c.stravaSecret = stravaSecret
+		c.config = config
 		return nil
 	}
 }
 
-// WithAPICredentials provides the Strava credentials
-func WithAPICredentials(accessToken, refreshToken string) Option {
+// WithTokenCredentials provides the tokens for an authenticated user
+func WithTokenCredentials(accessToken, refreshToken string, expiry time.Time) Option {
 	return func(c *Client) error {
-		c.accessToken = accessToken
-		c.refreshToken = refreshToken
+		c.token.AccessToken = accessToken
+		c.token.RefreshToken = refreshToken
+		c.token.Expiry = expiry
+		return nil
+	}
+}
+
+// WithAPICredentials provides the client api credentials for the application
+func WithClientCredentials(clientID, clientSecret string) Option {
+	return func(c *Client) error {
+		c.config.ClientID = clientID
+		c.config.ClientSecret = clientSecret
 		return nil
 	}
 }
@@ -94,17 +106,15 @@ func WithHTTPClient(client *http.Client) Option {
 	}
 }
 
-// WithProvider .
-func WithProvider(provider goth.Provider) Option {
-	return func(c *Client) error {
-		c.provider = provider
-		return nil
-	}
-}
-
 // NewClient creates new clients
 func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{client: &http.Client{}}
+	c := &Client{
+		client: &http.Client{},
+		token:  oauth2.Token{},
+		config: oauth2.Config{
+			Endpoint: Endpoint,
+		},
+	}
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
@@ -112,7 +122,6 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for talking to Strava
 	c.Auth = &AuthService{client: c}
 	c.Route = &RouteService{client: c}
 	c.Webhook = &WebhookService{client: c}
@@ -123,7 +132,7 @@ func NewClient(opts ...Option) (*Client, error) {
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) { // nolint:unparam
-	if c.accessToken == "" {
+	if c.token.AccessToken == "" {
 		return nil, errors.New("accessToken required")
 	}
 	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
@@ -134,7 +143,7 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", c.accessToken))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", c.token.AccessToken))
 	return req, nil
 }
 
@@ -147,8 +156,8 @@ func (c *Client) newWebhookRequest(ctx context.Context, method, uri string, body
 	var buf io.Reader
 	if body != nil {
 		form := url.Values{}
-		form.Set("client_id", c.stravaKey)
-		form.Set("client_secret", c.stravaSecret)
+		form.Set("client_id", c.config.ClientID)
+		form.Set("client_secret", c.config.ClientSecret)
 		for key, value := range body {
 			form.Set(key, value)
 		}

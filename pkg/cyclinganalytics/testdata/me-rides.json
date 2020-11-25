@@ -1,0 +1,154 @@
+{
+  "rides": [
+    {
+      "format": "fit",
+      "has": {
+        "cadence": true,
+        "elevation": true,
+        "gears": true,
+        "gps": true,
+        "heartrate": true,
+        "power": false,
+        "speed": true,
+        "temperature": true
+      },
+      "id": 175334338355,
+      "local_datetime": "2020-11-01T07:50:10",
+      "metadata": {
+        "manufacturer": "Wahoo Fitness",
+        "sport": "Cycling",
+        "subsport": "Generic"
+      },
+      "notes": "",
+      "purpose": "ride",
+      "subtype": "road",
+      "summary": {
+        "avg_cadence": 82,
+        "avg_heartrate": 138,
+        "avg_power": 0,
+        "avg_speed": 24.478441221043514,
+        "avg_temperature": 7.130809457170215,
+        "climbing": 1256,
+        "decoupling": 0,
+        "distance": 157.036,
+        "duration": 26119,
+        "epower": 0,
+        "intensity": 0.0,
+        "load": 0,
+        "lrbalance": null,
+        "max_cadence": 130,
+        "max_heartrate": 165,
+        "max_power": 0,
+        "max_speed": 59.0,
+        "max_temperature": 29.0,
+        "min_temperature": -2.0,
+        "moving_time": 23095,
+        "pwc150": 0,
+        "pwc170": 0,
+        "pwc_r2": 0,
+        "riding_time": 23095,
+        "total_time": 27154,
+        "trimp": 743,
+        "variability": 0,
+        "work": 0,
+        "zones": {
+          "heartrate": [
+            799,
+            5797,
+            16549,
+            2008,
+            0
+          ],
+          "power": [
+            26119,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "title": "98mi around Snohomish County",
+      "trainer": false,
+      "user_id": 1603533,
+      "utc_datetime": "2020-11-01T15:50:10"
+    },
+    {
+      "format": "fit",
+      "has": {
+        "cadence": true,
+        "elevation": true,
+        "gears": true,
+        "gps": true,
+        "heartrate": true,
+        "power": false,
+        "speed": true,
+        "temperature": true
+      },
+      "id": 842776138945,
+      "local_datetime": "2020-08-25T08:24:04",
+      "metadata": {
+        "manufacturer": "Wahoo Fitness",
+        "sport": "Cycling",
+        "subsport": "Generic"
+      },
+      "notes": "",
+      "purpose": "ride",
+      "subtype": "road",
+      "summary": {
+        "avg_cadence": 76,
+        "avg_heartrate": 132,
+        "avg_power": 0,
+        "avg_speed": 22.094023758198414,
+        "avg_temperature": 16.63519841269841,
+        "climbing": 1962,
+        "decoupling": 0,
+        "distance": 133.81,
+        "duration": 23695,
+        "epower": 0,
+        "intensity": 0.0,
+        "load": 0,
+        "lrbalance": null,
+        "max_cadence": 154,
+        "max_heartrate": 254,
+        "max_power": 0,
+        "max_speed": 54.2,
+        "max_temperature": 29.0,
+        "min_temperature": 0.0,
+        "moving_time": 21803,
+        "pwc150": 0,
+        "pwc170": 0,
+        "pwc_r2": 0,
+        "riding_time": 21803,
+        "total_time": 25200,
+        "trimp": 566,
+        "variability": 0,
+        "work": 0,
+        "zones": {
+          "heartrate": [
+            4148,
+            6595,
+            5723,
+            3477,
+            297
+          ],
+          "power": [
+            23695,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "title": "83mi around Naches",
+      "trainer": false,
+      "user_id": 1603533,
+      "utc_datetime": "2020-08-25T15:24:04"
+    }
+  ]
+}

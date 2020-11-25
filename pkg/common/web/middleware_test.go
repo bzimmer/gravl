@@ -1,4 +1,4 @@
-package common_test
+package web_test
 
 import (
 	"context"
@@ -7,16 +7,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bzimmer/gravl/pkg/common/web"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-
-	cm "github.com/bzimmer/gravl/pkg/common"
 )
 
 func newTestRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.GET("/version/", cm.VersionHandler())
+	r.GET("/version/", gin.WrapF(web.VersionHandler()))
 	return r
 }
 

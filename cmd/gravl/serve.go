@@ -4,43 +4,71 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/gothic"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	"golang.org/x/oauth2"
 
-	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/bzimmer/gravl/pkg/common/web"
+	"github.com/bzimmer/gravl/pkg/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/bzimmer/gravl/pkg/wta"
 )
 
-func newRouter(client *wta.Client) *gin.Engine {
+var index = `
+<html>
+	<head><title>Gravl</title></head>
+	<body>
+		<ul>
+		<li><a href="/strava/auth/login">Auth with Strava</a></li>
+		<li><a href="/cyclinganalytics/auth/login">Auth with Cycling Analytics</a></li>
+		</ul>
+	</body>
+</html>`
+
+func newRouter(c *cli.Context) *gin.Engine {
 	r := gin.New()
-	r.Use(
-		gin.Recovery(),
-		common.LogMiddleware(),
-		sessions.Sessions("session", gothic.Store.(sessions.Store)))
+	r.Use(gin.Recovery(), web.LogMiddleware())
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl.html", nil)
+		c.Data(http.StatusOK, "text/html", []byte(index))
 	})
-	r.LoadHTMLGlob("web/views/templates/*.tmpl.html")
-	r.Static("/static", "web/static")
 
-	r.GET("/version/", common.VersionHandler())
+	r.GET("/version/", gin.WrapF(web.VersionHandler()))
 
-	p := r.Group("/wta")
-	p.GET("/regions/", wta.RegionsHandler(client))
-	p.GET("/reports/", wta.TripReportsHandler(client))
-	p.GET("/reports/:reporter", wta.TripReportsHandler(client))
+	if client, err := wta.NewClient(
+		wta.WithHTTPTracing(c.Bool("http-tracing"))); err == nil {
+		p := r.Group("/wta")
+		p.GET("/regions/", wta.RegionsHandler(client))
+		p.GET("/reports/", wta.TripReportsHandler(client))
+		p.GET("/reports/:reporter", wta.TripReportsHandler(client))
+	} else {
+		log.Error().Err(err).Msg("wta")
+	}
+
+	state := mustRandomString(16)
+	address := fmt.Sprintf("%s:%d", c.String("serve.origin"), c.Int("serve.port"))
+
+	p := r.Group("/cyclinganalytics")
+	config := &oauth2.Config{
+		ClientID:     c.String("cyclinganalytics.client-id"),
+		ClientSecret: c.String("cyclinganalytics.client-secret"),
+		Scopes:       []string{"read_account,read_email,read_athlete,read_rides"},
+		RedirectURL:  fmt.Sprintf("%s/cyclinganalytics/auth/callback", address),
+		Endpoint:     cyclinganalytics.Endpoint}
+	p.GET("/auth/login", gin.WrapF(web.AuthHandler(config, state)))
+	p.GET("/auth/callback", gin.WrapF(web.AuthCallbackHandler(config, state)))
 
 	p = r.Group("/strava")
-	p.GET("/auth/login", strava.AuthHandler())
-	p.GET("/auth/callback", strava.AuthCallbackHandler())
+	config = &oauth2.Config{
+		ClientID:     c.String("strava.client-id"),
+		ClientSecret: c.String("strava.client-secret"),
+		Scopes:       []string{"read_all,profile:read_all,activity:read_all"},
+		RedirectURL:  fmt.Sprintf("%s/strava/auth/callback", address),
+		Endpoint:     strava.Endpoint}
+	p.GET("/auth/login", gin.WrapF(web.AuthHandler(config, state)))
+	p.GET("/auth/callback", gin.WrapF(web.AuthCallbackHandler(config, state)))
 
 	return r
 }
@@ -49,15 +77,7 @@ var serveCommand = &cli.Command{
 	Name:     "serve",
 	Category: "api",
 	Usage:    "REST endpoints",
-	Flags: []cli.Flag{
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "strava.api-key",
-			Usage: "API key for Strava API",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "strava.api-secret",
-			Usage: "API secret for Strava API",
-		}),
+	Flags: merge([]cli.Flag{
 		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  "serve.origin",
 			Value: "http://localhost",
@@ -67,28 +87,12 @@ var serveCommand = &cli.Command{
 			Name:  "serve.port",
 			Value: 8080,
 			Usage: "Port on which to listen",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "serve.session-key",
-			Usage: "Session key",
-		}),
-	},
-	Before: func(c *cli.Context) error {
-		callback := fmt.Sprintf("%s:%d/strava/auth/callback", c.String("serve.origin"), c.Int("serve.port"))
-		log.Info().Str("callback", callback).Msg("preparing to serve")
-		goth.UseProviders(newStravaAuthProvider(c, callback))
-		gothic.Store = cookie.NewStore([]byte(c.String("serve.session-key")))
-		gothic.GetProviderName = func(req *http.Request) (string, error) {
-			return "strava", nil
-		}
-		return nil
-	},
+		})},
+		CyclingAnalyticsAuthFlags,
+		StravaAuthFlags,
+	),
 	Action: func(c *cli.Context) error {
-		client, err := wta.NewClient(wta.WithHTTPTracing(c.Bool("http-tracing")))
-		if err != nil {
-			return err
-		}
-		r := newRouter(client)
+		r := newRouter(c)
 		log.Info().Msg("serving ...")
 		address := fmt.Sprintf("0.0.0.0:%d", c.Int("serve.port"))
 		if err := r.Run(address); err != nil {

@@ -78,7 +78,8 @@ func (s *WebhookService) Unsubscribe(ctx context.Context, subscriptionID int) er
 
 // Subscriptions returns a list of subscriptions
 func (s *WebhookService) Subscriptions(ctx context.Context) (*[]Subscription, error) {
-	uri := fmt.Sprintf("push_subscriptions?client_id=%s&client_secret=%s", s.client.stravaKey, s.client.stravaSecret)
+	uri := fmt.Sprintf("push_subscriptions?client_id=%s&client_secret=%s",
+		s.client.config.ClientID, s.client.config.ClientSecret)
 	req, err := s.client.newWebhookRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err

@@ -13,12 +13,13 @@ import (
 )
 
 var visualcrossingCommand = &cli.Command{
-	Name:     "vc",
+	Name:     "visualcrossing",
+	Aliases:  []string{"vc"},
 	Category: "forecast",
 	Usage:    "Query VisualCrossing for forecasts",
 	Flags: []cli.Flag{
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "vc.api-key",
+			Name:  "visualcrossing.api-key",
 			Usage: "API key for Visual Crossing API",
 		}),
 		&cli.IntFlag{

@@ -2,13 +2,9 @@ package gravl
 
 import (
 	"context"
-	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/bzimmer/httpwares"
-	"github.com/markbates/goth"
-	auth "github.com/markbates/goth/providers/strava"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
@@ -16,100 +12,21 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
-func newStravaAuthProvider(c *cli.Context, callback string) goth.Provider {
-	provider := auth.New(
-		c.String("strava.api-key"), c.String("strava.api-secret"), callback,
-		// appears to be a bug where scope varargs do not work properly
-		"read_all,profile:read_all,activity:read_all")
-	t := http.DefaultTransport
-	if c.Bool("http-tracing") {
-		t = &httpwares.VerboseTransport{
-			Transport: t,
-		}
-	}
-	provider.HTTPClient = &http.Client{
-		Timeout:   10 * time.Second,
-		Transport: t,
-	}
-	return provider
-}
-
 var stravaCommand = &cli.Command{
 	Name:     "strava",
 	Category: "route",
 	Usage:    "Query Strava for rides and routes",
-	Flags: []cli.Flag{
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "strava.api-key",
-			Usage: "API key for Strava API",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "strava.api-secret",
-			Usage: "API secret for Strava API",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "strava.access-token",
-			Usage: "Access token for Strava API",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "strava.refresh-token",
-			Usage: "Refresh token for Strava API",
-		}),
-		&cli.BoolFlag{
-			Name:    "activity",
-			Aliases: []string{"t"},
-			Value:   false,
-			Usage:   "Activity",
-		},
-		&cli.BoolFlag{
-			Name:    "stream",
-			Aliases: []string{"s"},
-			Value:   false,
-			Usage:   "Stream",
-		},
-		&cli.BoolFlag{
-			Name:    "route",
-			Aliases: []string{"r"},
-			Value:   false,
-			Usage:   "Route",
-		},
-		&cli.BoolFlag{
-			Name:    "athlete",
-			Aliases: []string{"a"},
-			Value:   false,
-			Usage:   "Athlete",
-		},
-		&cli.BoolFlag{
-			Name:    "activities",
-			Aliases: []string{"A"},
-			Value:   false,
-			Usage:   "Activities",
-		},
-		&cli.BoolFlag{
-			Name:    "routes",
-			Aliases: []string{"R"},
-			Value:   false,
-			Usage:   "Routes",
-		},
-		&cli.IntFlag{
-			Name:    "count",
-			Aliases: []string{"N"},
-			Value:   10,
-			Usage:   "Count",
-		},
-		&cli.BoolFlag{
-			Name:  "refresh",
-			Value: false,
-			Usage: "Refresh",
-		},
-	},
+	Flags:    StravaFlags,
 	Action: func(c *cli.Context) error {
 		client, err := strava.NewClient(
 			strava.WithHTTPTracing(c.Bool("http-tracing")),
-			strava.WithAPICredentials(
+			strava.WithTokenCredentials(
 				c.String("strava.access-token"),
-				c.String("strava.refresh-token")),
-			strava.WithProvider(newStravaAuthProvider(c, "")))
+				c.String("strava.refresh-token"),
+				time.Now().Add(-10*time.Hour)),
+			strava.WithClientCredentials(
+				c.String("strava.client-id"),
+				c.String("strava.client-secret")))
 		if err != nil {
 			return err
 		}
@@ -196,3 +113,73 @@ var stravaCommand = &cli.Command{
 		return nil
 	},
 }
+
+var StravaAuthFlags = []cli.Flag{
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "strava.client-id",
+		Usage: "API key for Strava API",
+	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "strava.client-secret",
+		Usage: "API secret for Strava API",
+	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "strava.access-token",
+		Usage: "Access token for Strava API",
+	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "strava.refresh-token",
+		Usage: "Refresh token for Strava API",
+	})}
+
+var StravaFlags = merge(
+	StravaAuthFlags,
+	[]cli.Flag{
+		&cli.BoolFlag{
+			Name:    "activity",
+			Aliases: []string{"t"},
+			Value:   false,
+			Usage:   "Activity",
+		},
+		&cli.BoolFlag{
+			Name:    "stream",
+			Aliases: []string{"s"},
+			Value:   false,
+			Usage:   "Stream",
+		},
+		&cli.BoolFlag{
+			Name:    "route",
+			Aliases: []string{"r"},
+			Value:   false,
+			Usage:   "Route",
+		},
+		&cli.BoolFlag{
+			Name:    "athlete",
+			Aliases: []string{"a"},
+			Value:   false,
+			Usage:   "Athlete",
+		},
+		&cli.BoolFlag{
+			Name:    "activities",
+			Aliases: []string{"A"},
+			Value:   false,
+			Usage:   "Activities",
+		},
+		&cli.BoolFlag{
+			Name:    "routes",
+			Aliases: []string{"R"},
+			Value:   false,
+			Usage:   "Routes",
+		},
+		&cli.IntFlag{
+			Name:    "count",
+			Aliases: []string{"N"},
+			Value:   10,
+			Usage:   "Count",
+		},
+		&cli.BoolFlag{
+			Name:  "refresh",
+			Value: false,
+			Usage: "Refresh",
+		},
+	})

@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/bzimmer/gravl/pkg/common/geo"
 	"github.com/bzimmer/gravl/pkg/strava"
@@ -38,7 +39,7 @@ func Test_Routes(t *testing.T) {
 		strava.WithTransport(&ManyTransport{
 			Filename: "testdata/route.json",
 		}),
-		strava.WithAPICredentials("fooKey", "barToken"))
+		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}))
 	a.NoError(err)
 
 	// test total, start, and count

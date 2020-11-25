@@ -30,7 +30,7 @@ func Test_WebhookSubscribe(t *testing.T) {
 		},
 		nil)
 	a.NoError(err)
-	err = strava.WithWebhookCredentials("someID", "someSecret")(client)
+	err = strava.WithClientCredentials("someID", "someSecret")(client)
 	a.NoError(err)
 	ctx := context.Background()
 	msg, err := client.Webhook.Subscribe(ctx, "https://example.com/wh/callback", "verifyToken123")

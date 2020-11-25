@@ -1,4 +1,4 @@
-package common
+package web
 
 import (
 	"net/http"
@@ -7,8 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-
-	"github.com/bzimmer/gravl/pkg"
 )
 
 // LogMiddleware .
@@ -42,15 +40,5 @@ func LogMiddleware() gin.HandlerFunc {
 			Str("referrer", c.Request.Referer()).
 			Str("user_agent", c.Request.Header.Get("User-Agent")).
 			Msg(msg)
-	}
-}
-
-// VersionHandler .
-func VersionHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, map[string]string{
-			"build_version":   pkg.BuildVersion,
-			"build_timestamp": pkg.BuildTime,
-		})
 	}
 }

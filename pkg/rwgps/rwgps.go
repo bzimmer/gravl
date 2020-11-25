@@ -22,7 +22,7 @@ const (
 
 // Client .
 type Client struct {
-	body   map[string]interface{}
+	body   map[string]string
 	header http.Header
 	client *http.Client
 
@@ -42,11 +42,10 @@ func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		client: &http.Client{},
 		header: make(http.Header),
-		body:   make(map[string]interface{}),
+		body: map[string]string{
+			"version": fmt.Sprintf("%d", apiVersion),
+		},
 	}
-	// set now, possibly overwritten with options
-	c.body["version"] = apiVersion
-	// set now, possibly overwritten with options
 	c.header.Set("User-Agent", userAgent)
 	c.header.Set("Accept", "application/json")
 	c.header.Set("Content-type", "application/json")
@@ -80,14 +79,6 @@ func WithAPIKey(apiKey string) Option {
 	}
 }
 
-// WithAPIVersion .
-func WithAPIVersion(version int) Option {
-	return func(c *Client) error {
-		c.body["version"] = fmt.Sprintf("%d", version)
-		return nil
-	}
-}
-
 // WithHTTPTracing .
 func WithHTTPTracing(debug bool) Option {
 	return func(c *Client) error {
@@ -116,16 +107,6 @@ func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
 		if client != nil {
 			c.client = client
-		}
-		return nil
-	}
-}
-
-// WithAccept .
-func WithAccept(accept string) Option {
-	return func(c *Client) error {
-		if accept != "" {
-			c.header.Set("Accept", accept)
 		}
 		return nil
 	}

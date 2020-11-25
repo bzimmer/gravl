@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/bzimmer/httpwares"
@@ -24,7 +25,7 @@ func newClienter(status int, filename string, requester httpwares.Requester, res
 			Requester:   requester,
 			Responder:   responder}),
 		strava.WithHTTPTracing(true),
-		strava.WithAPICredentials("fooKey", "barToken"))
+		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}))
 }
 
 type ManyTransport struct {
