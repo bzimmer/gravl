@@ -75,3 +75,83 @@ func WindBearing(bearing string) (float64, error) { // nolint:gocyclo
 		return 0.0, fmt.Errorf("unknown bearing: %s", bearing)
 	}
 }
+
+func between(bearing, lower, upper float64) bool {
+	if lower > upper {
+		// this is the case for North which straddles 360°
+		return (bearing >= lower && bearing <= 360.0) || (bearing >= 0.0 && bearing < upper)
+	}
+	return bearing >= lower && bearing < upper
+}
+
+// CompassPoint converts a wind bearing to the text compass point name
+func CompassPoint(bearing float64) (string, error) { // nolint:gocyclo
+	switch {
+	case between(bearing, 354.375, 5.625):
+		return "N", nil
+	case between(bearing, 5.625, 16.875):
+		return "NbE", nil
+	case between(bearing, 16.875, 28.125):
+		return "NNE", nil
+	case between(bearing, 28.125, 39.375):
+		return "NEbN", nil
+	case between(bearing, 39.375, 50.625):
+		return "NE", nil
+	case between(bearing, 50.625, 61.875):
+		return "NEbE", nil
+	case between(bearing, 61.875, 73.125):
+		return "ENE", nil
+	case between(bearing, 73.125, 84.375):
+		return "EbN", nil
+	case between(bearing, 84.375, 95.625):
+		return "E", nil
+	case between(bearing, 95.625, 106.875):
+		return "EbS", nil
+	case between(bearing, 106.875, 118.125):
+		return "ESE", nil
+	case between(bearing, 118.125, 129.375):
+		return "SEbE", nil
+	case between(bearing, 129.375, 140.625):
+		return "SE", nil
+	case between(bearing, 140.625, 151.875):
+		return "SEbS", nil
+	case between(bearing, 151.875, 163.125):
+		return "SSE", nil
+	case between(bearing, 163.125, 174.375):
+		return "SbE", nil
+	case between(bearing, 174.375, 185.625):
+		return "S", nil
+	case between(bearing, 185.625, 196.875):
+		return "SbW", nil
+	case between(bearing, 196.875, 208.125):
+		return "SSW", nil
+	case between(bearing, 208.125, 219.375):
+		return "SWbS", nil
+	case between(bearing, 219.375, 230.625):
+		return "SW", nil
+	case between(bearing, 230.625, 241.875):
+		return "SWbW", nil
+	case between(bearing, 241.875, 253.125):
+		return "WSW", nil
+	case between(bearing, 253.125, 264.375):
+		return "WbS", nil
+	case between(bearing, 264.375, 275.625):
+		return "W", nil
+	case between(bearing, 275.625, 286.875):
+		return "WbN", nil
+	case between(bearing, 286.875, 298.125):
+		return "WNW", nil
+	case between(bearing, 298.125, 309.375):
+		return "NWbW", nil
+	case between(bearing, 309.375, 320.625):
+		return "NW", nil
+	case between(bearing, 320.625, 331.875):
+		return "NWbN", nil
+	case between(bearing, 331.875, 343.125):
+		return "NNW", nil
+	case between(bearing, 343.125, 354.375):
+		return "NbW", nil
+	default:
+		return "", fmt.Errorf("unknown bearing: %0.3f", bearing)
+	}
+}
