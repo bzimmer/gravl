@@ -3,12 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"go/format"
-	"html/template"
 	"io/ioutil"
 	"os"
+	"text/template"
 
 	"github.com/urfave/cli/v2"
 
@@ -16,6 +15,7 @@ import (
 )
 
 type With struct {
+	Do      bool
 	Auth    bool
 	Package string
 }
@@ -26,15 +26,19 @@ const (
 	package {{.Package}}
 
 import (
-{{ with .Auth}}
+{{- if .Auth }}
 	"time"
 	"golang.org/x/oauth2"
-{{end}}
+{{- end }}
+{{- if .Do }}
+	"encoding/json"
+	"io"
+{{- end }}
 	"net/http"
 	"github.com/bzimmer/httpwares"
 )
 
-{{ with .Auth}}
+{{with .Auth}}
 // WithConfig sets the underlying config
 func WithConfig(config oauth2.Config) Option {
 	return func(c *Client) error {
@@ -94,7 +98,46 @@ func WithHTTPClient(client *http.Client) Option {
 		}
 		return nil
 	}
-}`
+}
+
+{{with .Do}}
+// Do executes the request
+func (c *Client) Do(req *http.Request, v interface{}) error {
+	ctx := req.Context()
+	res, err := c.client.Do(req)
+	if err != nil {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			return err
+		}
+	}
+	defer res.Body.Close()
+
+	httpError := res.StatusCode >= http.StatusBadRequest
+
+	var obj interface{}
+	if httpError {
+		obj = &Fault{}
+	} else {
+		obj = v
+	}
+
+	if obj != nil {
+		err := json.NewDecoder(res.Body).Decode(obj)
+		if err == io.EOF {
+			err = nil // ignore EOF errors caused by empty response body
+		}
+		if httpError {
+			return obj.(error)
+		}
+		return err
+	}
+
+	return nil
+}
+{{end}}`
 )
 
 func generate(w With) error {
@@ -118,7 +161,7 @@ func generate(w With) error {
 	}
 
 	file := fmt.Sprintf("%s_with.go", w.Package)
-	if err := ioutil.WriteFile(file, src, 0644); err != nil {
+	if err := ioutil.WriteFile(file, src, 0600); err != nil {
 		return err
 	}
 	return nil
@@ -134,20 +177,21 @@ func main() {
 				Value: false,
 				Usage: "Include auth-related options",
 			},
-			&cli.StringFlag{
-				Name:  "package",
-				Value: "",
-				Usage: "The name of the package for generation",
+			&cli.BoolFlag{
+				Name:  "do",
+				Value: false,
+				Usage: "Include client.Do request execution",
 			},
-		},
-		Before: func(c *cli.Context) error {
-			if !c.IsSet("package") {
-				return errors.New("missing package")
-			}
-			return nil
+			&cli.StringFlag{
+				Name:     "package",
+				Value:    "",
+				Required: true,
+				Usage:    "The name of the package for generation",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			w := With{
+				Do:      c.Bool("do"),
 				Auth:    c.Bool("auth"),
 				Package: c.String("package"),
 			}

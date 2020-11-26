@@ -19,6 +19,15 @@ const (
 	OriginRoute
 )
 
+// Fault .
+type Fault struct {
+	Message string `json:"message"`
+}
+
+func (f *Fault) Error() string {
+	return f.Message
+}
+
 // UserResponse .
 type UserResponse struct {
 	User *User `json:"user"`

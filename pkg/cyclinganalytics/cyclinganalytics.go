@@ -1,13 +1,11 @@
 package cyclinganalytics
 
-//go:generate go run ../../dev/genwith.go --auth --package cyclinganalytics
+//go:generate go run ../../cmd/genwith/genwith.go --do --auth --package cyclinganalytics
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 
@@ -64,55 +62,6 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// func WithConfig(config oauth2.Config) Option {
-// 	return func(c *Client) error {
-// 		c.config = config
-// 		return nil
-// 	}
-// }
-
-// // WithTokenCredentials provides the tokens for an authenticated user
-// func WithTokenCredentials(accessToken, refreshToken string, expiry time.Time) Option {
-// 	return func(c *Client) error {
-// 		c.token.AccessToken = accessToken
-// 		c.token.RefreshToken = refreshToken
-// 		c.token.Expiry = expiry
-// 		return nil
-// 	}
-// }
-
-// // WithAPICredentials provides the client api credentials for the application
-// func WithClientCredentials(clientID, clientSecret string) Option {
-// 	return func(c *Client) error {
-// 		c.config.ClientID = clientID
-// 		c.config.ClientSecret = clientSecret
-// 		return nil
-// 	}
-// }
-
-// // WithTransport transport
-// func WithTransport(t http.RoundTripper) Option {
-// 	return func(c *Client) error {
-// 		if t != nil {
-// 			c.client.Transport = t
-// 		}
-// 		return nil
-// 	}
-// }
-
-// // WithHTTPTracing .
-// func WithHTTPTracing(debug bool) Option {
-// 	return func(c *Client) error {
-// 		if !debug {
-// 			return nil
-// 		}
-// 		c.client.Transport = &httpwares.VerboseTransport{
-// 			Transport: c.client.Transport,
-// 		}
-// 		return nil
-// 	}
-// }
-
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
 	if c.token.AccessToken == "" {
 		return nil, errors.New("accessToken required")
@@ -133,41 +82,4 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", c.token.AccessToken))
 	return req, nil
-}
-
-// Do executes the request
-func (c *Client) Do(req *http.Request, v interface{}) error {
-	ctx := req.Context()
-	res, err := c.client.Do(req)
-	if err != nil {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			return err
-		}
-	}
-	defer res.Body.Close()
-
-	httpError := res.StatusCode >= http.StatusBadRequest
-
-	var obj interface{}
-	if httpError {
-		obj = &Fault{}
-	} else {
-		obj = v
-	}
-
-	if obj != nil {
-		err := json.NewDecoder(res.Body).Decode(obj)
-		if err == io.EOF {
-			err = nil // ignore EOF errors caused by empty response body
-		}
-		if httpError {
-			return obj.(error)
-		}
-		return err
-	}
-
-	return nil
 }

@@ -3,11 +3,12 @@
 package openweather
 
 import (
-	"golang.org/x/oauth2"
-	"time"
-
+	"encoding/json"
 	"github.com/bzimmer/httpwares"
+	"golang.org/x/oauth2"
+	"io"
 	"net/http"
+	"time"
 )
 
 // WithConfig sets the underlying config
@@ -68,4 +69,41 @@ func WithHTTPClient(client *http.Client) Option {
 		}
 		return nil
 	}
+}
+
+// Do executes the request
+func (c *Client) Do(req *http.Request, v interface{}) error {
+	ctx := req.Context()
+	res, err := c.client.Do(req)
+	if err != nil {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			return err
+		}
+	}
+	defer res.Body.Close()
+
+	httpError := res.StatusCode >= http.StatusBadRequest
+
+	var obj interface{}
+	if httpError {
+		obj = &Fault{}
+	} else {
+		obj = v
+	}
+
+	if obj != nil {
+		err := json.NewDecoder(res.Body).Decode(obj)
+		if err == io.EOF {
+			err = nil // ignore EOF errors caused by empty response body
+		}
+		if httpError {
+			return obj.(error)
+		}
+		return err
+	}
+
+	return nil
 }

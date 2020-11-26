@@ -1,6 +1,6 @@
 package wta
 
-//go:generate go run ../../dev/genwith.go --package wta
+//go:generate go run ../../cmd/genwith/genwith.go --package wta
 
 import (
 	"context"

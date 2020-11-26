@@ -1,11 +1,10 @@
 package strava
 
-//go:generate go run ../../dev/genwith.go --auth --package strava
+//go:generate go run ../../cmd/genwith/genwith.go --do --auth --package strava
 
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -115,41 +114,4 @@ func (c *Client) newWebhookRequest(ctx context.Context, method, uri string, body
 	}
 
 	return req, nil
-}
-
-// Do executes the request
-func (c *Client) Do(req *http.Request, v interface{}) error {
-	ctx := req.Context()
-	res, err := c.client.Do(req)
-	if err != nil {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			return err
-		}
-	}
-	defer res.Body.Close()
-
-	httpError := res.StatusCode >= http.StatusBadRequest
-
-	var obj interface{}
-	if httpError {
-		obj = &Fault{}
-	} else {
-		obj = v
-	}
-
-	if obj != nil {
-		err := json.NewDecoder(res.Body).Decode(obj)
-		if err == io.EOF {
-			err = nil // ignore EOF errors caused by empty response body
-		}
-		if httpError {
-			return obj.(error)
-		}
-		return err
-	}
-
-	return nil
 }

@@ -1,9 +1,9 @@
 package gnis
 
+//go:generate go run ../../cmd/genwith/genwith.go --package gnis
+
 import (
 	"net/http"
-
-	"github.com/bzimmer/httpwares"
 )
 
 const (
@@ -38,27 +38,4 @@ func NewClient(opts ...Option) (*Client, error) {
 	c.GeoNames = &GeoNamesService{client: c}
 
 	return c, nil
-}
-
-// WithTransport option used to configure the RoundTripper
-func WithTransport(t http.RoundTripper) Option {
-	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
-		}
-		return nil
-	}
-}
-
-// WithHTTPTracing used to configure http tracing
-func WithHTTPTracing(debug bool) Option {
-	return func(c *Client) error {
-		if !debug {
-			return nil
-		}
-		c.client.Transport = &httpwares.VerboseTransport{
-			Transport: c.client.Transport,
-		}
-		return nil
-	}
 }
