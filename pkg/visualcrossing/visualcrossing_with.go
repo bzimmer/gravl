@@ -10,10 +10,18 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// WithConfig sets the underlying config
+// WithConfig sets the underlying oauth2.Config
 func WithConfig(config oauth2.Config) Option {
 	return func(c *Client) error {
 		c.config = config
+		return nil
+	}
+}
+
+// WithToken sets the underlying oauth2.Token
+func WithToken(token oauth2.Token) Option {
+	return func(c *Client) error {
+		c.token = token
 		return nil
 	}
 }
