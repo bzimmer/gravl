@@ -25,7 +25,7 @@ const (
 	UnitsUK
 	// UnitsStandard for temperature in Kelvin and wind speed in meter/sec
 	UnitsStandard
-	// UnitsMetric fo temperature in Celsius and wind speed in km/hour
+	// UnitsMetric for temperature in Celsius and wind speed in km/hour
 	UnitsMetric
 
 	// None does not retrieve alert information (equivalent of omitting the parameter)
