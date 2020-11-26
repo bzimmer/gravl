@@ -3,10 +3,11 @@
 package visualcrossing
 
 import (
-	"github.com/bzimmer/httpwares"
-	"golang.org/x/oauth2"
 	"net/http"
 	"time"
+
+	"github.com/bzimmer/httpwares"
+	"golang.org/x/oauth2"
 )
 
 // WithConfig sets the underlying config

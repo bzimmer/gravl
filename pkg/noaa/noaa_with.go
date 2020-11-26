@@ -4,9 +4,10 @@ package noaa
 
 import (
 	"encoding/json"
-	"github.com/bzimmer/httpwares"
 	"io"
 	"net/http"
+
+	"github.com/bzimmer/httpwares"
 )
 
 // WithHTTPTracing enables tracing http calls

@@ -3,8 +3,9 @@
 package wta
 
 import (
-	"github.com/bzimmer/httpwares"
 	"net/http"
+
+	"github.com/bzimmer/httpwares"
 )
 
 // WithHTTPTracing enables tracing http calls

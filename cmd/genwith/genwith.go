@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"go/format"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"text/template"
 
 	"github.com/urfave/cli/v2"
@@ -26,14 +26,10 @@ const (
 	package {{.Package}}
 
 import (
-{{- if .Auth }}
 	"time"
 	"golang.org/x/oauth2"
-{{- end }}
-{{- if .Do }}
 	"encoding/json"
 	"io"
-{{- end }}
 	"net/http"
 	"github.com/bzimmer/httpwares"
 )
@@ -140,31 +136,34 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 {{end}}`
 )
 
-func generate(w With) error {
+func format(file string) error {
+	cmd := exec.Command("gofmt", "-w", "-s", file)
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	cmd = exec.Command("goimports", "-w", file)
+	return cmd.Run()
+}
+
+func generate(w With) (string, error) {
 	tmpl, err := template.New("genwith").Parse(q)
 	if err != nil {
 		log.Error().Err(err).Msg("parsing template")
-		return err
+		return "", err
 	}
 
-	b := new(bytes.Buffer)
-	err = tmpl.Execute(b, w)
+	src := new(bytes.Buffer)
+	err = tmpl.Execute(src, w)
 	if err != nil {
 		log.Error().Err(err).Msg("executing template")
-		return err
-	}
-
-	// runs the go code formatter
-	src, err := format.Source(b.Bytes())
-	if err != nil {
-		return err
+		return "", err
 	}
 
 	file := fmt.Sprintf("%s_with.go", w.Package)
-	if err := ioutil.WriteFile(file, src, 0600); err != nil {
-		return err
+	if err := ioutil.WriteFile(file, src.Bytes(), 0600); err != nil {
+		return "", err
 	}
-	return nil
+	return file, nil
 }
 
 func main() {
@@ -195,7 +194,11 @@ func main() {
 				Auth:    c.Bool("auth"),
 				Package: c.String("package"),
 			}
-			return generate(w)
+			file, err := generate(w)
+			if err != nil {
+				return err
+			}
+			return format(file)
 		},
 	}
 	ctx := context.Background()
