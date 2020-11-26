@@ -1,16 +1,18 @@
 package visualcrossing_test
 
 import (
-	vc "github.com/bzimmer/gravl/pkg/visualcrossing"
+	"time"
+
+	"github.com/bzimmer/gravl/pkg/visualcrossing"
 	"github.com/bzimmer/httpwares"
 )
 
-func newClient(status int, filename string) (*vc.Client, error) {
-	return vc.NewClient(
-		vc.WithTransport(&httpwares.TestDataTransport{
+func newClient(status int, filename string) (*visualcrossing.Client, error) {
+	return visualcrossing.NewClient(
+		visualcrossing.WithTransport(&httpwares.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json",
 		}),
-		vc.WithAPIKey("fooKey"))
+		visualcrossing.WithTokenCredentials("fooKey", "", time.Time{}))
 }

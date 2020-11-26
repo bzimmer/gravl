@@ -1,15 +1,18 @@
 package visualcrossing
 
+//go:generate go run ../../dev/genwith.go --auth --package visualcrossing
+
 import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
-	"github.com/bzimmer/httpwares"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -19,7 +22,8 @@ const (
 
 // Client .
 type Client struct {
-	apiKey string
+	config oauth2.Config
+	token  oauth2.Token
 	client *http.Client
 
 	Forecast *ForecastService
@@ -36,6 +40,8 @@ type Option func(*Client) error
 func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		client: &http.Client{},
+		token:  oauth2.Token{},
+		config: oauth2.Config{},
 	}
 	// set now, possibly overwritten with options
 	for _, opt := range opts {
@@ -45,46 +51,16 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for communicating with VisualCrossing
 	c.Forecast = &ForecastService{client: c}
 
 	return c, nil
 }
 
-// WithAPIKey .
-func WithAPIKey(apiKey string) Option {
-	return func(c *Client) error {
-		c.apiKey = apiKey
-		return nil
-	}
-}
-
-// WithTransport transport
-func WithTransport(t http.RoundTripper) Option {
-	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
-		}
-		return nil
-	}
-}
-
-// WithHTTPTracing .
-func WithHTTPTracing(debug bool) Option {
-	return func(c *Client) error {
-		if !debug {
-			return nil
-		}
-		c.client.Transport = &httpwares.VerboseTransport{
-			Transport: c.client.Transport,
-		}
-		return nil
-	}
-}
-
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
-	// these are required
-	values.Set("key", c.apiKey)
+	if c.token.AccessToken == "" {
+		return nil, errors.New("accessToken required")
+	}
+	values.Set("key", c.token.AccessToken)
 	values.Set("contentType", "json")
 	values.Set("locationMode", "array")
 	values.Set("shortColumnNames", "false")

@@ -1,5 +1,7 @@
 package openweather
 
+//go:generate go run ../../dev/genwith.go --auth --package openweather
+
 import (
 	"context"
 	"encoding/json"
@@ -9,7 +11,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/bzimmer/httpwares"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -19,7 +21,8 @@ const (
 
 // Client .
 type Client struct {
-	apiKey string
+	config oauth2.Config
+	token  oauth2.Token
 	client *http.Client
 
 	Forecast *ForecastService
@@ -50,43 +53,12 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// WithAPIKey .
-func WithAPIKey(apiKey string) Option {
-	return func(c *Client) error {
-		c.apiKey = apiKey
-		return nil
-	}
-}
-
-// WithTransport transport
-func WithTransport(t http.RoundTripper) Option {
-	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
-		}
-		return nil
-	}
-}
-
-// WithHTTPTracing .
-func WithHTTPTracing(debug bool) Option {
-	return func(c *Client) error {
-		if !debug {
-			return nil
-		}
-		c.client.Transport = &httpwares.VerboseTransport{
-			Transport: c.client.Transport,
-		}
-		return nil
-	}
-}
-
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
-	if c.apiKey == "" {
-		return nil, errors.New("apiKey required")
+	if c.token.AccessToken == "" {
+		return nil, errors.New("accessToken required")
 	}
-	values.Set("appid", c.apiKey)
 	values.Set("mode", "json")
+	values.Set("appid", c.token.AccessToken)
 	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, values.Encode()))
 	if err != nil {
 		return nil, err

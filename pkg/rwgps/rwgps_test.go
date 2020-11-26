@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
-	rw "github.com/bzimmer/gravl/pkg/rwgps"
+	"github.com/bzimmer/gravl/pkg/rwgps"
 	"github.com/bzimmer/httpwares"
 )
 
@@ -17,9 +18,9 @@ var (
 	}
 )
 
-func newClient(status int, filename string) (*rw.Client, error) {
-	return rw.NewClient(
-		rw.WithTransport(&httpwares.TestDataTransport{
+func newClient(status int, filename string) (*rwgps.Client, error) {
+	return rwgps.NewClient(
+		rwgps.WithTransport(&httpwares.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json",
@@ -40,8 +41,8 @@ func newClient(status int, filename string) (*rw.Client, error) {
 				return nil
 			},
 		}),
-		rw.WithAPIKey("fooKey"),
-		rw.WithAuthToken("barToken"),
-		rw.WithHTTPTracing(true),
+		rwgps.WithClientCredentials("fooKey", ""),
+		rwgps.WithTokenCredentials("barToken", "", time.Time{}),
+		rwgps.WithHTTPTracing(true),
 	)
 }

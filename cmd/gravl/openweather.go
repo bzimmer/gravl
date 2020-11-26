@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
@@ -12,12 +13,13 @@ import (
 )
 
 var openweatherCommand = &cli.Command{
-	Name:     "ow",
+	Name:     "openweather",
+	Aliases:  []string{"ca"},
 	Category: "forecast",
 	Usage:    "Query OpenWeather for forecasts",
 	Flags: []cli.Flag{
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "ow.api-key",
+			Name:  "openweather.access-token",
 			Usage: "API key for OpenWeather API",
 		}),
 	},
@@ -29,7 +31,7 @@ var openweatherCommand = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		client, err := openweather.NewClient(
-			openweather.WithAPIKey(c.String("ow.api-key")),
+			openweather.WithTokenCredentials(c.String("openweather.access-token"), "", time.Time{}),
 			openweather.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {
 			return err

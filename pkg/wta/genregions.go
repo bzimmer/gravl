@@ -17,6 +17,7 @@ import (
 
 	"github.com/bzimmer/httpwares"
 	"github.com/gocolly/colly/v2"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -123,14 +124,14 @@ func run() error {
 		})
 	}
 
-	log.Info().Bool("local mode", local).Msg("genregions")
+	log.Debug().Bool("local mode", local).Msg("genregions")
 
 	r := &RegionScraper{}
 	collector.OnHTML("script", r.SubRegion)
 	collector.OnHTML("select[id=super-region]", r.SuperRegion)
 
 	defer func(start time.Time) {
-		log.Info().
+		log.Debug().
 			Str("url", baseURL).
 			Str("op", "regions").
 			Dur("elapsed", time.Since(start)).
@@ -153,10 +154,11 @@ func run() error {
 }
 
 func main() {
+	zerolog.SetGlobalLevel(zerolog.WarnLevel)
 	if err := run(); err != nil {
 		log.Error().Err(err).Bool("success", false).Msg("genregions")
 		os.Exit(1)
 	}
-	log.Info().Bool("success", true).Msg("genregions")
+	log.Debug().Bool("success", true).Msg("genregions")
 	os.Exit(0)
 }

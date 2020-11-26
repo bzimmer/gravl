@@ -1,5 +1,7 @@
 package cyclinganalytics
 
+//go:generate go run ../../dev/genwith.go --auth --package cyclinganalytics
+
 import (
 	"context"
 	"encoding/json"
@@ -8,11 +10,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"golang.org/x/oauth2"
-
-	"github.com/bzimmer/httpwares"
 )
 
 const (
@@ -65,54 +64,54 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-func WithConfig(config oauth2.Config) Option {
-	return func(c *Client) error {
-		c.config = config
-		return nil
-	}
-}
+// func WithConfig(config oauth2.Config) Option {
+// 	return func(c *Client) error {
+// 		c.config = config
+// 		return nil
+// 	}
+// }
 
-// WithTokenCredentials provides the tokens for an authenticated user
-func WithTokenCredentials(accessToken, refreshToken string, expiry time.Time) Option {
-	return func(c *Client) error {
-		c.token.AccessToken = accessToken
-		c.token.RefreshToken = refreshToken
-		c.token.Expiry = expiry
-		return nil
-	}
-}
+// // WithTokenCredentials provides the tokens for an authenticated user
+// func WithTokenCredentials(accessToken, refreshToken string, expiry time.Time) Option {
+// 	return func(c *Client) error {
+// 		c.token.AccessToken = accessToken
+// 		c.token.RefreshToken = refreshToken
+// 		c.token.Expiry = expiry
+// 		return nil
+// 	}
+// }
 
-// WithAPICredentials provides the client api credentials for the application
-func WithClientCredentials(clientID, clientSecret string) Option {
-	return func(c *Client) error {
-		c.config.ClientID = clientID
-		c.config.ClientSecret = clientSecret
-		return nil
-	}
-}
+// // WithAPICredentials provides the client api credentials for the application
+// func WithClientCredentials(clientID, clientSecret string) Option {
+// 	return func(c *Client) error {
+// 		c.config.ClientID = clientID
+// 		c.config.ClientSecret = clientSecret
+// 		return nil
+// 	}
+// }
 
-// WithTransport transport
-func WithTransport(t http.RoundTripper) Option {
-	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
-		}
-		return nil
-	}
-}
+// // WithTransport transport
+// func WithTransport(t http.RoundTripper) Option {
+// 	return func(c *Client) error {
+// 		if t != nil {
+// 			c.client.Transport = t
+// 		}
+// 		return nil
+// 	}
+// }
 
-// WithHTTPTracing .
-func WithHTTPTracing(debug bool) Option {
-	return func(c *Client) error {
-		if !debug {
-			return nil
-		}
-		c.client.Transport = &httpwares.VerboseTransport{
-			Transport: c.client.Transport,
-		}
-		return nil
-	}
-}
+// // WithHTTPTracing .
+// func WithHTTPTracing(debug bool) Option {
+// 	return func(c *Client) error {
+// 		if !debug {
+// 			return nil
+// 		}
+// 		c.client.Transport = &httpwares.VerboseTransport{
+// 			Transport: c.client.Transport,
+// 		}
+// 		return nil
+// 	}
+// }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
 	if c.token.AccessToken == "" {

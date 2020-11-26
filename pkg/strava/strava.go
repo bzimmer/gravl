@@ -1,5 +1,7 @@
 package strava
 
+//go:generate go run ../../dev/genwith.go --auth --package strava
+
 import (
 	"bytes"
 	"context"
@@ -10,9 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 
-	"github.com/bzimmer/httpwares"
 	"golang.org/x/oauth2"
 )
 
@@ -45,65 +45,6 @@ var Endpoint = oauth2.Endpoint{
 	AuthURL:   "https://www.strava.com/oauth/authorize",
 	TokenURL:  "https://www.strava.com/oauth/token",
 	AuthStyle: oauth2.AuthStyleAutoDetect,
-}
-
-// WithHTTPTracing .
-func WithHTTPTracing(debug bool) Option {
-	return func(c *Client) error {
-		if !debug {
-			return nil
-		}
-		c.client.Transport = &httpwares.VerboseTransport{
-			Transport: c.client.Transport,
-		}
-		return nil
-	}
-}
-
-// WithTransport configures the http client to use the provided transport
-func WithTransport(t http.RoundTripper) Option {
-	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
-		}
-		return nil
-	}
-}
-
-func WithConfig(config oauth2.Config) Option {
-	return func(c *Client) error {
-		c.config = config
-		return nil
-	}
-}
-
-// WithTokenCredentials provides the tokens for an authenticated user
-func WithTokenCredentials(accessToken, refreshToken string, expiry time.Time) Option {
-	return func(c *Client) error {
-		c.token.AccessToken = accessToken
-		c.token.RefreshToken = refreshToken
-		c.token.Expiry = expiry
-		return nil
-	}
-}
-
-// WithAPICredentials provides the client api credentials for the application
-func WithClientCredentials(clientID, clientSecret string) Option {
-	return func(c *Client) error {
-		c.config.ClientID = clientID
-		c.config.ClientSecret = clientSecret
-		return nil
-	}
-}
-
-// WithHTTPClient .
-func WithHTTPClient(client *http.Client) Option {
-	return func(c *Client) error {
-		if client != nil {
-			c.client = client
-		}
-		return nil
-	}
 }
 
 // NewClient creates new clients

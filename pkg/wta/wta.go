@@ -1,11 +1,12 @@
 package wta
 
+//go:generate go run ../../dev/genwith.go --package wta
+
 import (
 	"context"
 	"net/http"
 	"time"
 
-	"github.com/bzimmer/httpwares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,39 +48,6 @@ func NewClient(opts ...Option) (*Client, error) {
 	c.Regions = &RegionsService{client: c}
 
 	return c, nil
-}
-
-// WithHTTPClient client
-func WithHTTPClient(client *http.Client) Option {
-	return func(c *Client) error {
-		if client != nil {
-			c.client = client
-		}
-		return nil
-	}
-}
-
-// WithTransport transport
-func WithTransport(t http.RoundTripper) Option {
-	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
-		}
-		return nil
-	}
-}
-
-// WithHTTPTracing .
-func WithHTTPTracing(debug bool) Option {
-	return func(c *Client) error {
-		if !debug {
-			return nil
-		}
-		c.client.Transport = &httpwares.VerboseTransport{
-			Transport: c.client.Transport,
-		}
-		return nil
-	}
 }
 
 // TripReportsHandler .

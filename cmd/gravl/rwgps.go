@@ -3,6 +3,7 @@ package gravl
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
@@ -17,14 +18,14 @@ var rwgpsCommand = &cli.Command{
 	Usage:    "Query Ride with GPS for rides and routes",
 	Flags: []cli.Flag{
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "rwgps.api-key",
+			Name:  "rwgps.client-id",
 			Value: "",
-			Usage: "Access key for RWGPS API",
+			Usage: "Client ID for RWGPS API",
 		}),
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "rwgps.auth-token",
+			Name:  "rwgps.access-token",
 			Value: "",
-			Usage: "Auth token for RWGPS API",
+			Usage: "Access token for RWGPS API",
 		}),
 		&cli.BoolFlag{
 			Name:    "trip",
@@ -47,8 +48,8 @@ var rwgpsCommand = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		client, err := rwgps.NewClient(
-			rwgps.WithAPIKey(c.String("rwgps.api-key")),
-			rwgps.WithAuthToken(c.String("rwgps.auth-token")),
+			rwgps.WithClientCredentials(c.String("rwgps.client-id"), ""),
+			rwgps.WithTokenCredentials(c.String("rwgps.access-token"), "", time.Time{}),
 			rwgps.WithHTTPTracing(c.Bool("http-tracing")),
 		)
 		if err != nil {

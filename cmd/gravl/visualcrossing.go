@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
@@ -19,7 +20,7 @@ var visualcrossingCommand = &cli.Command{
 	Usage:    "Query VisualCrossing for forecasts",
 	Flags: []cli.Flag{
 		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "visualcrossing.api-key",
+			Name:  "visualcrossing.access-token",
 			Usage: "API key for Visual Crossing API",
 		}),
 		&cli.IntFlag{
@@ -31,7 +32,7 @@ var visualcrossingCommand = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		client, err := visualcrossing.NewClient(
-			visualcrossing.WithAPIKey(c.String("vc.api-key")),
+			visualcrossing.WithTokenCredentials(c.String("visualcrossing.access-token"), "", time.Time{}),
 			visualcrossing.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {
 			return err

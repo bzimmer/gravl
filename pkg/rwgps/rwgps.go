@@ -1,5 +1,7 @@
 package rwgps
 
+//go:generate go run ../../dev/genwith.go --auth --package rwgps
+
 import (
 	"bytes"
 	"context"
@@ -9,11 +11,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/bzimmer/httpwares"
+	"golang.org/x/oauth2"
 )
 
 const (
-	apiVersion = 2
+	apiVersion = "2"
 	baseURL    = "https://ridewithgps.com"
 	userAgent  = "(github.com/bzimmer/gravl/rwgps)"
 )
@@ -22,8 +24,8 @@ const (
 
 // Client .
 type Client struct {
-	body   map[string]string
-	header http.Header
+	config oauth2.Config
+	token  oauth2.Token
 	client *http.Client
 
 	Users *UsersService
@@ -37,18 +39,18 @@ type service struct {
 // Option .
 type Option func(*Client) error
 
+var headers = map[string]string{
+	"User-Agent":   userAgent,
+	"Accept":       "application/json",
+	"Content-type": "application/json"}
+
 // NewClient .
 func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		client: &http.Client{},
-		header: make(http.Header),
-		body: map[string]string{
-			"version": fmt.Sprintf("%d", apiVersion),
-		},
+		token:  oauth2.Token{},
+		config: oauth2.Config{},
 	}
-	c.header.Set("User-Agent", userAgent)
-	c.header.Set("Accept", "application/json")
-	c.header.Set("Content-type", "application/json")
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
@@ -56,70 +58,10 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
-	// Services used for communicating with RWGPS
 	c.Users = &UsersService{client: c}
 	c.Trips = &TripsService{client: c}
 
 	return c, nil
-}
-
-// WithAuthToken .
-func WithAuthToken(authToken string) Option {
-	return func(c *Client) error {
-		c.body["auth_token"] = authToken
-		return nil
-	}
-}
-
-// WithAPIKey .
-func WithAPIKey(apiKey string) Option {
-	return func(c *Client) error {
-		c.body["apikey"] = apiKey
-		return nil
-	}
-}
-
-// WithHTTPTracing .
-func WithHTTPTracing(debug bool) Option {
-	return func(c *Client) error {
-		if !debug {
-			return nil
-		}
-		c.client.Transport = &httpwares.VerboseTransport{
-			Transport: c.client.Transport,
-		}
-		return nil
-	}
-}
-
-// WithTransport transport
-func WithTransport(t http.RoundTripper) Option {
-	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
-		}
-		return nil
-	}
-}
-
-// WithHTTPClient .
-func WithHTTPClient(client *http.Client) Option {
-	return func(c *Client) error {
-		if client != nil {
-			c.client = client
-		}
-		return nil
-	}
-}
-
-func (c *Client) newBodyReader() (io.Reader, error) {
-	b := &bytes.Buffer{}
-	enc := json.NewEncoder(b)
-	err := enc.Encode(c.body)
-	if err != nil {
-		return nil, err
-	}
-	return bytes.NewReader(b.Bytes()), nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) {
@@ -127,18 +69,22 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 	if err != nil {
 		return nil, err
 	}
-	reader, err := c.newBodyReader()
+
+	b, err := json.Marshal(
+		map[string]string{
+			"version":    apiVersion,
+			"apikey":     c.config.ClientID,
+			"auth_token": c.token.AccessToken,
+		})
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, method, u.String(), reader)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
-	for key, values := range c.header {
-		for _, value := range values {
-			req.Header.Add(key, value)
-		}
+	for key, value := range headers {
+		req.Header.Add(key, value)
 	}
 	return req, nil
 }
