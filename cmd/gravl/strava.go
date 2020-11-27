@@ -16,7 +16,7 @@ var stravaCommand = &cli.Command{
 	Name:     "strava",
 	Category: "route",
 	Usage:    "Query Strava for rides and routes",
-	Flags:    StravaFlags,
+	Flags:    stravaFlags,
 	Action: func(c *cli.Context) error {
 		client, err := strava.NewClient(
 			strava.WithHTTPTracing(c.Bool("http-tracing")),
@@ -114,7 +114,7 @@ var stravaCommand = &cli.Command{
 	},
 }
 
-var StravaAuthFlags = []cli.Flag{
+var stravaAuthFlags = []cli.Flag{
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "strava.client-id",
 		Usage: "API key for Strava API",
@@ -132,8 +132,8 @@ var StravaAuthFlags = []cli.Flag{
 		Usage: "Refresh token for Strava API",
 	})}
 
-var StravaFlags = merge(
-	StravaAuthFlags,
+var stravaFlags = merge(
+	stravaAuthFlags,
 	[]cli.Flag{
 		&cli.BoolFlag{
 			Name:    "activity",

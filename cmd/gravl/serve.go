@@ -88,8 +88,8 @@ var serveCommand = &cli.Command{
 			Value: 8080,
 			Usage: "Port on which to listen",
 		})},
-		CyclingAnalyticsAuthFlags,
-		StravaAuthFlags,
+		cyclingAnalyticsAuthFlags,
+		stravaAuthFlags,
 	),
 	Action: func(c *cli.Context) error {
 		r := newRouter(c)

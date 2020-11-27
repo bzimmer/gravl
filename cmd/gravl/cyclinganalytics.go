@@ -15,7 +15,7 @@ var cyclinganalyticsCommand = &cli.Command{
 	Aliases:  []string{"ca"},
 	Category: "route",
 	Usage:    "Query the cyclinganalytics.com site",
-	Flags:    CyclingAnalyticsFlags,
+	Flags:    cyclingAnalyticsFlags,
 	Action: func(c *cli.Context) error {
 		client, err := cyclinganalytics.NewClient(
 			cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
@@ -42,7 +42,7 @@ var cyclinganalyticsCommand = &cli.Command{
 	},
 }
 
-var CyclingAnalyticsAuthFlags = []cli.Flag{
+var cyclingAnalyticsAuthFlags = []cli.Flag{
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "cyclinganalytics.client-id",
 		Usage: "API key for Cycling Analytics API",
@@ -54,9 +54,7 @@ var CyclingAnalyticsAuthFlags = []cli.Flag{
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "cyclinganalytics.access-token",
 		Usage: "Access token for Cycling Analytics API",
-	}),
-}
+	})}
 
-var CyclingAnalyticsFlags = merge(
-	CyclingAnalyticsAuthFlags,
-)
+var cyclingAnalyticsFlags = merge(
+	cyclingAnalyticsAuthFlags)
