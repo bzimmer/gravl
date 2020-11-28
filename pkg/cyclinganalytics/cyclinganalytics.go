@@ -23,6 +23,7 @@ type Client struct {
 	token  oauth2.Token
 	client *http.Client
 
+	User  *UserService
 	Rides *RidesService
 }
 
@@ -57,6 +58,7 @@ func NewClient(opts ...Option) (*Client, error) {
 		}
 	}
 
+	c.User = &UserService{client: c}
 	c.Rides = &RidesService{client: c}
 
 	return c, nil
