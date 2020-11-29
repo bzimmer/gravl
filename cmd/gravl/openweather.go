@@ -48,8 +48,9 @@ var openweatherCommand = &cli.Command{
 			return err
 		}
 		fcst, err := client.Forecast.Forecast(ctx,
-			openweather.WithCoordinates(lng, lat),
-			openweather.WithUnits(openweather.UnitsMetric))
+			openweather.ForecastOptions{
+				Units:       openweather.UnitsMetric,
+				Coordinates: openweather.Coordinates{Latitude: lat, Longitude: lng}})
 		if err != nil {
 			return err
 		}

@@ -3,7 +3,6 @@ package openweather_test
 import (
 	"context"
 	"net/http"
-	"net/url"
 	"testing"
 
 	"github.com/bzimmer/gravl/pkg/openweather"
@@ -20,7 +19,11 @@ func Test_ForecastSuccess(t *testing.T) {
 	a.NotNil(c)
 
 	ctx := context.Background()
-	fcst, err := c.Forecast.Forecast(ctx)
+	opts := openweather.ForecastOptions{
+		Coordinates: openweather.Coordinates{
+			Latitude:  48.2,
+			Longitude: -118.8}}
+	fcst, err := c.Forecast.Forecast(ctx, opts)
 	a.NoError(err)
 	a.NotNil(fcst)
 
@@ -36,7 +39,6 @@ func TestWithUnits(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	v := &url.Values{}
 	tests := map[string]openweather.Units{
 		"metric":   openweather.UnitsMetric,
 		"imperial": openweather.UnitsImperial,
@@ -44,19 +46,6 @@ func TestWithUnits(t *testing.T) {
 	}
 
 	for key, value := range tests {
-		err := openweather.WithUnits(value)(v)
-		a.NoError(err)
-		a.Equal(key, v.Get("units"))
+		a.Equal(key, value.String())
 	}
-}
-
-func TestWithLocation(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-
-	v := &url.Values{}
-	err := openweather.WithCoordinates(-122.05, 48.10)(v)
-	a.NoError(err)
-	a.Equal("-122.0500", v.Get("lon"))
-	a.Equal("48.1000", v.Get("lat"))
 }

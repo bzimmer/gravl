@@ -1,6 +1,6 @@
 package openweather
 
-//go:generate stringer -type=Units -output=model_string.go
+//go:generate stringer -type=Units -linecomment -output=model_string.go
 
 import (
 	"errors"
@@ -14,11 +14,11 @@ type Units int
 
 const (
 	// UnitsMetric fo temperature in Celsius and wind speed in meter/sec
-	UnitsMetric Units = iota
+	UnitsMetric Units = iota // metric
 	// UnitsImperial for temperature in Fahrenheit and wind speed in miles/hour
-	UnitsImperial
+	UnitsImperial // imperial
 	// UnitsStandard for temperature in Kelvin and wind speed in meter/sec
-	UnitsStandard
+	UnitsStandard // standard
 )
 
 // Fault .

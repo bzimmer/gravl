@@ -1,6 +1,6 @@
 package visualcrossing
 
-//go:generate stringer -type=Units,AlertLevel -linecomment -output model_string.go
+//go:generate stringer -type=AlertLevel,Units -linecomment -output model_string.go
 
 import (
 	"time"
@@ -27,7 +27,9 @@ const (
 	UnitsUK // uk
 	// UnitsStandard for temperature in Kelvin and wind speed in meter/sec
 	UnitsStandard // standard
+)
 
+const (
 	// None does not retrieve alert information (equivalent of omitting the parameter)
 	AlertLevelNone AlertLevel = iota // none
 	// Summary does not retrieve the detail field text of the alert

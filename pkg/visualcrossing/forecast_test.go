@@ -18,7 +18,7 @@ func Test_ForecastSuccess(t *testing.T) {
 	a.NotNil(c)
 
 	ctx := context.Background()
-	fcst, err := c.Forecast.Forecast(ctx, visualcrossing.ForecastOptions{})
+	fcst, err := c.Forecast.Forecast(ctx, visualcrossing.ForecastOptions{Location: "Foobar"})
 	a.NoError(err)
 	a.NotNil(fcst)
 
@@ -43,7 +43,7 @@ func Test_ForecastError(t *testing.T) {
 	a.NotNil(c)
 
 	ctx := context.Background()
-	fcst, err := c.Forecast.Forecast(ctx, visualcrossing.ForecastOptions{})
+	fcst, err := c.Forecast.Forecast(ctx, visualcrossing.ForecastOptions{Location: "Seattle,WA"})
 	a.Error(err)
 	a.Nil(fcst)
 

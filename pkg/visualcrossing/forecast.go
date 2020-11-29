@@ -42,10 +42,13 @@ func (r *ForecastOptions) values() (*url.Values, error) {
 		return nil, &Fault{
 			Message: fmt.Sprintf("unknown aggregage hours {%d}", r.AggregateHours)}
 	}
-	if r.Location != "" {
+	switch {
+	case r.Location != "":
 		v.Set("locations", r.Location)
-	} else {
+	case r.Coordinates.Latitude != 0.0 && r.Coordinates.Longitude != 0.0:
 		v.Set("locations", r.Coordinates.String())
+	default:
+		return nil, &Fault{Message: "no location or coordinates specified"}
 	}
 	v.Set("includeAstronomy", fmt.Sprintf("%t", r.Astronomy))
 	v.Set("alertLevel", r.AlertLevel.String())

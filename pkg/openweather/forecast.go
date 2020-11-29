@@ -10,40 +10,36 @@ import (
 // ForecastService .
 type ForecastService service
 
+type Coordinates struct {
+	Latitude  float64
+	Longitude float64
+}
+
+func (c Coordinates) String() string {
+	return fmt.Sprintf("%0.4f,%0.4f", c.Latitude, c.Longitude)
+}
+
+type ForecastOptions struct {
+	Coordinates Coordinates
+	Units       Units
+}
+
+func (r *ForecastOptions) values() (*url.Values, error) {
+	v := &url.Values{}
+	if r.Coordinates.Latitude == 0.0 && r.Coordinates.Longitude == 0.0 {
+		return nil, &Fault{Message: "no coordinates specified"}
+	}
+	v.Set("locations", r.Coordinates.String())
+	v.Set("units", r.Units.String())
+	return v, nil
+}
+
 // ForecastOption .
 type ForecastOption func(*url.Values) error
 
-// WithLocation .
-func WithCoordinates(longitude, latitude float64) ForecastOption {
-	return func(v *url.Values) error {
-		v.Set("lat", fmt.Sprintf("%0.4f", latitude))
-		v.Set("lon", fmt.Sprintf("%0.4f", longitude))
-		return nil
-	}
-}
-
-// WithUnits sets the unit family to use
-func WithUnits(units Units) ForecastOption {
-	return func(v *url.Values) error {
-		var s string
-		switch units {
-		case UnitsImperial:
-			s = "imperial"
-		case UnitsMetric:
-			s = "metric"
-		case UnitsStandard:
-			s = "standard"
-		default:
-			return fmt.Errorf("unknown units {%s}", units)
-		}
-		v.Set("units", s)
-		return nil
-	}
-}
-
 // Forecast returns a forecast
-func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) (*Forecast, error) {
-	values, err := makeValues(opts)
+func (s *ForecastService) Forecast(ctx context.Context, opt ForecastOptions) (*Forecast, error) {
+	values, err := opt.values()
 	if err != nil {
 		return nil, err
 	}
@@ -57,15 +53,4 @@ func (s *ForecastService) Forecast(ctx context.Context, opts ...ForecastOption) 
 		return nil, err
 	}
 	return fct, nil
-}
-
-func makeValues(options []ForecastOption) (*url.Values, error) {
-	v := &url.Values{}
-	for _, opt := range options {
-		err := opt(v)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return v, nil
 }
