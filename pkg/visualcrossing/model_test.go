@@ -11,6 +11,6 @@ func Test_Enums(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	a.Equal("UnitsMetric", visualcrossing.UnitsMetric.String())
-	a.Equal("AlertLevelSummary", visualcrossing.AlertLevelSummary.String())
+	a.Equal("metric", visualcrossing.UnitsMetric.String())
+	a.Equal("summary", visualcrossing.AlertLevelSummary.String())
 }

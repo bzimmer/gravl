@@ -19,7 +19,7 @@ type RideOptions struct {
 	}
 }
 
-func (r *RideOptions) Values() (*url.Values, error) {
+func (r *RideOptions) values() *url.Values {
 	v := &url.Values{}
 	if r.Streams != nil {
 		v.Set("streams", strings.Join(r.Streams, ","))
@@ -27,23 +27,16 @@ func (r *RideOptions) Values() (*url.Values, error) {
 	if r.Curves.AveragePower && r.Curves.EffectivePower {
 		v.Set("curves", "true")
 	} else {
-		if r.Curves.AveragePower {
-			v.Set("power_curve", "true")
-		}
-		if r.Curves.EffectivePower {
-			v.Set("epower_curve", "true")
-		}
+		v.Set("power_curve", fmt.Sprintf("%t", r.Curves.AveragePower))
+		v.Set("epower_curve", fmt.Sprintf("%t", r.Curves.EffectivePower))
 	}
-	return v, nil
+	return v
 }
 
 func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions) (*Ride, error) {
 	uri := fmt.Sprintf("ride/%d", rideID)
 
-	params, err := opts.Values()
-	if err != nil {
-		return nil, err
-	}
+	params := opts.values()
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, params)
 	if err != nil {
 		return nil, err

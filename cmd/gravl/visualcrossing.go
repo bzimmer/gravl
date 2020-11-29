@@ -39,12 +39,11 @@ var visualcrossingCommand = &cli.Command{
 		}
 
 		var fcst wx.Forecastable
-		var opt visualcrossing.ForecastOption
-		var opts = []visualcrossing.ForecastOption{
-			visualcrossing.WithAstronomy(true),
-			visualcrossing.WithAggregateHours(c.Int("interval")),
-			visualcrossing.WithUnits(visualcrossing.UnitsMetric),
-			visualcrossing.WithAlertLevel(visualcrossing.AlertLevelDetail),
+		var opt = visualcrossing.ForecastOptions{
+			Astronomy:      true,
+			AggregateHours: c.Int("interval"),
+			Units:          visualcrossing.UnitsMetric,
+			AlertLevel:     visualcrossing.AlertLevelDetail,
 		}
 
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -52,7 +51,7 @@ var visualcrossingCommand = &cli.Command{
 
 		switch c.Args().Len() {
 		case 1:
-			opt = visualcrossing.WithLocation(c.Args().Get(0))
+			opt.Location = c.Args().Get(0)
 		case 2:
 			lng, e := strconv.ParseFloat(c.Args().Get(0), 64)
 			if e != nil {
@@ -62,11 +61,14 @@ var visualcrossingCommand = &cli.Command{
 			if e != nil {
 				return e
 			}
-			opt = visualcrossing.WithCoordinates(lat, lng)
+			opt.Coordinates = visualcrossing.Coordinates{
+				Latitude:  lat,
+				Longitude: lng,
+			}
 		default:
 			return fmt.Errorf("only 1 or 2 arguments allowed [%v]", c.Args())
 		}
-		fcst, err = client.Forecast.Forecast(ctx, append(opts, opt)...)
+		fcst, err = client.Forecast.Forecast(ctx, opt)
 		if err != nil {
 			return err
 		}
