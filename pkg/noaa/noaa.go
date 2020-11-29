@@ -7,16 +7,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
 const (
-	baseURL   = "https://api.weather.gov"
-	userAgent = "(github.com/bzimmer/gravl/pkg/noaa, bzimmer@ziclix.com)"
+	baseURL = "https://api.weather.gov"
 )
 
 // Client .
 type Client struct {
-	header http.Header
 	client *http.Client
 
 	Points     *PointsService
@@ -32,12 +32,7 @@ type Option func(*Client) error
 
 // NewClient .
 func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{
-		client: &http.Client{},
-		header: make(http.Header),
-	}
-	// set now, possibly overwritten with options
-	c.header.Set("User-Agent", userAgent)
+	c := &Client{client: &http.Client{}}
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
@@ -61,11 +56,7 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 	if err != nil {
 		return nil, err
 	}
-	for key, values := range c.header {
-		for _, value := range values {
-			req.Header.Add(key, value)
-		}
-	}
+	req.Header.Set("User-Agent", pkg.UserAgent)
 	req.Header.Set("Accept", "application/geo+json")
 	return req, nil
 }

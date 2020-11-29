@@ -10,11 +10,12 @@ import (
 	"net/url"
 
 	"golang.org/x/oauth2"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
 const (
-	baseURL   = "http://api.openweathermap.org/data/2.5"
-	userAgent = "(github.com/bzimmer/gravl/pkg/openweather)"
+	baseURL = "http://api.openweathermap.org/data/2.5"
 )
 
 // Client .
@@ -38,7 +39,6 @@ func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		client: &http.Client{},
 	}
-	// set now, possibly overwritten with options
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
@@ -65,6 +65,6 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("User-Agent", pkg.UserAgent)
 	return req, nil
 }

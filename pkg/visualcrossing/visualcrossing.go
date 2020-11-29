@@ -13,11 +13,12 @@ import (
 	"net/url"
 
 	"golang.org/x/oauth2"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
 const (
-	baseURL   = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata"
-	userAgent = "(github.com/bzimmer/gravl/pkg/visualcrossing)"
+	baseURL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata"
 )
 
 // Client .
@@ -43,7 +44,6 @@ func NewClient(opts ...Option) (*Client, error) {
 		token:  oauth2.Token{},
 		config: oauth2.Config{},
 	}
-	// set now, possibly overwritten with options
 	for _, opt := range opts {
 		err := opt(c)
 		if err != nil {
@@ -60,12 +60,16 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	if c.token.AccessToken == "" {
 		return nil, errors.New("accessToken required")
 	}
-	values.Set("key", c.token.AccessToken)
-	values.Set("contentType", "json")
-	values.Set("locationMode", "array")
-	values.Set("shortColumnNames", "false")
-
-	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, values.Encode()))
+	v := url.Values{
+		"key":              []string{c.token.AccessToken},
+		"contentType":      []string{"json"},
+		"locationMode":     []string{"array"},
+		"shortColumnNames": []string{"false"},
+	}
+	for key, val := range *values {
+		v[key] = val
+	}
+	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, v.Encode()))
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +77,7 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("User-Agent", pkg.UserAgent)
 	return req, nil
 }
 

@@ -11,12 +11,13 @@ import (
 	"net/url"
 
 	"golang.org/x/oauth2"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
 const (
 	apiVersion = "2"
 	baseURL    = "https://ridewithgps.com"
-	userAgent  = "(github.com/bzimmer/gravl/rwgps)"
 )
 
 // https://ridewithgps.com/api?lang=en
@@ -37,11 +38,6 @@ type service struct {
 
 // Option .
 type Option func(*Client) error
-
-var headers = map[string]string{
-	"User-Agent":   userAgent,
-	"Accept":       "application/json",
-	"Content-type": "application/json"}
 
 // NewClient .
 func NewClient(opts ...Option) (*Client, error) {
@@ -68,7 +64,6 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 	if err != nil {
 		return nil, err
 	}
-
 	b, err := json.Marshal(
 		map[string]string{
 			"version":    apiVersion,
@@ -82,33 +77,8 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 	if err != nil {
 		return nil, err
 	}
-	for key, value := range headers {
-		req.Header.Add(key, value)
-	}
+	req.Header.Set("User-Agent", pkg.UserAgent)
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 	return req, nil
 }
-
-// // Do executes the request
-// func (c *Client) Do(req *http.Request, v interface{}) error {
-// 	ctx := req.Context()
-// 	res, err := c.client.Do(req)
-// 	if err != nil {
-// 		select {
-// 		case <-ctx.Done():
-// 			return ctx.Err()
-// 		default:
-// 			return err
-// 		}
-// 	}
-// 	defer res.Body.Close()
-
-// 	if v != nil {
-// 		err := json.NewDecoder(res.Body).Decode(v)
-// 		if err == io.EOF {
-// 			err = nil // ignore EOF errors caused by empty response body
-// 		}
-// 		return err
-// 	}
-
-// 	return nil
-// }

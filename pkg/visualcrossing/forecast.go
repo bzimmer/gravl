@@ -40,7 +40,7 @@ func (r *ForecastOptions) values() (*url.Values, error) {
 		v.Set("aggregateHours", fmt.Sprintf("%d", r.AggregateHours))
 	default:
 		return nil, &Fault{
-			Message: fmt.Sprintf("unknown aggregage hours {%d}", r.AggregateHours)}
+			Message: fmt.Sprintf("unknown aggregate hours {%d}", r.AggregateHours)}
 	}
 	switch {
 	case r.Location != "":

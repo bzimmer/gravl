@@ -18,3 +18,5 @@
 * [SRTM](https://github.com/sakisds/go-srtm)
 * [charts](https://github.com/marianogappa/chart)
 * [ClimaCell](https://developer.climacell.co/)
+* [GPS Trajectories](https://medium.com/isiway-tech/gps-trajectories-clustering-in-python-2f5874204a53)
+  * [QuickBundles](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3518823/)
