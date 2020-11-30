@@ -15,20 +15,18 @@ type activityPaginator struct {
 	activities []*Activity
 }
 
-// Count returns the number of activities
-func (p *activityPaginator) Count() int {
+func (p *activityPaginator) count() int {
 	return len(p.activities)
 }
 
-// Do executes the querying of activities
-func (p *activityPaginator) Do(ctx context.Context, start, count int) (int, error) {
+func (p *activityPaginator) do(ctx context.Context, start, count int) (int, error) {
 	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
 	}
 	var acts []*Activity
-	err = p.service.client.Do(req, &acts)
+	err = p.service.client.do(req, &acts)
 	if err != nil {
 		return 0, err
 	}
@@ -50,7 +48,7 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 		return nil, err
 	}
 	sts := make(map[string]*Stream)
-	err = s.client.Do(req, &sts)
+	err = s.client.do(req, &sts)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +63,7 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 		return nil, err
 	}
 	act := &Activity{}
-	err = s.client.Do(req, act)
+	err = s.client.do(req, act)
 	if err != nil {
 		return nil, err
 	}

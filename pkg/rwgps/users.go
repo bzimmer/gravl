@@ -16,7 +16,7 @@ func (s *UsersService) AuthenticatedUser(ctx context.Context) (*User, error) {
 		return nil, err
 	}
 	res := &UserResponse{}
-	err = s.client.Do(req, res)
+	err = s.client.do(req, res)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,6 @@
 package gnis
 
-//go:generate go run ../../cmd/genwith/genwith.go --package gnis
+//go:generate go run ../../cmd/genwith/genwith.go --client --package gnis
 
 import (
 	"net/http"
@@ -17,25 +17,6 @@ type Client struct {
 	GeoNames *GeoNamesService
 }
 
-type service struct {
-	client *Client // nolint
-}
-
-// Option is used to configure the client
-type Option func(*Client) error
-
-// NewClient returns a client ready to query GNIS
-func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{client: &http.Client{}}
-	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Services used for communicating with GNIS
+func withServices(c *Client) {
 	c.GeoNames = &GeoNamesService{client: c}
-
-	return c, nil
 }

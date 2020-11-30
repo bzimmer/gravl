@@ -14,7 +14,7 @@ import (
 
 var openweatherCommand = &cli.Command{
 	Name:     "openweather",
-	Aliases:  []string{"ca"},
+	Aliases:  []string{"ow"},
 	Category: "forecast",
 	Usage:    "Query OpenWeather for forecasts",
 	Flags: []cli.Flag{
@@ -30,6 +30,20 @@ var openweatherCommand = &cli.Command{
 		return nil
 	},
 	Action: func(c *cli.Context) error {
+		var (
+			err                 error
+			longitude, latitude float64
+		)
+
+		longitude, err = strconv.ParseFloat(c.Args().Get(0), 64)
+		if err != nil {
+			return err
+		}
+		latitude, err = strconv.ParseFloat(c.Args().Get(1), 64)
+		if err != nil {
+			return err
+		}
+
 		client, err := openweather.NewClient(
 			openweather.WithTokenCredentials(c.String("openweather.access-token"), "", time.Time{}),
 			openweather.WithHTTPTracing(c.Bool("http-tracing")))
@@ -38,19 +52,12 @@ var openweatherCommand = &cli.Command{
 		}
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
-
-		lng, err := strconv.ParseFloat(c.Args().Get(0), 64)
-		if err != nil {
-			return err
-		}
-		lat, err := strconv.ParseFloat(c.Args().Get(1), 64)
-		if err != nil {
-			return err
-		}
 		fcst, err := client.Forecast.Forecast(ctx,
 			openweather.ForecastOptions{
-				Units:       openweather.UnitsMetric,
-				Coordinates: openweather.Coordinates{Latitude: lat, Longitude: lng}})
+				Units: openweather.UnitsMetric,
+				Coordinates: openweather.Coordinates{
+					Latitude:  latitude,
+					Longitude: longitude}})
 		if err != nil {
 			return err
 		}

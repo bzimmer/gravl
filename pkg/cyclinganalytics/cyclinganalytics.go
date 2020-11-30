@@ -1,6 +1,6 @@
 package cyclinganalytics
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --auth --package cyclinganalytics
+//go:generate go run ../../cmd/genwith/genwith.go --do --client --endpoint --auth --package cyclinganalytics
 
 import (
 	"context"
@@ -28,13 +28,6 @@ type Client struct {
 	Rides *RidesService
 }
 
-type service struct {
-	client *Client //nolint:golint,structcheck
-}
-
-// Option .
-type Option func(*Client) error
-
 // Endpoint is CyclingAnalytics's OAuth 2.0 endpoint
 var Endpoint = oauth2.Endpoint{
 	AuthURL:   fmt.Sprintf("%s/auth", baseURL),
@@ -42,26 +35,9 @@ var Endpoint = oauth2.Endpoint{
 	AuthStyle: oauth2.AuthStyleAutoDetect,
 }
 
-// NewClient .
-func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{
-		client: &http.Client{},
-		token:  oauth2.Token{},
-		config: oauth2.Config{
-			Endpoint: Endpoint,
-		},
-	}
-	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+func withServices(c *Client) {
 	c.User = &UserService{client: c}
 	c.Rides = &RidesService{client: c}
-
-	return c, nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {

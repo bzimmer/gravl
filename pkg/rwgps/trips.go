@@ -25,7 +25,7 @@ func (s *TripsService) trip(ctx context.Context, origin Origin, uri string) (*Tr
 		return nil, err
 	}
 	res := &TripResponse{}
-	err = s.client.Do(req, res)
+	err = s.client.do(req, res)
 	if err != nil {
 		return nil, err
 	}

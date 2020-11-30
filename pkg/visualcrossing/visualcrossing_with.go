@@ -3,12 +3,37 @@
 package visualcrossing
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/bzimmer/httpwares"
 	"golang.org/x/oauth2"
 )
+
+type service struct {
+	client *Client //nolint:golint,structcheck
+}
+
+// Option provides a configuration mechanism for a Client
+type Option func(*Client) error
+
+// NewClient creates a new client and applies all provided Options
+func NewClient(opts ...Option) (*Client, error) {
+	c := &Client{
+		client: &http.Client{},
+		token:  oauth2.Token{},
+		config: oauth2.Config{},
+	}
+	for _, opt := range opts {
+		err := opt(c)
+		if err != nil {
+			return nil, err
+		}
+	}
+	withServices(c)
+	return c, nil
+}
 
 // WithConfig sets the underlying oauth2.Config
 func WithConfig(config oauth2.Config) Option {
@@ -61,9 +86,10 @@ func WithHTTPTracing(debug bool) Option {
 // WithTransport sets the underlying http client transport
 func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
+		if t == nil {
+			return errors.New("nil transport")
 		}
+		c.client.Transport = t
 		return nil
 	}
 }
@@ -71,9 +97,10 @@ func WithTransport(t http.RoundTripper) Option {
 // WithHTTPClient sets the underlying http client
 func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
-		if client != nil {
-			c.client = client
+		if client == nil {
+			return errors.New("nil client")
 		}
+		c.client = client
 		return nil
 	}
 }

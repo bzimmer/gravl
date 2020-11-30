@@ -16,7 +16,7 @@ func (s *UserService) Me(ctx context.Context) (*User, error) {
 	}
 
 	usr := &User{}
-	err = s.client.Do(req, usr)
+	err = s.client.do(req, usr)
 	if err != nil {
 		return nil, err
 	}

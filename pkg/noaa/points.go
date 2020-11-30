@@ -25,7 +25,7 @@ func (s *PointsService) GridPoint(ctx context.Context, latitude, longitude float
 		return nil, err
 	}
 	gpt := &GridPoint{}
-	err = s.client.Do(req, gpt)
+	err = s.client.do(req, gpt)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (s *PointsService) forecast(ctx context.Context, uri string) (*Forecast, er
 		return nil, err
 	}
 	fct := &Forecast{}
-	err = s.client.Do(req, fct)
+	err = s.client.do(req, fct)
 	if err != nil {
 		return nil, err
 	}

@@ -15,20 +15,18 @@ type routePaginator struct {
 	service   RouteService
 }
 
-// Count .
-func (p *routePaginator) Count() int {
+func (p *routePaginator) count() int {
 	return len(p.routes)
 }
 
-// Do .
-func (p *routePaginator) Do(ctx context.Context, start, count int) (int, error) {
+func (p *routePaginator) do(ctx context.Context, start, count int) (int, error) {
 	uri := fmt.Sprintf("athletes/%d/routes?page=%d&per_page=%d", p.athleteID, start, count)
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
 	}
 	var rtes []*Route
-	err = p.service.client.Do(req, &rtes)
+	err = p.service.client.do(req, &rtes)
 	if err != nil {
 		return 0, err
 	}
@@ -63,7 +61,7 @@ func (s *RouteService) Route(ctx context.Context, routeID int64) (*Route, error)
 		return nil, err
 	}
 	rte := &Route{}
-	err = s.client.Do(req, &rte)
+	err = s.client.do(req, &rte)
 	if err != nil {
 		return nil, err
 	}

@@ -59,7 +59,7 @@ func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken
 		return nil, err
 	}
 	ack := &SubscriptionAcknowledgement{}
-	err = s.client.Do(req, ack)
+	err = s.client.do(req, ack)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (s *WebhookService) Unsubscribe(ctx context.Context, subscriptionID int) er
 	if err != nil {
 		return err
 	}
-	return s.client.Do(req, nil)
+	return s.client.do(req, nil)
 }
 
 // Subscriptions returns a list of subscriptions
@@ -85,7 +85,7 @@ func (s *WebhookService) Subscriptions(ctx context.Context) (*[]Subscription, er
 		return nil, err
 	}
 	subs := &[]Subscription{}
-	err = s.client.Do(req, subs)
+	err = s.client.do(req, subs)
 	if err != nil {
 		return nil, err
 	}

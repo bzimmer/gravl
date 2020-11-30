@@ -1,11 +1,10 @@
 package wta
 
-//go:generate go run ../../cmd/genwith/genwith.go --package wta
+//go:generate go run ../../cmd/genwith/genwith.go --client --package wta
 
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,32 +21,9 @@ type Client struct {
 	Regions *RegionsService
 }
 
-type service struct {
-	client *Client //nolint:golint,structcheck
-}
-
-// Option .
-type Option func(*Client) error
-
-// NewClient .
-func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{
-		client: &http.Client{
-			Timeout: 10 * time.Second,
-		},
-	}
-	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Services used for communicating with the WTA website
+func withServices(c *Client) {
 	c.Reports = &ReportsService{client: c}
 	c.Regions = &RegionsService{client: c}
-
-	return c, nil
 }
 
 // TripReportsHandler .

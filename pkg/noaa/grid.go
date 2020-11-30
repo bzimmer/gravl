@@ -17,7 +17,7 @@ func (s *GridPointsService) Forecast(ctx context.Context, wfo string, x, y int) 
 		return nil, err
 	}
 	fct := &Forecast{}
-	err = s.client.Do(req, fct)
+	err = s.client.do(req, fct)
 	if err != nil {
 		return nil, err
 	}

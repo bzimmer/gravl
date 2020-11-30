@@ -1,6 +1,6 @@
 package strava
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --auth --package strava
+//go:generate go run ../../cmd/genwith/genwith.go --do --client --endpoint --auth --package strava
 
 import (
 	"bytes"
@@ -19,6 +19,13 @@ const (
 	baseURL = "https://www.strava.com/api/v3"
 )
 
+// Endpoint is Strava's OAuth 2.0 endpoint
+var Endpoint = oauth2.Endpoint{
+	AuthURL:   "https://www.strava.com/oauth/authorize",
+	TokenURL:  "https://www.strava.com/oauth/token",
+	AuthStyle: oauth2.AuthStyleAutoDetect,
+}
+
 // Client client
 type Client struct {
 	config oauth2.Config
@@ -32,43 +39,12 @@ type Client struct {
 	Activity *ActivityService
 }
 
-type service struct {
-	client *Client //nolint:golint,structcheck
-}
-
-// Option .
-type Option func(*Client) error
-
-// Endpoint is Strava's OAuth 2.0 endpoint
-var Endpoint = oauth2.Endpoint{
-	AuthURL:   "https://www.strava.com/oauth/authorize",
-	TokenURL:  "https://www.strava.com/oauth/token",
-	AuthStyle: oauth2.AuthStyleAutoDetect,
-}
-
-// NewClient creates new clients
-func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{
-		client: &http.Client{},
-		token:  oauth2.Token{},
-		config: oauth2.Config{
-			Endpoint: Endpoint,
-		},
-	}
-	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+func withServices(c *Client) {
 	c.Auth = &AuthService{client: c}
 	c.Route = &RouteService{client: c}
 	c.Webhook = &WebhookService{client: c}
 	c.Athlete = &AthleteService{client: c}
 	c.Activity = &ActivityService{client: c}
-
-	return c, nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) { // nolint:unparam

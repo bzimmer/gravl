@@ -1,6 +1,6 @@
 package openweather
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --auth --package openweather
+//go:generate go run ../../cmd/genwith/genwith.go --do --auth --client --package openweather
 
 import (
 	"context"
@@ -27,28 +27,8 @@ type Client struct {
 	Forecast *ForecastService
 }
 
-type service struct {
-	client *Client //nolint:golint,structcheck
-}
-
-// Option .
-type Option func(*Client) error
-
-// NewClient .
-func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{
-		client: &http.Client{},
-	}
-	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+func withServices(c *Client) {
 	c.Forecast = &ForecastService{client: c}
-
-	return c, nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {

@@ -10,9 +10,6 @@ import (
 // ForecastService .
 type ForecastService service
 
-// ForecastOption .
-type ForecastOption func(*url.Values) error
-
 type Coordinates struct {
 	Latitude  float64
 	Longitude float64

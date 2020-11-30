@@ -1,6 +1,6 @@
 package noaa
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --package noaa
+//go:generate go run ../../cmd/genwith/genwith.go --do --client --package noaa
 
 import (
 	"context"
@@ -23,28 +23,9 @@ type Client struct {
 	GridPoints *GridPointsService
 }
 
-type service struct {
-	client *Client //nolint:golint,structcheck
-}
-
-// Option .
-type Option func(*Client) error
-
-// NewClient .
-func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{client: &http.Client{}}
-	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Services used for communicating with NOAA
+func withServices(c *Client) {
 	c.Points = &PointsService{client: c}
 	c.GridPoints = &GridPointsService{client: c}
-
-	return c, nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) {

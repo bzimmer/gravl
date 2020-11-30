@@ -42,7 +42,7 @@ func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions)
 		return nil, err
 	}
 	ride := &Ride{}
-	err = s.client.Do(req, ride)
+	err = s.client.do(req, ride)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error
 		Rides []*Ride `json:"rides"`
 	}
 	res := &Response{}
-	err = s.client.Do(req, res)
+	err = s.client.do(req, res)
 	if err != nil {
 		return nil, err
 	}

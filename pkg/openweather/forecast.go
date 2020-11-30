@@ -16,12 +16,12 @@ type Coordinates struct {
 }
 
 func (c Coordinates) String() string {
-	return fmt.Sprintf("%0.4f,%0.4f", c.Latitude, c.Longitude)
+	return fmt.Sprintf("lat=%0.4f&lon=%0.4f", c.Latitude, c.Longitude)
 }
 
 type ForecastOptions struct {
-	Coordinates Coordinates
 	Units       Units
+	Coordinates Coordinates
 }
 
 func (r *ForecastOptions) values() (*url.Values, error) {
@@ -29,7 +29,8 @@ func (r *ForecastOptions) values() (*url.Values, error) {
 	if r.Coordinates.Latitude == 0.0 && r.Coordinates.Longitude == 0.0 {
 		return nil, &Fault{Message: "no coordinates specified"}
 	}
-	v.Set("locations", r.Coordinates.String())
+	v.Set("lat", fmt.Sprintf("%0.4f", r.Coordinates.Latitude))
+	v.Set("lon", fmt.Sprintf("%0.4f", r.Coordinates.Longitude))
 	v.Set("units", r.Units.String())
 	return v, nil
 }
@@ -48,7 +49,7 @@ func (s *ForecastService) Forecast(ctx context.Context, opt ForecastOptions) (*F
 		return nil, err
 	}
 	fct := &Forecast{}
-	err = s.client.Do(req, fct)
+	err = s.client.do(req, fct)
 	if err != nil {
 		return nil, err
 	}

@@ -17,7 +17,7 @@ func (s *AthleteService) Athlete(ctx context.Context) (*Athlete, error) {
 		return nil, err
 	}
 	ath := &Athlete{}
-	err = s.client.Do(req, ath)
+	err = s.client.do(req, ath)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (s *AthleteService) Stats(ctx context.Context, id int) (*Stats, error) {
 		return nil, err
 	}
 	sts := &Stats{}
-	err = s.client.Do(req, sts)
+	err = s.client.do(req, sts)
 	if err != nil {
 		return nil, err
 	}

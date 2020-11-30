@@ -4,11 +4,34 @@ package noaa
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 
 	"github.com/bzimmer/httpwares"
 )
+
+type service struct {
+	client *Client //nolint:golint,structcheck
+}
+
+// Option provides a configuration mechanism for a Client
+type Option func(*Client) error
+
+// NewClient creates a new client and applies all provided Options
+func NewClient(opts ...Option) (*Client, error) {
+	c := &Client{
+		client: &http.Client{},
+	}
+	for _, opt := range opts {
+		err := opt(c)
+		if err != nil {
+			return nil, err
+		}
+	}
+	withServices(c)
+	return c, nil
+}
 
 // WithHTTPTracing enables tracing http calls
 func WithHTTPTracing(debug bool) Option {
@@ -26,9 +49,10 @@ func WithHTTPTracing(debug bool) Option {
 // WithTransport sets the underlying http client transport
 func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
+		if t == nil {
+			return errors.New("nil transport")
 		}
+		c.client.Transport = t
 		return nil
 	}
 }
@@ -36,15 +60,16 @@ func WithTransport(t http.RoundTripper) Option {
 // WithHTTPClient sets the underlying http client
 func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
-		if client != nil {
-			c.client = client
+		if client == nil {
+			return errors.New("nil client")
 		}
+		c.client = client
 		return nil
 	}
 }
 
 // Do executes the request
-func (c *Client) Do(req *http.Request, v interface{}) error {
+func (c *Client) do(req *http.Request, v interface{}) error {
 	ctx := req.Context()
 	res, err := c.client.Do(req)
 	if err != nil {

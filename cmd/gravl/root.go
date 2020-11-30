@@ -5,12 +5,15 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	stdlog "log"
 	"os"
-	"path/filepath"
+	"path"
+	"strings"
 	"time"
 
+	"github.com/adrg/xdg"
+	"github.com/bzimmer/gravl/pkg"
 	"github.com/fatih/color"
-	"github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -21,6 +24,14 @@ var (
 	encoder *json.Encoder
 	decoder *json.Decoder
 )
+
+type logger struct{}
+
+func (w logger) Write(p []byte) (n int, err error) {
+	s := strings.TrimSuffix(string(p), "\n")
+	log.Debug().Msg(s)
+	return len(p), nil
+}
 
 func mustRandomString(n int) string {
 	b := make([]byte, n)
@@ -93,14 +104,13 @@ func initLogging(c *cli.Context) error {
 			TimeFormat: time.RFC3339,
 		},
 	)
+	stdlog.SetOutput(logger{})
+
 	return nil
 }
 
-func flags() ([]cli.Flag, error) {
-	home, err := homedir.Dir()
-	if err != nil {
-		return nil, err
-	}
+func flags() []cli.Flag {
+	config := path.Join(xdg.ConfigHome, pkg.PackageName, "gravl.yaml")
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:    "verbosity",
@@ -127,7 +137,7 @@ func flags() ([]cli.Flag, error) {
 		},
 		&cli.StringFlag{
 			Name:  "config",
-			Value: filepath.Join(home, ".gravl.yaml"),
+			Value: config,
 			Usage: "File containing configuration settings",
 		},
 		&cli.DurationFlag{
@@ -136,7 +146,7 @@ func flags() ([]cli.Flag, error) {
 			Value:   time.Millisecond * 10000,
 			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
 		},
-	}, nil
+	}
 }
 
 func commands() []*cli.Command {
@@ -147,6 +157,7 @@ func commands() []*cli.Command {
 		openweatherCommand,
 		rwgpsCommand,
 		serveCommand,
+		srtmCommand,
 		stravaCommand,
 		versionCommand,
 		visualcrossingCommand,
@@ -156,16 +167,12 @@ func commands() []*cli.Command {
 
 // Run .
 func Run() error {
-	fs, err := flags()
-	if err != nil {
-		return err
-	}
 	app := &cli.App{
 		Name:      "gravl",
 		HelpName:  "gravl",
 		Usage:     "Plan trips",
 		UsageText: "gravl - plan trips",
-		Flags:     fs,
+		Flags:     flags(),
 		Commands:  commands(),
 		Before: func(c *cli.Context) error {
 			fns := []cli.BeforeFunc{initFlags, initLogging, initEncoding, initConfig}
@@ -181,7 +188,7 @@ func Run() error {
 		},
 	}
 	ctx := context.Background()
-	err = app.RunContext(ctx, os.Args)
+	err := app.RunContext(ctx, os.Args)
 	if err != nil {
 		return err
 	}

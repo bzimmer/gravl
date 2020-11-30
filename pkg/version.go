@@ -9,4 +9,6 @@ var (
 	BuildTime = "now"
 	// UserAgent of the package
 	UserAgent = fmt.Sprintf("gravl/%s (https://github.com/bzimmer/gravl)", BuildVersion)
+	// PackageName is the name of the package
+	PackageName = "github.com.bzimmer.gravl"
 )

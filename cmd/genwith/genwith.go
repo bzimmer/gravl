@@ -14,10 +14,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type With struct {
-	Do      bool
-	Auth    bool
-	Package string
+type with struct {
+	Do       bool
+	Auth     bool
+	Client   bool
+	Endpoint bool
+	Package  string
 }
 
 const (
@@ -26,15 +28,48 @@ const (
 	package {{.Package}}
 
 import (
-	"time"
-	"golang.org/x/oauth2"
 	"encoding/json"
+	"errors"
+	"github.com/bzimmer/httpwares"
+	"golang.org/x/oauth2"
 	"io"
 	"net/http"
-	"github.com/bzimmer/httpwares"
+	"time"
 )
 
-{{with .Auth}}
+{{if .Client}}
+type service struct {
+	client *Client //nolint:golint,structcheck
+}
+
+// Option provides a configuration mechanism for a Client
+type Option func(*Client) error
+
+// NewClient creates a new client and applies all provided Options
+func NewClient(opts ...Option) (*Client, error) {
+	c := &Client{
+		client: &http.Client{},
+	{{- if .Auth}}
+		token:  oauth2.Token{},
+		config: oauth2.Config{
+	{{- if .Endpoint}}
+			Endpoint: Endpoint,
+	{{end}}
+		},
+	{{end}}
+	}
+	for _, opt := range opts {
+		err := opt(c)
+		if err != nil {
+			return nil, err
+		}
+	}
+	withServices(c)
+	return c, nil
+}
+{{end}}
+
+{{if .Auth}}
 // WithConfig sets the underlying oauth2.Config
 func WithConfig(config oauth2.Config) Option {
 	return func(c *Client) error {
@@ -87,9 +122,10 @@ func WithHTTPTracing(debug bool) Option {
 // WithTransport sets the underlying http client transport
 func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
-		if t != nil {
-			c.client.Transport = t
+		if t == nil {
+			return errors.New("nil transport")
 		}
+		c.client.Transport = t
 		return nil
 	}
 }
@@ -97,16 +133,17 @@ func WithTransport(t http.RoundTripper) Option {
 // WithHTTPClient sets the underlying http client
 func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
-		if client != nil {
-			c.client = client
+		if client == nil {
+			return errors.New("nil client")
 		}
+		c.client = client
 		return nil
 	}
 }
 
-{{with .Do}}
-// Do executes the request
-func (c *Client) Do(req *http.Request, v interface{}) error {
+{{if .Do}}
+// do executes the request
+func (c *Client) do(req *http.Request, v interface{}) error {
 	ctx := req.Context()
 	res, err := c.client.Do(req)
 	if err != nil {
@@ -153,7 +190,7 @@ func format(file string) error {
 	return cmd.Run()
 }
 
-func generate(w With) (string, error) {
+func generate(w with) (string, error) {
 	tmpl, err := template.New("genwith").Parse(q)
 	if err != nil {
 		log.Error().Err(err).Msg("parsing template")
@@ -189,6 +226,16 @@ func main() {
 				Value: false,
 				Usage: "Include client.Do request execution",
 			},
+			&cli.BoolFlag{
+				Name:  "client",
+				Value: false,
+				Usage: "Include NewClient & options",
+			},
+			&cli.BoolFlag{
+				Name:  "endpoint",
+				Value: false,
+				Usage: "Include oauth2.Endpoint",
+			},
 			&cli.StringFlag{
 				Name:     "package",
 				Value:    "",
@@ -197,10 +244,12 @@ func main() {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			w := With{
-				Do:      c.Bool("do"),
-				Auth:    c.Bool("auth"),
-				Package: c.String("package"),
+			w := with{
+				Do:       c.Bool("do"),
+				Auth:     c.Bool("auth"),
+				Client:   c.Bool("client"),
+				Endpoint: c.Bool("endpoint"),
+				Package:  c.String("package"),
 			}
 			file, err := generate(w)
 			if err != nil {

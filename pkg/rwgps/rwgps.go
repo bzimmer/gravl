@@ -1,6 +1,6 @@
 package rwgps
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --auth --package rwgps
+//go:generate go run ../../cmd/genwith/genwith.go --do --client --auth --package rwgps
 
 import (
 	"bytes"
@@ -20,8 +20,6 @@ const (
 	baseURL    = "https://ridewithgps.com"
 )
 
-// https://ridewithgps.com/api?lang=en
-
 // Client .
 type Client struct {
 	config oauth2.Config
@@ -32,31 +30,9 @@ type Client struct {
 	Trips *TripsService
 }
 
-type service struct {
-	client *Client //nolint:golint,structcheck
-}
-
-// Option .
-type Option func(*Client) error
-
-// NewClient .
-func NewClient(opts ...Option) (*Client, error) {
-	c := &Client{
-		client: &http.Client{},
-		token:  oauth2.Token{},
-		config: oauth2.Config{},
-	}
-	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+func withServices(c *Client) {
 	c.Users = &UsersService{client: c}
 	c.Trips = &TripsService{client: c}
-
-	return c, nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) {

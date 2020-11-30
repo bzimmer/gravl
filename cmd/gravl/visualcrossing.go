@@ -9,7 +9,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/common/wx"
 	"github.com/bzimmer/gravl/pkg/visualcrossing"
 )
 
@@ -31,23 +30,15 @@ var visualcrossingCommand = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		client, err := visualcrossing.NewClient(
-			visualcrossing.WithTokenCredentials(c.String("visualcrossing.access-token"), "", time.Time{}),
-			visualcrossing.WithHTTPTracing(c.Bool("http-tracing")))
-		if err != nil {
-			return err
-		}
-
-		var fcst wx.Forecastable
-		var opt = visualcrossing.ForecastOptions{
-			Astronomy:      true,
-			AggregateHours: c.Int("interval"),
-			Units:          visualcrossing.UnitsMetric,
-			AlertLevel:     visualcrossing.AlertLevelDetail,
-		}
-
-		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-		defer cancel()
+		var (
+			err error
+			opt = visualcrossing.ForecastOptions{
+				Astronomy:      true,
+				AggregateHours: c.Int("interval"),
+				Units:          visualcrossing.UnitsMetric,
+				AlertLevel:     visualcrossing.AlertLevelDetail,
+			}
+		)
 
 		switch c.Args().Len() {
 		case 1:
@@ -68,7 +59,16 @@ var visualcrossingCommand = &cli.Command{
 		default:
 			return fmt.Errorf("only 1 or 2 arguments allowed [%v]", c.Args())
 		}
-		fcst, err = client.Forecast.Forecast(ctx, opt)
+
+		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+		defer cancel()
+		client, err := visualcrossing.NewClient(
+			visualcrossing.WithTokenCredentials(c.String("visualcrossing.access-token"), "", time.Time{}),
+			visualcrossing.WithHTTPTracing(c.Bool("http-tracing")))
+		if err != nil {
+			return err
+		}
+		fcst, err := client.Forecast.Forecast(ctx, opt)
 		if err != nil {
 			return err
 		}

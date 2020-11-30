@@ -25,9 +25,9 @@ type Pagination struct {
 // Paginator paginates through results
 type Paginator interface {
 	// Count of the number of resources queried
-	Count() int
+	count() int
 	// Do the querying
-	Do(ctx context.Context, start, count int) (int, error)
+	do(ctx context.Context, start, count int) (int, error)
 }
 
 func paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
@@ -74,11 +74,11 @@ func do(ctx context.Context, paginator Paginator, total, start, count int) error
 			Int("count", count).
 			Int("total", total).
 			Msg("do")
-		n, err := paginator.Do(ctx, start, count)
+		n, err := paginator.do(ctx, start, count)
 		if err != nil {
 			return err
 		}
-		all := paginator.Count()
+		all := paginator.count()
 
 		// Strava documentation says receiving fewer than requested results is a
 		// possible scenario so break only if 0 results were returned or we have
