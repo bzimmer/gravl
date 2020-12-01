@@ -106,6 +106,7 @@ func WithClientCredentials(clientID, clientSecret string) Option {
 	}
 }
 
+{{- if .Endpoint}}
 // WithAutoRefresh refreshes access tokens automatically
 // The order of this option matters because it is dependented on the client's
 // config and token. Use this option as the last in the chain.
@@ -115,6 +116,7 @@ func WithAutoRefresh(ctx context.Context) Option {
 		return nil
 	}
 }
+{{end}}
 {{end}}
 
 // WithHTTPTracing enables tracing http calls
