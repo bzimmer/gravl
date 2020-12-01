@@ -21,10 +21,10 @@ COPY main.go ./
 ADD pkg pkg
 ADD cmd cmd
 
-RUN go test -v ./...
+RUN go test ./...
 
 ARG VERSION
-RUN go build -o dist/gravl -ldflags "-X github.com/bzimmer/gravl/pkg.BuildVersion=$VERSION" main.go
+RUN go build -o dist/gravl -ldflags "-X github.com/bzimmer/gravl/pkg.BuildVersion=$VERSION -X github.com/bzimmer/gravl/pkg.BuildTime=`date +%Y-%d-%mT%H:%M:%S`" main.go
 
 ##############################
 # STEP 2 build a smaller image

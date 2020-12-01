@@ -66,8 +66,15 @@ func before(befores ...cli.BeforeFunc) cli.BeforeFunc {
 }
 
 func initConfig(c *cli.Context) error {
+	cfg := c.String("config")
+	if _, err := os.Stat(cfg); os.IsNotExist(err) {
+		log.Warn().
+			Str("path", cfg).
+			Msg("unable to find config file")
+		return nil
+	}
 	config := func() (altsrc.InputSourceContext, error) {
-		return altsrc.NewYamlSourceFromFile(c.String("config"))
+		return altsrc.NewYamlSourceFromFile(cfg)
 	}
 	for _, cmd := range c.App.Commands {
 		cmd.Before = before(

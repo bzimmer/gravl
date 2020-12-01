@@ -93,8 +93,8 @@ var serveCommand = &cli.Command{
 	),
 	Action: func(c *cli.Context) error {
 		r := newRouter(c)
-		log.Info().Msg("serving ...")
 		address := fmt.Sprintf("0.0.0.0:%d", c.Int("serve.port"))
+		log.Info().Str("address", address).Msg("serving ...")
 		if err := r.Run(address); err != nil {
 			return err
 		}
