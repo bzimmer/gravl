@@ -68,7 +68,7 @@ func WithHTTPClient(client *http.Client) Option {
 	}
 }
 
-// Do executes the request
+// do executes the request
 func (c *Client) do(req *http.Request, v interface{}) error {
 	ctx := req.Context()
 	res, err := c.client.Do(req)
