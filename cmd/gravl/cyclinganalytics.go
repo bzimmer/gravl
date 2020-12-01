@@ -19,11 +19,12 @@ var cyclinganalyticsCommand = &cli.Command{
 	Flags:    cyclingAnalyticsFlags,
 	Action: func(c *cli.Context) error {
 		client, err := cyclinganalytics.NewClient(
-			cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
 			cyclinganalytics.WithTokenCredentials(
 				c.String("cyclinganalytics.access-token"),
 				c.String("cyclinganalytics.refresh-token"),
-				time.Time{}))
+				time.Now().Add(-1*time.Minute)),
+			cyclinganalytics.WithAutoRefresh(c.Context),
+			cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {
 			return err
 		}

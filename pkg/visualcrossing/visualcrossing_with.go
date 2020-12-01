@@ -3,6 +3,7 @@
 package visualcrossing
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"time"
@@ -66,6 +67,16 @@ func WithClientCredentials(clientID, clientSecret string) Option {
 	return func(c *Client) error {
 		c.config.ClientID = clientID
 		c.config.ClientSecret = clientSecret
+		return nil
+	}
+}
+
+// WithAutoRefresh refreshes access tokens automatically
+// The order of this option matters because it is dependented on the client's
+// config and token. Use this option as the last in the chain.
+func WithAutoRefresh(ctx context.Context) Option {
+	return func(c *Client) error {
+		c.client = c.config.Client(ctx, &c.token)
 		return nil
 	}
 }

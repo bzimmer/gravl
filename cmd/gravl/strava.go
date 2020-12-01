@@ -19,18 +19,18 @@ var stravaCommand = &cli.Command{
 	Flags:    stravaFlags,
 	Action: func(c *cli.Context) error {
 		client, err := strava.NewClient(
-			strava.WithHTTPTracing(c.Bool("http-tracing")),
 			strava.WithTokenCredentials(
 				c.String("strava.access-token"),
 				c.String("strava.refresh-token"),
-				time.Now().Add(-10*time.Hour)),
+				time.Now().Add(-1*time.Minute)),
 			strava.WithClientCredentials(
 				c.String("strava.client-id"),
-				c.String("strava.client-secret")))
+				c.String("strava.client-secret")),
+			strava.WithAutoRefresh(c.Context),
+			strava.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {
 			return err
 		}
-
 		if c.Bool("route") || c.Bool("activity") || c.Bool("stream") {
 			args := c.Args()
 			var tck geo.Trackable
