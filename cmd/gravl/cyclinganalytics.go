@@ -22,7 +22,7 @@ var cyclinganalyticsCommand = &cli.Command{
 			cyclinganalytics.WithTokenCredentials(
 				c.String("cyclinganalytics.access-token"),
 				c.String("cyclinganalytics.refresh-token"),
-				time.Now().Add(-1*time.Minute)),
+				time.Time{}),
 			cyclinganalytics.WithAutoRefresh(c.Context),
 			cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {

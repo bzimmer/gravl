@@ -44,11 +44,12 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	if c.token.AccessToken == "" {
 		return nil, errors.New("accessToken required")
 	}
-	params := ""
+
+	q := fmt.Sprintf("%s/%s", baseURL, uri)
 	if values != nil {
-		params = values.Encode()
+		q = fmt.Sprintf("%s?%s", q, values.Encode())
 	}
-	u, err := url.Parse(fmt.Sprintf("%s/%s?%s", baseURL, uri, params))
+	u, err := url.Parse(q)
 	if err != nil {
 		return nil, err
 	}
