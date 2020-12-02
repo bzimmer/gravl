@@ -70,7 +70,7 @@ var rwgpsCommand = &cli.Command{
 			return nil
 		}
 
-		var tck geo.Tracker
+		var tracker geo.Tracker
 		for i := 0; i < c.Args().Len(); i++ {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
@@ -79,14 +79,14 @@ var rwgpsCommand = &cli.Command{
 				return err
 			}
 			if c.Bool("trip") {
-				tck, err = client.Trips.Trip(ctx, x)
+				tracker, err = client.Trips.Trip(ctx, x)
 			} else {
-				tck, err = client.Trips.Route(ctx, x)
+				tracker, err = client.Trips.Route(ctx, x)
 			}
 			if err != nil {
 				return err
 			}
-			t, err := tck.Track()
+			t, err := tracker.Track()
 			if err != nil {
 				return err
 			}

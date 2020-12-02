@@ -30,8 +30,8 @@ type Client struct {
 
 // Endpoint is CyclingAnalytics's OAuth 2.0 endpoint
 var Endpoint = oauth2.Endpoint{
-	AuthURL:   fmt.Sprintf("%s/auth", baseURL),
-	TokenURL:  fmt.Sprintf("%s/token", baseURL),
+	AuthURL:   "https://www.cyclinganalytics.com/api/auth",
+	TokenURL:  "https://www.cyclinganalytics.com/api/token",
 	AuthStyle: oauth2.AuthStyleAutoDetect,
 }
 
@@ -44,7 +44,6 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	if c.token.AccessToken == "" {
 		return nil, errors.New("accessToken required")
 	}
-
 	q := fmt.Sprintf("%s/%s", baseURL, uri)
 	if values != nil {
 		q = fmt.Sprintf("%s?%s", q, values.Encode())

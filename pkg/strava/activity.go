@@ -52,7 +52,7 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 	if err != nil {
 		return nil, err
 	}
-	return &Streams{ID: activityID, Streams: sts}, err
+	return &Streams{ActivityID: activityID, Streams: sts}, err
 }
 
 // Activity returns the activity specified by id for an athlete

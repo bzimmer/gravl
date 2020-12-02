@@ -153,7 +153,7 @@ func TestRouteFromStreams(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(sms)
 	a.Equal(4, len(sms.Streams))
-	a.Equal(int64(154504250376), sms.ID)
+	a.Equal(int64(154504250376), sms.ActivityID)
 	a.Equal(2712, len(sms.Streams["latlng"].Data))
 
 	trk, err := sms.Track()

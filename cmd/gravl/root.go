@@ -52,13 +52,12 @@ func merge(flags ...[]cli.Flag) []cli.Flag {
 
 func before(befores ...cli.BeforeFunc) cli.BeforeFunc {
 	return func(c *cli.Context) error {
-		for _, b := range befores {
-			if b == nil {
+		for _, fn := range befores {
+			if fn == nil {
 				continue
 			}
-			err := b(c)
-			if err != nil {
-				return err
+			if e := fn(c); e != nil {
+				return e
 			}
 		}
 		return nil
@@ -77,9 +76,7 @@ func initConfig(c *cli.Context) error {
 		return altsrc.NewYamlSourceFromFile(cfg)
 	}
 	for _, cmd := range c.App.Commands {
-		cmd.Before = before(
-			altsrc.InitInputSource(cmd.Flags, config),
-			cmd.Before)
+		cmd.Before = before(altsrc.InitInputSource(cmd.Flags, config), cmd.Before)
 	}
 	return nil
 }
@@ -181,15 +178,7 @@ func Run() error {
 		UsageText: "gravl - plan trips",
 		Flags:     flags(),
 		Commands:  commands(),
-		Before: func(c *cli.Context) error {
-			fns := []cli.BeforeFunc{initFlags, initLogging, initEncoding, initConfig}
-			for _, fn := range fns {
-				if e := fn(c); e != nil {
-					return e
-				}
-			}
-			return nil
-		},
+		Before:    before(initFlags, initLogging, initEncoding, initConfig),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			log.Error().Err(err).Msg("gravl")
 		},

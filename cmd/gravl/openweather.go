@@ -34,7 +34,6 @@ var openweatherCommand = &cli.Command{
 			err                 error
 			longitude, latitude float64
 		)
-
 		longitude, err = strconv.ParseFloat(c.Args().Get(0), 64)
 		if err != nil {
 			return err

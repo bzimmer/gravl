@@ -33,22 +33,22 @@ var stravaCommand = &cli.Command{
 		}
 		if c.Bool("route") || c.Bool("activity") || c.Bool("stream") {
 			args := c.Args()
-			var tck geo.Tracker
+			var tracker geo.Tracker
 			for i := 0; i < args.Len(); i++ {
 				ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 				defer cancel()
-				activityID, err := strconv.ParseInt(args.Get(i), 0, 64)
+				x, err := strconv.ParseInt(args.Get(i), 0, 64)
 				if c.Bool("route") {
-					tck, err = client.Route.Route(ctx, activityID)
+					tracker, err = client.Route.Route(ctx, x)
 				} else if c.Bool("activity") {
-					tck, err = client.Activity.Activity(ctx, activityID)
+					tracker, err = client.Activity.Activity(ctx, x)
 				} else if c.Bool("stream") {
-					tck, err = client.Activity.Streams(ctx, activityID, "latlng", "altitude")
+					tracker, err = client.Activity.Streams(ctx, x, "latlng", "altitude")
 				}
 				if err != nil {
 					return err
 				}
-				t, err := tck.Track()
+				t, err := tracker.Track()
 				if err != nil {
 					return err
 				}
@@ -61,11 +61,11 @@ var stravaCommand = &cli.Command{
 		if c.Bool("athlete") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			ath, err := client.Athlete.Athlete(ctx)
+			athlete, err := client.Athlete.Athlete(ctx)
 			if err != nil {
 				return err
 			}
-			return encoder.Encode(ath)
+			return encoder.Encode(athlete)
 		}
 		if c.Bool("refresh") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -79,11 +79,11 @@ var stravaCommand = &cli.Command{
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			acts, err := client.Activity.Activities(ctx, strava.Pagination{Total: c.Int("count")})
+			activities, err := client.Activity.Activities(ctx, strava.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}
-			for _, act := range acts {
+			for _, act := range activities {
 				err = encoder.Encode(act)
 				if err != nil {
 					return err
@@ -94,16 +94,16 @@ var stravaCommand = &cli.Command{
 		if c.Bool("routes") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			ath, err := client.Athlete.Athlete(c.Context)
+			athlete, err := client.Athlete.Athlete(ctx)
 			if err != nil {
 				return err
 			}
-			rts, err := client.Route.Routes(ctx, ath.ID, strava.Pagination{Total: c.Int("count")})
+			routes, err := client.Route.Routes(ctx, athlete.ID, strava.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}
-			for _, rt := range rts {
-				err = encoder.Encode(rt)
+			for _, route := range routes {
+				err = encoder.Encode(route)
 				if err != nil {
 					return err
 				}
@@ -130,7 +130,8 @@ var stravaAuthFlags = []cli.Flag{
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "strava.refresh-token",
 		Usage: "Refresh token for Strava API",
-	})}
+	}),
+}
 
 var stravaFlags = merge(
 	stravaAuthFlags,
@@ -182,4 +183,5 @@ var stravaFlags = merge(
 			Value: false,
 			Usage: "Refresh",
 		},
-	})
+	},
+)

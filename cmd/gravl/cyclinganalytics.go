@@ -31,11 +31,11 @@ var cyclinganalyticsCommand = &cli.Command{
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
 		if c.Bool("athlete") {
-			ath, err := client.User.Me(ctx)
+			athlete, err := client.User.Me(ctx)
 			if err != nil {
 				return err
 			}
-			return encoder.Encode(ath)
+			return encoder.Encode(athlete)
 		}
 		if c.Bool("activities") {
 			rides, err := client.Rides.Rides(ctx, cyclinganalytics.Me)
@@ -84,7 +84,8 @@ var cyclingAnalyticsAuthFlags = []cli.Flag{
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "cyclinganalytics.access-token",
 		Usage: "Access token for Cycling Analytics API",
-	})}
+	}),
+}
 
 var cyclingAnalyticsFlags = merge(
 	cyclingAnalyticsAuthFlags,

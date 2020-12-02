@@ -36,8 +36,8 @@ type Stream struct {
 
 // Streams of data for the activity
 type Streams struct {
-	ID      int64
-	Streams map[string]*Stream
+	ActivityID int64
+	Streams    map[string]*Stream
 }
 
 // Gear represents gear used by the athlete
@@ -361,7 +361,7 @@ func (s *Streams) Track() (*geo.Track, error) {
 
 	zero := float64(0)
 	rte := &geo.Track{
-		ID:          fmt.Sprintf("%d", s.ID),
+		ID:          fmt.Sprintf("%d", s.ActivityID),
 		Source:      baseURL,
 		Origin:      geo.OriginActivity,
 		Coordinates: make([][]float64, len(latlng.Data)),

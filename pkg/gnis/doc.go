@@ -25,9 +25,29 @@ To use:
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println(features)
+		log.Println(features[0])
 		os.Exit(0)
 	}
 
 */
 package gnis
+
+import (
+	"context"
+	"log"
+	"os"
+)
+
+func ExampleQuery() {
+	client, err := NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx := context.Background()
+	features, err := client.GeoNames.Query(ctx, "WA")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(features[0])
+	os.Exit(0)
+}

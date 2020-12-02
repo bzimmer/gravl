@@ -16,7 +16,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/wta"
 )
 
-var index = `
+var index = []byte(`
 <html>
 	<head><title>Gravl</title></head>
 	<body>
@@ -25,14 +25,14 @@ var index = `
 		<li><a href="/cyclinganalytics/auth/login">Auth with Cycling Analytics</a></li>
 		</ul>
 	</body>
-</html>`
+</html>`)
 
 func newRouter(c *cli.Context) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery(), web.LogMiddleware())
 
 	r.GET("/", func(c *gin.Context) {
-		c.Data(http.StatusOK, "text/html", []byte(index))
+		c.Data(http.StatusOK, "text/html", index)
 	})
 
 	r.GET("/version/", gin.WrapF(web.VersionHandler()))
