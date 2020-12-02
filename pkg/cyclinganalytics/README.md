@@ -1,8 +1,10 @@
 # cyclinganalytics
 
-Package cyclinganalytics provides a client to access the Cycling Analytics' API.
+Package cyclinganalytics provides a client to access the Cycling Analytics'
+[API](https://www.cyclinganalytics.com/developer/api).
 
-Information the API can be found at [Cycling Analytics](https://www.cyclinganalytics.com/developer/api)
+Only the APIs for accessing the logged in user and retrieving Rides has been
+implemented.
 
 To use:
 

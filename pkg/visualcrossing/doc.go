@@ -1,12 +1,13 @@
-# visualcrossing
+//go:generate go run ../../cmd/genreadme/genreadme.go
 
+/*
 Package visualcrossing provides a client to access VisualCrossing weather forecasts.
 
-## Documentation
+Documentation
 
-* [API documentation](https://www.visualcrossing.com/resources/documentation/weather-api/weather-api-documentation/)
+* (API documentation) https://www.visualcrossing.com/resources/documentation/weather-api/weather-api-documentation/
 
-## Notes
+Notes
 
 * Inconsistent use of `datetime` in forecast and current conditions
 
@@ -17,7 +18,7 @@ for easy parsing. In current conditions `datetime` is a `string`.
 
 The format for an error is not documented but in testing appears to be a simple dictionary.
 
-## Conditions
+Conditions
 
 Difference between `current` and `forecast` conditions:
 
@@ -29,3 +30,5 @@ Difference between `current` and `forecast` conditions:
 # in both
 ['cloudcover', 'datetime', 'dew', 'heatindex', 'humidity', 'precip', 'sealevelpressure', 'snowdepth', 'temp', 'visibility', 'wdir', 'wgust', 'windchill', 'wspd']
 ```
+*/
+package visualcrossing

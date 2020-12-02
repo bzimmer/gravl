@@ -10,7 +10,7 @@ const (
 	baseURL = "https://geonames.usgs.gov"
 )
 
-// Client used to communicate with GNIS
+// Client provides access to the GNIS database
 type Client struct {
 	client *http.Client
 

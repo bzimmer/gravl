@@ -15,8 +15,9 @@ func gen() error {
 	ctx := context.Background()
 	gr := goreadme.New(&http.Client{}).
 		WithConfig(goreadme.Config{
-			Types:     false,
-			Functions: false,
+			Types:           false,
+			Functions:       false,
+			SkipSubPackages: true,
 		})
 	path, err := filepath.Abs("./")
 	if err != nil {
