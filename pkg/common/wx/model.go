@@ -97,8 +97,8 @@ type Forecast struct {
 	Alerts    []*Alert    `json:"alerts,omitempty"`
 }
 
-// Forecastable instances can return a Forecast
-type Forecastable interface {
+// Forecaster instances can return a Forecast
+type Forecaster interface {
 	// Forecast returns an instance of a Forecast
 	Forecast() (*Forecast, error)
 }

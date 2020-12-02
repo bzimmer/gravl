@@ -14,6 +14,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
+	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/common/geo"
 )
 
@@ -32,6 +33,7 @@ func (s *GeoNamesService) Query(ctx context.Context, state string) ([]*geo.Geogr
 		return nil, err
 	}
 	ctx = req.Context()
+	req.Header.Set("User-Agent", pkg.UserAgent)
 	res, err := s.client.client.Do(req)
 	if err != nil {
 		select {

@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/bzimmer/gravl/pkg"
 	"golang.org/x/oauth2"
 )
 
@@ -59,7 +60,8 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", c.token.AccessToken))
+	req.Header.Set("User-Agent", pkg.UserAgent)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", c.token.AccessToken))
 	return req, nil
 }
 

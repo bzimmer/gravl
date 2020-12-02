@@ -70,7 +70,7 @@ var rwgpsCommand = &cli.Command{
 			return nil
 		}
 
-		var tck geo.Trackable
+		var tck geo.Tracker
 		for i := 0; i < c.Args().Len(); i++ {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()

@@ -32,8 +32,8 @@ type Track struct {
 	Coordinates Coordinates
 }
 
-// Trackable instances can return a Track
-type Trackable interface {
+// Tracker instances can return a Track
+type Tracker interface {
 	// Track returns an instance of a Track
 	Track() (*Track, error)
 }

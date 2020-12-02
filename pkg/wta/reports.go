@@ -11,6 +11,8 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/rs/zerolog/log"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
 var photosRE = regexp.MustCompile(`(\d+)`)
@@ -38,6 +40,7 @@ func query(author string) *url.URL {
 
 func newCollector(client *http.Client) *colly.Collector {
 	c := colly.NewCollector(
+		colly.UserAgent(pkg.UserAgent),
 		colly.AllowedDomains("wta.org", "www.wta.org"))
 	c.SetClient(client)
 	return c

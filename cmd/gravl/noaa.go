@@ -26,7 +26,7 @@ var noaaCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		var fcst wx.Forecastable
+		var fcst wx.Forecaster
 		args := c.Args().Slice()
 		switch len(args) {
 		case 0:

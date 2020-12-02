@@ -33,7 +33,7 @@ var stravaCommand = &cli.Command{
 		}
 		if c.Bool("route") || c.Bool("activity") || c.Bool("stream") {
 			args := c.Args()
-			var tck geo.Trackable
+			var tck geo.Tracker
 			for i := 0; i < args.Len(); i++ {
 				ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 				defer cancel()
