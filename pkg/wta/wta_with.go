@@ -31,7 +31,7 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// WithHTTPTracing enables tracing http calls
+// WithHTTPTracing enables tracing http calls.
 func WithHTTPTracing(debug bool) Option {
 	return func(c *Client) error {
 		if !debug {
@@ -44,7 +44,7 @@ func WithHTTPTracing(debug bool) Option {
 	}
 }
 
-// WithTransport sets the underlying http client transport
+// WithTransport sets the underlying http client transport.
 func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
 		if t == nil {
@@ -55,7 +55,7 @@ func WithTransport(t http.RoundTripper) Option {
 	}
 }
 
-// WithHTTPClient sets the underlying http client
+// WithHTTPClient sets the underlying http client.
 func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
 		if client == nil {

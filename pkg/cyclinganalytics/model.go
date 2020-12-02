@@ -67,7 +67,7 @@ type Summary struct {
 	PwcR2          float64 `json:"pwc_r2"`
 	RidingTime     float64 `json:"riding_time"`
 	TotalTime      float64 `json:"total_time"`
-	Trimp          float64 `json:"trimp"`
+	TRIMP          float64 `json:"trimp"`
 	Variability    float64 `json:"variability"`
 	Work           float64 `json:"work"`
 	Zones          Zones   `json:"zones"`

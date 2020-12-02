@@ -31,9 +31,9 @@ var cyclinganalyticsCommand = &cli.Command{
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
 		if c.Bool("athlete") {
-			ath, merr := client.User.Me(ctx)
-			if merr != nil {
-				return merr
+			ath, err := client.User.Me(ctx)
+			if err != nil {
+				return err
 			}
 			return encoder.Encode(ath)
 		}

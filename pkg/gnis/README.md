@@ -1,3 +1,31 @@
-### GNIS
+# gnis
 
-- [Feature Class Definitions](https://geonames.usgs.gov/apex/f?p=GNISPQ:8::::::)
+Package gnis provides a client to the Geographic Names database provided by the USGS.
+
+The definitions for feature classes can be found [here](https://geonames.usgs.gov/apex/f?p=GNISPQ:8)::::::
+
+To use:
+
+```go
+import (
+	"context"
+	"log"
+	"os"
+
+	"github.com/bzimmer/gravl/pkg/gnis"
+)
+
+func main() {
+	client, err := gnis.NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx := context.Background()
+	features, err := client.GeoNames.Query(ctx, "WA")
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(features)
+	os.Exit(0)
+}
+```

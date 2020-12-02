@@ -40,7 +40,7 @@ func NewClient(opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// WithConfig sets the underlying oauth2.Config
+// WithConfig sets the underlying oauth2.Config.
 func WithConfig(config oauth2.Config) Option {
 	return func(c *Client) error {
 		c.config = config
@@ -48,7 +48,7 @@ func WithConfig(config oauth2.Config) Option {
 	}
 }
 
-// WithToken sets the underlying oauth2.Token
+// WithToken sets the underlying oauth2.Token.
 func WithToken(token oauth2.Token) Option {
 	return func(c *Client) error {
 		c.token = token
@@ -56,7 +56,7 @@ func WithToken(token oauth2.Token) Option {
 	}
 }
 
-// WithTokenCredentials provides the tokens for an authenticated user
+// WithTokenCredentials provides the tokens for an authenticated user.
 func WithTokenCredentials(accessToken, refreshToken string, expiry time.Time) Option {
 	return func(c *Client) error {
 		c.token.AccessToken = accessToken
@@ -66,7 +66,7 @@ func WithTokenCredentials(accessToken, refreshToken string, expiry time.Time) Op
 	}
 }
 
-// WithAPICredentials provides the client api credentials for the application
+// WithAPICredentials provides the client api credentials for the application.
 func WithClientCredentials(clientID, clientSecret string) Option {
 	return func(c *Client) error {
 		c.config.ClientID = clientID
@@ -75,8 +75,8 @@ func WithClientCredentials(clientID, clientSecret string) Option {
 	}
 }
 
-// WithAutoRefresh refreshes access tokens automatically
-// The order of this option matters because it is dependented on the client's
+// WithAutoRefresh refreshes access tokens automatically.
+// The order of this option matters because it is dependent on the client's
 // config and token. Use this option after With*Credentials.
 func WithAutoRefresh(ctx context.Context) Option {
 	return func(c *Client) error {
@@ -85,7 +85,7 @@ func WithAutoRefresh(ctx context.Context) Option {
 	}
 }
 
-// WithHTTPTracing enables tracing http calls
+// WithHTTPTracing enables tracing http calls.
 func WithHTTPTracing(debug bool) Option {
 	return func(c *Client) error {
 		if !debug {
@@ -98,7 +98,7 @@ func WithHTTPTracing(debug bool) Option {
 	}
 }
 
-// WithTransport sets the underlying http client transport
+// WithTransport sets the underlying http client transport.
 func WithTransport(t http.RoundTripper) Option {
 	return func(c *Client) error {
 		if t == nil {
@@ -109,7 +109,7 @@ func WithTransport(t http.RoundTripper) Option {
 	}
 }
 
-// WithHTTPClient sets the underlying http client
+// WithHTTPClient sets the underlying http client.
 func WithHTTPClient(client *http.Client) Option {
 	return func(c *Client) error {
 		if client == nil {
@@ -120,7 +120,7 @@ func WithHTTPClient(client *http.Client) Option {
 	}
 }
 
-// do executes the request
+// do executes the http request and populates v with the result.
 func (c *Client) do(req *http.Request, v interface{}) error {
 	ctx := req.Context()
 	res, err := c.client.Do(req)

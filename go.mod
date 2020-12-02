@@ -8,8 +8,10 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gocolly/colly/v2 v2.1.0
+	github.com/golang/gddo v0.0.0-20200324184333-3c2cc9a6329d
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/paulmach/go.geojson v1.4.0
+	github.com/posener/goreadme v1.3.4
 	github.com/rs/zerolog v1.20.0
 	github.com/securego/gosec/v2 v2.5.0
 	github.com/stretchr/testify v1.6.1
