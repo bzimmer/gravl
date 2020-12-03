@@ -57,7 +57,7 @@ type Trip struct {
 	Distance      float64       `json:"distance"`
 	ElevationGain float64       `json:"elevation_gain"`
 	ElevationLoss float64       `json:"elevation_loss"`
-	ID            int           `json:"id"`
+	ID            int64         `json:"id"`
 	Name          string        `json:"name"`
 	Origin        Origin        `json:"-"`
 	TrackID       string        `json:"track_id"`

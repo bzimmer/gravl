@@ -18,7 +18,7 @@ func float64ToString(f float64) string {
 }
 
 // GridPoint .
-func (s *PointsService) GridPoint(ctx context.Context, latitude, longitude float64) (*GridPoint, error) {
+func (s *PointsService) GridPoint(ctx context.Context, longitude, latitude float64) (*GridPoint, error) {
 	uri := fmt.Sprintf("points/%s,%s", float64ToString(latitude), float64ToString(longitude))
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
@@ -33,13 +33,13 @@ func (s *PointsService) GridPoint(ctx context.Context, latitude, longitude float
 }
 
 // Forecast .
-func (s *PointsService) Forecast(ctx context.Context, latitude, longitude float64) (*Forecast, error) {
+func (s *PointsService) Forecast(ctx context.Context, longitude, latitude float64) (*Forecast, error) {
 	uri := fmt.Sprintf("points/%s,%s/forecast", float64ToString(latitude), float64ToString(longitude))
 	return s.forecast(ctx, uri)
 }
 
 // ForecastHourly .
-func (s *PointsService) ForecastHourly(ctx context.Context, latitude, longitude float64) (*Forecast, error) {
+func (s *PointsService) ForecastHourly(ctx context.Context, longitude, latitude float64) (*Forecast, error) {
 	uri := fmt.Sprintf("points/%s,%s/forecast/hourly", float64ToString(latitude), float64ToString(longitude))
 	return s.forecast(ctx, uri)
 }

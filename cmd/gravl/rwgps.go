@@ -16,36 +16,28 @@ var rwgpsCommand = &cli.Command{
 	Name:     "rwgps",
 	Category: "route",
 	Usage:    "Query Ride with GPS for rides and routes",
-	Flags: []cli.Flag{
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "rwgps.client-id",
-			Value: "",
-			Usage: "Client ID for RWGPS API",
+	Flags: merge(
+		rwgpsAuthFlags,
+		[]cli.Flag{
+			&cli.BoolFlag{
+				Name:    "trip",
+				Aliases: []string{"t"},
+				Value:   false,
+				Usage:   "Trip",
+			},
+			&cli.BoolFlag{
+				Name:    "route",
+				Aliases: []string{"r"},
+				Value:   false,
+				Usage:   "Route",
+			},
+			&cli.BoolFlag{
+				Name:    "athlete",
+				Aliases: []string{"a"},
+				Value:   false,
+				Usage:   "Athlete",
+			},
 		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "rwgps.access-token",
-			Value: "",
-			Usage: "Access token for RWGPS API",
-		}),
-		&cli.BoolFlag{
-			Name:    "trip",
-			Aliases: []string{"t"},
-			Value:   false,
-			Usage:   "Trip",
-		},
-		&cli.BoolFlag{
-			Name:    "route",
-			Aliases: []string{"r"},
-			Value:   false,
-			Usage:   "Route",
-		},
-		&cli.BoolFlag{
-			Name:    "athlete",
-			Aliases: []string{"a"},
-			Value:   false,
-			Usage:   "Athlete",
-		},
-	},
 	Action: func(c *cli.Context) error {
 		client, err := rwgps.NewClient(
 			rwgps.WithClientCredentials(c.String("rwgps.client-id"), ""),
@@ -96,4 +88,17 @@ var rwgpsCommand = &cli.Command{
 		}
 		return nil
 	},
+}
+
+var rwgpsAuthFlags = []cli.Flag{
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "rwgps.client-id",
+		Value: "",
+		Usage: "Client ID for RWGPS API",
+	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "rwgps.access-token",
+		Value: "",
+		Usage: "Access token for RWGPS API",
+	}),
 }

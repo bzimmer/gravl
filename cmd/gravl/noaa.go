@@ -38,7 +38,7 @@ var noaaCommand = &cli.Command{
 			if !geom.IsPoint() {
 				return errors.New("only Point geometries are supported")
 			}
-			fcst, e = client.Points.Forecast(ctx, geom.Point[1], geom.Point[0])
+			fcst, e = client.Points.Forecast(ctx, geom.Point[0], geom.Point[1])
 			if e != nil {
 				return e
 			}
@@ -51,7 +51,7 @@ var noaaCommand = &cli.Command{
 			if e != nil {
 				return e
 			}
-			fcst, e = client.Points.Forecast(ctx, lat, lng)
+			fcst, e = client.Points.Forecast(ctx, lng, lat)
 			if e != nil {
 				return e
 			}

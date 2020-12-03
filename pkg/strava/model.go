@@ -395,3 +395,7 @@ func (r *Route) Track() (*geo.Track, error) {
 	}
 	return rte, nil
 }
+
+var _ geo.Tracker = &Route{}
+var _ geo.Tracker = &Streams{}
+var _ geo.Tracker = &Activity{}
