@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/bzimmer/gravl/pkg/common"
 )
 
 // ActivityService is the API for activity endpoints
@@ -15,15 +17,15 @@ type activityPaginator struct {
 	activities []*Activity
 }
 
-func (p *activityPaginator) page() int {
+func (p *activityPaginator) Page() int {
 	return PageSize
 }
 
-func (p *activityPaginator) count() int {
+func (p *activityPaginator) Count() int {
 	return len(p.activities)
 }
 
-func (p *activityPaginator) do(ctx context.Context, start, count int) (int, error) {
+func (p *activityPaginator) Do(ctx context.Context, start, count int) (int, error) {
 	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
@@ -70,12 +72,12 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 }
 
 // Activities returns a page of activities for an athlete
-func (s *ActivityService) Activities(ctx context.Context, spec Pagination) ([]*Activity, error) {
+func (s *ActivityService) Activities(ctx context.Context, spec common.Pagination) ([]*Activity, error) {
 	p := &activityPaginator{
 		service:    *s,
 		activities: make([]*Activity, 0),
 	}
-	err := paginate(ctx, p, spec)
+	err := common.Paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/bzimmer/gravl/pkg/common"
 )
 
 // TripsService provides access to Trips and Routes via the RWGPS API
@@ -15,15 +17,15 @@ type tripsPaginator struct {
 	trips   []*Trip
 }
 
-func (p *tripsPaginator) page() int {
+func (p *tripsPaginator) Page() int {
 	return PageSize
 }
 
-func (p *tripsPaginator) count() int {
+func (p *tripsPaginator) Count() int {
 	return len(p.trips)
 }
 
-func (p *tripsPaginator) do(ctx context.Context, start, count int) (int, error) {
+func (p *tripsPaginator) Do(ctx context.Context, start, count int) (int, error) {
 	uri := fmt.Sprintf("users/%d/trips.json", p.userID)
 	params := map[string]string{
 		"offset": fmt.Sprintf("%d", start),
@@ -43,13 +45,13 @@ func (p *tripsPaginator) do(ctx context.Context, start, count int) (int, error) 
 }
 
 // Trips returns a slice of Trips
-func (s *TripsService) Trips(ctx context.Context, userID UserID, spec Pagination) ([]*Trip, error) {
+func (s *TripsService) Trips(ctx context.Context, userID UserID, spec common.Pagination) ([]*Trip, error) {
 	p := &tripsPaginator{
 		service: *s,
 		userID:  userID,
 		trips:   make([]*Trip, 0),
 	}
-	err := paginate(ctx, p, spec)
+	err := common.Paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err
 	}

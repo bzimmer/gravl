@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/common/geo"
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/stretchr/testify/assert"
@@ -44,7 +45,7 @@ func Test_Routes(t *testing.T) {
 
 	// test total, start, and count
 	// success: the requested number of routes because count/pagesize == 1
-	acts, err := client.Route.Routes(ctx, 26587226, strava.Pagination{Total: 127, Start: 0, Count: 1})
+	acts, err := client.Route.Routes(ctx, 26587226, common.Pagination{Total: 127, Start: 0, Count: 1})
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(127, len(acts))
@@ -53,7 +54,7 @@ func Test_Routes(t *testing.T) {
 	// success: the requested number of routes is exceeded because count/pagesize not specified
 	x := 234
 	n := int(math.Floor(float64(x)/strava.PageSize)*strava.PageSize + strava.PageSize)
-	acts, err = client.Route.Routes(ctx, 26587226, strava.Pagination{Total: x, Start: 0})
+	acts, err = client.Route.Routes(ctx, 26587226, common.Pagination{Total: x, Start: 0})
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(n, len(acts))
@@ -61,13 +62,13 @@ func Test_Routes(t *testing.T) {
 	// test total and start less than PageSize
 	// success: the requested number of routes because count/pagesize <= strava.PageSize
 	a.True(27 < strava.PageSize)
-	acts, err = client.Route.Routes(ctx, 26587226, strava.Pagination{Total: 27, Start: 0})
+	acts, err = client.Route.Routes(ctx, 26587226, common.Pagination{Total: 27, Start: 0})
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(27, len(acts))
 
 	// negative test
-	acts, err = client.Route.Routes(ctx, 26587226, strava.Pagination{Total: -1})
+	acts, err = client.Route.Routes(ctx, 26587226, common.Pagination{Total: -1})
 	a.Error(err)
 	a.Nil(acts)
 }

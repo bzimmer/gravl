@@ -8,6 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
+	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/common/geo"
 	"github.com/bzimmer/gravl/pkg/rwgps"
 )
@@ -87,7 +88,7 @@ var rwgpsCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			trips, err := client.Trips.Trips(ctx, user.ID, rwgps.Pagination{Total: c.Int("count")})
+			trips, err := client.Trips.Trips(ctx, user.ID, common.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}

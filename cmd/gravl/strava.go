@@ -5,9 +5,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
+	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/common/geo"
 	"github.com/bzimmer/gravl/pkg/strava"
 )
@@ -79,7 +82,13 @@ var stravaCommand = &cli.Command{
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			activities, err := client.Activity.Activities(ctx, strava.Pagination{Total: c.Int("count")})
+			spec := common.Pagination{Total: c.Int("count")}
+			defer func(start time.Time) {
+				log.Debug().
+					Dur("elapsed", time.Since(start)).
+					Msg("activities")
+			}(time.Now())
+			activities, err := client.Activity.Activities(ctx, spec)
 			if err != nil {
 				return err
 			}
@@ -89,7 +98,6 @@ var stravaCommand = &cli.Command{
 					return err
 				}
 			}
-			return nil
 		}
 		if c.Bool("routes") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -98,7 +106,7 @@ var stravaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			routes, err := client.Route.Routes(ctx, athlete.ID, strava.Pagination{Total: c.Int("count")})
+			routes, err := client.Route.Routes(ctx, athlete.ID, common.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}
