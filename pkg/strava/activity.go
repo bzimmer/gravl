@@ -15,6 +15,10 @@ type activityPaginator struct {
 	activities []*Activity
 }
 
+func (p *activityPaginator) page() int {
+	return PageSize
+}
+
 func (p *activityPaginator) count() int {
 	return len(p.activities)
 }
@@ -30,12 +34,7 @@ func (p *activityPaginator) do(ctx context.Context, start, count int) (int, erro
 	if err != nil {
 		return 0, err
 	}
-	for _, act := range acts {
-		if err != nil {
-			return 0, err
-		}
-		p.activities = append(p.activities, act)
-	}
+	p.activities = append(p.activities, acts...)
 	return len(acts), nil
 }
 

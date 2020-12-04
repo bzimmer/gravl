@@ -37,6 +37,24 @@ var rwgpsCommand = &cli.Command{
 				Value:   false,
 				Usage:   "Athlete",
 			},
+			&cli.BoolFlag{
+				Name:    "activities",
+				Aliases: []string{"A"},
+				Value:   false,
+				Usage:   "Activities",
+			},
+			// &cli.BoolFlag{
+			// 	Name:    "routes",
+			// 	Aliases: []string{"R"},
+			// 	Value:   false,
+			// 	Usage:   "Routes",
+			// },
+			&cli.IntFlag{
+				Name:    "count",
+				Aliases: []string{"N"},
+				Value:   10,
+				Usage:   "Count",
+			},
 		}),
 	Action: func(c *cli.Context) error {
 		client, err := rwgps.NewClient(
@@ -58,6 +76,26 @@ var rwgpsCommand = &cli.Command{
 			err = encoder.Encode(user)
 			if err != nil {
 				return err
+			}
+			return nil
+		}
+
+		if c.Bool("activities") {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			user, err := client.Users.AuthenticatedUser(ctx)
+			if err != nil {
+				return err
+			}
+			trips, err := client.Trips.Trips(ctx, user.ID, rwgps.Pagination{Total: c.Int("count")})
+			if err != nil {
+				return err
+			}
+			for _, trip := range trips {
+				err = encoder.Encode(trip)
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		}

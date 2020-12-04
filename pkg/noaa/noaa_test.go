@@ -15,14 +15,13 @@ func newClient(status int, filename string) (*noaa.Client, error) {
 	)
 }
 
-func newClienter(status int, filename string, requester httpwares.Requester, responder httpwares.Responder) (*noaa.Client, error) {
+func newClienter(status int, filename string, requester httpwares.Requester) (*noaa.Client, error) {
 	return noaa.NewClient(
 		noaa.WithTransport(&httpwares.TestDataTransport{
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json",
 			Requester:   requester,
-			Responder:   responder,
 		}),
 	)
 }

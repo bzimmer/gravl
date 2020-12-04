@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bzimmer/gravl/pkg/rwgps"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,5 +21,5 @@ func Test_User(t *testing.T) {
 	user, err := c.Users.AuthenticatedUser(ctx)
 	a.NoError(err)
 	a.NotNil(user)
-	a.Equal(int64(1122), user.ID)
+	a.Equal(rwgps.UserID(1122), user.ID)
 }

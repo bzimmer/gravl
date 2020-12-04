@@ -1,6 +1,6 @@
 package rwgps
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --client --auth --package rwgps
+//go:generate go run ../../cmd/genwith/genwith.go --do --client --auth --pagination --package rwgps
 
 import (
 	"bytes"
@@ -18,6 +18,7 @@ import (
 const (
 	apiVersion = "2"
 	baseURL    = "https://ridewithgps.com"
+	PageSize   = 30
 )
 
 // Client .
@@ -35,17 +36,20 @@ func withServices(c *Client) {
 	c.Trips = &TripsService{client: c}
 }
 
-func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) {
+func (c *Client) newAPIRequest(ctx context.Context, method, uri string, params map[string]string) (*http.Request, error) {
 	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
 	}
-	b, err := json.Marshal(
-		map[string]string{
-			"version":    apiVersion,
-			"apikey":     c.config.ClientID,
-			"auth_token": c.token.AccessToken,
-		})
+	x := map[string]string{
+		"version":    apiVersion,
+		"apikey":     c.config.ClientID,
+		"auth_token": c.token.AccessToken,
+	}
+	for k, v := range params {
+		x[k] = v
+	}
+	b, err := json.Marshal(x)
 	if err != nil {
 		return nil, err
 	}

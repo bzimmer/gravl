@@ -1,6 +1,6 @@
 package strava
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --client --endpoint --auth --package strava
+//go:generate go run ../../cmd/genwith/genwith.go --do --client --endpoint --auth --pagination --package strava
 
 import (
 	"bytes"
@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	baseURL = "https://www.strava.com/api/v3"
+	baseURL  = "https://www.strava.com/api/v3"
+	PageSize = 100
 )
 
 // Endpoint is Strava's OAuth 2.0 endpoint

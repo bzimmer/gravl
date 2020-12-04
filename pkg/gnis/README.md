@@ -25,7 +25,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(features)
+	log.Println(features[0])
 	os.Exit(0)
 }
 ```

@@ -11,7 +11,7 @@ To use:
 ```go
 import (
 	"context"
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/bzimmer/gravl/pkg/srtm"
@@ -23,16 +23,14 @@ func main() {
 	client, err := srtm.NewClient(
 		srtm.WithStorageLocation("/path/to/storage/directory"))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	ctx := context.Background()
 	elevation, err := client.Elevation.Elevation(ctx, longitude, latitude)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
-	fmt.Println(elevation)
+	log.Println(elevation)
 	os.Exit(0)
 }
 ```

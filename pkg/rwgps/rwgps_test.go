@@ -43,6 +43,6 @@ func newClient(status int, filename string) (*rwgps.Client, error) {
 		}),
 		rwgps.WithClientCredentials("fooKey", ""),
 		rwgps.WithTokenCredentials("barToken", "", time.Time{}),
-		rwgps.WithHTTPTracing(true),
+		rwgps.WithHTTPTracing(false),
 	)
 }

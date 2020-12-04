@@ -15,6 +15,10 @@ type routePaginator struct {
 	service   RouteService
 }
 
+func (p *routePaginator) page() int {
+	return PageSize
+}
+
 func (p *routePaginator) count() int {
 	return len(p.routes)
 }
@@ -30,12 +34,7 @@ func (p *routePaginator) do(ctx context.Context, start, count int) (int, error) 
 	if err != nil {
 		return 0, err
 	}
-	for _, rte := range rtes {
-		if err != nil {
-			return 0, err
-		}
-		p.routes = append(p.routes, rte)
-	}
+	p.routes = append(p.routes, rtes...)
 	return len(rtes), nil
 }
 

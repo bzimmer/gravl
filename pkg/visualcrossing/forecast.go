@@ -64,7 +64,7 @@ func (s *ForecastService) Forecast(ctx context.Context, opt ForecastOptions) (*F
 		return nil, err
 	}
 	fct := &Forecast{}
-	err = s.client.Do(req, fct)
+	err = s.client.do(req, fct)
 	if err != nil {
 		return nil, err
 	}

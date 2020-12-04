@@ -59,8 +59,8 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	return req, nil
 }
 
-// Do executes the request
-func (c *Client) Do(req *http.Request, v interface{}) error {
+// do executes the request
+func (c *Client) do(req *http.Request, v interface{}) error {
 	ctx := req.Context()
 	res, err := c.client.Do(req)
 	if err != nil {
