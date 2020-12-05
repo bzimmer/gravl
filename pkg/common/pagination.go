@@ -3,8 +3,6 @@ package common
 import (
 	"context"
 	"errors"
-
-	"github.com/rs/zerolog/log"
 )
 
 // Pagination provides guidance on how to paginate through resources
@@ -33,12 +31,12 @@ func Paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
 		count = spec.Count
 		total = spec.Total
 	)
-	log.Debug().
-		Str("prepared", "pre").
-		Int("start", start).
-		Int("count", count).
-		Int("total", total).
-		Msg("paginate")
+	// log.Debug().
+	// 	Str("prepared", "pre").
+	// 	Int("start", start).
+	// 	Int("count", count).
+	// 	Int("total", total).
+	// 	Msg("paginate")
 	if total < 0 {
 		return errors.New("total less than zero")
 	}
@@ -55,37 +53,36 @@ func Paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
 	if start <= 1 && total < paginator.Page() {
 		count = total
 	}
-	log.Debug().
-		Str("prepared", "post").
-		Int("start", start).
-		Int("count", count).
-		Int("total", total).
-		Msg("paginate")
-
+	// log.Debug().
+	// 	Str("prepared", "post").
+	// 	Int("start", start).
+	// 	Int("count", count).
+	// 	Int("total", total).
+	// 	Msg("paginate")
 	return do(ctx, paginator, total, start, count)
 }
 
 func do(ctx context.Context, paginator Paginator, total, start, count int) error {
 	for {
-		all := paginator.Count()
-		log.Debug().
-			Int("all", all).
-			Int("start", start).
-			Int("count", count).
-			Int("total", total).
-			Msg("do")
+		// all := paginator.Count()
+		// log.Debug().
+		// 	Int("all", all).
+		// 	Int("start", start).
+		// 	Int("count", count).
+		// 	Int("total", total).
+		// 	Msg("do")
 		n, err := paginator.Do(ctx, start, count)
 		if err != nil {
 			return err
 		}
-		all = paginator.Count()
-		log.Debug().
-			Int("n", n).
-			Int("all", all).
-			Int("start", start).
-			Int("count", count).
-			Int("total", total).
-			Msg("done")
+		all := paginator.Count()
+		// log.Debug().
+		// 	Int("n", n).
+		// 	Int("all", all).
+		// 	Int("start", start).
+		// 	Int("count", count).
+		// 	Int("total", total).
+		// 	Msg("done")
 		// Strava documentation says receiving fewer than requested results is a
 		// possible scenario so break only if 0 results were returned or we have
 		// enough to fulfill the request

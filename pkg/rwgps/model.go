@@ -3,10 +3,7 @@ package rwgps
 //go:generate stringer -type=Origin -output=model_string.go
 
 import (
-	"fmt"
 	"time"
-
-	"github.com/bzimmer/gravl/pkg/common/geo"
 )
 
 // Origin of the trip
@@ -134,28 +131,4 @@ type TripResponse struct {
 type TripsResponse struct {
 	Results      []*Trip `json:"results"`
 	ResultsCount int     `json:"results_count"`
-}
-
-func (t *Trip) Track() (*geo.Track, error) {
-	coords := make([][]float64, len(t.TrackPoints))
-	for i, tp := range t.TrackPoints {
-		coords[i] = []float64{tp.Longitude, tp.Latitude, tp.Elevation}
-	}
-
-	var q geo.Origin
-	switch t.Origin {
-	case OriginTrip:
-		q = geo.OriginActivity
-	case OriginRoute:
-		q = geo.OriginPlanned
-	}
-
-	return &geo.Track{
-		ID:          fmt.Sprintf("%d", t.ID),
-		Name:        t.Name,
-		Source:      baseURL,
-		Origin:      q,
-		Description: t.Description,
-		Coordinates: coords,
-	}, nil
 }

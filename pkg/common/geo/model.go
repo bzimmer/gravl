@@ -1,71 +1,25 @@
 package geo
 
-//go:generate stringer -type=Origin -output=model_string.go
+import (
+	"encoding/json"
 
-import "encoding/json"
-
-// Coordinates of a Route
-type Coordinates [][]float64
-
-// Source of the Route
-type Source string
-
-// Origin of the Route
-type Origin int
-
-const (
-	// OriginActivity is a route originated from a gps track
-	OriginActivity Origin = iota
-	// OriginPlanned is a route originated from creating a route with a route builder
-	OriginPlanned
-	// OriginUnknown origin
-	OriginUnknown
+	geom "github.com/twpayne/go-geom"
+	gpx "github.com/twpayne/go-gpx"
 )
 
-// Track represents a series of one or more points
-type Track struct {
-	ID          string
-	Name        string
-	Source      Source
-	Origin      Origin
-	Description string
-	Coordinates Coordinates
-}
-
-// Tracker instances can return a Track
-type Tracker interface {
-	// Track returns an instance of a Track
-	Track() (*Track, error)
-}
-
-// MarshalJSON produces GeoJSON
-func (r *Track) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&struct {
-		ID         string                 `json:"id"`
-		Type       string                 `json:"type"`
-		Geometry   map[string]interface{} `json:"geometry"`
-		Properties map[string]interface{} `json:"properties"`
-	}{
-		ID:   r.ID,
-		Type: "Feature",
-		Geometry: map[string]interface{}{
-			"type":        "LineString",
-			"coordinates": r.Coordinates,
-		},
-		Properties: map[string]interface{}{
-			"name":        r.Name,
-			"source":      r.Source,
-			"origin":      r.Origin,
-			"description": r.Description,
-		},
-	})
+type GPX interface {
+	GPX() (*gpx.GPX, error)
 }
 
 // GeographicName information about the official name for places, features, and areas
 type GeographicName struct {
-	Track
-	Class  string
-	Locale string
+	ID          string
+	Name        string
+	Source      string
+	Description string
+	Coordinates geom.Coord
+	Class       string
+	Locale      string
 }
 
 // MarshalJSON produces GeoJSON

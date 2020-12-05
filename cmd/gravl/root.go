@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/json"
 	stdlog "log"
 	"os"
 	"path"
@@ -21,8 +20,7 @@ import (
 )
 
 var (
-	encoder *json.Encoder
-	decoder *json.Decoder
+	encoder *xcoder
 )
 
 type logger struct{}
@@ -86,8 +84,7 @@ func initFlags(c *cli.Context) error {
 }
 
 func initEncoding(c *cli.Context) error {
-	decoder = newDecoder(c.App.Reader)
-	encoder = newEncoder(c.App.Writer, c.Bool("compact"))
+	encoder = newEncoder(c.App.Writer, c.String("encoding"), c.Bool("compact"))
 	return nil
 }
 
@@ -133,6 +130,12 @@ func flags() []cli.Flag {
 			Aliases: []string{"c"},
 			Value:   false,
 			Usage:   "Use compact JSON output",
+		},
+		&cli.StringFlag{
+			Name:    "encoding",
+			Aliases: []string{"e"},
+			Value:   "native",
+			Usage:   "Encoding to use (native, json, xml)",
 		},
 		&cli.BoolFlag{
 			Name:  "http-tracing",

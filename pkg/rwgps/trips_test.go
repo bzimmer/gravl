@@ -30,12 +30,6 @@ func Test_Trip(t *testing.T) {
 	a.Equal(1465, len(trk.TrackPoints))
 	a.Equal("OriginTrip", trk.Origin.String())
 
-	ttt, err := trk.Track()
-	a.NoError(err)
-	a.NotNil(ttt)
-	a.Equal(1465, len(ttt.Coordinates))
-	a.Equal("OriginActivity", ttt.Origin.String())
-
 	trk, err = c.Trips.Trip(contextNil(), 94)
 	a.Error(err)
 	a.Nil(trk)
@@ -57,10 +51,10 @@ func Test_Route(t *testing.T) {
 	a.Equal(int64(141014), rte.ID)
 	a.Equal(rwgps.OriginRoute, rte.Origin)
 
-	trk, err := rte.Track()
-	a.NoError(err)
-	a.NotNil(trk)
-	a.Equal(1154, len(trk.Coordinates))
+	// trk, err := rte.Track()
+	// a.NoError(err)
+	// a.NotNil(trk)
+	// a.Equal(1154, len(trk.Coordinates))
 
 	// keep the linter quiet by using a function to return nil
 	rte, err = c.Trips.Route(contextNil(), 141014)

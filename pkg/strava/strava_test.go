@@ -24,7 +24,7 @@ func newClienter(status int, filename string, requester httpwares.Requester, res
 			ContentType: "application/json",
 			Requester:   requester,
 			Responder:   responder}),
-		strava.WithHTTPTracing(true),
+		strava.WithHTTPTracing(false),
 		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}))
 }
 

@@ -91,10 +91,8 @@ func parseReader(reader io.Reader) ([]*geo.GeographicName, error) {
 
 func unmarshal(line string) (*geo.GeographicName, error) { // nolint:gocyclo
 	f := &geo.GeographicName{
-		Track: geo.Track{
-			Source:      baseURL,
-			Coordinates: [][]float64{{0, 0, 0}},
-		},
+		Source:      baseURL,
+		Coordinates: []float64{0, 0, 0},
 	}
 
 	parts := strings.Split(line, "|")
@@ -122,13 +120,13 @@ func unmarshal(line string) (*geo.GeographicName, error) { // nolint:gocyclo
 			if err != nil {
 				return nil, err
 			}
-			f.Coordinates[0][1] = x
+			f.Coordinates[1] = x
 		case 10: // PRIM_LONG_DEC
 			x, err := strconv.ParseFloat(s, 64)
 			if err != nil {
 				return nil, err
 			}
-			f.Coordinates[0][0] = x
+			f.Coordinates[0] = x
 		case 11: // SOURCE_LAT_DMS
 		case 12: // SOURCE_LONG_DMS
 		case 13: // SOURCE_LAT_DEC
@@ -142,7 +140,7 @@ func unmarshal(line string) (*geo.GeographicName, error) { // nolint:gocyclo
 			if err != nil {
 				return nil, err
 			}
-			f.Coordinates[0][2] = x
+			f.Coordinates[2] = x
 		case 16: // ELEV_IN_FT
 		case 17: // MAP_NAME
 		case 18: // DATE_CREATED

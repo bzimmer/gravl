@@ -11,7 +11,6 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg/common"
-	"github.com/bzimmer/gravl/pkg/common/geo"
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
@@ -36,22 +35,18 @@ var stravaCommand = &cli.Command{
 		}
 		if c.Bool("route") || c.Bool("activity") || c.Bool("stream") {
 			args := c.Args()
-			var tracker geo.Tracker
+			var t interface{}
 			for i := 0; i < args.Len(); i++ {
 				ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 				defer cancel()
 				x, err := strconv.ParseInt(args.Get(i), 0, 64)
 				if c.Bool("route") {
-					tracker, err = client.Route.Route(ctx, x)
+					t, err = client.Route.Route(ctx, x)
 				} else if c.Bool("activity") {
-					tracker, err = client.Activity.Activity(ctx, x)
+					t, err = client.Activity.Activity(ctx, x)
 				} else if c.Bool("stream") {
-					tracker, err = client.Activity.Streams(ctx, x, "latlng", "altitude")
+					t, err = client.Activity.Streams(ctx, x, "latlng", "altitude", "time")
 				}
-				if err != nil {
-					return err
-				}
-				t, err := tracker.Track()
 				if err != nil {
 					return err
 				}

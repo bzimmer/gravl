@@ -13,6 +13,6 @@ func newClient(status int, filename string) (*cyclinganalytics.Client, error) {
 			Status:      status,
 			Filename:    filename,
 			ContentType: "application/json"}),
-		cyclinganalytics.WithHTTPTracing(true),
+		cyclinganalytics.WithHTTPTracing(false),
 		cyclinganalytics.WithTokenCredentials("fooKey", "barToken", time.Time{}))
 }

@@ -69,3 +69,59 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error
 	}
 	return res.Rides, nil
 }
+
+// // ValidStream returns true if the strean name is valid
+// func ValidStream(stream string) bool { // nolint
+// 	// https://www.cyclinganalytics.com/developer/api#/ride/ride_id
+// 	switch stream {
+// 	case "cadence":
+// 		return true
+// 	case "distance":
+// 		// The sequence of distance values for this stream, in kilometers [float]
+// 		return true
+// 	case "elevation":
+// 		// The sequence of elevation values for this stream, in meters [float]
+// 		return true
+// 	case "gears":
+// 		return true
+// 	case "gradient":
+// 		// The sequence of grade values for this stream, as percents of a grade [float]
+// 		return true
+// 	case "heart_rate_variability":
+// 		return true
+// 	case "heartrate":
+// 		// The sequence of heart rate values for this stream, in beats per minute [integer]
+// 		return true
+// 	case "latitude":
+// 		return true
+// 	case "longitude":
+// 		return true
+// 	case "lrbalance":
+// 		return true
+// 	case "pedal_smoothness":
+// 		return true
+// 	case "platform_center_offset":
+// 		return true
+// 	case "power":
+// 		return true
+// 	case "power_direction":
+// 		return true
+// 	case "power_phase":
+// 		return true
+// 	case "respiration_rate":
+// 		return true
+// 	case "smo2":
+// 		return true
+// 	case "speed":
+// 		// The sequence of speed values for this stream, in meters per second [float]
+// 		return true
+// 	case "temperature":
+// 		// The sequence of temperature values for this stream, in celsius degrees [float]
+// 		return true
+// 	case "thb":
+// 		return true
+// 	case "torque_effectiveness":
+// 		return true
+// 	}
+// 	return false
+// }

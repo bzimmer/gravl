@@ -9,7 +9,6 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg/common"
-	"github.com/bzimmer/gravl/pkg/common/geo"
 	"github.com/bzimmer/gravl/pkg/rwgps"
 )
 
@@ -101,7 +100,6 @@ var rwgpsCommand = &cli.Command{
 			return nil
 		}
 
-		var tracker geo.Tracker
 		for i := 0; i < c.Args().Len(); i++ {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
@@ -109,15 +107,12 @@ var rwgpsCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
+			var t interface{}
 			if c.Bool("trip") {
-				tracker, err = client.Trips.Trip(ctx, x)
+				t, err = client.Trips.Trip(ctx, x)
 			} else {
-				tracker, err = client.Trips.Route(ctx, x)
+				t, err = client.Trips.Route(ctx, x)
 			}
-			if err != nil {
-				return err
-			}
-			t, err := tracker.Track()
 			if err != nil {
 				return err
 			}

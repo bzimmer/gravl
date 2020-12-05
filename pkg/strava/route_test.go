@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/bzimmer/gravl/pkg/common"
-	"github.com/bzimmer/gravl/pkg/common/geo"
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,12 +22,6 @@ func Test_Route(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(rte)
 	a.Equal(26587226, rte.ID)
-
-	trk, err := rte.Track()
-	a.NoError(err)
-	a.NotNil(trk)
-	a.Equal(2076, len(trk.Coordinates))
-	a.Equal(geo.OriginPlanned, trk.Origin)
 }
 
 func Test_Routes(t *testing.T) {

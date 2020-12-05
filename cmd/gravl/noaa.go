@@ -2,11 +2,9 @@ package gravl
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 
-	geojson "github.com/paulmach/go.geojson"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/common/wx"
@@ -29,19 +27,6 @@ var noaaCommand = &cli.Command{
 		var fcst wx.Forecaster
 		args := c.Args().Slice()
 		switch len(args) {
-		case 0:
-			geom := &geojson.Geometry{}
-			e := decoder.Decode(geom)
-			if e != nil {
-				return e
-			}
-			if !geom.IsPoint() {
-				return errors.New("only Point geometries are supported")
-			}
-			fcst, e = client.Points.Forecast(ctx, geom.Point[0], geom.Point[1])
-			if e != nil {
-				return e
-			}
 		case 2:
 			lng, e := strconv.ParseFloat(args[0], 64)
 			if e != nil {

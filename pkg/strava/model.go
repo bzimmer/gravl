@@ -1,11 +1,7 @@
 package strava
 
 import (
-	"errors"
-	"fmt"
 	"time"
-
-	"github.com/bzimmer/gravl/pkg/common/geo"
 )
 
 // Error .
@@ -25,19 +21,37 @@ func (f *Fault) Error() string {
 	return f.Message
 }
 
-// Stream of data from an activity
-// Most streams will be a []float64 except for latlng which is a [][]float64
-type Stream struct {
-	Data         []interface{} `json:"data"`
-	OriginalSize int           `json:"original_size"`
-	Resolution   string        `json:"resolution"`
-	SeriesType   string        `json:"series_type"`
+type StreamMetadata struct {
+	OriginalSize int    `json:"original_size"`
+	Resolution   string `json:"resolution"`
+	SeriesType   string `json:"series_type"`
 }
 
-// Streams of data for the activity
+// Stream of data from an activity
+type Stream struct {
+	StreamMetadata
+	Data []float64 `json:"data"`
+}
+
+// CoordinateStream of data from an activity
+type CoordinateStream struct {
+	StreamMetadata
+	Data [][]float64 `json:"data"`
+}
+
 type Streams struct {
-	ActivityID int64
-	Streams    map[string]*Stream
+	ActivityID  int64             `json:"activity_id"`
+	LatLng      *CoordinateStream `json:"latlng"`
+	Altitude    *Stream           `json:"altitude"`
+	Time        *Stream           `json:"time"`
+	Distance    *Stream           `json:"distance"`
+	Velocity    *Stream           `json:"velocity_smooth"`
+	HeartRate   *Stream           `json:"heartrate"`
+	Cadence     *Stream           `json:"cadence"`
+	Watts       *Stream           `json:"watts"`
+	Temperature *Stream           `json:"temp"`
+	Moving      *Stream           `json:"moving"`
+	Grade       *Stream           `json:"grade_smooth"`
 }
 
 // Gear represents gear used by the athlete
@@ -336,66 +350,3 @@ type Route struct {
 	Map                 *Map       `json:"map"`
 	Timestamp           int        `json:"timestamp"`
 }
-
-func (a *Activity) Track() (*geo.Track, error) {
-	coords, err := geo.PolylineToCoords(a.Map.Polyline, a.Map.SummaryPolyline)
-	if err != nil {
-		return nil, err
-	}
-	rte := &geo.Track{
-		ID:          fmt.Sprintf("%d", a.ID),
-		Name:        a.Name,
-		Description: a.Description,
-		Source:      baseURL,
-		Origin:      geo.OriginActivity,
-		Coordinates: coords,
-	}
-	return rte, nil
-}
-
-func (s *Streams) Track() (*geo.Track, error) {
-	latlng, ok := s.Streams["latlng"]
-	if !ok {
-		return nil, errors.New("missing required latlng stream")
-	}
-
-	zero := float64(0)
-	rte := &geo.Track{
-		ID:          fmt.Sprintf("%d", s.ActivityID),
-		Source:      baseURL,
-		Origin:      geo.OriginActivity,
-		Coordinates: make([][]float64, len(latlng.Data)),
-	}
-
-	altitude, ok := s.Streams["altitude"]
-	for i, m := range latlng.Data {
-		lat := m.([]interface{})[0]
-		lng := m.([]interface{})[1]
-		alt := zero
-		if ok {
-			alt = (altitude.Data[i]).(float64)
-		}
-		rte.Coordinates[i] = []float64{lng.(float64), lat.(float64), alt}
-	}
-	return rte, nil
-}
-
-func (r *Route) Track() (*geo.Track, error) {
-	coords, err := geo.PolylineToCoords(r.Map.Polyline, r.Map.SummaryPolyline)
-	if err != nil {
-		return nil, err
-	}
-	rte := &geo.Track{
-		ID:          fmt.Sprintf("%d", r.ID),
-		Name:        r.Name,
-		Description: r.Description,
-		Source:      baseURL,
-		Origin:      geo.OriginPlanned,
-		Coordinates: coords,
-	}
-	return rte, nil
-}
-
-var _ geo.Tracker = &Route{}
-var _ geo.Tracker = &Streams{}
-var _ geo.Tracker = &Activity{}

@@ -48,12 +48,13 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 	if err != nil {
 		return nil, err
 	}
-	sts := make(map[string]*Stream)
-	err = s.client.do(req, &sts)
+	sts := &Streams{}
+	err = s.client.do(req, sts)
 	if err != nil {
 		return nil, err
 	}
-	return &Streams{ActivityID: activityID, Streams: sts}, err
+	sts.ActivityID = activityID
+	return sts, err
 }
 
 // Activity returns the activity specified by id for an athlete
@@ -84,9 +85,10 @@ func (s *ActivityService) Activities(ctx context.Context, spec common.Pagination
 	return p.activities, nil
 }
 
-// // https://developers.strava.com/docs/reference/#api-models-StreamSet
-// func validStream(name string) bool {
-// 	switch name {
+// // ValidStream returns true if the strean name is valid
+// func ValidStream(stream string) bool {
+// 	// https://developers.strava.com/docs/reference/#api-models-StreamSet
+// 	switch stream {
 // 	case "latlng":
 // 		// The sequence of lat/long values for this stream [float, float]
 // 		return true

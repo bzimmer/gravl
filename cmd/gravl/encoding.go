@@ -2,25 +2,68 @@ package gravl
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"io"
 	"os"
+
+	"github.com/bzimmer/gravl/pkg/common/geo"
 )
 
-func newEncoder(writer io.Writer, compact bool) *json.Encoder {
+type Encoding int
+
+const (
+	EncodingNative Encoding = iota // native
+	EncodingXML                    // xml
+	EncodingJSON                   // json
+)
+
+type xcoder struct {
+	enc  Encoding
+	xml  *xml.Encoder
+	json *json.Encoder
+}
+
+func (x *xcoder) Encode(v interface{}) error {
+	switch x.enc {
+	case EncodingXML:
+		if q, ok := v.(geo.GPX); ok {
+			p, err := q.GPX()
+			if err != nil {
+				return err
+			}
+			v = p
+		}
+		return x.xml.Encode(v)
+	case EncodingNative, EncodingJSON:
+		return x.json.Encode(v)
+	}
+	return nil
+}
+
+func newEncoder(writer io.Writer, encoding string, compact bool) *xcoder {
 	if writer == nil {
 		writer = os.Stdout
 	}
-	m := json.NewEncoder(writer)
+	xe := xml.NewEncoder(writer)
+	xe.Indent("", " ")
+	je := json.NewEncoder(writer)
 	if !compact {
-		m.SetIndent("", " ")
+		je.SetIndent("", " ")
 	}
-	m.SetEscapeHTML(false)
-	return m
-}
+	je.SetEscapeHTML(false)
 
-func newDecoder(reader io.Reader) *json.Decoder {
-	if reader == nil {
-		reader = os.Stdin
+	var enc Encoding
+	switch encoding {
+	case "native":
+		enc = EncodingNative
+	case "json", "geojson":
+		enc = EncodingJSON
+	case "xml", "gpx":
+		enc = EncodingXML
 	}
-	return json.NewDecoder(reader)
+	return &xcoder{
+		enc:  enc,
+		xml:  xe,
+		json: je,
+	}
 }
