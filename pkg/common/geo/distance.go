@@ -15,22 +15,23 @@ var WGS84 = ellipsoid.Init(
 	ellipsoid.LongitudeIsSymmetric, ellipsoid.BearingIsSymmetric)
 
 type Step struct {
-	Distance2D   float64
-	Distance3D   float64
-	Bearing      float64
-	Difference3D float64
-	Grade        float64
-	Moving       bool
+	Distance2D   float64 `json:"distance2d"`
+	Distance3D   float64 `json:"distance3d"`
+	Bearing      float64 `json:"bearing"`
+	Difference3D float64 `json:"difference3d"`
+	Grade        float64 `json:"grade"`
+	Moving       bool    `json:"moving"`
 }
 
 type Summary struct {
-	Steps      int
-	Distance2D float64
-	Distance3D float64
-	Ascent     float64
-	Descent    float64
+	Steps      int     `json:"steps"`
+	Distance2D float64 `json:"distance2d"`
+	Distance3D float64 `json:"distance3d"`
+	Ascent     float64 `json:"ascent"`
+	Descent    float64 `json:"descent"`
 }
 
+// To returns the difference between two points
 func To(p, q *geom.Point) Step {
 	d2, b := WGS84.To(p.Y(), p.X(), q.Y(), q.X())
 	ed := q.Z() - p.Z()
@@ -43,6 +44,7 @@ func To(p, q *geom.Point) Step {
 	}
 }
 
+// Steps returns a slice steps from one point to another
 func Steps(points ...*geom.Point) []Step {
 	if len(points) == 0 {
 		return []Step{}
@@ -54,6 +56,7 @@ func Steps(points ...*geom.Point) []Step {
 	return steps
 }
 
+// Add adds a Step to the summary
 func (s *Summary) Add(p Step) {
 	s.Steps++
 	s.Distance2D += p.Distance2D
@@ -65,6 +68,7 @@ func (s *Summary) Add(p Step) {
 	}
 }
 
+// Summarize the steps into a Summary
 func Summarize(steps ...Step) Summary {
 	s := &Summary{}
 	for i := 0; i < len(steps); i++ {

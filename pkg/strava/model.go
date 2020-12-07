@@ -328,6 +328,7 @@ type Activity struct {
 	LeaderboardOptOut        bool                   `json:"leaderboard_opt_out"`
 	PerceivedExertion        float64                `json:"perceived_exertion"`
 	PreferPerceivedExertion  bool                   `json:"prefer_perceived_exertion"`
+	Streams                  *Streams               `json:"streams"`
 }
 
 // Route .

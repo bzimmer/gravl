@@ -106,7 +106,6 @@ func initLogging(c *cli.Context) error {
 		},
 	)
 	stdlog.SetOutput(logger{})
-
 	return nil
 }
 

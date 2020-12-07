@@ -57,8 +57,8 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 	return sts, err
 }
 
-// Activity returns the activity specified by id for an athlete
-func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, error) {
+// Activity returns the activity specified by id
+func (s *ActivityService) Activity(ctx context.Context, id int64, streams ...string) (*Activity, error) {
 	uri := fmt.Sprintf("activities/%d", id)
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
@@ -68,6 +68,15 @@ func (s *ActivityService) Activity(ctx context.Context, id int64) (*Activity, er
 	err = s.client.do(req, act)
 	if err != nil {
 		return nil, err
+	}
+	var sms *Streams
+	if len(streams) > 0 {
+		// @todo querying in parallel to the activity
+		sms, err = s.Streams(ctx, id, streams...)
+		if err != nil {
+			return nil, err
+		}
+		act.Streams = sms
 	}
 	return act, err
 }

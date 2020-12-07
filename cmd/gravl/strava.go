@@ -43,7 +43,7 @@ var stravaCommand = &cli.Command{
 				if c.Bool("route") {
 					t, err = client.Route.Route(ctx, x)
 				} else if c.Bool("activity") {
-					t, err = client.Activity.Activity(ctx, x)
+					t, err = client.Activity.Activity(ctx, x, "latlng", "altitude", "time")
 				} else if c.Bool("stream") {
 					t, err = client.Activity.Streams(ctx, x, "latlng", "altitude", "time")
 				}
@@ -77,13 +77,12 @@ var stravaCommand = &cli.Command{
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			spec := common.Pagination{Total: c.Int("count")}
 			defer func(start time.Time) {
 				log.Debug().
 					Dur("elapsed", time.Since(start)).
 					Msg("activities")
 			}(time.Now())
-			activities, err := client.Activity.Activities(ctx, spec)
+			activities, err := client.Activity.Activities(ctx, common.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}
@@ -97,6 +96,11 @@ var stravaCommand = &cli.Command{
 		if c.Bool("routes") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
+			defer func(start time.Time) {
+				log.Debug().
+					Dur("elapsed", time.Since(start)).
+					Msg("activities")
+			}(time.Now())
 			athlete, err := client.Athlete.Athlete(ctx)
 			if err != nil {
 				return err

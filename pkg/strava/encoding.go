@@ -3,6 +3,7 @@ package strava
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/twpayne/go-geom"
 	"github.com/twpayne/go-gpx"
@@ -42,28 +43,41 @@ func polylineToLineString(polylines ...string) (*geom.LineString, error) {
 }
 
 func (a *Activity) GPX() (*gpx.GPX, error) {
-	ls, err := polylineToLineString(a.Map.Polyline, a.Map.SummaryPolyline)
-	if err != nil {
-		return nil, err
+	var (
+		err error
+		x   *gpx.GPX
+	)
+	if a.Streams != nil {
+		x, err = toGPXFromStreams(a.Streams, a.StartDate)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		ls, err := polylineToLineString(a.Map.Polyline, a.Map.SummaryPolyline)
+		if err != nil {
+			return nil, err
+		}
+
+		mls := geom.NewMultiLineString(ls.Layout())
+		err = mls.Push(ls)
+		if err != nil {
+			return nil, err
+		}
+
+		trk := gpx.NewTrkType(mls)
+		trk.Src = baseURL
+
+		x = &gpx.GPX{
+			Trk: []*gpx.TrkType{trk},
+		}
 	}
 
-	mls := geom.NewMultiLineString(ls.Layout())
-	err = mls.Push(ls)
-	if err != nil {
-		return nil, err
+	x.Metadata = &gpx.MetadataType{
+		Name: fmt.Sprintf("%d", a.ID),
+		Desc: a.Description,
+		Time: a.StartDate,
 	}
-
-	trk := gpx.NewTrkType(mls)
-	trk.Src = baseURL
-
-	return &gpx.GPX{
-		Metadata: &gpx.MetadataType{
-			Name: fmt.Sprintf("%d", a.ID),
-			Desc: a.Description,
-			Time: a.StartDate,
-		},
-		Trk: []*gpx.TrkType{trk},
-	}, nil
+	return x, nil
 }
 
 func (r *Route) GPX() (*gpx.GPX, error) {
@@ -85,6 +99,10 @@ func (r *Route) GPX() (*gpx.GPX, error) {
 }
 
 func (s *Streams) GPX() (*gpx.GPX, error) {
+	return toGPXFromStreams(s, time.Time{})
+}
+
+func toGPXFromStreams(s *Streams, start time.Time) (*gpx.GPX, error) {
 	var dim int
 	var layout geom.Layout
 	switch {
@@ -102,6 +120,12 @@ func (s *Streams) GPX() (*gpx.GPX, error) {
 		layout = geom.XY
 	}
 
+	var toUTC = func(m float64) float64 {
+		x := time.Second * time.Duration(m)
+		y := start.Add(x)
+		return float64(y.Unix())
+	}
+
 	n := len(s.LatLng.Data)
 	coords := make([]float64, dim*n)
 	for i := 0; i < n; i++ {
@@ -112,7 +136,7 @@ func (s *Streams) GPX() (*gpx.GPX, error) {
 		switch layout {
 		case geom.XYZM:
 			coords[x+2] = s.Altitude.Data[i]
-			coords[x+3] = s.Time.Data[i]
+			coords[x+3] = toUTC(s.Time.Data[i])
 		case geom.XYZ:
 			coords[x+2] = s.Altitude.Data[i]
 		case geom.XYM:
