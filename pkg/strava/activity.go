@@ -40,7 +40,7 @@ func (p *activityPaginator) Do(ctx context.Context, start, count int) (int, erro
 	return len(acts), nil
 }
 
-// Streams returns the activities data streams
+// Streams returns the activity's data streams
 func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (*Streams, error) {
 	keys := strings.Join(streams, ",")
 	uri := fmt.Sprintf("activities/%d/streams/%s?key_by_type=true", activityID, keys)
