@@ -13,7 +13,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/common/web"
 	"github.com/bzimmer/gravl/pkg/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/wta"
 )
 
 var index = []byte(`
@@ -36,16 +35,6 @@ func newRouter(c *cli.Context) *gin.Engine {
 	})
 
 	r.GET("/version/", gin.WrapF(web.VersionHandler()))
-
-	if client, err := wta.NewClient(
-		wta.WithHTTPTracing(c.Bool("http-tracing"))); err == nil {
-		p := r.Group("/wta")
-		p.GET("/regions/", wta.RegionsHandler(client))
-		p.GET("/reports/", wta.TripReportsHandler(client))
-		p.GET("/reports/:reporter", wta.TripReportsHandler(client))
-	} else {
-		log.Error().Err(err).Msg("wta")
-	}
 
 	state := mustRandomString(16)
 	address := fmt.Sprintf("%s:%d", c.String("serve.origin"), c.Int("serve.port"))
