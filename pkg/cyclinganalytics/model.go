@@ -119,3 +119,7 @@ type Ride struct {
 	UserID        UserID   `json:"user_id"`
 	UTCDatetime   string   `json:"utc_datetime"`
 }
+
+type RidesResponse struct {
+	Rides []*Ride `json:"rides"`
+}

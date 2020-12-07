@@ -58,11 +58,7 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error
 	if err != nil {
 		return nil, err
 	}
-
-	type Response struct {
-		Rides []*Ride `json:"rides"`
-	}
-	res := &Response{}
+	res := &RidesResponse{}
 	err = s.client.do(req, res)
 	if err != nil {
 		return nil, err
