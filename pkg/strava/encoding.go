@@ -9,6 +9,7 @@ import (
 	"github.com/twpayne/go-gpx"
 	"github.com/twpayne/go-polyline"
 
+	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/common/geo"
 )
 
@@ -90,6 +91,7 @@ func (r *Route) GPX() (*gpx.GPX, error) {
 	rte.Src = baseURL
 
 	return &gpx.GPX{
+		Creator: pkg.UserAgent,
 		Metadata: &gpx.MetadataType{
 			Name: fmt.Sprintf("%d", r.ID),
 			Desc: r.Description,
@@ -157,6 +159,7 @@ func toGPXFromStreams(s *Streams, start time.Time) (*gpx.GPX, error) {
 	trk.Src = baseURL
 
 	return &gpx.GPX{
+		Creator: pkg.UserAgent,
 		Metadata: &gpx.MetadataType{
 			Name: fmt.Sprintf("%d", s.ActivityID),
 		},
