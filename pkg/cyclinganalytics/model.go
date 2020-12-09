@@ -1,5 +1,9 @@
 package cyclinganalytics
 
+import (
+	"time"
+)
+
 // Fault .
 type Fault struct {
 	Message string `json:"message"`
@@ -10,6 +14,25 @@ func (f *Fault) Error() string {
 }
 
 type UserID int
+type Datetime struct {
+	time.Time
+}
+
+// 2020-11-01T07:50:10
+const datetimeFormat = `"2006-01-02T15:04:05"`
+
+func (d *Datetime) UnmarshalJSON(b []byte) (err error) {
+	t, err := time.Parse(datetimeFormat, string(b))
+	if err != nil {
+		return err
+	}
+	d.Time = t
+	return nil
+}
+
+func (d *Datetime) MarshalJSON() ([]byte, error) {
+	return []byte(d.Time.Format(datetimeFormat)), nil
+}
 
 const Me UserID = 0
 
@@ -80,34 +103,34 @@ type Shifts struct {
 }
 
 type Streams struct {
-	Power                []float64 `json:"power"`
-	Speed                []float64 `json:"speed"`
-	Distance             []float64 `json:"distance"`
-	Heartrate            []float64 `json:"heartrate"`
-	Cadence              []float64 `json:"cadence"`
-	LRBalance            []float64 `json:"lrbalance"`
-	Latitude             []float64 `json:"latitude"`
-	Longitude            []float64 `json:"longitude"`
-	Elevation            []float64 `json:"elevation"`
-	Gradient             []float64 `json:"gradient"`
-	Temperature          []float64 `json:"temperature"`
-	TorqueEffectiveness  []float64 `json:"torque_effectiveness"`
-	PedalSmoothness      []float64 `json:"pedal_smoothness"`
-	PlatformCenterOffset []float64 `json:"platform_center_offset"`
-	PowerPhase           []float64 `json:"power_phase"`
-	PowerDirection       []float64 `json:"power_direction"`
-	THB                  []float64 `json:"thb"`
-	SMO2                 []float64 `json:"smo2"`
-	RespirationRate      []float64 `json:"respiration_rate"`
-	HeartRateVariability []float64 `json:"heart_rate_variability"`
-	Gears                Shifts    `json:"gears"`
+	Power                []float64 `json:"power,omitempty"`
+	Speed                []float64 `json:"speed,omitempty"`
+	Distance             []float64 `json:"distance,omitempty"`
+	Heartrate            []float64 `json:"heartrate,omitempty"`
+	Cadence              []float64 `json:"cadence,omitempty"`
+	LRBalance            []float64 `json:"lrbalance,omitempty"`
+	Latitude             []float64 `json:"latitude,omitempty"`
+	Longitude            []float64 `json:"longitude,omitempty"`
+	Elevation            []float64 `json:"elevation,omitempty"`
+	Gradient             []float64 `json:"gradient,omitempty"`
+	Temperature          []float64 `json:"temperature,omitempty"`
+	TorqueEffectiveness  []float64 `json:"torque_effectiveness,omitempty"`
+	PedalSmoothness      []float64 `json:"pedal_smoothness,omitempty"`
+	PlatformCenterOffset []float64 `json:"platform_center_offset,omitempty"`
+	PowerPhase           []float64 `json:"power_phase,omitempty"`
+	PowerDirection       []float64 `json:"power_direction,omitempty"`
+	THB                  []float64 `json:"thb,omitempty"`
+	SMO2                 []float64 `json:"smo2,omitempty"`
+	RespirationRate      []float64 `json:"respiration_rate,omitempty"`
+	HeartRateVariability []float64 `json:"heart_rate_variability,omitempty"`
+	Gears                *Shifts   `json:"gears,omitempty"`
 }
 
 type Ride struct {
 	Format        string   `json:"format"`
 	Has           Has      `json:"has"`
 	ID            int64    `json:"id"`
-	LocalDatetime string   `json:"local_datetime"`
+	LocalDatetime Datetime `json:"local_datetime"`
 	Metadata      Metadata `json:"metadata"`
 	Notes         string   `json:"notes"`
 	Purpose       string   `json:"purpose"`
@@ -117,7 +140,7 @@ type Ride struct {
 	Title         string   `json:"title"`
 	Trainer       bool     `json:"trainer"`
 	UserID        UserID   `json:"user_id"`
-	UTCDatetime   string   `json:"utc_datetime"`
+	UTCDatetime   Datetime `json:"utc_datetime"`
 }
 
 type RidesResponse struct {

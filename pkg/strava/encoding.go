@@ -105,20 +105,15 @@ func (s *Streams) GPX() (*gpx.GPX, error) {
 }
 
 func toGPXFromStreams(s *Streams, start time.Time) (*gpx.GPX, error) {
-	var dim int
 	var layout geom.Layout
 	switch {
 	case s.Altitude != nil && s.Time != nil:
-		dim = 4
 		layout = geom.XYZM
 	case s.Altitude != nil:
-		dim = 3
 		layout = geom.XYZ
 	case s.Time != nil:
-		dim = 3
 		layout = geom.XYM
 	default:
-		dim = 2
 		layout = geom.XY
 	}
 
@@ -129,6 +124,7 @@ func toGPXFromStreams(s *Streams, start time.Time) (*gpx.GPX, error) {
 	}
 
 	n := len(s.LatLng.Data)
+	dim := layout.Stride()
 	coords := make([]float64, dim*n)
 	for i := 0; i < n; i++ {
 		x := dim * i

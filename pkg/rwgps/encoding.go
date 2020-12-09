@@ -6,19 +6,17 @@ import (
 )
 
 func (t *Trip) GPX() (*gpx.GPX, error) {
-	var dim int
 	var layout geom.Layout
 	switch t.Origin {
 	case OriginTrip:
-		dim = 4
 		layout = geom.XYZM
 	case OriginRoute:
 		// routes do not have a `time` dimension
-		dim = 3
 		layout = geom.XYZ
 	}
 
 	n := len(t.TrackPoints)
+	dim := layout.Stride()
 	coords := make([]float64, dim*n)
 	for i, tp := range t.TrackPoints {
 		x := dim * i
