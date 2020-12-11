@@ -41,17 +41,17 @@ type CoordinateStream struct {
 
 type Streams struct {
 	ActivityID  int64             `json:"activity_id"`
-	LatLng      *CoordinateStream `json:"latlng"`
-	Altitude    *Stream           `json:"altitude"`
-	Time        *Stream           `json:"time"`
-	Distance    *Stream           `json:"distance"`
-	Velocity    *Stream           `json:"velocity_smooth"`
-	HeartRate   *Stream           `json:"heartrate"`
-	Cadence     *Stream           `json:"cadence"`
-	Watts       *Stream           `json:"watts"`
-	Temperature *Stream           `json:"temp"`
-	Moving      *Stream           `json:"moving"`
-	Grade       *Stream           `json:"grade_smooth"`
+	LatLng      *CoordinateStream `json:"latlng,omitempty"`
+	Altitude    *Stream           `json:"altitude,omitempty"`
+	Time        *Stream           `json:"time,omitempty"`
+	Distance    *Stream           `json:"distance,omitempty"`
+	Velocity    *Stream           `json:"velocity_smooth,omitempty"`
+	HeartRate   *Stream           `json:"heartrate,omitempty"`
+	Cadence     *Stream           `json:"cadence,omitempty"`
+	Watts       *Stream           `json:"watts,omitempty"`
+	Temperature *Stream           `json:"temp,omitempty"`
+	Moving      *Stream           `json:"moving,omitempty"`
+	Grade       *Stream           `json:"grade_smooth,omitempty"`
 }
 
 // Gear represents gear used by the athlete
@@ -180,7 +180,7 @@ type Segment struct {
 	EffortCount        int       `json:"effort_count"`
 	AthleteCount       int       `json:"athlete_count"`
 	StarCount          int       `json:"star_count"`
-	AthletePrEffort    struct {
+	AthletePREffort    struct {
 		Distance       float64   `json:"distance"`
 		StartDateLocal time.Time `json:"start_date_local"`
 		ActivityID     int       `json:"activity_id"`
@@ -315,20 +315,20 @@ type Activity struct {
 	SufferScore              float64                `json:"suffer_score"`
 	Description              string                 `json:"description"`
 	Calories                 float64                `json:"calories"`
-	SegmentEfforts           []*SegmentEffort       `json:"segment_efforts"`
-	SplitsMetric             []*SplitsMetric        `json:"splits_metric"`
-	Laps                     []*Lap                 `json:"laps"`
-	Gear                     *Gear                  `json:"gear"`
+	SegmentEfforts           []*SegmentEffort       `json:"segment_efforts,omitempty"`
+	SplitsMetric             []*SplitsMetric        `json:"splits_metric,omitempty"`
+	Laps                     []*Lap                 `json:"laps,omitempty"`
+	Gear                     *Gear                  `json:"gear,omitempty"`
 	PartnerBrandTag          interface{}            `json:"partner_brand_tag"`
 	Photos                   *Photos                `json:"photos"`
-	HighlightedKudosers      []*HighlightedKudosers `json:"highlighted_kudosers"`
+	HighlightedKudosers      []*HighlightedKudosers `json:"highlighted_kudosers,omitempty"`
 	DeviceName               string                 `json:"device_name"`
 	EmbedToken               string                 `json:"embed_token"`
 	SegmentLeaderboardOptOut bool                   `json:"segment_leaderboard_opt_out"`
 	LeaderboardOptOut        bool                   `json:"leaderboard_opt_out"`
 	PerceivedExertion        float64                `json:"perceived_exertion"`
 	PreferPerceivedExertion  bool                   `json:"prefer_perceived_exertion"`
-	Streams                  *Streams               `json:"streams"`
+	Streams                  *Streams               `json:"streams,omitempty"`
 }
 
 // Route .

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bzimmer/gravl/pkg/common"
+	"github.com/rs/zerolog/log"
 )
 
 // ActivityService is the API for activity endpoints
@@ -71,6 +72,7 @@ func (s *ActivityService) Activity(ctx context.Context, id int64, streams ...str
 	}
 	var sms *Streams
 	if len(streams) > 0 {
+		log.Debug().Strs("streams", streams).Msg("querying")
 		// @todo querying in parallel to the activity
 		sms, err = s.Streams(ctx, id, streams...)
 		if err != nil {

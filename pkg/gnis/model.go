@@ -1,15 +1,10 @@
-package geo
+package gnis
 
 import (
 	"encoding/json"
 
 	geom "github.com/twpayne/go-geom"
-	gpx "github.com/twpayne/go-gpx"
 )
-
-type GPX interface {
-	GPX() (*gpx.GPX, error)
-}
 
 // GeographicName information about the official name for places, features, and areas
 type GeographicName struct {

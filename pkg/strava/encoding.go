@@ -43,42 +43,36 @@ func polylineToLineString(polylines ...string) (*geom.LineString, error) {
 	return linestring, nil
 }
 
-func (a *Activity) GPX() (*gpx.GPX, error) {
-	var (
-		err error
-		x   *gpx.GPX
-	)
-	if a.Streams != nil {
+func (a *Activity) GPX() (x *gpx.GPX, err error) {
+	// minimally require the lat/lng
+	if a.Streams != nil && a.Streams.LatLng != nil {
 		x, err = toGPXFromStreams(a.Streams, a.StartDate)
 		if err != nil {
-			return nil, err
+			return
 		}
 	} else {
-		ls, err := polylineToLineString(a.Map.Polyline, a.Map.SummaryPolyline)
+		var ls *geom.LineString
+		ls, err = polylineToLineString(a.Map.Polyline, a.Map.SummaryPolyline)
 		if err != nil {
-			return nil, err
+			return
 		}
-
 		mls := geom.NewMultiLineString(ls.Layout())
 		err = mls.Push(ls)
 		if err != nil {
-			return nil, err
+			return
 		}
-
 		trk := gpx.NewTrkType(mls)
 		trk.Src = baseURL
-
 		x = &gpx.GPX{
 			Trk: []*gpx.TrkType{trk},
 		}
 	}
-
 	x.Metadata = &gpx.MetadataType{
 		Name: fmt.Sprintf("%d", a.ID),
 		Desc: a.Description,
 		Time: a.StartDate,
 	}
-	return x, nil
+	return
 }
 
 func (r *Route) GPX() (*gpx.GPX, error) {
@@ -86,10 +80,8 @@ func (r *Route) GPX() (*gpx.GPX, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	rte := gpx.NewRteType(ls)
 	rte.Src = baseURL
-
 	return &gpx.GPX{
 		Creator: pkg.UserAgent,
 		Metadata: &gpx.MetadataType{
@@ -105,6 +97,10 @@ func (s *Streams) GPX() (*gpx.GPX, error) {
 }
 
 func toGPXFromStreams(s *Streams, start time.Time) (*gpx.GPX, error) {
+	if s.LatLng == nil || len(s.LatLng.Data) == 0 {
+		return nil, errors.New("missing latlng data")
+	}
+
 	var layout geom.Layout
 	switch {
 	case s.Altitude != nil && s.Time != nil:

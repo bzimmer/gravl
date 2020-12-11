@@ -15,7 +15,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/bzimmer/gravl/pkg"
-	"github.com/bzimmer/gravl/pkg/common/geo"
 )
 
 const (
@@ -26,7 +25,7 @@ const (
 type GeoNamesService service
 
 // Query GNIS for geonames
-func (s *GeoNamesService) Query(ctx context.Context, state string) ([]*geo.GeographicName, error) {
+func (s *GeoNamesService) Query(ctx context.Context, state string) ([]*GeographicName, error) {
 	uri := fmt.Sprintf("%s/docs/stategaz/%s_Features.zip", baseURL, state)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -67,13 +66,13 @@ func (s *GeoNamesService) Query(ctx context.Context, state string) ([]*geo.Geogr
 	return parseReader(reader)
 }
 
-func parseReader(reader io.Reader) ([]*geo.GeographicName, error) {
+func parseReader(reader io.Reader) ([]*GeographicName, error) {
 	scanner := bufio.NewScanner(reader)
 
 	// skip the header row
 	scanner.Scan()
 
-	names := make([]*geo.GeographicName, 0)
+	var names []*GeographicName
 	for scanner.Scan() {
 		txt := scanner.Text()
 		name, err := unmarshal(txt)
@@ -89,8 +88,8 @@ func parseReader(reader io.Reader) ([]*geo.GeographicName, error) {
 	return names, nil
 }
 
-func unmarshal(line string) (*geo.GeographicName, error) { // nolint:gocyclo
-	f := &geo.GeographicName{
+func unmarshal(line string) (*GeographicName, error) { // nolint:gocyclo
+	f := &GeographicName{
 		Source:      baseURL,
 		Coordinates: []float64{0, 0, 0},
 	}
