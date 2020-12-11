@@ -51,7 +51,7 @@ func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions)
 
 func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error) {
 	uri := "me/rides"
-	if userID == Me {
+	if userID != Me {
 		uri = fmt.Sprintf("%d/rides", userID)
 	}
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
