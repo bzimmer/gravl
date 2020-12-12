@@ -13,6 +13,7 @@ require (
 	github.com/golang/gddo v0.0.0-20200324184333-3c2cc9a6329d
 	github.com/golang/geo v0.0.0-20200730024412-e86565bf3f35
 	github.com/google/go-cmp v0.5.2 // indirect
+	github.com/logic-building/functional-go v8.13.1+incompatible
 	github.com/posener/goreadme v1.3.4
 	github.com/rs/zerolog v1.20.0
 	github.com/securego/gosec/v2 v2.5.0
