@@ -1,6 +1,6 @@
 package rwgps
 
-//go:generate stringer -type=Origin -output=model_string.go
+//go:generate stringer -type=Origin -linecomment -output=model_string.go
 
 import (
 	"time"
@@ -11,9 +11,9 @@ type Origin int
 
 const (
 	// OriginTrip is a ride which was recorded by GPS
-	OriginTrip Origin = iota
+	OriginTrip Origin = iota // trip
 	// OriginRoute is a ride which was planned on the RWGPS route builder
-	OriginRoute
+	OriginRoute // route
 )
 
 type UserID int64

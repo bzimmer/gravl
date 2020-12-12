@@ -24,7 +24,7 @@ func TestGPXFromTrip(t *testing.T) {
 	a.Equal(int64(94), trip.ID)
 	a.Equal(rwgps.OriginTrip, trip.Origin)
 	a.Equal(1465, len(trip.TrackPoints))
-	a.Equal("OriginTrip", trip.Origin.String())
+	a.Equal("trip", trip.Origin.String())
 
 	gpx, err := trip.GPX()
 	a.NoError(err)
