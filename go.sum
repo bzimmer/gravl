@@ -118,6 +118,8 @@ github.com/gocolly/colly/v2 v2.1.0 h1:k0DuZkDoCsx51bKpRJNEmcxcp+W5N8ziuwGaSDuFoG
 github.com/gocolly/colly/v2 v2.1.0/go.mod h1:I2MuhsLjQ+Ex+IzK3afNS8/1qP3AedHOusRPcRdC5o0=
 github.com/golang/gddo v0.0.0-20200324184333-3c2cc9a6329d h1:ZJhGJay808i+klrJbox3i5NMVerJ3/tEhtOTeQpPwJQ=
 github.com/golang/gddo v0.0.0-20200324184333-3c2cc9a6329d/go.mod h1:sam69Hju0uq+5uvLJUMDlsKlQ21Vrs1Kd/1YFPNYdOU=
+github.com/golang/geo v0.0.0-20200730024412-e86565bf3f35 h1:enTowfyfjtomBQhxX9mhUD+0tZhpe4rIzStO4aNlou8=
+github.com/golang/geo v0.0.0-20200730024412-e86565bf3f35/go.mod h1:QZ0nwyI2jOfgRAoBvP+ab5aRr7c9x7lhGEJrKvBwjWI=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/golang/groupcache v0.0.0-20191227052852-215e87163ea7/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=

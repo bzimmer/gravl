@@ -7,10 +7,14 @@ import (
 	"io"
 	"os"
 
+	"github.com/davecgh/go-spew/spew"
+
 	"github.com/bzimmer/gravl/pkg/common/geo"
 )
 
 type Encoding int
+
+type Encoder func(v interface{}) error
 
 const (
 	EncodingNative  Encoding = iota // native
@@ -18,18 +22,18 @@ const (
 	EncodingJSON                    // json
 	EncodingGeoJSON                 // geojson
 	EncodingGPX                     // gpx
+	EncodingSpew                    // spew
 )
 
 type xcoder struct {
-	enc  Encoding
-	xml  *xml.Encoder
-	json *json.Encoder
+	enc             Encoding
+	xml, json, spew Encoder
 }
 
 func (x *xcoder) Encode(v interface{}) error {
 	switch x.enc {
 	case EncodingXML:
-		return x.xml.Encode(v)
+		return x.xml(v)
 	case EncodingGPX:
 		if q, ok := v.(geo.GPX); ok {
 			p, err := q.GPX()
@@ -38,9 +42,9 @@ func (x *xcoder) Encode(v interface{}) error {
 			}
 			v = p
 		}
-		return x.xml.Encode(v)
+		return x.xml(v)
 	case EncodingNative, EncodingJSON:
-		return x.json.Encode(v)
+		return x.json(v)
 	case EncodingGeoJSON:
 		if q, ok := v.(geo.GeoJSON); ok {
 			p, err := q.GeoJSON()
@@ -49,7 +53,9 @@ func (x *xcoder) Encode(v interface{}) error {
 			}
 			v = p
 		}
-		return x.json.Encode(v)
+		return x.json(v)
+	case EncodingSpew:
+		return x.spew(v)
 	}
 	return nil
 }
@@ -68,6 +74,13 @@ func newEncoder(writer io.Writer, encoding string, compact bool) (*xcoder, error
 	}
 	je.SetEscapeHTML(false)
 
+	cfg := spew.NewDefaultConfig()
+	cfg.SortKeys = true
+	var sw = func(v interface{}) (err error) {
+		cfg.Fdump(writer, v)
+		return
+	}
+
 	var enc Encoding
 	switch encoding {
 	case "native":
@@ -80,8 +93,11 @@ func newEncoder(writer io.Writer, encoding string, compact bool) (*xcoder, error
 		enc = EncodingXML
 	case "gpx":
 		enc = EncodingGPX
+	case "spew", "dump":
+		enc = EncodingSpew
 	default:
-		return nil, fmt.Errorf("unknown encoder: %s", encoding)
+		return nil, fmt.Errorf("unknown encoder: '%s'", encoding)
 	}
-	return &xcoder{enc: enc, xml: xe, json: je}, nil
+
+	return &xcoder{enc: enc, xml: xe.Encode, json: je.Encode, spew: sw}, nil
 }

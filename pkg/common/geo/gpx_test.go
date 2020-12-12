@@ -22,8 +22,8 @@ func TestSummarize(t *testing.T) {
 	a.Equal(13, s.Points, "points")
 	a.Equal(10.0, s.Ascent, "ascent")
 	a.Equal(15.0, s.Descent, "descent")
-	a.Equal(14721, int(s.Distance2D), "distance")
-	a.Equal(14721, int(s.Distance2D), "distance")
+	a.Equal(14683, int(s.Distance2D), "distance")
+	a.Equal(14683, int(s.Distance2D), "distance")
 }
 
 var utrecht = `

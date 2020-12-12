@@ -5,11 +5,16 @@ import (
 	"time"
 
 	"github.com/StefanSchroeder/Golang-Ellipsoid/ellipsoid"
+	"github.com/golang/geo/s2"
 	geom "github.com/twpayne/go-geom"
 	gpx "github.com/twpayne/go-gpx"
 )
 
-const movingTimeThreshold = 0.1
+const (
+	useS2               = true
+	earthRadiusM        = 6367000.0
+	movingTimeThreshold = 0.1
+)
 
 type GPX interface {
 	GPX() (*gpx.GPX, error)
@@ -84,7 +89,15 @@ func SummarizeTracks(gpx *gpx.GPX) Summary {
 				}
 				if j < n-1 {
 					p, q := point, segment.TrkPt[j+1]
-					d2, _ := WGS84.To(p.Lat, p.Lon, q.Lat, q.Lon)
+
+					var d2 float64
+					if useS2 {
+						llp := s2.LatLngFromDegrees(p.Lat, p.Lon)
+						llq := s2.LatLngFromDegrees(q.Lat, q.Lon)
+						d2 = float64(llp.Distance(llq)) * earthRadiusM
+					} else {
+						d2, _ = WGS84.To(p.Lat, p.Lon, q.Lat, q.Lon)
+					}
 					ele := q.Ele - p.Ele
 					d3 := math.Sqrt(math.Pow(d2, 2) + math.Pow(ele, 2))
 
