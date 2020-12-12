@@ -1,6 +1,6 @@
 package strava
 
-//go:generate gofp -destination strava_fp.go -pkg strava -type "Activity"
+//go:generate gofp -destination strava_fp.go -pkg strava -type "Activity, Route"
 
 import (
 	"time"
