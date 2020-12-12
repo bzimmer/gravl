@@ -1,5 +1,3 @@
-//go:generate go run ../../cmd/genreadme/genreadme.go
-
 /*
 Package wta provides a client to access trip reports submitted to the Washington Trails Association.
 

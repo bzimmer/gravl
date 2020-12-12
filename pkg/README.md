@@ -31,5 +31,4 @@ They generally fall into three categories:
 
 * [GNIS](./gnis/gnis.go)
 
-A number of the options for the clients are code-generated for consistency and to
-reduce maintenance.
+A number of the options for the clients are code-generated for consistency and to reduce maintenance.
