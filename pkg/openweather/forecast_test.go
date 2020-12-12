@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/bzimmer/gravl/pkg/openweather"
+	"github.com/twpayne/go-geom"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -20,9 +21,7 @@ func Test_ForecastSuccess(t *testing.T) {
 
 	ctx := context.Background()
 	opts := openweather.ForecastOptions{
-		Coordinates: openweather.Coordinates{
-			Latitude:  48.2,
-			Longitude: -118.8}}
+		Point: geom.NewPointFlat(geom.XY, []float64{-118.8, 48.2})}
 	fcst, err := c.Forecast.Forecast(ctx, opts)
 	a.NoError(err)
 	a.NotNil(fcst)

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/twpayne/go-geom"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
@@ -52,10 +53,7 @@ var visualcrossingCommand = &cli.Command{
 			if e != nil {
 				return e
 			}
-			opt.Coordinates = visualcrossing.Coordinates{
-				Latitude:  lat,
-				Longitude: lng,
-			}
+			opt.Point = geom.NewPointFlat(geom.XY, []float64{lng, lat})
 		default:
 			return fmt.Errorf("only 1 or 2 arguments allowed [%v]", c.Args())
 		}

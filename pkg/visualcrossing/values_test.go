@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/twpayne/go-geom"
 )
 
 func Test_MakeValues(t *testing.T) {
@@ -14,11 +15,8 @@ func Test_MakeValues(t *testing.T) {
 		Astronomy:      true,
 		Units:          UnitsUK,
 		AggregateHours: 12,
-		Coordinates: Coordinates{
-			Latitude:  48.9201,
-			Longitude: -122.092,
-		},
-		AlertLevel: AlertLevelDetail,
+		Point:          geom.NewPointFlat(geom.XY, []float64{-122.092, 48.9201}),
+		AlertLevel:     AlertLevelDetail,
 	}
 	q, err := v.values()
 	a.Equal("aggregateHours=12&alertLevel=detail&includeAstronomy=true&locations=48.9201%2C-122.0920&unitGroup=uk", q.Encode())
@@ -34,11 +32,8 @@ func Test_MakeValues(t *testing.T) {
 		Units:          UnitsUK,
 		AggregateHours: 12,
 		Location:       "Seattle, WA",
-		Coordinates: Coordinates{
-			Latitude:  48.9201,
-			Longitude: -122.092,
-		},
-		AlertLevel: AlertLevelDetail,
+		Point:          geom.NewPointFlat(geom.XY, []float64{-122.092, 48.9201}),
+		AlertLevel:     AlertLevelDetail,
 	}
 	q, err = v.values()
 	a.Equal("aggregateHours=12&alertLevel=detail&includeAstronomy=true&locations=Seattle%2C+WA&unitGroup=uk", q.Encode())

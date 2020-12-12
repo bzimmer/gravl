@@ -23,9 +23,7 @@ func main() {
 	fcst, err := client.Forecast.Forecast(ctx,
 		openweather.ForecastOptions{
 			Units: openweather.UnitsMetric,
-			Coordinates: openweather.Coordinates{
-				Latitude:  48.2,
-				Longitude: -122.8}})
+			Point: geom.NewPointFlat(geom.XY, []float64{longitude, latitude})})
 	if err != nil {
 		log.Fatal(err)
 	}

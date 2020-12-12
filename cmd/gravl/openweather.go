@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/twpayne/go-geom"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
@@ -30,10 +31,8 @@ var openweatherCommand = &cli.Command{
 		return nil
 	},
 	Action: func(c *cli.Context) error {
-		var (
-			err                 error
-			longitude, latitude float64
-		)
+		var err error
+		var longitude, latitude float64
 		longitude, err = strconv.ParseFloat(c.Args().Get(0), 64)
 		if err != nil {
 			return err
@@ -42,7 +41,6 @@ var openweatherCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-
 		client, err := openweather.NewClient(
 			openweather.WithTokenCredentials(c.String("openweather.access-token"), "", time.Time{}),
 			openweather.WithHTTPTracing(c.Bool("http-tracing")))
@@ -54,9 +52,7 @@ var openweatherCommand = &cli.Command{
 		fcst, err := client.Forecast.Forecast(ctx,
 			openweather.ForecastOptions{
 				Units: openweather.UnitsMetric,
-				Coordinates: openweather.Coordinates{
-					Latitude:  latitude,
-					Longitude: longitude}})
+				Point: geom.NewPointFlat(geom.XY, []float64{longitude, latitude})})
 		if err != nil {
 			return err
 		}

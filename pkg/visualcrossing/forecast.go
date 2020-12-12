@@ -5,24 +5,17 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/twpayne/go-geom"
 )
 
-// ForecastService .
+// ForecastService provides forecasts
 type ForecastService service
-
-type Coordinates struct {
-	Latitude  float64
-	Longitude float64
-}
-
-func (c Coordinates) String() string {
-	return fmt.Sprintf("%0.4f,%0.4f", c.Latitude, c.Longitude)
-}
 
 type ForecastOptions struct {
 	AggregateHours int
 	Location       string
-	Coordinates    Coordinates
+	Point          *geom.Point
 	AlertLevel     AlertLevel
 	Astronomy      bool
 	Units          Units
@@ -42,8 +35,9 @@ func (r *ForecastOptions) values() (*url.Values, error) {
 	switch {
 	case r.Location != "":
 		v.Set("locations", r.Location)
-	case r.Coordinates.Latitude != 0.0 && r.Coordinates.Longitude != 0.0:
-		v.Set("locations", r.Coordinates.String())
+	case r.Point != nil:
+		loc := fmt.Sprintf("%0.4f,%0.4f", r.Point.Y(), r.Point.X())
+		v.Set("locations", loc)
 	default:
 		return nil, &Fault{Message: "no location or coordinates specified"}
 	}
