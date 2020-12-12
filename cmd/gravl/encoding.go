@@ -3,6 +3,7 @@ package gravl
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"os"
 
@@ -12,9 +13,11 @@ import (
 type Encoding int
 
 const (
-	EncodingNative Encoding = iota // native
-	EncodingXML                    // xml
-	EncodingJSON                   // json
+	EncodingNative  Encoding = iota // native
+	EncodingXML                     // xml
+	EncodingJSON                    // json
+	EncodingGeoJSON                 // geojson
+	EncodingGPX                     // gpx
 )
 
 type xcoder struct {
@@ -26,6 +29,8 @@ type xcoder struct {
 func (x *xcoder) Encode(v interface{}) error {
 	switch x.enc {
 	case EncodingXML:
+		return x.xml.Encode(v)
+	case EncodingGPX:
 		if q, ok := v.(geo.GPX); ok {
 			p, err := q.GPX()
 			if err != nil {
@@ -36,16 +41,27 @@ func (x *xcoder) Encode(v interface{}) error {
 		return x.xml.Encode(v)
 	case EncodingNative, EncodingJSON:
 		return x.json.Encode(v)
+	case EncodingGeoJSON:
+		if q, ok := v.(geo.GeoJSON); ok {
+			p, err := q.GeoJSON()
+			if err != nil {
+				return err
+			}
+			v = p
+		}
+		return x.json.Encode(v)
 	}
 	return nil
 }
 
-func newEncoder(writer io.Writer, encoding string, compact bool) *xcoder {
+func newEncoder(writer io.Writer, encoding string, compact bool) (*xcoder, error) {
 	if writer == nil {
 		writer = os.Stdout
 	}
 	xe := xml.NewEncoder(writer)
-	xe.Indent("", " ")
+	if !compact {
+		xe.Indent("", " ")
+	}
 	je := json.NewEncoder(writer)
 	if !compact {
 		je.SetIndent("", " ")
@@ -56,14 +72,16 @@ func newEncoder(writer io.Writer, encoding string, compact bool) *xcoder {
 	switch encoding {
 	case "native":
 		enc = EncodingNative
-	case "json", "geojson":
+	case "json":
 		enc = EncodingJSON
-	case "xml", "gpx":
+	case "geojson":
+		enc = EncodingGeoJSON
+	case "xml":
 		enc = EncodingXML
+	case "gpx":
+		enc = EncodingGPX
+	default:
+		return nil, fmt.Errorf("unknown encoder: %s", encoding)
 	}
-	return &xcoder{
-		enc:  enc,
-		xml:  xe,
-		json: je,
-	}
+	return &xcoder{enc: enc, xml: xe, json: je}, nil
 }

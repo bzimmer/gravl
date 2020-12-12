@@ -6,6 +6,7 @@ require (
 	github.com/StefanSchroeder/Golang-Ellipsoid v0.0.0-20200928074047-3758eb9e9574
 	github.com/adrg/xdg v0.2.3
 	github.com/bzimmer/httpwares v0.0.1
+	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.10.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gocolly/colly/v2 v2.1.0

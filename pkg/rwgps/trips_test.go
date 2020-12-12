@@ -7,6 +7,8 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/rwgps"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bzimmer/gravl/pkg/common/geo"
 )
 
 func contextNil() context.Context {
@@ -33,6 +35,13 @@ func Test_Trip(t *testing.T) {
 	trk, err = c.Trips.Trip(contextNil(), 94)
 	a.Error(err)
 	a.Nil(trk)
+
+	c, err = newClient(http.StatusUnauthorized, "rwgps_trip_94.json")
+	a.NoError(err)
+	a.NotNil(c)
+	trk, err = c.Trips.Trip(ctx, 94)
+	a.Error(err)
+	a.Nil(trk)
 }
 
 func Test_Route(t *testing.T) {
@@ -51,10 +60,11 @@ func Test_Route(t *testing.T) {
 	a.Equal(int64(141014), rte.ID)
 	a.Equal(rwgps.OriginRoute, rte.Origin)
 
-	// trk, err := rte.Track()
-	// a.NoError(err)
-	// a.NotNil(trk)
-	// a.Equal(1154, len(trk.Coordinates))
+	gpx, err := rte.GPX()
+	a.NoError(err)
+	a.NotNil(gpx)
+	summary := geo.SummarizeRoutes(gpx)
+	a.Equal(1154, summary.Points)
 
 	// keep the linter quiet by using a function to return nil
 	rte, err = c.Trips.Route(contextNil(), 141014)

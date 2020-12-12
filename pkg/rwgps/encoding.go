@@ -3,7 +3,11 @@ package rwgps
 import (
 	"github.com/twpayne/go-geom"
 	"github.com/twpayne/go-gpx"
+
+	"github.com/bzimmer/gravl/pkg/common/geo"
 )
+
+var _ geo.GPX = &Trip{}
 
 func (t *Trip) GPX() (*gpx.GPX, error) {
 	var layout geom.Layout
@@ -24,8 +28,8 @@ func (t *Trip) GPX() (*gpx.GPX, error) {
 		coords[x+1] = tp.Latitude
 		switch layout {
 		case geom.XYZM:
-			coords[x+2] = tp.Elevation
 			coords[x+3] = tp.Time
+			fallthrough
 		case geom.XYZ:
 			coords[x+2] = tp.Elevation
 		case geom.NoLayout, geom.XY, geom.XYM:
@@ -49,6 +53,5 @@ func (t *Trip) GPX() (*gpx.GPX, error) {
 	case geom.NoLayout, geom.XY, geom.XYM:
 		// pass
 	}
-
 	return x, nil
 }

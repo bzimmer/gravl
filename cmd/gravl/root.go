@@ -83,9 +83,9 @@ func initFlags(c *cli.Context) error {
 	return nil
 }
 
-func initEncoding(c *cli.Context) error {
-	encoder = newEncoder(c.App.Writer, c.String("encoding"), c.Bool("compact"))
-	return nil
+func initEncoding(c *cli.Context) (err error) {
+	encoder, err = newEncoder(c.App.Writer, c.String("encoding"), c.Bool("compact"))
+	return
 }
 
 func initLogging(c *cli.Context) error {

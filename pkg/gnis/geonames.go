@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
+	geom "github.com/twpayne/go-geom"
 
 	"github.com/bzimmer/gravl/pkg"
 )
@@ -89,16 +90,13 @@ func parseReader(reader io.Reader) ([]*GeographicName, error) {
 }
 
 func unmarshal(line string) (*GeographicName, error) { // nolint:gocyclo
-	f := &GeographicName{
-		Source:      baseURL,
-		Coordinates: []float64{0, 0, 0},
-	}
-
 	parts := strings.Split(line, "|")
 	if len(parts) != gnisLength {
 		return nil, fmt.Errorf("found %d parts, expected %d", len(parts), gnisLength)
 	}
 
+	f := &GeographicName{}
+	c := make([]float64, 3)
 	for i, s := range parts {
 		switch i {
 		case 0: // FEATURE_ID
@@ -119,13 +117,13 @@ func unmarshal(line string) (*GeographicName, error) { // nolint:gocyclo
 			if err != nil {
 				return nil, err
 			}
-			f.Coordinates[1] = x
+			c[1] = x
 		case 10: // PRIM_LONG_DEC
 			x, err := strconv.ParseFloat(s, 64)
 			if err != nil {
 				return nil, err
 			}
-			f.Coordinates[0] = x
+			c[0] = x
 		case 11: // SOURCE_LAT_DMS
 		case 12: // SOURCE_LONG_DMS
 		case 13: // SOURCE_LAT_DEC
@@ -139,7 +137,7 @@ func unmarshal(line string) (*GeographicName, error) { // nolint:gocyclo
 			if err != nil {
 				return nil, err
 			}
-			f.Coordinates[2] = x
+			c[2] = x
 		case 16: // ELEV_IN_FT
 		case 17: // MAP_NAME
 		case 18: // DATE_CREATED
@@ -147,5 +145,9 @@ func unmarshal(line string) (*GeographicName, error) { // nolint:gocyclo
 		default:
 		}
 	}
+
+	f.Source = baseURL
+	f.Point = geom.NewPointFlat(geom.XYZ, c)
+
 	return f, nil
 }

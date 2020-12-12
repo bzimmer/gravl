@@ -1,42 +1,41 @@
 package gnis
 
 import (
-	"encoding/json"
-
 	geom "github.com/twpayne/go-geom"
+	"github.com/twpayne/go-geom/encoding/geojson"
+
+	"github.com/bzimmer/gravl/pkg/common/geo"
 )
+
+var _ geo.GeoJSON = &GeographicName{}
 
 // GeographicName information about the official name for places, features, and areas
 type GeographicName struct {
-	ID          string
-	Name        string
-	Source      string
-	Description string
-	Coordinates geom.Coord
-	Class       string
-	Locale      string
+	ID     string      `json:"id,omitempty"`
+	Name   string      `json:"name,omitempty"`
+	Source string      `json:"source,omitempty"`
+	Class  string      `json:"class,omitempty"`
+	Locale string      `json:"locale,omitempty"`
+	Point  *geom.Point `json:"point,omitempty"`
 }
 
-// MarshalJSON produces GeoJSON
 func (g *GeographicName) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&struct {
-		ID         string                 `json:"id"`
-		Type       string                 `json:"type"`
-		Geometry   map[string]interface{} `json:"geometry"`
-		Properties map[string]interface{} `json:"properties"`
-	}{
-		ID:   g.ID,
-		Type: "Feature",
-		Geometry: map[string]interface{}{
-			"type":        "MultiPoint",
-			"coordinates": g.Coordinates,
-		},
+	f, err := g.GeoJSON()
+	if err != nil {
+		return nil, err
+	}
+	return f.MarshalJSON()
+}
+
+func (g *GeographicName) GeoJSON() (*geojson.Feature, error) {
+	return &geojson.Feature{
+		ID:       g.ID,
+		Geometry: g.Point,
 		Properties: map[string]interface{}{
-			"name":        g.Name,
-			"source":      g.Source,
-			"class":       g.Class,
-			"locale":      g.Locale,
-			"description": g.Description,
+			"name":   g.Name,
+			"source": g.Source,
+			"class":  g.Class,
+			"locale": g.Locale,
 		},
-	})
+	}, nil
 }
