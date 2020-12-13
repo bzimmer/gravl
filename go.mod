@@ -14,6 +14,7 @@ require (
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/logic-building/functional-go v8.13.1+incompatible
+	github.com/martinlindhe/unit v0.0.0-20190604142932-3b6be53d49af
 	github.com/rs/zerolog v1.20.0
 	github.com/securego/gosec/v2 v2.5.0
 	github.com/stretchr/testify v1.6.1

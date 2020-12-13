@@ -7,6 +7,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/logic-building/functional-go/set"
+	"github.com/martinlindhe/unit"
 	"github.com/valyala/fastjson"
 
 	"github.com/bzimmer/gravl/pkg/common/stats"
@@ -41,12 +42,12 @@ func MustReadActivities(filename string) []*strava.Activity {
 func main() {
 	var distances []int
 	types := make((map[string]int))
-	spewer := &spew.ConfigState{Indent: " ", SortKeys: true}
 	rides := set.NewStr([]string{"Ride", "VirtualRide"})
 
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		// convert meters to kms
-		distances = append(distances, int(act.Distance/1000.0))
+		// convert meters to miles
+		miles := (unit.Length(act.Distance) * unit.Meter).Miles()
+		distances = append(distances, int(miles))
 		return true
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
 		types[act.Type] = types[act.Type] + 1
@@ -55,6 +56,7 @@ func main() {
 		return act.StartDateLocal.Year() == 2020
 	}, MustReadActivities(os.Args[1]))))
 
+	spewer := &spew.ConfigState{Indent: " ", SortKeys: true}
 	spewer.Dump(stats.Eddington(distances))
 	spewer.Dump(types)
 }
