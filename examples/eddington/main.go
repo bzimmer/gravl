@@ -14,6 +14,10 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
+type EddingtonFunc func(*strava.Activity) (int, bool)
+
+var spewer = &spew.ConfigState{Indent: " ", SortKeys: true}
+
 func MustReadActivities(filename string) []*strava.Activity {
 	var err error
 	var sc fastjson.Scanner
@@ -39,24 +43,58 @@ func MustReadActivities(filename string) []*strava.Activity {
 	return acts
 }
 
-func main() {
-	var distances []int
+func Distance(act *strava.Activity) (int, bool) {
+	// convert meters to miles
+	miles := (unit.Length(act.Distance) * unit.Meter).Miles()
+	return int(miles), true
+}
+
+func Elevation(act *strava.Activity) (int, bool) {
+	// convert meters to feet
+	feet := (unit.Length(act.TotalElevationGain) * unit.Meter).Feet()
+	return int(feet), true
+}
+
+func Eddington(f EddingtonFunc, acts []*strava.Activity) stats.EddingtonNumber {
+	var vals []int
 	types := make((map[string]int))
 	rides := set.NewStr([]string{"Ride", "VirtualRide"})
 
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		// convert meters to miles
-		miles := (unit.Length(act.Distance) * unit.Meter).Miles()
-		distances = append(distances, int(miles))
-		return true
+		val, ok := f(act)
+		if ok {
+			vals = append(vals, val)
+		}
+		return ok
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
 		types[act.Type] = types[act.Type] + 1
 		return rides.Contains(act.Type)
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
 		return act.StartDateLocal.Year() == 2020
-	}, MustReadActivities(os.Args[1]))))
+	}, acts)))
+	return stats.Eddington(vals)
+}
 
-	spewer := &spew.ConfigState{Indent: " ", SortKeys: true}
-	spewer.Dump(stats.Eddington(distances))
-	spewer.Dump(types)
+func BenfordsLaw(acts []*strava.Activity) stats.Benfords {
+	var vals []int
+	rides := set.NewStr([]string{"Ride", "VirtualRide"})
+
+	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+		miles := (unit.Length(act.Distance) * unit.Meter).Miles()
+		vals = append(vals, int(miles))
+		return true
+	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
+		return rides.Contains(act.Type)
+	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
+		return act.StartDateLocal.Year() == 2020
+	}, acts)))
+	return stats.BenfordsLaw(vals)
+}
+
+func main() {
+	acts := MustReadActivities(os.Args[1])
+	for _, f := range []EddingtonFunc{Elevation, Distance} {
+		spewer.Dump(Eddington(f, acts).Number)
+	}
+	spewer.Dump(BenfordsLaw(acts))
 }

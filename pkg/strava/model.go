@@ -4,6 +4,8 @@ package strava
 
 import (
 	"time"
+
+	"github.com/twpayne/go-geom"
 )
 
 // Error .
@@ -129,6 +131,10 @@ type Map struct {
 	Polyline        string `json:"polyline"`
 	ResourceState   int    `json:"resource_state"`
 	SummaryPolyline string `json:"summary_polyline"`
+}
+
+func (m *Map) LineString() (*geom.LineString, error) {
+	return polylineToLineString(m.Polyline, m.SummaryPolyline)
 }
 
 // Lap .
@@ -308,8 +314,8 @@ type Activity struct {
 	DeviceWatts              bool                   `json:"device_watts"`
 	HasHeartrate             bool                   `json:"has_heartrate"`
 	MaxWatts                 int                    `json:"max_watts"`
-	ElevHigh                 float64                `json:"elev_high"`
-	ElevLow                  float64                `json:"elev_low"`
+	ElevationHigh            float64                `json:"elev_high"`
+	ElevationLow             float64                `json:"elev_low"`
 	PrCount                  int                    `json:"pr_count"`
 	TotalPhotoCount          int                    `json:"total_photo_count"`
 	HasKudoed                bool                   `json:"has_kudoed"`

@@ -3,6 +3,7 @@ module github.com/bzimmer/gravl
 go 1.15
 
 require (
+	github.com/CMiksche/benford v0.0.0-20201204105600-8f964a4db9b5
 	github.com/StefanSchroeder/Golang-Ellipsoid v0.0.0-20200928074047-3758eb9e9574
 	github.com/adrg/xdg v0.2.3
 	github.com/bzimmer/httpwares v0.0.1
@@ -29,4 +30,5 @@ require (
 	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
 	golang.org/x/sys v0.0.0-20200905004654-be1d3432aa8f // indirect
 	golang.org/x/tools v0.0.0-20201007032633-0806396f153e
+	gonum.org/v1/gonum v0.8.0
 )

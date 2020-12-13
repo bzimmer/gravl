@@ -4223,14 +4223,14 @@ func SortActivityByMaxWattsDescPtr(list []*Activity) []*Activity {
 	}
 	return newListPtr
 }
-type byElevHighActivity []Activity
+type byElevationHighActivity []Activity
 
-func (a byElevHighActivity) Len() int           { return len(a) }
-func (a byElevHighActivity) Less(i, j int) bool { return a[i].ElevHigh < a[j].ElevHigh }
-func (a byElevHighActivity) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byElevationHighActivity) Len() int           { return len(a) }
+func (a byElevationHighActivity) Less(i, j int) bool { return a[i].ElevationHigh < a[j].ElevationHigh }
+func (a byElevationHighActivity) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-// SortActivityByElevHigh sort structs
-func SortActivityByElevHigh(list []Activity) []Activity {
+// SortActivityByElevationHigh sort structs
+func SortActivityByElevationHigh(list []Activity) []Activity {
 	if len(list) == 0 {
 		return []Activity{}
 	}
@@ -4238,12 +4238,12 @@ func SortActivityByElevHigh(list []Activity) []Activity {
 	for i, item := range list {
 		newList[i] = item
 	}
-	sort.Sort(byElevHighActivity(newList))
+	sort.Sort(byElevationHighActivity(newList))
 	return newList
 }
 
-// SortActivityByElevHighPtr sorts structs
-func SortActivityByElevHighPtr(list []*Activity) []*Activity {
+// SortActivityByElevationHighPtr sorts structs
+func SortActivityByElevationHighPtr(list []*Activity) []*Activity {
 	if len(list) == 0 {
 		return []*Activity{}
 	}
@@ -4253,7 +4253,7 @@ func SortActivityByElevHighPtr(list []*Activity) []*Activity {
 	for i, item := range list {
 		newList[i] = *item
 	}
-	sort.Sort(byElevHighActivity(newList))
+	sort.Sort(byElevationHighActivity(newList))
 
 	for i := 0; i < len(newList); i++ {
 		newListPtr[i] = &newList[i]
@@ -4261,14 +4261,14 @@ func SortActivityByElevHighPtr(list []*Activity) []*Activity {
 	return newListPtr
 }
 
-type byElevHighActivityDesc []Activity
+type byElevationHighActivityDesc []Activity
 
-func (a byElevHighActivityDesc) Len() int           { return len(a) }
-func (a byElevHighActivityDesc) Less(i, j int) bool { return a[i].ElevHigh > a[j].ElevHigh }
-func (a byElevHighActivityDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byElevationHighActivityDesc) Len() int           { return len(a) }
+func (a byElevationHighActivityDesc) Less(i, j int) bool { return a[i].ElevationHigh > a[j].ElevationHigh }
+func (a byElevationHighActivityDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-// SortActivityByElevHighDesc sorts structs
-func SortActivityByElevHighDesc(list []Activity) []Activity {
+// SortActivityByElevationHighDesc sorts structs
+func SortActivityByElevationHighDesc(list []Activity) []Activity {
 	if len(list) == 0 {
 		return []Activity{}
 	}
@@ -4276,12 +4276,12 @@ func SortActivityByElevHighDesc(list []Activity) []Activity {
 	for i, item := range list {
 		newList[i] = item
 	}
-	sort.Sort(byElevHighActivityDesc(newList))
+	sort.Sort(byElevationHighActivityDesc(newList))
 	return newList
 }
 
-// SortActivityByElevHighDescPtr sorts structs
-func SortActivityByElevHighDescPtr(list []*Activity) []*Activity {
+// SortActivityByElevationHighDescPtr sorts structs
+func SortActivityByElevationHighDescPtr(list []*Activity) []*Activity {
 	if len(list) == 0 {
 		return []*Activity{}
 	}
@@ -4291,21 +4291,21 @@ func SortActivityByElevHighDescPtr(list []*Activity) []*Activity {
 	for i, item := range list {
 		newList[i] = *item
 	}
-	sort.Sort(byElevHighActivityDesc(newList))
+	sort.Sort(byElevationHighActivityDesc(newList))
 
 	for i := 0; i < len(newList); i++ {
 		newListPtr[i] = &newList[i]
 	}
 	return newListPtr
 }
-type byElevLowActivity []Activity
+type byElevationLowActivity []Activity
 
-func (a byElevLowActivity) Len() int           { return len(a) }
-func (a byElevLowActivity) Less(i, j int) bool { return a[i].ElevLow < a[j].ElevLow }
-func (a byElevLowActivity) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byElevationLowActivity) Len() int           { return len(a) }
+func (a byElevationLowActivity) Less(i, j int) bool { return a[i].ElevationLow < a[j].ElevationLow }
+func (a byElevationLowActivity) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-// SortActivityByElevLow sort structs
-func SortActivityByElevLow(list []Activity) []Activity {
+// SortActivityByElevationLow sort structs
+func SortActivityByElevationLow(list []Activity) []Activity {
 	if len(list) == 0 {
 		return []Activity{}
 	}
@@ -4313,12 +4313,12 @@ func SortActivityByElevLow(list []Activity) []Activity {
 	for i, item := range list {
 		newList[i] = item
 	}
-	sort.Sort(byElevLowActivity(newList))
+	sort.Sort(byElevationLowActivity(newList))
 	return newList
 }
 
-// SortActivityByElevLowPtr sorts structs
-func SortActivityByElevLowPtr(list []*Activity) []*Activity {
+// SortActivityByElevationLowPtr sorts structs
+func SortActivityByElevationLowPtr(list []*Activity) []*Activity {
 	if len(list) == 0 {
 		return []*Activity{}
 	}
@@ -4328,7 +4328,7 @@ func SortActivityByElevLowPtr(list []*Activity) []*Activity {
 	for i, item := range list {
 		newList[i] = *item
 	}
-	sort.Sort(byElevLowActivity(newList))
+	sort.Sort(byElevationLowActivity(newList))
 
 	for i := 0; i < len(newList); i++ {
 		newListPtr[i] = &newList[i]
@@ -4336,14 +4336,14 @@ func SortActivityByElevLowPtr(list []*Activity) []*Activity {
 	return newListPtr
 }
 
-type byElevLowActivityDesc []Activity
+type byElevationLowActivityDesc []Activity
 
-func (a byElevLowActivityDesc) Len() int           { return len(a) }
-func (a byElevLowActivityDesc) Less(i, j int) bool { return a[i].ElevLow > a[j].ElevLow }
-func (a byElevLowActivityDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byElevationLowActivityDesc) Len() int           { return len(a) }
+func (a byElevationLowActivityDesc) Less(i, j int) bool { return a[i].ElevationLow > a[j].ElevationLow }
+func (a byElevationLowActivityDesc) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-// SortActivityByElevLowDesc sorts structs
-func SortActivityByElevLowDesc(list []Activity) []Activity {
+// SortActivityByElevationLowDesc sorts structs
+func SortActivityByElevationLowDesc(list []Activity) []Activity {
 	if len(list) == 0 {
 		return []Activity{}
 	}
@@ -4351,12 +4351,12 @@ func SortActivityByElevLowDesc(list []Activity) []Activity {
 	for i, item := range list {
 		newList[i] = item
 	}
-	sort.Sort(byElevLowActivityDesc(newList))
+	sort.Sort(byElevationLowActivityDesc(newList))
 	return newList
 }
 
-// SortActivityByElevLowDescPtr sorts structs
-func SortActivityByElevLowDescPtr(list []*Activity) []*Activity {
+// SortActivityByElevationLowDescPtr sorts structs
+func SortActivityByElevationLowDescPtr(list []*Activity) []*Activity {
 	if len(list) == 0 {
 		return []*Activity{}
 	}
@@ -4366,7 +4366,7 @@ func SortActivityByElevLowDescPtr(list []*Activity) []*Activity {
 	for i, item := range list {
 		newList[i] = *item
 	}
-	sort.Sort(byElevLowActivityDesc(newList))
+	sort.Sort(byElevationLowActivityDesc(newList))
 
 	for i := 0; i < len(newList); i++ {
 		newListPtr[i] = &newList[i]
@@ -16425,16 +16425,16 @@ func SetActivityByMaxWattsPtr(list []*Activity) []*Activity {
 	}
 	return newList
 }
-// UnionActivityByElevHigh return a set that is the union of the input sets
+// UnionActivityByElevationHigh return a set that is the union of the input sets
 // repeated value within list parameter will be ignored
-func UnionActivityByElevHigh(arrList ...[]Activity) []Activity {
+func UnionActivityByElevationHigh(arrList ...[]Activity) []Activity {
 	resultMap := make(map[float64]bool)
 	var resultArr []Activity
 	for _, arr := range arrList {
 		for _, v := range arr {
-			_, ok := resultMap[v.ElevHigh]
+			_, ok := resultMap[v.ElevationHigh]
 			if !ok {
-				resultMap[v.ElevHigh] = true
+				resultMap[v.ElevationHigh] = true
 				resultArr = append(resultArr, v)
 			}
 		}
@@ -16444,14 +16444,14 @@ func UnionActivityByElevHigh(arrList ...[]Activity) []Activity {
 
 // Union<FTYPE>Ptr return a set that is the union of the input sets
 // repeated value within list parameter will be ignored
-func UnionActivityByElevHighPtr(arrList ...[]*Activity) []*Activity {
+func UnionActivityByElevationHighPtr(arrList ...[]*Activity) []*Activity {
 	resultMap := make(map[float64]bool)
 	var resultArr []*Activity
 	for _, arr := range arrList {
 		for _, v := range arr {
-			_, ok := resultMap[v.ElevHigh]
+			_, ok := resultMap[v.ElevationHigh]
 			if !ok {
-				resultMap[v.ElevHigh] = true
+				resultMap[v.ElevationHigh] = true
 				resultArr = append(resultArr, v)
 			}
 		}
@@ -16459,9 +16459,9 @@ func UnionActivityByElevHighPtr(arrList ...[]*Activity) []*Activity {
 	return resultArr
 }
 
-// IntersectionActivityByElevHigh return a set that is the intersection of the input sets
+// IntersectionActivityByElevationHigh return a set that is the intersection of the input sets
 // repeated value within list parameter will be ignored
-func IntersectionActivityByElevHigh(arrList ...[]Activity) []Activity {
+func IntersectionActivityByElevationHigh(arrList ...[]Activity) []Activity {
 	if arrList == nil {
 		return []Activity{}
 	}
@@ -16470,10 +16470,10 @@ func IntersectionActivityByElevHigh(arrList ...[]Activity) []Activity {
 	if len(arrList) == 1 {
 		var newList []Activity
 		for i := 0; i < len(arrList[0]); i++ {
-			_, ok := resultMap[arrList[0][i].ElevHigh]
+			_, ok := resultMap[arrList[0][i].ElevationHigh]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevHigh] = true
+				resultMap[arrList[0][i].ElevationHigh] = true
 			}
 		}
 		return newList
@@ -16489,26 +16489,26 @@ func IntersectionActivityByElevHigh(arrList ...[]Activity) []Activity {
 		for j := 1; j < len(arrList); j++ {
 			for _, v := range arrList[j] {
 				// compare every items in 1st array to every items in the rest of the arrays
-				if arrList[0][i].ElevHigh == v.ElevHigh {
+				if arrList[0][i].ElevationHigh == v.ElevationHigh {
 					matchCount++
 					break
 				}
 			}
 		}
 		if matchCount == len(arrList)-1 {
-			_, ok := resultMap[arrList[0][i].ElevHigh]
+			_, ok := resultMap[arrList[0][i].ElevationHigh]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevHigh] = true
+				resultMap[arrList[0][i].ElevationHigh] = true
 			}
 		}
 	}
 	return newList
 }
 
-// IntersectionActivityByElevHighPtr return a set that is the intersection of the input sets
+// IntersectionActivityByElevationHighPtr return a set that is the intersection of the input sets
 // repeated value within list parameter will be ignored
-func IntersectionActivityByElevHighPtr(arrList ...[]*Activity) []*Activity {
+func IntersectionActivityByElevationHighPtr(arrList ...[]*Activity) []*Activity {
 	if arrList == nil {
 		return []*Activity{}
 	}
@@ -16517,9 +16517,9 @@ func IntersectionActivityByElevHighPtr(arrList ...[]*Activity) []*Activity {
 	if len(arrList) == 1 {
 		var newList []*Activity
 		for i := 0; i < len(arrList[0]); i++ {
-			_, ok := resultMap[arrList[0][i].ElevHigh]
+			_, ok := resultMap[arrList[0][i].ElevationHigh]
 			if !ok {
-				resultMap[arrList[0][i].ElevHigh] = true
+				resultMap[arrList[0][i].ElevationHigh] = true
 				newList = append(newList, arrList[0][i])
 			}
 		}
@@ -16536,26 +16536,26 @@ func IntersectionActivityByElevHighPtr(arrList ...[]*Activity) []*Activity {
 		for j := 1; j < len(arrList); j++ {
 			for _, v := range arrList[j] {
 				// compare every items in 1st array to every items in the rest of the arrays
-				if arrList[0][i].ElevHigh == v.ElevHigh {
+				if arrList[0][i].ElevationHigh == v.ElevationHigh {
 					matchCount++
 					break
 				}
 			}
 		}
 		if matchCount == len(arrList)-1 {
-			_, ok := resultMap[arrList[0][i].ElevHigh]
+			_, ok := resultMap[arrList[0][i].ElevationHigh]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevHigh] = true
+				resultMap[arrList[0][i].ElevationHigh] = true
 			}
 		}
 	}
 	return newList
 }
 
-// DifferenceActivityByElevHigh returns a set that is the first set without elements of the remaining sets
+// DifferenceActivityByElevationHigh returns a set that is the first set without elements of the remaining sets
 // repeated value within list parameter will be ignored
-func DifferenceActivityByElevHigh(arrList ...[]Activity) []Activity {
+func DifferenceActivityByElevationHigh(arrList ...[]Activity) []Activity {
 	if arrList == nil {
 		return []Activity{}
 	}
@@ -16564,10 +16564,10 @@ func DifferenceActivityByElevHigh(arrList ...[]Activity) []Activity {
 	if len(arrList) == 1 {
 		var newList []Activity
 		for i := 0; i < len(arrList[0]); i++ {
-			_, ok := resultMap[arrList[0][i].ElevHigh]
+			_, ok := resultMap[arrList[0][i].ElevationHigh]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevHigh] = true
+				resultMap[arrList[0][i].ElevationHigh] = true
 			}
 		}
 		return newList
@@ -16583,26 +16583,26 @@ func DifferenceActivityByElevHigh(arrList ...[]Activity) []Activity {
 		for j := 1; j < len(arrList); j++ {
 			for _, v := range arrList[j] {
 				// compare every items in 1st array to every items in the rest of the arrays
-				if arrList[0][i].ElevHigh == v.ElevHigh {
+				if arrList[0][i].ElevationHigh == v.ElevationHigh {
 					matchCount++
 					break
 				}
 			}
 		}
 		if matchCount == 0 {
-			_, ok := resultMap[arrList[0][i].ElevHigh]
+			_, ok := resultMap[arrList[0][i].ElevationHigh]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevHigh] = true
+				resultMap[arrList[0][i].ElevationHigh] = true
 			}
 		}
 	}
 	return newList
 }
 
-// DifferenceActivityByElevHighPtr returns a set that is the first set without elements of the remaining sets
+// DifferenceActivityByElevationHighPtr returns a set that is the first set without elements of the remaining sets
 // repeated value within list parameter will be ignored
-func DifferenceActivityByElevHighPtr(arrList ...[]*Activity) []*Activity {
+func DifferenceActivityByElevationHighPtr(arrList ...[]*Activity) []*Activity {
 	if arrList == nil {
 		return []*Activity{}
 	}
@@ -16611,9 +16611,9 @@ func DifferenceActivityByElevHighPtr(arrList ...[]*Activity) []*Activity {
 	if len(arrList) == 1 {
 		var newList []*Activity
 		for i := 0; i < len(arrList[0]); i++ {
-			_, ok := resultMap[arrList[0][i].ElevHigh]
+			_, ok := resultMap[arrList[0][i].ElevationHigh]
 			if !ok {
-				resultMap[arrList[0][i].ElevHigh] = true
+				resultMap[arrList[0][i].ElevationHigh] = true
 				newList = append(newList, arrList[0][i])
 			}
 		}
@@ -16630,38 +16630,38 @@ func DifferenceActivityByElevHighPtr(arrList ...[]*Activity) []*Activity {
 		for j := 1; j < len(arrList); j++ {
 			for _, v := range arrList[j] {
 				// compare every items in 1st array to every items in the rest of the arrays
-				if arrList[0][i].ElevHigh == v.ElevHigh {
+				if arrList[0][i].ElevationHigh == v.ElevationHigh {
 					matchCount++
 					break
 				}
 			}
 		}
 		if matchCount == 0 {
-			_, ok := resultMap[arrList[0][i].ElevHigh]
+			_, ok := resultMap[arrList[0][i].ElevationHigh]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevHigh] = true
+				resultMap[arrList[0][i].ElevationHigh] = true
 			}
 		}
 	}
 	return newList
 }
 
-// SubsetActivityByElevHigh returns true or false by checking if set1 is a subset of set2
+// SubsetActivityByElevationHigh returns true or false by checking if set1 is a subset of set2
 // repeated value within list parameter will be ignored
-func SubsetActivityByElevHigh(list1, list2 []Activity) bool {
+func SubsetActivityByElevationHigh(list1, list2 []Activity) bool {
 	if list1 == nil || len(list1) == 0 || list2 == nil || len(list2) == 0 {
 		return false
 	}
 
 	resultMap := make(map[float64]bool)
 	for i := 0; i < len(list1); i++ {
-		_, ok := resultMap[list1[i].ElevHigh]
+		_, ok := resultMap[list1[i].ElevationHigh]
 		if !ok {
 			found := false
-			resultMap[list1[i].ElevHigh] = true
+			resultMap[list1[i].ElevationHigh] = true
 			for j := 0; j < len(list2); j++ {
-				if list1[i].ElevHigh == list2[j].ElevHigh {
+				if list1[i].ElevationHigh == list2[j].ElevationHigh {
 					found = true
 					break
 				}
@@ -16674,21 +16674,21 @@ func SubsetActivityByElevHigh(list1, list2 []Activity) bool {
 	return true
 }
 
-// SubsetActivityByElevHighPtr returns true or false by checking if set1 is a subset of set2
+// SubsetActivityByElevationHighPtr returns true or false by checking if set1 is a subset of set2
 // repeated value within list parameter will be ignored
-func SubsetActivityByElevHighPtr(list1, list2 []*Activity) bool {
+func SubsetActivityByElevationHighPtr(list1, list2 []*Activity) bool {
 	if list1 == nil || len(list1) == 0 || list2 == nil || len(list2) == 0 {
 		return false
 	}
 
 	resultMap := make(map[float64]bool)
 	for i := 0; i < len(list1); i++ {
-		_, ok := resultMap[list1[i].ElevHigh]
+		_, ok := resultMap[list1[i].ElevationHigh]
 		if !ok {
 			found := false
-			resultMap[list1[i].ElevHigh] = true
+			resultMap[list1[i].ElevationHigh] = true
 			for j := 0; j < len(list2); j++ {
-				if list1[i].ElevHigh == list2[j].ElevHigh {
+				if list1[i].ElevationHigh == list2[j].ElevationHigh {
 					found = true
 					break
 				}
@@ -16701,9 +16701,9 @@ func SubsetActivityByElevHighPtr(list1, list2 []*Activity) bool {
 	return true
 }
 
-// SupersetActivityByElevHigh returns true or false by checking if set1 is a superset of set2
+// SupersetActivityByElevationHigh returns true or false by checking if set1 is a superset of set2
 // repeated value within list parameter will be ignored
-func SupersetActivityByElevHigh(list1, list2 []Activity) bool {
+func SupersetActivityByElevationHigh(list1, list2 []Activity) bool {
 	if list1 == nil || len(list1) == 0 || list2 == nil || len(list2) == 0 {
 		return false
 	}
@@ -16711,12 +16711,12 @@ func SupersetActivityByElevHigh(list1, list2 []Activity) bool {
 	resultMap := make(map[float64]bool)
 
 	for i := 0; i < len(list2); i++ {
-		_, ok := resultMap[list2[i].ElevHigh]
+		_, ok := resultMap[list2[i].ElevationHigh]
 		if !ok {
 			found := false
-			resultMap[list2[i].ElevHigh] = true
+			resultMap[list2[i].ElevationHigh] = true
 			for j := 0; j < len(list1); j++ {
-				if list2[i].ElevHigh == list1[j].ElevHigh {
+				if list2[i].ElevationHigh == list1[j].ElevationHigh {
 					found = true
 					break
 				}
@@ -16729,9 +16729,9 @@ func SupersetActivityByElevHigh(list1, list2 []Activity) bool {
 	return true
 }
 
-// SupersetActivityByElevHighPtr returns true or false by checking if set1 is a superset of set2
+// SupersetActivityByElevationHighPtr returns true or false by checking if set1 is a superset of set2
 // repeated value within list parameter will be ignored
-func SupersetActivityByElevHighPtr(list1, list2 []*Activity) bool {
+func SupersetActivityByElevationHighPtr(list1, list2 []*Activity) bool {
 	if list1 == nil || len(list1) == 0 || list2 == nil || len(list2) == 0 {
 		return false
 	}
@@ -16739,12 +16739,12 @@ func SupersetActivityByElevHighPtr(list1, list2 []*Activity) bool {
 	resultMap := make(map[float64]bool)
 
 	for i := 0; i < len(list2); i++ {
-		_, ok := resultMap[list2[i].ElevHigh]
+		_, ok := resultMap[list2[i].ElevationHigh]
 		if !ok {
 			found := false
-			resultMap[list2[i].ElevHigh] = true
+			resultMap[list2[i].ElevationHigh] = true
 			for j := 0; j < len(list1); j++ {
-				if list2[i].ElevHigh == list1[j].ElevHigh {
+				if list2[i].ElevationHigh == list1[j].ElevationHigh {
 					found = true
 					break
 				}
@@ -16757,8 +16757,8 @@ func SupersetActivityByElevHighPtr(list1, list2 []*Activity) bool {
 	return true
 }
 
-// SetActivityByElevHigh returns a set of the distinct elements of coll.
-func SetActivityByElevHigh(list []Activity) []Activity {
+// SetActivityByElevationHigh returns a set of the distinct elements of coll.
+func SetActivityByElevationHigh(list []Activity) []Activity {
 	if list == nil || len(list) == 0 {
 		return []Activity{}
 	}
@@ -16766,17 +16766,17 @@ func SetActivityByElevHigh(list []Activity) []Activity {
 	resultMap := make(map[float64]bool)
 	newList := []Activity{}
 	for i := 0; i < len(list); i++ {
-		_, ok := resultMap[list[i].ElevHigh]
+		_, ok := resultMap[list[i].ElevationHigh]
 		if !ok {
-			resultMap[list[i].ElevHigh] = true
+			resultMap[list[i].ElevationHigh] = true
 			newList = append(newList, list[i])
 		}
 	}
 	return newList
 }
 
-// SetActivityByElevHighPtr returns a set of the distinct elements of coll.
-func SetActivityByElevHighPtr(list []*Activity) []*Activity {
+// SetActivityByElevationHighPtr returns a set of the distinct elements of coll.
+func SetActivityByElevationHighPtr(list []*Activity) []*Activity {
 	if list == nil || len(list) == 0 {
 		return []*Activity{}
 	}
@@ -16784,24 +16784,24 @@ func SetActivityByElevHighPtr(list []*Activity) []*Activity {
 	resultMap := make(map[float64]bool)
 	newList := []*Activity{}
 	for i := 0; i < len(list); i++ {
-		_, ok := resultMap[list[i].ElevHigh]
+		_, ok := resultMap[list[i].ElevationHigh]
 		if !ok {
-			resultMap[list[i].ElevHigh] = true
+			resultMap[list[i].ElevationHigh] = true
 			newList = append(newList, list[i])
 		}
 	}
 	return newList
 }
-// UnionActivityByElevLow return a set that is the union of the input sets
+// UnionActivityByElevationLow return a set that is the union of the input sets
 // repeated value within list parameter will be ignored
-func UnionActivityByElevLow(arrList ...[]Activity) []Activity {
+func UnionActivityByElevationLow(arrList ...[]Activity) []Activity {
 	resultMap := make(map[float64]bool)
 	var resultArr []Activity
 	for _, arr := range arrList {
 		for _, v := range arr {
-			_, ok := resultMap[v.ElevLow]
+			_, ok := resultMap[v.ElevationLow]
 			if !ok {
-				resultMap[v.ElevLow] = true
+				resultMap[v.ElevationLow] = true
 				resultArr = append(resultArr, v)
 			}
 		}
@@ -16811,14 +16811,14 @@ func UnionActivityByElevLow(arrList ...[]Activity) []Activity {
 
 // Union<FTYPE>Ptr return a set that is the union of the input sets
 // repeated value within list parameter will be ignored
-func UnionActivityByElevLowPtr(arrList ...[]*Activity) []*Activity {
+func UnionActivityByElevationLowPtr(arrList ...[]*Activity) []*Activity {
 	resultMap := make(map[float64]bool)
 	var resultArr []*Activity
 	for _, arr := range arrList {
 		for _, v := range arr {
-			_, ok := resultMap[v.ElevLow]
+			_, ok := resultMap[v.ElevationLow]
 			if !ok {
-				resultMap[v.ElevLow] = true
+				resultMap[v.ElevationLow] = true
 				resultArr = append(resultArr, v)
 			}
 		}
@@ -16826,9 +16826,9 @@ func UnionActivityByElevLowPtr(arrList ...[]*Activity) []*Activity {
 	return resultArr
 }
 
-// IntersectionActivityByElevLow return a set that is the intersection of the input sets
+// IntersectionActivityByElevationLow return a set that is the intersection of the input sets
 // repeated value within list parameter will be ignored
-func IntersectionActivityByElevLow(arrList ...[]Activity) []Activity {
+func IntersectionActivityByElevationLow(arrList ...[]Activity) []Activity {
 	if arrList == nil {
 		return []Activity{}
 	}
@@ -16837,10 +16837,10 @@ func IntersectionActivityByElevLow(arrList ...[]Activity) []Activity {
 	if len(arrList) == 1 {
 		var newList []Activity
 		for i := 0; i < len(arrList[0]); i++ {
-			_, ok := resultMap[arrList[0][i].ElevLow]
+			_, ok := resultMap[arrList[0][i].ElevationLow]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevLow] = true
+				resultMap[arrList[0][i].ElevationLow] = true
 			}
 		}
 		return newList
@@ -16856,26 +16856,26 @@ func IntersectionActivityByElevLow(arrList ...[]Activity) []Activity {
 		for j := 1; j < len(arrList); j++ {
 			for _, v := range arrList[j] {
 				// compare every items in 1st array to every items in the rest of the arrays
-				if arrList[0][i].ElevLow == v.ElevLow {
+				if arrList[0][i].ElevationLow == v.ElevationLow {
 					matchCount++
 					break
 				}
 			}
 		}
 		if matchCount == len(arrList)-1 {
-			_, ok := resultMap[arrList[0][i].ElevLow]
+			_, ok := resultMap[arrList[0][i].ElevationLow]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevLow] = true
+				resultMap[arrList[0][i].ElevationLow] = true
 			}
 		}
 	}
 	return newList
 }
 
-// IntersectionActivityByElevLowPtr return a set that is the intersection of the input sets
+// IntersectionActivityByElevationLowPtr return a set that is the intersection of the input sets
 // repeated value within list parameter will be ignored
-func IntersectionActivityByElevLowPtr(arrList ...[]*Activity) []*Activity {
+func IntersectionActivityByElevationLowPtr(arrList ...[]*Activity) []*Activity {
 	if arrList == nil {
 		return []*Activity{}
 	}
@@ -16884,9 +16884,9 @@ func IntersectionActivityByElevLowPtr(arrList ...[]*Activity) []*Activity {
 	if len(arrList) == 1 {
 		var newList []*Activity
 		for i := 0; i < len(arrList[0]); i++ {
-			_, ok := resultMap[arrList[0][i].ElevLow]
+			_, ok := resultMap[arrList[0][i].ElevationLow]
 			if !ok {
-				resultMap[arrList[0][i].ElevLow] = true
+				resultMap[arrList[0][i].ElevationLow] = true
 				newList = append(newList, arrList[0][i])
 			}
 		}
@@ -16903,26 +16903,26 @@ func IntersectionActivityByElevLowPtr(arrList ...[]*Activity) []*Activity {
 		for j := 1; j < len(arrList); j++ {
 			for _, v := range arrList[j] {
 				// compare every items in 1st array to every items in the rest of the arrays
-				if arrList[0][i].ElevLow == v.ElevLow {
+				if arrList[0][i].ElevationLow == v.ElevationLow {
 					matchCount++
 					break
 				}
 			}
 		}
 		if matchCount == len(arrList)-1 {
-			_, ok := resultMap[arrList[0][i].ElevLow]
+			_, ok := resultMap[arrList[0][i].ElevationLow]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevLow] = true
+				resultMap[arrList[0][i].ElevationLow] = true
 			}
 		}
 	}
 	return newList
 }
 
-// DifferenceActivityByElevLow returns a set that is the first set without elements of the remaining sets
+// DifferenceActivityByElevationLow returns a set that is the first set without elements of the remaining sets
 // repeated value within list parameter will be ignored
-func DifferenceActivityByElevLow(arrList ...[]Activity) []Activity {
+func DifferenceActivityByElevationLow(arrList ...[]Activity) []Activity {
 	if arrList == nil {
 		return []Activity{}
 	}
@@ -16931,10 +16931,10 @@ func DifferenceActivityByElevLow(arrList ...[]Activity) []Activity {
 	if len(arrList) == 1 {
 		var newList []Activity
 		for i := 0; i < len(arrList[0]); i++ {
-			_, ok := resultMap[arrList[0][i].ElevLow]
+			_, ok := resultMap[arrList[0][i].ElevationLow]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevLow] = true
+				resultMap[arrList[0][i].ElevationLow] = true
 			}
 		}
 		return newList
@@ -16950,26 +16950,26 @@ func DifferenceActivityByElevLow(arrList ...[]Activity) []Activity {
 		for j := 1; j < len(arrList); j++ {
 			for _, v := range arrList[j] {
 				// compare every items in 1st array to every items in the rest of the arrays
-				if arrList[0][i].ElevLow == v.ElevLow {
+				if arrList[0][i].ElevationLow == v.ElevationLow {
 					matchCount++
 					break
 				}
 			}
 		}
 		if matchCount == 0 {
-			_, ok := resultMap[arrList[0][i].ElevLow]
+			_, ok := resultMap[arrList[0][i].ElevationLow]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevLow] = true
+				resultMap[arrList[0][i].ElevationLow] = true
 			}
 		}
 	}
 	return newList
 }
 
-// DifferenceActivityByElevLowPtr returns a set that is the first set without elements of the remaining sets
+// DifferenceActivityByElevationLowPtr returns a set that is the first set without elements of the remaining sets
 // repeated value within list parameter will be ignored
-func DifferenceActivityByElevLowPtr(arrList ...[]*Activity) []*Activity {
+func DifferenceActivityByElevationLowPtr(arrList ...[]*Activity) []*Activity {
 	if arrList == nil {
 		return []*Activity{}
 	}
@@ -16978,9 +16978,9 @@ func DifferenceActivityByElevLowPtr(arrList ...[]*Activity) []*Activity {
 	if len(arrList) == 1 {
 		var newList []*Activity
 		for i := 0; i < len(arrList[0]); i++ {
-			_, ok := resultMap[arrList[0][i].ElevLow]
+			_, ok := resultMap[arrList[0][i].ElevationLow]
 			if !ok {
-				resultMap[arrList[0][i].ElevLow] = true
+				resultMap[arrList[0][i].ElevationLow] = true
 				newList = append(newList, arrList[0][i])
 			}
 		}
@@ -16997,38 +16997,38 @@ func DifferenceActivityByElevLowPtr(arrList ...[]*Activity) []*Activity {
 		for j := 1; j < len(arrList); j++ {
 			for _, v := range arrList[j] {
 				// compare every items in 1st array to every items in the rest of the arrays
-				if arrList[0][i].ElevLow == v.ElevLow {
+				if arrList[0][i].ElevationLow == v.ElevationLow {
 					matchCount++
 					break
 				}
 			}
 		}
 		if matchCount == 0 {
-			_, ok := resultMap[arrList[0][i].ElevLow]
+			_, ok := resultMap[arrList[0][i].ElevationLow]
 			if !ok {
 				newList = append(newList, arrList[0][i])
-				resultMap[arrList[0][i].ElevLow] = true
+				resultMap[arrList[0][i].ElevationLow] = true
 			}
 		}
 	}
 	return newList
 }
 
-// SubsetActivityByElevLow returns true or false by checking if set1 is a subset of set2
+// SubsetActivityByElevationLow returns true or false by checking if set1 is a subset of set2
 // repeated value within list parameter will be ignored
-func SubsetActivityByElevLow(list1, list2 []Activity) bool {
+func SubsetActivityByElevationLow(list1, list2 []Activity) bool {
 	if list1 == nil || len(list1) == 0 || list2 == nil || len(list2) == 0 {
 		return false
 	}
 
 	resultMap := make(map[float64]bool)
 	for i := 0; i < len(list1); i++ {
-		_, ok := resultMap[list1[i].ElevLow]
+		_, ok := resultMap[list1[i].ElevationLow]
 		if !ok {
 			found := false
-			resultMap[list1[i].ElevLow] = true
+			resultMap[list1[i].ElevationLow] = true
 			for j := 0; j < len(list2); j++ {
-				if list1[i].ElevLow == list2[j].ElevLow {
+				if list1[i].ElevationLow == list2[j].ElevationLow {
 					found = true
 					break
 				}
@@ -17041,21 +17041,21 @@ func SubsetActivityByElevLow(list1, list2 []Activity) bool {
 	return true
 }
 
-// SubsetActivityByElevLowPtr returns true or false by checking if set1 is a subset of set2
+// SubsetActivityByElevationLowPtr returns true or false by checking if set1 is a subset of set2
 // repeated value within list parameter will be ignored
-func SubsetActivityByElevLowPtr(list1, list2 []*Activity) bool {
+func SubsetActivityByElevationLowPtr(list1, list2 []*Activity) bool {
 	if list1 == nil || len(list1) == 0 || list2 == nil || len(list2) == 0 {
 		return false
 	}
 
 	resultMap := make(map[float64]bool)
 	for i := 0; i < len(list1); i++ {
-		_, ok := resultMap[list1[i].ElevLow]
+		_, ok := resultMap[list1[i].ElevationLow]
 		if !ok {
 			found := false
-			resultMap[list1[i].ElevLow] = true
+			resultMap[list1[i].ElevationLow] = true
 			for j := 0; j < len(list2); j++ {
-				if list1[i].ElevLow == list2[j].ElevLow {
+				if list1[i].ElevationLow == list2[j].ElevationLow {
 					found = true
 					break
 				}
@@ -17068,9 +17068,9 @@ func SubsetActivityByElevLowPtr(list1, list2 []*Activity) bool {
 	return true
 }
 
-// SupersetActivityByElevLow returns true or false by checking if set1 is a superset of set2
+// SupersetActivityByElevationLow returns true or false by checking if set1 is a superset of set2
 // repeated value within list parameter will be ignored
-func SupersetActivityByElevLow(list1, list2 []Activity) bool {
+func SupersetActivityByElevationLow(list1, list2 []Activity) bool {
 	if list1 == nil || len(list1) == 0 || list2 == nil || len(list2) == 0 {
 		return false
 	}
@@ -17078,12 +17078,12 @@ func SupersetActivityByElevLow(list1, list2 []Activity) bool {
 	resultMap := make(map[float64]bool)
 
 	for i := 0; i < len(list2); i++ {
-		_, ok := resultMap[list2[i].ElevLow]
+		_, ok := resultMap[list2[i].ElevationLow]
 		if !ok {
 			found := false
-			resultMap[list2[i].ElevLow] = true
+			resultMap[list2[i].ElevationLow] = true
 			for j := 0; j < len(list1); j++ {
-				if list2[i].ElevLow == list1[j].ElevLow {
+				if list2[i].ElevationLow == list1[j].ElevationLow {
 					found = true
 					break
 				}
@@ -17096,9 +17096,9 @@ func SupersetActivityByElevLow(list1, list2 []Activity) bool {
 	return true
 }
 
-// SupersetActivityByElevLowPtr returns true or false by checking if set1 is a superset of set2
+// SupersetActivityByElevationLowPtr returns true or false by checking if set1 is a superset of set2
 // repeated value within list parameter will be ignored
-func SupersetActivityByElevLowPtr(list1, list2 []*Activity) bool {
+func SupersetActivityByElevationLowPtr(list1, list2 []*Activity) bool {
 	if list1 == nil || len(list1) == 0 || list2 == nil || len(list2) == 0 {
 		return false
 	}
@@ -17106,12 +17106,12 @@ func SupersetActivityByElevLowPtr(list1, list2 []*Activity) bool {
 	resultMap := make(map[float64]bool)
 
 	for i := 0; i < len(list2); i++ {
-		_, ok := resultMap[list2[i].ElevLow]
+		_, ok := resultMap[list2[i].ElevationLow]
 		if !ok {
 			found := false
-			resultMap[list2[i].ElevLow] = true
+			resultMap[list2[i].ElevationLow] = true
 			for j := 0; j < len(list1); j++ {
-				if list2[i].ElevLow == list1[j].ElevLow {
+				if list2[i].ElevationLow == list1[j].ElevationLow {
 					found = true
 					break
 				}
@@ -17124,8 +17124,8 @@ func SupersetActivityByElevLowPtr(list1, list2 []*Activity) bool {
 	return true
 }
 
-// SetActivityByElevLow returns a set of the distinct elements of coll.
-func SetActivityByElevLow(list []Activity) []Activity {
+// SetActivityByElevationLow returns a set of the distinct elements of coll.
+func SetActivityByElevationLow(list []Activity) []Activity {
 	if list == nil || len(list) == 0 {
 		return []Activity{}
 	}
@@ -17133,17 +17133,17 @@ func SetActivityByElevLow(list []Activity) []Activity {
 	resultMap := make(map[float64]bool)
 	newList := []Activity{}
 	for i := 0; i < len(list); i++ {
-		_, ok := resultMap[list[i].ElevLow]
+		_, ok := resultMap[list[i].ElevationLow]
 		if !ok {
-			resultMap[list[i].ElevLow] = true
+			resultMap[list[i].ElevationLow] = true
 			newList = append(newList, list[i])
 		}
 	}
 	return newList
 }
 
-// SetActivityByElevLowPtr returns a set of the distinct elements of coll.
-func SetActivityByElevLowPtr(list []*Activity) []*Activity {
+// SetActivityByElevationLowPtr returns a set of the distinct elements of coll.
+func SetActivityByElevationLowPtr(list []*Activity) []*Activity {
 	if list == nil || len(list) == 0 {
 		return []*Activity{}
 	}
@@ -17151,9 +17151,9 @@ func SetActivityByElevLowPtr(list []*Activity) []*Activity {
 	resultMap := make(map[float64]bool)
 	newList := []*Activity{}
 	for i := 0; i < len(list); i++ {
-		_, ok := resultMap[list[i].ElevLow]
+		_, ok := resultMap[list[i].ElevationLow]
 		if !ok {
-			resultMap[list[i].ElevLow] = true
+			resultMap[list[i].ElevationLow] = true
 			newList = append(newList, list[i])
 		}
 	}
