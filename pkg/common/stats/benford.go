@@ -6,7 +6,7 @@ import (
 )
 
 // https://en.wikipedia.org/wiki/Benford%27s_law
-var benfordsLaw = []float64{
+var benfordLaw = []float64{
 	0.301, // 1
 	0.176, // 2
 	0.125, // 3
@@ -18,15 +18,15 @@ var benfordsLaw = []float64{
 	0.046, // 9
 }
 
-var benfordsCount = len(benfordsLaw)
+var benfordCount = len(benfordLaw)
 
-type Benfords struct {
+type Benford struct {
 	Distribution []float64
 	ChiSquared   float64
 }
 
 func distribution(occ []int) []float64 {
-	res := make([]float64, benfordsCount)
+	res := make([]float64, benfordCount)
 	sum := float64(fp.ReduceInt(func(x, y int) int {
 		return x + y
 	}, occ))
@@ -37,7 +37,7 @@ func distribution(occ []int) []float64 {
 }
 
 func occurrences(vals []int) []int {
-	res := make([]int, benfordsCount)
+	res := make([]int, benfordCount)
 	fp.EveryInt(func(v int) bool {
 		if v > 0 {
 			res[v-1] = res[v-1] + 1
@@ -52,8 +52,8 @@ func occurrences(vals []int) []int {
 	return res
 }
 
-func BenfordsLaw(vals []int) Benfords {
+func BenfordsLaw(vals []int) Benford {
 	dis := distribution(occurrences(vals))
-	chi := stat.ChiSquare(dis, benfordsLaw)
-	return Benfords{Distribution: dis, ChiSquared: chi}
+	chi := stat.ChiSquare(dis, benfordLaw)
+	return Benford{Distribution: dis, ChiSquared: chi}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -14,9 +15,16 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
-type EddingtonFunc func(*strava.Activity) (int, bool)
+const year = 2017
+const imperial = true
 
-var spewer = &spew.ConfigState{Indent: " ", SortKeys: true}
+var (
+	rides = set.NewStr([]string{"Ride", "VirtualRide"})
+	// rides  = set.NewStr([]string{"Ride"})
+	spewer = &spew.ConfigState{Indent: " ", SortKeys: true}
+)
+
+type EddingtonFunc func(*strava.Activity) (int, bool)
 
 func MustReadActivities(filename string) []*strava.Activity {
 	var err error
@@ -40,26 +48,31 @@ func MustReadActivities(filename string) []*strava.Activity {
 		}
 		acts = append(acts, act)
 	}
+
 	return acts
 }
 
 func Distance(act *strava.Activity) (int, bool) {
 	// convert meters to miles
-	miles := (unit.Length(act.Distance) * unit.Meter).Miles()
-	return int(miles), true
+	val := act.Distance
+	if imperial {
+		val = (unit.Length(val) * unit.Meter).Miles()
+	}
+	return int(val), true
 }
 
 func Elevation(act *strava.Activity) (int, bool) {
 	// convert meters to feet
-	feet := (unit.Length(act.TotalElevationGain) * unit.Meter).Feet()
-	return int(feet), true
+	val := act.TotalElevationGain
+	if imperial {
+		val = (unit.Length(val) * unit.Meter).Feet()
+	}
+	return int(val), true
 }
 
 func Eddington(f EddingtonFunc, acts []*strava.Activity) stats.EddingtonNumber {
 	var vals []int
 	types := make((map[string]int))
-	rides := set.NewStr([]string{"Ride", "VirtualRide"})
-
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		val, ok := f(act)
 		if ok {
@@ -70,15 +83,13 @@ func Eddington(f EddingtonFunc, acts []*strava.Activity) stats.EddingtonNumber {
 		types[act.Type] = types[act.Type] + 1
 		return rides.Contains(act.Type)
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
-		return act.StartDateLocal.Year() == 2020
+		return act.StartDateLocal.Year() == year
 	}, acts)))
 	return stats.Eddington(vals)
 }
 
-func BenfordsLaw(acts []*strava.Activity) stats.Benfords {
+func BenfordsLaw(acts []*strava.Activity) stats.Benford {
 	var vals []int
-	rides := set.NewStr([]string{"Ride", "VirtualRide"})
-
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		miles := (unit.Length(act.Distance) * unit.Meter).Miles()
 		vals = append(vals, int(miles))
@@ -86,15 +97,16 @@ func BenfordsLaw(acts []*strava.Activity) stats.Benfords {
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
 		return rides.Contains(act.Type)
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
-		return act.StartDateLocal.Year() == 2020
+		return act.StartDateLocal.Year() == year
 	}, acts)))
 	return stats.BenfordsLaw(vals)
 }
 
 func main() {
 	acts := MustReadActivities(os.Args[1])
-	for _, f := range []EddingtonFunc{Elevation, Distance} {
-		spewer.Dump(Eddington(f, acts).Number)
+	for i, f := range []EddingtonFunc{Distance, Elevation} {
+		ed := Eddington(f, acts)
+		fmt.Printf("%d > %d\n", i, ed.Number)
 	}
 	spewer.Dump(BenfordsLaw(acts))
 }
