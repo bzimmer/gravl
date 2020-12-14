@@ -7,6 +7,7 @@ import (
 	"os"
 	"sort"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/logic-building/functional-go/set"
 	"github.com/martinlindhe/unit"
 	"github.com/valyala/fastjson"
@@ -15,18 +16,19 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
-const imperial = true
-const commutes = false
-const climbingThreshold = 0.0
-
-var (
-	year = 0
-	// rides = set.NewStr([]string{"Ride", "VirtualRide"})
-	rides = set.NewStr([]string{"Ride"})
-	// spewer = &spew.ConfigState{Indent: " ", SortKeys: true}
+const (
+	year              = 2020
+	imperial          = true
+	commutes          = false
+	climbingThreshold = 0.0
 )
 
-func MustReadActivities(filename string) []*strava.Activity {
+var (
+	// rides = set.NewStr([]string{"Ride", "VirtualRide"})
+	rides = set.NewStr([]string{"Ride"})
+)
+
+func MustReadActivities(filename string) map[int][]*strava.Activity {
 	var err error
 	var sc fastjson.Scanner
 	var acts []*strava.Activity
@@ -49,16 +51,37 @@ func MustReadActivities(filename string) []*strava.Activity {
 		acts = append(acts, act)
 	}
 
-	return strava.FilterActivityPtr(func(act *strava.Activity) bool {
+	return strava.GroupByIntActivityPtr(func(act *strava.Activity) int {
+		return act.StartDateLocal.Year()
+	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
 		return rides.Contains(act.Type)
+	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
+		if year == 0 {
+			return true
+		}
+		return year == act.StartDateLocal.Year()
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
 		if !commutes {
 			return !act.Commute
 		}
 		return true
-	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
-		return year == 0 || act.StartDateLocal.Year() == year
-	}, acts)))
+	}, acts))))
+}
+
+func KOMs(acts []*strava.Activity) []*strava.SegmentEffort {
+	var efforts []*strava.SegmentEffort
+	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+		for _, effort := range act.SegmentEfforts {
+			for _, ach := range effort.Achievements {
+				if ach.Rank == 1 && ach.Type == "overall" {
+					efforts = append(efforts, effort)
+					break
+				}
+			}
+		}
+		return true
+	}, acts)
+	return efforts
 }
 
 func HourRecord(acts []*strava.Activity) *strava.Activity {
@@ -68,36 +91,39 @@ func HourRecord(acts []*strava.Activity) *strava.Activity {
 		}
 		return act1
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
-		miles := (unit.Length(act.Distance) * unit.Meter).Miles()
-		mph := (unit.Speed(act.AverageSpeed) * unit.KilometersPerHour).MilesPerHour()
-		return miles >= mph
+		var dst, spd float64
+		if imperial {
+			dst = (unit.Length(act.Distance) * unit.Meter).Miles()
+			spd = (unit.Speed(act.AverageSpeed) * unit.KilometersPerHour).MilesPerHour()
+		} else {
+			dst = (unit.Length(act.Distance) * unit.Meter).Kilometers()
+			spd = (unit.Speed(act.AverageSpeed) * unit.KilometersPerHour).KilometersPerHour()
+		}
+		return dst >= spd
 	}, acts))
 }
 
-func Eddington(acts []*strava.Activity) stats.EddingtonNumber {
+func Distances(acts []*strava.Activity) []int {
 	var vals []int
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		val := act.Distance
+		var val float64
 		if imperial {
-			val = (unit.Length(val) * unit.Meter).Miles()
+			val = (unit.Length(act.Distance) * unit.Meter).Miles()
+		} else {
+			val = (unit.Length(act.Distance) * unit.Meter).Kilometers()
 		}
 		vals = append(vals, int(val))
 		return true
 	}, acts)
-	return stats.Eddington(vals)
+	return vals
+}
+
+func Eddington(acts []*strava.Activity) stats.EddingtonNumber {
+	return stats.Eddington(Distances(acts))
 }
 
 func BenfordsLaw(acts []*strava.Activity) stats.Benford {
-	var vals []int
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		val := act.Distance
-		if imperial {
-			val = (unit.Length(val) * unit.Meter).Miles()
-		}
-		vals = append(vals, int(val))
-		return true
-	}, acts)
-	return stats.BenfordsLaw(vals)
+	return stats.BenfordsLaw(Distances(acts))
 }
 
 func ClimbingNumber(acts []*strava.Activity) int {
@@ -106,43 +132,47 @@ func ClimbingNumber(acts []*strava.Activity) int {
 		cnt++
 		return true
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
-		miles := (unit.Length(act.Distance) * unit.Meter).Miles()
-		elv := (unit.Length(act.TotalElevationGain) * unit.Meter).Feet()
-		return miles > climbingThreshold && elv/miles > 100
+		dst := act.Distance
+		elv := act.TotalElevationGain
+		if imperial {
+			dst = (unit.Length(dst) * unit.Meter).Miles()
+			elv = (unit.Length(elv) * unit.Meter).Feet()
+		} else {
+			dst = (unit.Length(dst) * unit.Meter).Kilometers()
+		}
+		return dst > climbingThreshold && elv/dst > 100
 	}, acts))
 	return cnt
-}
-
-func GroupByIntActivityPtr(f func(act *strava.Activity) int, acts []*strava.Activity) map[int][]*strava.Activity {
-	res := make(map[int][]*strava.Activity)
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		key := f(act)
-		res[key] = append(res[key], act)
-		return true
-	}, acts)
-	return res
 }
 
 func main() {
 	var years []int
 	acts := MustReadActivities(os.Args[1])
-	groups := GroupByIntActivityPtr(func(act *strava.Activity) int {
-		// return 0
-		return act.StartDateLocal.Year()
-	}, acts)
-	for year := range groups {
-		years = append(years, year)
+	for y := range acts {
+		years = append(years, y)
 	}
 	sort.Ints(years)
 	for _, year := range years {
-		group := groups[year]
+		group := acts[year]
 		fmt.Printf("\n%d (activities: %d)\n", year, len(group))
 		fmt.Printf("Eddington: %d\n", Eddington(group).Number)
 		act := HourRecord(group)
 		fmt.Printf("HourRecord: %s (%d)\n", act.Name, act.ID)
 		fmt.Printf("ClimbingNumber: %d\n", ClimbingNumber(group))
+		koms := KOMs(group)
+		sort.Slice(koms, func(i, j int) bool {
+			return koms[i].Segment.ClimbCategory > koms[j].Segment.ClimbCategory
+		})
+		fmt.Printf("KOMs: %d\n", len(koms))
+		for _, effort := range koms {
+			seg := effort.Segment
+			fmt.Printf("  > %s (avg %0.2f) (max %0.2f) (category %d)\n",
+				seg.Name, seg.AverageGrade, seg.MaximumGrade, seg.ClimbCategory)
+		}
 		if len(group) > 25 {
-			fmt.Printf("Benford's Law: %0.4f\n", BenfordsLaw(group).ChiSquared)
+			spewer := &spew.ConfigState{Indent: " ", SortKeys: true}
+			spewer.Dump(BenfordsLaw(group))
+			// fmt.Printf("Benford's Law: %0.4f\n", BenfordsLaw(group).ChiSquared)
 		}
 	}
 }

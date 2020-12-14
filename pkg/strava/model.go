@@ -93,36 +93,58 @@ type Stats struct {
 	YtdRunTotals              *Totals `json:"ytd_run_totals"`
 }
 
+type Club struct {
+	Admin           bool   `json:"admin"`
+	City            string `json:"city"`
+	Country         string `json:"country"`
+	CoverPhoto      string `json:"cover_photo"`
+	CoverPhotoSmall string `json:"cover_photo_small"`
+	Featured        bool   `json:"featured"`
+	ID              int    `json:"id"`
+	MemberCount     int    `json:"member_count"`
+	Membership      string `json:"membership"`
+	Name            string `json:"name"`
+	Owner           bool   `json:"owner"`
+	Private         bool   `json:"private"`
+	Profile         string `json:"profile"`
+	ProfileMedium   string `json:"profile_medium"`
+	ResourceState   int    `json:"resource_state"`
+	SportType       string `json:"sport_type"`
+	State           string `json:"state"`
+	URL             string `json:"url"`
+	Verified        bool   `json:"verified"`
+}
+
 // Athlete represents a Strava athlete
 type Athlete struct {
-	ID                    int           `json:"id"`
-	Username              string        `json:"username"`
-	ResourceState         int           `json:"resource_state"`
-	Firstname             string        `json:"firstname"`
-	Lastname              string        `json:"lastname"`
-	City                  string        `json:"city"`
-	State                 string        `json:"state"`
-	Country               string        `json:"country"`
-	Sex                   string        `json:"sex"`
-	Premium               bool          `json:"premium"`
-	CreatedAt             time.Time     `json:"created_at"`
-	UpdatedAt             time.Time     `json:"updated_at"`
-	BadgeTypeID           int           `json:"badge_type_id"`
-	ProfileMedium         string        `json:"profile_medium"`
-	Profile               string        `json:"profile"`
-	Friend                interface{}   `json:"friend"`
-	Follower              interface{}   `json:"follower"`
-	FollowerCount         int           `json:"follower_count"`
-	FriendCount           int           `json:"friend_count"`
-	MutualFriendCount     int           `json:"mutual_friend_count"`
-	AthleteType           int           `json:"athlete_type"`
-	DatePreference        string        `json:"date_preference"`
-	MeasurementPreference string        `json:"measurement_preference"`
-	Clubs                 []interface{} `json:"clubs"`
-	Ftp                   float64       `json:"ftp"`
-	Weight                float64       `json:"weight"`
-	Bikes                 []*Gear       `json:"bikes"`
-	Shoes                 []*Gear       `json:"shoes"`
+	ID                    int         `json:"id"`
+	Username              string      `json:"username"`
+	ResourceState         int         `json:"resource_state"`
+	Firstname             string      `json:"firstname"`
+	Lastname              string      `json:"lastname"`
+	City                  string      `json:"city"`
+	State                 string      `json:"state"`
+	Country               string      `json:"country"`
+	Sex                   string      `json:"sex"`
+	Premium               bool        `json:"premium"`
+	CreatedAt             time.Time   `json:"created_at"`
+	UpdatedAt             time.Time   `json:"updated_at"`
+	BadgeTypeID           int         `json:"badge_type_id"`
+	ProfileMedium         string      `json:"profile_medium"`
+	Profile               string      `json:"profile"`
+	Friend                interface{} `json:"friend"`
+	Follower              interface{} `json:"follower"`
+	FollowerCount         int         `json:"follower_count"`
+	FriendCount           int         `json:"friend_count"`
+	MutualFriendCount     int         `json:"mutual_friend_count"`
+	AthleteType           int         `json:"athlete_type"`
+	DatePreference        string      `json:"date_preference"`
+	MeasurementPreference string      `json:"measurement_preference"`
+	Clubs                 []*Club     `json:"clubs"`
+	Ftp                   float64     `json:"ftp"`
+	Weight                float64     `json:"weight"`
+	Bikes                 []*Gear     `json:"bikes"`
+	Shoes                 []*Gear     `json:"shoes"`
 }
 
 // Map .
@@ -161,48 +183,52 @@ type Lap struct {
 	Split              int       `json:"split"`
 }
 
+type PREffort struct {
+	Distance       float64   `json:"distance"`
+	StartDateLocal time.Time `json:"start_date_local"`
+	ActivityID     int       `json:"activity_id"`
+	ElapsedTime    int       `json:"elapsed_time"`
+	IsKom          bool      `json:"is_kom"`
+	ID             int       `json:"id"`
+	StartDate      time.Time `json:"start_date"`
+}
+
+type SegmentStats struct {
+	PRElapsedTime int       `json:"pr_elapsed_time"`
+	PRDate        time.Time `json:"pr_date"`
+	EffortCount   int       `json:"effort_count"`
+	PRActivityID  int       `json:"pr_activity_id"`
+}
+
 // Segment .
 type Segment struct {
-	ID                 int       `json:"id"`
-	ResourceState      int       `json:"resource_state"`
-	Name               string    `json:"name"`
-	ActivityType       string    `json:"activity_type"`
-	Distance           float64   `json:"distance"`
-	AverageGrade       float64   `json:"average_grade"`
-	MaximumGrade       float64   `json:"maximum_grade"`
-	ElevationHigh      float64   `json:"elevation_high"`
-	ElevationLow       float64   `json:"elevation_low"`
-	StartLatlng        []float64 `json:"start_latlng"`
-	EndLatlng          []float64 `json:"end_latlng"`
-	ClimbCategory      int       `json:"climb_category"`
-	City               string    `json:"city"`
-	State              string    `json:"state"`
-	Country            string    `json:"country"`
-	Private            bool      `json:"private"`
-	Hazardous          bool      `json:"hazardous"`
-	Starred            bool      `json:"starred"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
-	TotalElevationGain int       `json:"total_elevation_gain"`
-	Map                *Map      `json:"map"`
-	EffortCount        int       `json:"effort_count"`
-	AthleteCount       int       `json:"athlete_count"`
-	StarCount          int       `json:"star_count"`
-	AthletePREffort    struct {
-		Distance       float64   `json:"distance"`
-		StartDateLocal time.Time `json:"start_date_local"`
-		ActivityID     int       `json:"activity_id"`
-		ElapsedTime    int       `json:"elapsed_time"`
-		IsKom          bool      `json:"is_kom"`
-		ID             int       `json:"id"`
-		StartDate      time.Time `json:"start_date"`
-	} `json:"athlete_pr_effort"`
-	AthleteSegmentStats struct {
-		PrElapsedTime int       `json:"pr_elapsed_time"`
-		PrDate        time.Time `json:"pr_date"`
-		EffortCount   int       `json:"effort_count"`
-		PrActivityID  int       `json:"pr_activity_id"`
-	} `json:"athlete_segment_stats"`
+	ID                  int           `json:"id"`
+	ResourceState       int           `json:"resource_state"`
+	Name                string        `json:"name"`
+	ActivityType        string        `json:"activity_type"`
+	Distance            float64       `json:"distance"`
+	AverageGrade        float64       `json:"average_grade"`
+	MaximumGrade        float64       `json:"maximum_grade"`
+	ElevationHigh       float64       `json:"elevation_high"`
+	ElevationLow        float64       `json:"elevation_low"`
+	StartLatlng         []float64     `json:"start_latlng"`
+	EndLatlng           []float64     `json:"end_latlng"`
+	ClimbCategory       int           `json:"climb_category"`
+	City                string        `json:"city"`
+	State               string        `json:"state"`
+	Country             string        `json:"country"`
+	Private             bool          `json:"private"`
+	Hazardous           bool          `json:"hazardous"`
+	Starred             bool          `json:"starred"`
+	CreatedAt           time.Time     `json:"created_at"`
+	UpdatedAt           time.Time     `json:"updated_at"`
+	TotalElevationGain  int           `json:"total_elevation_gain"`
+	Map                 *Map          `json:"map"`
+	EffortCount         int           `json:"effort_count"`
+	AthleteCount        int           `json:"athlete_count"`
+	StarCount           int           `json:"star_count"`
+	PREffort            *PREffort     `json:"athlete_pr_effort"`
+	AthleteSegmentStats *SegmentStats `json:"athlete_segment_stats"`
 }
 
 // MetaActivity .
@@ -211,28 +237,35 @@ type MetaActivity struct {
 	ResourceState int   `json:"resource_state"`
 }
 
+// Achievement .
+type Achievement struct {
+	Rank   int    `json:"rank"`
+	Type   string `json:"type"`
+	TypeID int    `json:"type_id"`
+}
+
 // SegmentEffort .
 type SegmentEffort struct {
-	ID             int64         `json:"id"`
-	ResourceState  int           `json:"resource_state"`
-	Name           string        `json:"name"`
-	Activity       *MetaActivity `json:"activity"`
-	Athlete        *Athlete      `json:"athlete"`
-	ElapsedTime    int           `json:"elapsed_time"`
-	MovingTime     int           `json:"moving_time"`
-	StartDate      time.Time     `json:"start_date"`
-	StartDateLocal time.Time     `json:"start_date_local"`
-	Distance       float64       `json:"distance"`
-	StartIndex     int           `json:"start_index"`
-	EndIndex       int           `json:"end_index"`
-	AverageCadence float64       `json:"average_cadence"`
-	DeviceWatts    bool          `json:"device_watts"`
-	AverageWatts   float64       `json:"average_watts"`
-	Segment        *Segment      `json:"segment"`
-	KomRank        int           `json:"kom_rank"`
-	PrRank         int           `json:"pr_rank"`
-	Achievements   []interface{} `json:"achievements"`
-	Hidden         bool          `json:"hidden"`
+	ID             int64          `json:"id"`
+	ResourceState  int            `json:"resource_state"`
+	Name           string         `json:"name"`
+	Activity       *MetaActivity  `json:"activity"`
+	Athlete        *Athlete       `json:"athlete"`
+	ElapsedTime    int            `json:"elapsed_time"`
+	MovingTime     int            `json:"moving_time"`
+	StartDate      time.Time      `json:"start_date"`
+	StartDateLocal time.Time      `json:"start_date_local"`
+	Distance       float64        `json:"distance"`
+	StartIndex     int            `json:"start_index"`
+	EndIndex       int            `json:"end_index"`
+	AverageCadence float64        `json:"average_cadence"`
+	DeviceWatts    bool           `json:"device_watts"`
+	AverageWatts   float64        `json:"average_watts"`
+	Segment        *Segment       `json:"segment"`
+	KOMRank        int            `json:"kom_rank"`
+	PRRank         int            `json:"pr_rank"`
+	Achievements   []*Achievement `json:"achievements"`
+	Hidden         bool           `json:"hidden"`
 }
 
 // SplitsMetric .

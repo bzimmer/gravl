@@ -3,7 +3,6 @@ module github.com/bzimmer/gravl
 go 1.15
 
 require (
-	github.com/CMiksche/benford v0.0.0-20201204105600-8f964a4db9b5
 	github.com/StefanSchroeder/Golang-Ellipsoid v0.0.0-20200928074047-3758eb9e9574
 	github.com/adrg/xdg v0.2.3
 	github.com/bzimmer/httpwares v0.0.1
@@ -25,6 +24,7 @@ require (
 	github.com/twpayne/go-polyline v1.0.1
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/valyala/fastjson v1.6.3
+	golang.org/x/exp v0.0.0-20200819202907-27b6b2ade93b // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10 // indirect
 	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
