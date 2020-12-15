@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
+	"golang.org/x/time/rate"
 
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
@@ -29,7 +30,9 @@ var stravaCommand = &cli.Command{
 				c.String("strava.client-id"),
 				c.String("strava.client-secret")),
 			strava.WithAutoRefresh(c.Context),
-			strava.WithHTTPTracing(c.Bool("http-tracing")))
+			strava.WithHTTPTracing(c.Bool("http-tracing")),
+			strava.WithRateLimiter(
+				rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
 		if err != nil {
 			return err
 		}
