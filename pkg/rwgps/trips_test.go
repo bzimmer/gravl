@@ -30,7 +30,7 @@ func Test_Trip(t *testing.T) {
 	a.Equal(int64(94), trk.ID)
 	a.Equal(rwgps.OriginTrip, trk.Origin)
 	a.Equal(1465, len(trk.TrackPoints))
-	a.Equal("OriginTrip", trk.Origin.String())
+	a.Equal("trip", trk.Origin.String())
 
 	trk, err = c.Trips.Trip(contextNil(), 94)
 	a.Error(err)

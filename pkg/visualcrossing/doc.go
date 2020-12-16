@@ -1,5 +1,3 @@
-//go:generate go run ../../cmd/genreadme/genreadme.go
-
 /*
 Package visualcrossing provides a client to access VisualCrossing weather forecasts.
 
@@ -28,7 +26,8 @@ Difference between `current` and `forecast` conditions:
 # in current, not forecast
 ['icon', 'moonphase', 'stations', 'sunrise', 'sunset']
 # in both
-['cloudcover', 'datetime', 'dew', 'heatindex', 'humidity', 'precip', 'sealevelpressure', 'snowdepth', 'temp', 'visibility', 'wdir', 'wgust', 'windchill', 'wspd']
+['cloudcover', 'datetime', 'dew', 'heatindex', 'humidity', 'precip', 'sealevelpressure', 'snowdepth',
+ 'temp', 'visibility', 'wdir', 'wgust', 'windchill', 'wspd']
 ```
 */
 package visualcrossing

@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Fault .
+// Fault represents an error response
 type Fault struct {
 	Message string `json:"message"`
 }
@@ -13,28 +13,33 @@ func (f *Fault) Error() string {
 	return f.Message
 }
 
-type UserID int
-type Datetime struct {
-	time.Time
-}
+type (
+	UserID   int
+	Datetime struct {
+		time.Time
+	}
+)
 
-// 2020-11-01T07:50:10
-const datetimeFormat = `"2006-01-02T15:04:05"`
+const (
+	// Me represents the user id of the authenticated user
+	Me UserID = 0
+
+	// dateTimeFormat used by cyclinganalytics
+	datetimeFormat = `"2006-01-02T15:04:05"`
+)
 
 func (d *Datetime) UnmarshalJSON(b []byte) (err error) {
 	t, err := time.Parse(datetimeFormat, string(b))
 	if err != nil {
-		return err
+		return
 	}
 	d.Time = t
-	return nil
+	return
 }
 
 func (d *Datetime) MarshalJSON() ([]byte, error) {
 	return []byte(d.Time.Format(datetimeFormat)), nil
 }
-
-const Me UserID = 0
 
 type User struct {
 	Email    string `json:"email"`
@@ -77,7 +82,7 @@ type Summary struct {
 	Epower         float64 `json:"epower"`
 	Intensity      float64 `json:"intensity"`
 	Load           float64 `json:"load"`
-	Lrbalance      float64 `json:"lrbalance"`
+	LRBalance      float64 `json:"lrbalance"`
 	MaxCadence     float64 `json:"max_cadence"`
 	MaxHeartrate   float64 `json:"max_heartrate"`
 	MaxPower       float64 `json:"max_power"`
@@ -85,9 +90,9 @@ type Summary struct {
 	MaxTemperature float64 `json:"max_temperature"`
 	MinTemperature float64 `json:"min_temperature"`
 	MovingTime     float64 `json:"moving_time"`
-	Pwc150         float64 `json:"pwc150"`
-	Pwc170         float64 `json:"pwc170"`
-	PwcR2          float64 `json:"pwc_r2"`
+	PWC150         float64 `json:"pwc150"` // physical working capacity
+	PWC170         float64 `json:"pwc170"` // physical working capacity
+	PWCR2          float64 `json:"pwc_r2"` // physical working capacity
 	RidingTime     float64 `json:"riding_time"`
 	TotalTime      float64 `json:"total_time"`
 	TRIMP          float64 `json:"trimp"`
