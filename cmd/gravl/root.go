@@ -164,6 +164,7 @@ func commands() []*cli.Command {
 		rwgpsCommand,
 		serveCommand,
 		srtmCommand,
+		statsCommand,
 		stravaCommand,
 		versionCommand,
 		visualcrossingCommand,

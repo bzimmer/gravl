@@ -70,12 +70,8 @@ func (s *Stats) BenfordsLaw(acts []*strava.Activity) stats.Benford {
 	return stats.BenfordsLaw(s.Distances(acts))
 }
 
-func (s *Stats) ClimbingNumber(acts []*strava.Activity) int {
-	var cnt int
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		cnt++
-		return true
-	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
+func (s *Stats) ClimbingNumber(acts []*strava.Activity) []*strava.Activity {
+	return strava.FilterActivityPtr(func(act *strava.Activity) bool {
 		dst := act.Distance
 		elv := act.TotalElevationGain
 		switch s.Units {
@@ -86,8 +82,7 @@ func (s *Stats) ClimbingNumber(acts []*strava.Activity) int {
 			dst = (unit.Length(dst) * unit.Meter).Kilometers()
 		}
 		return int(elv/dst) > s.ClimbingNumberThreshold
-	}, acts))
-	return cnt
+	}, acts)
 }
 
 func (s *Stats) PythagoreanNumber(acts []*strava.Activity) []*PythagoreanNumber {
