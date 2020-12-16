@@ -131,7 +131,7 @@ func WithRateLimiter(r *rate.Limiter) Option {
 		if c == nil {
 			return errors.New("nil limiter")
 		}
-		c.client.Transport = &RateLimitTransport{
+		c.client.Transport = &httpwares.RateLimitTransport{
 			Limiter:   r,
 			Transport: c.client.Transport,
 		}

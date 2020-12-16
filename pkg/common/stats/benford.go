@@ -1,12 +1,11 @@
 package stats
 
 import (
-	"github.com/logic-building/functional-go/fp"
 	"gonum.org/v1/gonum/stat"
 )
 
 // https://en.wikipedia.org/wiki/Benford%27s_law
-var benfordLaw = []float64{
+var benfordDistribution = []float64{
 	0.301, // 1
 	0.176, // 2
 	0.125, // 3
@@ -18,7 +17,7 @@ var benfordLaw = []float64{
 	0.046, // 9
 }
 
-var benfordCount = len(benfordLaw)
+var benfordCount = len(benfordDistribution)
 
 type Benford struct {
 	Distribution []float64
@@ -27,9 +26,10 @@ type Benford struct {
 
 func distribution(occ []int) []float64 {
 	res := make([]float64, benfordCount)
-	sum := float64(fp.ReduceInt(func(x, y int) int {
-		return x + y
-	}, occ))
+	sum := 0.0
+	for i := 0; i < len(occ); i++ {
+		sum = sum + float64(occ[i])
+	}
 	for i := 0; i < len(res); i++ {
 		res[i] = float64(occ[i]) / sum
 	}
@@ -38,22 +38,20 @@ func distribution(occ []int) []float64 {
 
 func occurrences(vals []int) []int {
 	res := make([]int, benfordCount)
-	fp.EveryInt(func(v int) bool {
-		if v > 0 {
-			res[v-1] = res[v-1] + 1
-		}
-		return true
-	}, fp.MapInt(func(v int) int {
+	for i := 0; i < len(vals); i++ {
+		v := vals[i]
 		for v >= 10 {
 			v = v / 10
 		}
-		return v
-	}, vals))
+		if v > 0 {
+			res[v-1] = res[v-1] + 1
+		}
+	}
 	return res
 }
 
 func BenfordsLaw(vals []int) Benford {
 	dis := distribution(occurrences(vals))
-	chi := stat.ChiSquare(dis, benfordLaw)
+	chi := stat.ChiSquare(dis, benfordDistribution)
 	return Benford{Distribution: dis, ChiSquared: chi}
 }

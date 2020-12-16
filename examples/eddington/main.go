@@ -9,7 +9,6 @@ import (
 	"sort"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/logic-building/functional-go/set"
 	"github.com/martinlindhe/unit"
 	"github.com/valyala/fastjson"
 
@@ -18,16 +17,16 @@ import (
 )
 
 const (
-	Year     = 2020
+	// Year     = 2020
 	Commutes = false
 )
 
 var (
-	rides = set.NewStr([]string{
-		// "Hike",
-		"Ride",
-		// "VirtualRide"
-	})
+	rides = map[string]bool{
+		"Hike":        true,
+		"Ride":        true,
+		"VirtualRide": true,
+	}
 )
 
 func MustReadActivities(filename string) map[int][]*strava.Activity {
@@ -59,7 +58,7 @@ func MustReadActivities(filename string) map[int][]*strava.Activity {
 		// }
 		return act.StartDateLocal.Year()
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
-		return rides.Contains(act.Type)
+		return rides[act.Type]
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
 		// if year == 0 {
 		// 	return true
@@ -82,20 +81,15 @@ func main() {
 	}
 	sort.Ints(years)
 
-	// set up for imperial
-	c := &stats.Config{
-		Units:                   stats.UnitsImperial,
-		ClimbingNumberThreshold: 100,
-	}
-	// c := stats.DefaultConfig
+	s := stats.ImperialStats
 	for _, year := range years {
 		group := acts[year]
 		fmt.Printf("\n%d (activities: %d)\n", year, len(group))
-		fmt.Printf("Eddington Number: %d\n", c.Eddington(group).Number)
-		fmt.Printf("Climbing Number: %d\n", c.ClimbingNumber(group))
-		act := c.HourRecord(group)
+		fmt.Printf("Eddington Number: %d\n", s.Eddington(group).Number)
+		fmt.Printf("Climbing Number: %d\n", s.ClimbingNumber(group))
+		act := s.HourRecord(group)
 		fmt.Printf("Hour Record: %s (%d)\n", act.Name, act.ID)
-		koms := c.KOMs(group)
+		koms := s.KOMs(group)
 		sort.Slice(koms, func(i, j int) bool {
 			return koms[i].Segment.ClimbCategory > koms[j].Segment.ClimbCategory
 		})
@@ -105,19 +99,20 @@ func main() {
 			fmt.Printf("  > %s (avg %0.2f) (max %0.2f) (category %d)\n",
 				seg.Name, seg.AverageGrade, seg.MaximumGrade, seg.ClimbCategory)
 		}
-		pyt := c.Pythagorean(group)
+		pyt := s.PythagoreanNumber(group)
 		n := int(math.Min(10, float64(len(pyt))))
 		fmt.Printf("Pythagorean (top %02d):\n", n)
 		for i := 0; i < n; i++ {
-			act = pyt[i]
+			pn := pyt[i]
+			act := pn.Activity
 			dst := (unit.Length(act.Distance) * unit.Meter).Miles()
 			elv := (unit.Length(act.TotalElevationGain) * unit.Meter).Feet()
-			fmt.Printf("  > %s (distance %0.2f), (elevation %0.2f)\n",
-				act.Name, dst, elv)
+			fmt.Printf("  > %s (number: %0.2f), (distance %0.2f), (elevation %0.2f)\n",
+				act.Name, pn.Number, dst, elv)
 		}
 		if len(group) > 25 {
 			spewer := &spew.ConfigState{Indent: " ", SortKeys: true}
-			spewer.Dump(c.BenfordsLaw(group))
+			spewer.Dump(s.BenfordsLaw(group))
 		}
 	}
 }
