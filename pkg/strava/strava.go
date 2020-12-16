@@ -1,6 +1,6 @@
 package strava
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --client --endpoint --auth --package strava
+//go:generate go run ../../cmd/genwith/genwith.go --do --client --endpoint --auth --ratelimit --package strava
 
 import (
 	"bytes"
@@ -12,8 +12,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/bzimmer/gravl/pkg"
 	"golang.org/x/oauth2"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
 const (

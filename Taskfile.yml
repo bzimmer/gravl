@@ -118,3 +118,6 @@ tasks:
     cmds:
       - go install {{.TOOLS}}
       - task: tidy
+
+  tools-install:
+    deps: [install-tools]

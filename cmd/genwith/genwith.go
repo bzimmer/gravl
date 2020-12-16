@@ -17,12 +17,13 @@ import (
 )
 
 type with struct {
-	Do       bool
-	Auth     bool
-	Client   bool
-	Endpoint bool
-	Flags    string
-	Package  string
+	Do          bool
+	Auth        bool
+	Client      bool
+	Endpoint    bool
+	RateLimiter bool
+	Flags       string
+	Package     string
 }
 
 const (
@@ -36,6 +37,7 @@ import (
 	"errors"
 	"github.com/bzimmer/httpwares"
 	"golang.org/x/oauth2"
+	"golang.org/x/time/rate"
 	"io"
 	"net/http"
 	"time"
@@ -120,6 +122,22 @@ func WithAutoRefresh(ctx context.Context) Option {
 	}
 }
 {{end}}
+{{end}}
+
+{{- if .RateLimiter}}
+// WithRateLimiter rate limits the client's api calls
+func WithRateLimiter(r *rate.Limiter) Option {
+	return func(c *Client) error {
+		if c == nil {
+			return errors.New("nil limiter")
+		}
+		c.client.Transport = &httpwares.RateLimitTransport{
+			Limiter:   r,
+			Transport: c.client.Transport,
+		}
+		return nil
+	}
+}
 {{end}}
 
 // WithHTTPTracing enables tracing http calls.
@@ -251,6 +269,11 @@ func main() {
 				Value: false,
 				Usage: "Include oauth2.Endpoint var in config instantiation (--auth must also be enabled)",
 			},
+			&cli.BoolFlag{
+				Name:  "ratelimit",
+				Value: false,
+				Usage: "Include a rate limiting transport option",
+			},
 			&cli.StringFlag{
 				Name:     "package",
 				Value:    "",
@@ -266,12 +289,13 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 			w := with{
-				Do:       c.Bool("do"),
-				Auth:     c.Bool("auth"),
-				Client:   c.Bool("client"),
-				Endpoint: c.Bool("endpoint"),
-				Flags:    strings.Join(os.Args[1:], " "),
-				Package:  c.String("package")}
+				Do:          c.Bool("do"),
+				Auth:        c.Bool("auth"),
+				Client:      c.Bool("client"),
+				Endpoint:    c.Bool("endpoint"),
+				RateLimiter: c.Bool("ratelimit"),
+				Flags:       strings.Join(os.Args[1:], " "),
+				Package:     c.String("package")}
 			file := fmt.Sprintf("%s_with.go", c.String("package"))
 			if err := generate(w, file, q); err != nil {
 				return err
