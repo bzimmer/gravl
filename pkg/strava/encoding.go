@@ -103,9 +103,9 @@ func toGPXFromStreams(s *Streams, start time.Time) (*gpx.GPX, error) {
 
 	var layout geom.Layout
 	switch {
-	case s.Altitude != nil && s.Time != nil:
+	case s.Elevation != nil && s.Time != nil:
 		layout = geom.XYZM
-	case s.Altitude != nil:
+	case s.Elevation != nil:
 		layout = geom.XYZ
 	case s.Time != nil:
 		layout = geom.XYM
@@ -129,10 +129,10 @@ func toGPXFromStreams(s *Streams, start time.Time) (*gpx.GPX, error) {
 		coords[x+1] = latlng[0]
 		switch layout {
 		case geom.XYZM:
-			coords[x+2] = s.Altitude.Data[i]
+			coords[x+2] = s.Elevation.Data[i].Meters()
 			coords[x+3] = toUTC(s.Time.Data[i])
 		case geom.XYZ:
-			coords[x+2] = s.Altitude.Data[i]
+			coords[x+2] = s.Elevation.Data[i].Meters()
 		case geom.XYM:
 			coords[x+2] = s.Time.Data[i]
 		case geom.NoLayout, geom.XY:

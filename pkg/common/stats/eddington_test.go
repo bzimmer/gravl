@@ -7,50 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// (geo.EddingtonNumber) {
-//  Number: (int) 21,
-//  Numbers: ([]int) (len=30 cap=30) {
-//   (int) 1,
-//   (int) 2,
-//   (int) 3,
-//   (int) 4,
-//   (int) 5,
-//   (int) 5,
-//   (int) 5,
-//   (int) 6,
-//   (int) 7,
-//   (int) 8,
-//   (int) 9,
-//   (int) 10,
-//   (int) 11,
-//   (int) 12,
-//   (int) 12,
-//   (int) 13,
-//   (int) 14,
-//   (int) 15,
-//   (int) 15,
-//   (int) 16,
-//   (int) 16,
-//   (int) 17,
-//   (int) 17,
-//   (int) 18,
-//   (int) 18,
-//   (int) 18,
-//   (int) 19,
-//   (int) 19,
-//   (int) 20,
-//   (int) 21
-//  },
-//  Motivation: (map[int]int) (len=6) {
-//   (int) 29: (int) 2,
-//   (int) 24: (int) 2,
-//   (int) 25: (int) 1,
-//   (int) 23: (int) 2,
-//   (int) 22: (int) 2,
-//   (int) 27: (int) 1
-//  },
-// }
-
 func TestEddington(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
@@ -59,7 +15,7 @@ func TestEddington(t *testing.T) {
 	for i := 0; i < len(rides); i++ {
 		r = append(r, int(rides[i]))
 	}
-	e := stats.Eddington(r)
+	e := stats.EddingtonNumber(r)
 	a.Equal(21, e.Number)
 }
 

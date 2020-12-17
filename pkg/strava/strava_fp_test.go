@@ -4,6 +4,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/martinlindhe/unit"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/strava"
@@ -19,7 +20,7 @@ func TestGroupByIntActivityPtr(t *testing.T) {
 	}
 	m := strava.GroupByIntActivityPtr(
 		func(a *strava.Activity) int {
-			return int(math.Mod(a.Distance, 3))
+			return int(math.Mod(a.Distance.Meters(), 3))
 		}, acts)
 	a.Equal(3, len(m))
 	a.Equal(1, len(m[1]))
@@ -54,7 +55,7 @@ func TestMapActivityPtr(t *testing.T) {
 		{Distance: 10.0}, {Distance: 32.0},
 		{Distance: 30.0}, {Distance: 120.0},
 	}
-	a.Equal(32.0, acts[1].Distance)
+	a.Equal(unit.Length(32.0), acts[1].Distance)
 
 	m := strava.MapActivityPtr(nil, acts)
 	a.Equal(0, len(m))
@@ -65,8 +66,8 @@ func TestMapActivityPtr(t *testing.T) {
 			return a
 		}, acts)
 	a.Equal(4, len(m))
-	a.Equal(320.0, acts[1].Distance)
-	a.Equal(320.0, m[1].Distance)
+	a.Equal(unit.Length(320.0), acts[1].Distance)
+	a.Equal(unit.Length(320.0), m[1].Distance)
 }
 
 func TestReduceActivityPtr(t *testing.T) {
@@ -82,7 +83,7 @@ func TestReduceActivityPtr(t *testing.T) {
 			a.Distance = a.Distance + b.Distance
 			return a
 		}, acts)
-	a.Equal(10.0+32.0+30.0+120.0, m.Distance)
+	a.Equal(unit.Length(10.0+32.0+30.0+120.0), m.Distance)
 
 	acts = []*strava.Activity{
 		{Distance: 10.0}, {Distance: 32.0},
@@ -93,7 +94,7 @@ func TestReduceActivityPtr(t *testing.T) {
 			a.Distance = a.Distance + b.Distance
 			return a
 		}, acts, strava.Activity{Distance: 100.0})
-	a.Equal(10.0+32.0+30.0+120.0+100.0, m.Distance)
+	a.Equal(unit.Length(10.0+32.0+30.0+120.0+100.0), m.Distance)
 
 	x := map[string][]*strava.Activity{
 		"empty": {},

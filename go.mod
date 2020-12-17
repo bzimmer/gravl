@@ -9,6 +9,7 @@ require (
 	github.com/cheekybits/genny v1.0.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.10.0
+	github.com/fatih/structtag v1.2.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang/geo v0.0.0-20200730024412-e86565bf3f35
@@ -20,6 +21,7 @@ require (
 	github.com/twpayne/go-geom v1.3.6
 	github.com/twpayne/go-gpx v1.2.0
 	github.com/twpayne/go-polyline v1.0.1
+	github.com/urfave/cli v1.22.5
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/valyala/fastjson v1.6.3
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b

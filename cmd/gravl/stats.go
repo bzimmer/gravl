@@ -3,13 +3,9 @@ package gravl
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
-	"math"
 	"sort"
 
-	"github.com/davecgh/go-spew/spew"
-	"github.com/martinlindhe/unit"
 	"github.com/urfave/cli/v2"
 	"github.com/valyala/fastjson"
 
@@ -47,7 +43,7 @@ func readActivities(filename string) ([]*strava.Activity, error) {
 }
 
 func groupBy(c *cli.Context, acts []*strava.Activity) map[int][]*strava.Activity {
-	// eliminate all commutes
+	// filter commutes if requested
 	if !c.Bool("commutes") {
 		acts = strava.FilterActivityPtr(func(act *strava.Activity) bool {
 			return !act.Commute
@@ -67,8 +63,8 @@ func groupBy(c *cli.Context, acts []*strava.Activity) map[int][]*strava.Activity
 	}
 
 	// filter years if specified
-	years := make(map[int]bool)
 	year := c.IntSlice("year")
+	years := make(map[int]bool)
 	for i := 0; i < len(year); i++ {
 		years[year[i]] = true
 	}
@@ -114,13 +110,13 @@ var statsCommand = &cli.Command{
 			Name:    "commutes",
 			Aliases: []string{"c"},
 			Value:   false,
-			Usage:   "Include commutes, filtered by default.",
+			Usage:   "Include commutes, (default: filtered).",
 		},
 		&cli.BoolFlag{
 			Name:    "metric",
 			Aliases: []string{"m"},
 			Value:   false,
-			Usage:   "Use metric units (imperial is default).",
+			Usage:   "Use metric units (default: imperial).",
 		},
 	},
 	Before: func(c *cli.Context) error {
@@ -130,6 +126,19 @@ var statsCommand = &cli.Command{
 		return nil
 	},
 	Action: func(c *cli.Context) error {
+		units := stats.Imperial
+		if c.Bool("metric") {
+			units = stats.Metric
+		}
+
+		var threshold int
+		switch units {
+		case stats.Metric:
+			threshold = 20
+		case stats.Imperial:
+			threshold = 100
+		}
+
 		acts, err := readActivities(c.Args().First())
 		if err != nil {
 			return err
@@ -141,66 +150,16 @@ var statsCommand = &cli.Command{
 		}
 		sort.Ints(years)
 
-		s := stats.ImperialStats
-		if c.Bool("metric") {
-			s = stats.MetricStats
-		}
+		res := make(map[int]*stats.Analysis)
 		for _, year := range years {
 			group := groups[year]
-			fmt.Printf("\n%d (activities: %d)\n", year, len(group))
-			fmt.Printf("Eddington Number: %d\n", s.Eddington(group).Number)
-			cn := s.ClimbingNumber(group)
-			sort.Slice(cn, func(i, j int) bool {
-				return cn[i].TotalElevationGain > cn[j].TotalElevationGain
-			})
-			fmt.Printf("Climbing Number: %d\n", len(cn))
-			for i := 0; i < 10 && i < len(cn); i++ {
-				act := cn[i]
-				dst := act.Distance
-				elv := act.TotalElevationGain
-				if !c.Bool("metric") {
-					dst = (unit.Length(dst) * unit.Meter).Miles()
-					elv = (unit.Length(elv) * unit.Meter).Feet()
-				} else {
-					dst = (unit.Length(dst) * unit.Meter).Kilometers()
-				}
-				fmt.Printf("  > %s (distance %0.2f), (elevation %0.2f)\n",
-					act.Name, dst, elv)
+			anz := stats.Analyzer{
+				Activities:        group,
+				Units:             units,
+				ClimbingThreshold: threshold,
 			}
-			act := s.HourRecord(group)
-			fmt.Printf("Hour Record: %s (%d)\n", act.Name, act.ID)
-			koms := s.KOMs(group)
-			sort.Slice(koms, func(i, j int) bool {
-				return koms[i].Segment.ClimbCategory > koms[j].Segment.ClimbCategory
-			})
-			fmt.Printf("KOMs: %d\n", len(koms))
-			for _, effort := range koms {
-				seg := effort.Segment
-				fmt.Printf("  > %s (%s) (avg %0.2f) (max %0.2f) (category %d)\n",
-					seg.Name, seg.ActivityType, seg.AverageGrade, seg.MaximumGrade, seg.ClimbCategory)
-			}
-			pyt := s.PythagoreanNumber(group)
-			n := int(math.Min(10, float64(len(pyt))))
-			fmt.Printf("Pythagorean (top %02d):\n", n)
-			for i := 0; i < n; i++ {
-				pn := pyt[i]
-				act := pn.Activity
-				dst := act.Distance
-				elv := act.TotalElevationGain
-				if !c.Bool("metric") {
-					dst = (unit.Length(dst) * unit.Meter).Miles()
-					elv = (unit.Length(elv) * unit.Meter).Feet()
-				} else {
-					dst = (unit.Length(dst) * unit.Meter).Kilometers()
-				}
-				fmt.Printf("  > %s (number: %0.2f), (distance %0.2f), (elevation %0.2f)\n",
-					act.Name, pn.Number, dst, elv)
-			}
-			if showBenfordsLaw && len(group) > 25 {
-				spewer := &spew.ConfigState{Indent: " ", SortKeys: true}
-				spewer.Dump(s.BenfordsLaw(group))
-			}
+			res[year] = anz.Analyze()
 		}
-		return nil
+		return encoder.Encode(res)
 	},
 }

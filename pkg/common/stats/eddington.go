@@ -1,15 +1,15 @@
 package stats
 
-type EddingtonNumber struct {
+type Eddington struct {
 	Number     int
 	Numbers    []int
 	Motivation map[int]int
 }
 
 // Eddington computes the Eddington number from a series of rides
-func Eddington(rides []int) EddingtonNumber {
+func EddingtonNumber(rides []int) Eddington {
 	n, above := len(rides), 0
-	e := EddingtonNumber{
+	e := Eddington{
 		Number:     0,
 		Numbers:    make([]int, n),
 		Motivation: make(map[int]int),

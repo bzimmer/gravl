@@ -20,7 +20,7 @@ func TestGPXFromStreams(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(streams)
 	a.NotNil(streams.LatLng)
-	a.NotNil(streams.Altitude)
+	a.NotNil(streams.Elevation)
 	a.Equal(int64(154504250376), streams.ActivityID)
 	a.Equal(2712, len(streams.LatLng.Data))
 

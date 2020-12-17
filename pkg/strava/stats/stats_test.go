@@ -14,19 +14,16 @@ func TestClimbingNumber(t *testing.T) {
 	a := assert.New(t)
 
 	acts := []*strava.Activity{
-		{Distance: 89360, TotalElevationGain: 2447},
-		{Distance: 81748, TotalElevationGain: 1756},
-		{Distance: 71515, TotalElevationGain: 1740},
-		{Distance: 78220, TotalElevationGain: 1720},
-		{Distance: 55772, TotalElevationGain: 1633},
+		{Distance: 89360, ElevationGain: 2447},
+		{Distance: 81748, ElevationGain: 1756},
+		{Distance: 71515, ElevationGain: 1740},
+		{Distance: 78220, ElevationGain: 1720},
+		{Distance: 55772, ElevationGain: 1633},
 	}
-	cn := stats.MetricStats.ClimbingNumber(acts)
+	cn := stats.ClimbingNumber(acts, stats.Metric, 20)
 	a.Equal(5, len(cn))
 
-	acts[1].TotalElevationGain = 1000
-	cn = stats.MetricStats.ClimbingNumber(acts)
-	a.Equal(4, len(cn))
-
-	cn = stats.ImperialStats.ClimbingNumber(acts)
+	acts[1].ElevationGain = 1000
+	cn = stats.ClimbingNumber(acts, stats.Metric, 20)
 	a.Equal(4, len(cn))
 }

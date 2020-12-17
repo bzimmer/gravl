@@ -133,7 +133,7 @@ func TestStreams(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(sms)
 	a.NotNil(sms.LatLng)
-	a.NotNil(sms.Altitude)
+	a.NotNil(sms.Elevation)
 	a.NotNil(sms.Distance)
 
 	client, err = newClient(http.StatusOK, "streams_two.json")
@@ -142,7 +142,7 @@ func TestStreams(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(sms)
 	a.NotNil(sms.LatLng)
-	a.NotNil(sms.Altitude)
+	a.NotNil(sms.Elevation)
 }
 
 func TestRouteFromStreams(t *testing.T) {
@@ -157,7 +157,7 @@ func TestRouteFromStreams(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(sms)
 	a.NotNil(sms.LatLng)
-	a.NotNil(sms.Altitude)
+	a.NotNil(sms.Elevation)
 	a.Equal(int64(154504250376), sms.ActivityID)
 	a.Equal(2712, len(sms.LatLng.Data))
 }

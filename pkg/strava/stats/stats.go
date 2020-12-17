@@ -4,13 +4,30 @@ import (
 	"math"
 	"sort"
 
-	"github.com/martinlindhe/unit"
-
 	"github.com/bzimmer/gravl/pkg/common/stats"
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
-func (s *Stats) KOMs(acts []*strava.Activity) []*strava.SegmentEffort {
+type Units int
+
+const (
+	Metric Units = iota
+	Imperial
+)
+
+// Pythagorean number for an activity
+type Pythagorean struct {
+	Activity *strava.Activity `json:"activity"`
+	Number   int              `json:"number"`
+}
+
+// Climbing number for an activity
+type Climbing struct {
+	Activity *strava.Activity `json:"activity"`
+	Number   int              `json:"number"`
+}
+
+func KOMs(acts []*strava.Activity) []*strava.SegmentEffort {
 	var efforts []*strava.SegmentEffort
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		for _, effort := range act.SegmentEfforts {
@@ -26,74 +43,72 @@ func (s *Stats) KOMs(acts []*strava.Activity) []*strava.SegmentEffort {
 	return efforts
 }
 
-func (s *Stats) HourRecord(acts []*strava.Activity) *strava.Activity {
+func HourRecord(acts []*strava.Activity) *strava.Activity {
 	return strava.ReduceActivityPtr(func(act0, act1 *strava.Activity) *strava.Activity {
 		if act0.AverageSpeed > act1.AverageSpeed {
 			return act0
 		}
 		return act1
 	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
-		var dst, spd float64
-		switch s.Units {
-		case UnitsImperial:
-			dst = (unit.Length(act.Distance) * unit.Meter).Miles()
-			spd = (unit.Speed(act.AverageSpeed) * unit.KilometersPerHour).MilesPerHour()
-		case UnitsMetric:
-			// speed is already in kph
-			dst = (unit.Length(act.Distance) * unit.Meter).Kilometers()
-		}
-		return dst >= spd
+		dst := act.Distance
+		spd := act.AverageSpeed
+		return float64(dst) >= float64(spd)
 	}, acts))
 }
 
-func (s *Stats) Distances(acts []*strava.Activity) []int {
+func Distances(acts []*strava.Activity, units Units) []int {
 	var vals []int
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		var val float64
-		switch s.Units {
-		case UnitsImperial:
-			val = (unit.Length(act.Distance) * unit.Meter).Miles()
-		case UnitsMetric:
-			val = (unit.Length(act.Distance) * unit.Meter).Kilometers()
+		var dst float64
+		switch units {
+		case Metric:
+			dst = act.Distance.Kilometers()
+		case Imperial:
+			dst = act.Distance.Miles()
 		}
-		vals = append(vals, int(val))
+		vals = append(vals, int(dst))
 		return true
 	}, acts)
 	return vals
 }
 
-func (s *Stats) Eddington(acts []*strava.Activity) stats.EddingtonNumber {
-	return stats.Eddington(s.Distances(acts))
+func EddingtonNumber(acts []*strava.Activity, units Units) stats.Eddington {
+	return stats.EddingtonNumber(Distances(acts, units))
 }
 
-func (s *Stats) BenfordsLaw(acts []*strava.Activity) stats.Benford {
-	return stats.BenfordsLaw(s.Distances(acts))
+func BenfordsLaw(acts []*strava.Activity, units Units) stats.Benford {
+	return stats.BenfordsLaw(Distances(acts, units))
 }
 
-func (s *Stats) ClimbingNumber(acts []*strava.Activity) []*strava.Activity {
-	return strava.FilterActivityPtr(func(act *strava.Activity) bool {
-		dst := act.Distance
-		elv := act.TotalElevationGain
-		switch s.Units {
-		case UnitsImperial:
-			dst = (unit.Length(dst) * unit.Meter).Miles()
-			elv = (unit.Length(elv) * unit.Meter).Feet()
-		case UnitsMetric:
-			dst = (unit.Length(dst) * unit.Meter).Kilometers()
-		}
-		return int(elv/dst) > s.ClimbingNumberThreshold
-	}, acts)
-}
-
-func (s *Stats) PythagoreanNumber(acts []*strava.Activity) []*PythagoreanNumber {
-	var i int
-	pn := make([]*PythagoreanNumber, len(acts))
+func ClimbingNumber(acts []*strava.Activity, units Units, climbingThreshold int) []*Climbing {
+	var climbings []*Climbing
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		// unit conversion is unnecessary as both distance and elevation are measured in meters
-		pn[i] = &PythagoreanNumber{
-			Activity: act,
-			Number:   math.Sqrt(math.Pow(act.Distance, 2) + math.Pow(act.TotalElevationGain, 2)),
+		var dst, elv float64
+		switch units {
+		case Metric:
+			dst = act.Distance.Kilometers()
+			elv = act.ElevationGain.Meters()
+		case Imperial:
+			dst = act.Distance.Miles()
+			elv = act.ElevationGain.Feet()
 		}
+		c := int(elv / dst)
+		if c > climbingThreshold {
+			climbings = append(climbings, &Climbing{Activity: act, Number: c})
+		}
+		return true
+	}, acts)
+	return climbings
+}
+
+func PythagoreanNumber(acts []*strava.Activity) []*Pythagorean {
+	var i int
+	pn := make([]*Pythagorean, len(acts))
+	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+		dst := act.Distance.Meters()
+		elv := act.ElevationGain.Meters()
+		n := int(math.Sqrt(math.Pow(dst, 2) + math.Pow(elv, 2)))
+		pn[i] = &Pythagorean{Activity: act, Number: n}
 		i++
 		return true
 	}, acts)
