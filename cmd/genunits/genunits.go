@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
@@ -56,6 +57,31 @@ func parseFile(filename string) (*ast.File, error) {
 	return parser.ParseFile(token.NewFileSet(), filename, nil, 0)
 }
 
+func parseType(t ast.Expr) string {
+	switch s := t.(type) {
+	case *ast.ArrayType:
+		//  Type: (*ast.ArrayType)(0xc000073ec0)({
+		//   Lbrack: (token.Pos) 1647,
+		//   Len: (ast.Expr) <nil>,
+		//   Elt: (*ast.SelectorExpr)(0xc0001a2940)({
+		//    X: (*ast.Ident)(0xc0001a2900)(unit),
+		//    Sel: (*ast.Ident)(0xc0001a2920)(Length)
+		//   })
+		return parseType(s.Elt)
+	case *ast.SelectorExpr:
+		// 	 Type: (*ast.SelectorExpr)(0xc0000e4580)({
+		//   X: (*ast.Ident)(0xc0000e4540)(unit),
+		//   Sel: (*ast.Ident)(0xc0000e4560)(Length)
+		//  })
+		if s.X != nil {
+			return fmt.Sprintf("%s.%s", s.X, s.Sel)
+		}
+		return s.Sel.String()
+	default:
+		return ""
+	}
+}
+
 func (u *Units) visit(n ast.Node) bool {
 	var s *Struct
 	switch x := n.(type) {
@@ -79,9 +105,13 @@ func (u *Units) visit(n ast.Node) bool {
 				if err != nil {
 					continue
 				}
+				typ := parseType(field.Type)
+				if typ == "" {
+					spew.Dump(field)
+				}
 				f := &Field{
 					Name: name,
-					Type: "",
+					Type: typ,
 					Base: units.Name,
 				}
 				s.add(f)
@@ -101,39 +131,33 @@ func (u *Units) visit(n ast.Node) bool {
 	return true
 }
 
-func visitUnits(f *ast.File) {
+func visitUnits(f *ast.File) *Units {
 	u := &Units{
 		Package: f.Name.String(),
 		Structs: make([]*Struct, 0, 10),
 	}
 	ast.Inspect(f, u.visit)
-	fmt.Printf("Package: %s\n\n", u.Package)
-	for _, s := range u.Structs {
-		fmt.Printf(" %s\n", s.Name)
-		for _, f := range s.Fields {
-			fmt.Printf("  %-30s %s\n", f.Name, f.Base)
-		}
-	}
+	return u
 }
 
 func main() {
 	app := &cli.App{
 		Name:     "genunits",
 		HelpName: "genunits",
-		Before: func(c *cli.Context) error {
-			n := c.NArg()
-			if n != 1 {
-				return errors.New("expected only one argument")
-			}
-			return nil
-		},
 		Action: func(c *cli.Context) error {
 			args := c.Args().Slice()
-			f, err := parseFile(args[0])
-			if err != nil {
-				return err
+			for _, arg := range args {
+				f, err := parseFile(arg)
+				if err != nil {
+					return err
+				}
+				u := visitUnits(f)
+				j := json.NewEncoder(c.App.Writer)
+				j.SetIndent("", " ")
+				if err := j.Encode(u); err != nil {
+					return err
+				}
 			}
-			visitUnits(f)
 			return nil
 		},
 	}

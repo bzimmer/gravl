@@ -4,6 +4,8 @@ package rwgps
 
 import (
 	"time"
+
+	"github.com/martinlindhe/unit"
 )
 
 // Origin of the trip
@@ -60,12 +62,12 @@ type Metrics struct {
 	Calories      int         `json:"calories"`
 	CreatedAt     time.Time   `json:"created_at"`
 	DescentTime   int         `json:"descentTime"`
-	Distance      float64     `json:"distance"`
+	Distance      unit.Length `json:"distance" units:"m"`
 	Duration      int         `json:"duration"`
 	Elevation     *Summary    `json:"ele"`
-	ElevationGain float64     `json:"ele_gain"`
-	ElevationLoss float64     `json:"ele_loss"`
-	EndElevation  float64     `json:"endElevation"`
+	ElevationGain unit.Length `json:"ele_gain" units:"m"`
+	ElevationLoss unit.Length `json:"ele_loss" units:"m"`
+	EndElevation  unit.Length `json:"endElevation" units:"m"`
 	FirstTime     int         `json:"firstTime"`
 	Grade         *Summary    `json:"grade"`
 	HeartRate     *Summary    `json:"hr"`
@@ -82,19 +84,19 @@ type Metrics struct {
 	UpdatedAt     *time.Time  `json:"updated_at"`
 	V             int         `json:"v"`
 	VAM           float64     `json:"vam"`
-	Watts         interface{} `json:"watts"` // not sure of the real format of Watts
+	Watts         *Summary    `json:"watts"`
 }
 
 // TrackPoint .
 type TrackPoint struct {
-	Longitude float64 `json:"x"`
-	Latitude  float64 `json:"y"`
-	Elevation float64 `json:"e"` // elevation in meters
-	Distance  float64 `json:"d"` // distance in meters
-	Time      float64 `json:"t"` // seconds since epoch, unix timestamp
-	Cadence   float64 `json:"c"`
-	Grade     float64 `json:"g"`
-	Speed     float64 `json:"s"` // kmh ?
+	Longitude float64     `json:"x"`
+	Latitude  float64     `json:"y"`
+	Elevation unit.Length `json:"e" units:"m"`
+	Distance  unit.Length `json:"d" units:"m"`
+	Time      float64     `json:"t"` // seconds since epoch, unix timestamp
+	Cadence   float64     `json:"c"`
+	Grade     float64     `json:"g"`
+	Speed     unit.Speed  `json:"s" units:"kph"`
 }
 
 // Trip .
@@ -102,10 +104,10 @@ type Trip struct {
 	CreatedAt     time.Time     `json:"created_at"`
 	DepartedAt    time.Time     `json:"departed_at"`
 	Description   string        `json:"description"`
-	Distance      float64       `json:"distance"`
+	Distance      unit.Length   `json:"distance" units:"m"`
 	Duration      int           `json:"duration"`
-	ElevationGain float64       `json:"elevation_gain"`
-	ElevationLoss float64       `json:"elevation_loss"`
+	ElevationGain unit.Length   `json:"elevation_gain" units:"m"`
+	ElevationLoss unit.Length   `json:"elevation_loss" units:"m"`
 	ID            int64         `json:"id"`
 	Name          string        `json:"name"`
 	Origin        Origin        `json:"-"`
@@ -119,16 +121,4 @@ type Trip struct {
 	LastLat       float64       `json:"last_lat"`
 	LastLng       float64       `json:"last_lng"`
 	Metrics       *Metrics      `json:"metrics,omitempty"`
-}
-
-// TripResponse .
-type TripResponse struct {
-	Type  string `json:"type"`
-	Trip  *Trip  `json:"trip"`
-	Route *Trip  `json:"route"`
-}
-
-type TripsResponse struct {
-	Results      []*Trip `json:"results"`
-	ResultsCount int     `json:"results_count"`
 }

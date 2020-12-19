@@ -35,6 +35,12 @@ func (p *tripsPaginator) Do(ctx context.Context, start, count int) (int, error) 
 	if err != nil {
 		return 0, err
 	}
+
+	type TripsResponse struct {
+		Results      []*Trip `json:"results"`
+		ResultsCount int     `json:"results_count"`
+	}
+
 	res := &TripsResponse{}
 	err = p.service.client.do(req, res)
 	if err != nil {
@@ -73,6 +79,13 @@ func (s *TripsService) trip(ctx context.Context, origin Origin, uri string) (*Tr
 	if err != nil {
 		return nil, err
 	}
+
+	type TripResponse struct {
+		Type  string `json:"type"`
+		Trip  *Trip  `json:"trip"`
+		Route *Trip  `json:"route"`
+	}
+
 	res := &TripResponse{}
 	err = s.client.do(req, res)
 	if err != nil {

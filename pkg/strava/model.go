@@ -98,7 +98,7 @@ type Totals struct {
 	Distance         unit.Length `json:"distance" units:"m"`
 	AchievementCount int         `json:"achievement_count"`
 	Count            int         `json:"count"`
-	ElapsedTime      int         `json:"elapsed_time" units:"s"`
+	ElapsedTime      int         `json:"elapsed_time"`
 	ElevationGain    unit.Length `json:"elevation_gain" units:"m"`
 	MovingTime       int         `json:"moving_time"`
 }
@@ -167,7 +167,7 @@ type Athlete struct {
 	MeasurementPreference string      `json:"measurement_preference"`
 	Clubs                 []*Club     `json:"clubs"`
 	FTP                   float64     `json:"ftp"`
-	Weight                float64     `json:"weight" units:"kg"`
+	Weight                unit.Mass   `json:"weight" units:"kg"`
 	Bikes                 []*Gear     `json:"bikes"`
 	Shoes                 []*Gear     `json:"shoes"`
 }

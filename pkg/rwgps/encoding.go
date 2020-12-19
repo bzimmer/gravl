@@ -22,7 +22,7 @@ func (t *Trip) GeoJSON() (*geojson.Feature, error) {
 		x := dim * i
 		coords[x+0] = tp.Longitude
 		coords[x+1] = tp.Latitude
-		coords[x+2] = tp.Elevation
+		coords[x+2] = tp.Elevation.Meters()
 	}
 	// @todo add streams
 	g := &geojson.Feature{
@@ -59,7 +59,7 @@ func (t *Trip) GPX() (*gpx.GPX, error) {
 			coords[x+3] = tp.Time
 			fallthrough
 		case geom.XYZ:
-			coords[x+2] = tp.Elevation
+			coords[x+2] = tp.Elevation.Meters()
 		case geom.NoLayout, geom.XY, geom.XYM:
 			// pass
 		}
