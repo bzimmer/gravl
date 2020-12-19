@@ -27,6 +27,8 @@ type ClimbingAnalysis struct {
 }
 
 type Analysis struct {
+	Units       Units                   `json:"units"`
+	Activities  []*Activity             `json:"activities"`
 	Pythagorean []*PythagoreanAnalysis  `json:"pythagorean"`
 	Climbing    []*ClimbingAnalysis     `json:"climbing"`
 	HourRecord  *Activity               `json:"hour"`
@@ -84,12 +86,22 @@ func (a *Analyzer) Analyze() *Analysis {
 		}
 	}
 
+	acts := make([]*Activity, len(a.Activities))
+	for i := 0; i < len(acts); i++ {
+		acts[i] = a2a(a.Activities[i])
+	}
+
+	koms := KOMs(a.Activities)
+
 	ay := &Analysis{
+		Activities:  acts,
+		Units:       a.Units,
 		HourRecord:  a2a(hr),
 		Eddington:   &ed,
 		Benford:     &bd,
 		Climbing:    cna,
 		Pythagorean: pna,
+		KOMs:        koms,
 	}
 	return ay
 }

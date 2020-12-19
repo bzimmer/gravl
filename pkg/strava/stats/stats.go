@@ -1,5 +1,7 @@
 package stats
 
+//go:generate stringer -type=Units -linecomment -output=model_string.go
+
 import (
 	"math"
 	"sort"
@@ -11,8 +13,8 @@ import (
 type Units int
 
 const (
-	Metric Units = iota
-	Imperial
+	Metric   Units = iota // metric
+	Imperial              // imperial
 )
 
 // Pythagorean number for an activity

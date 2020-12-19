@@ -30,6 +30,8 @@ func (f *Fault) Error() string {
 	return f.Message
 }
 
+type Coordinates []float64
+
 type StreamMetadata struct {
 	OriginalSize int    `json:"original_size"`
 	Resolution   string `json:"resolution"`
@@ -45,7 +47,7 @@ type Stream struct {
 // CoordinateStream of data from an activity
 type CoordinateStream struct {
 	StreamMetadata
-	Data [][]float64 `json:"data"`
+	Data []Coordinates `json:"data"`
 }
 
 // SpeedStream of data from an activity
@@ -107,13 +109,13 @@ type Stats struct {
 	AllRunTotals              *Totals     `json:"all_run_totals"`
 	RecentSwimTotals          *Totals     `json:"recent_swim_totals"`
 	BiggestRideDistance       unit.Length `json:"biggest_ride_distance" units:"m"`
-	YtdSwimTotals             *Totals     `json:"ytd_swim_totals"`
+	YTDSwimTotals             *Totals     `json:"ytd_swim_totals"`
 	AllSwimTotals             *Totals     `json:"all_swim_totals"`
 	RecentRideTotals          *Totals     `json:"recent_ride_totals"`
 	BiggestClimbElevationGain unit.Length `json:"biggest_climb_elevation_gain" units:"m"`
-	YtdRideTotals             *Totals     `json:"ytd_ride_totals"`
+	YTDRideTotals             *Totals     `json:"ytd_ride_totals"`
 	AllRideTotals             *Totals     `json:"all_ride_totals"`
-	YtdRunTotals              *Totals     `json:"ytd_run_totals"`
+	YTDRunTotals              *Totals     `json:"ytd_run_totals"`
 }
 
 type Club struct {
@@ -234,8 +236,8 @@ type Segment struct {
 	MaximumGrade        float64       `json:"maximum_grade"`
 	ElevationHigh       unit.Length   `json:"elevation_high" units:"m"`
 	ElevationLow        unit.Length   `json:"elevation_low" units:"m"`
-	StartLatlng         []float64     `json:"start_latlng"`
-	EndLatlng           []float64     `json:"end_latlng"`
+	StartLatlng         Coordinates   `json:"start_latlng"`
+	EndLatlng           Coordinates   `json:"end_latlng"`
 	ClimbCategory       int           `json:"climb_category"`
 	City                string        `json:"city"`
 	State               string        `json:"state"`
@@ -342,8 +344,8 @@ type Activity struct {
 	StartDateLocal           time.Time              `json:"start_date_local"`
 	Timezone                 string                 `json:"timezone"`
 	UTCOffset                float64                `json:"utc_offset"`
-	StartLatlng              []float64              `json:"start_latlng"`
-	EndLatlng                []float64              `json:"end_latlng"`
+	StartLatlng              Coordinates            `json:"start_latlng"`
+	EndLatlng                Coordinates            `json:"end_latlng"`
 	LocationCity             string                 `json:"location_city"`
 	LocationState            string                 `json:"location_state"`
 	LocationCountry          string                 `json:"location_country"`
@@ -409,7 +411,7 @@ type Route struct {
 	Starred             bool        `json:"starred"`
 	UpdatedAt           time.Time   `json:"updated_at"`
 	SubType             int         `json:"sub_type"`
-	IDStr               string      `json:"id_str"`
+	IDString            string      `json:"id_str"`
 	Name                string      `json:"name"`
 	ID                  int         `json:"id"`
 	Map                 *Map        `json:"map"`
