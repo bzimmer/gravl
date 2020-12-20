@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
 	"github.com/fatih/structtag"
@@ -82,6 +81,15 @@ func parseType(t ast.Expr) string {
 	}
 }
 
+func parseUnits(val string) (*structtag.Tag, error) {
+	tag := strings.ReplaceAll(val, "`", "")
+	tags, err := structtag.Parse(tag)
+	if err != nil {
+		return nil, err
+	}
+	return tags.Get("units")
+}
+
 func (u *Units) visit(n ast.Node) bool {
 	var s *Struct
 	switch x := n.(type) {
@@ -95,19 +103,18 @@ func (u *Units) visit(n ast.Node) bool {
 					continue
 				}
 				name := field.Names[0].Name
-				tag := strings.ReplaceAll(field.Tag.Value, "`", "")
-				tags, err := structtag.Parse(tag)
+				units, err := parseUnits(field.Tag.Value)
 				if err != nil {
-					log.Error().Err(err).Str("tag", tag).Msg("skipping")
-					continue
-				}
-				units, err := tags.Get("units")
-				if err != nil {
-					continue
+					if err.Error() == "tag does not exist" {
+						continue
+					}
+					fmt.Println(err)
+					return false
 				}
 				typ := parseType(field.Type)
 				if typ == "" {
 					spew.Dump(field)
+					return false
 				}
 				f := &Field{
 					Name: name,
@@ -134,7 +141,7 @@ func (u *Units) visit(n ast.Node) bool {
 func visitUnits(f *ast.File) *Units {
 	u := &Units{
 		Package: f.Name.String(),
-		Structs: make([]*Struct, 0, 10),
+		Structs: make([]*Struct, 0),
 	}
 	ast.Inspect(f, u.visit)
 	return u
@@ -153,7 +160,6 @@ func main() {
 				}
 				u := visitUnits(f)
 				j := json.NewEncoder(c.App.Writer)
-				j.SetIndent("", " ")
 				if err := j.Encode(u); err != nil {
 					return err
 				}
@@ -163,7 +169,7 @@ func main() {
 	}
 	ctx := context.Background()
 	if err := app.RunContext(ctx, os.Args); err != nil {
-		log.Error().Err(err).Send()
+		fmt.Println(err)
 		os.Exit(1)
 	}
 	os.Exit(0)

@@ -53,7 +53,7 @@ type CoordinateStream struct {
 // SpeedStream of data from an activity
 type SpeedStream struct {
 	StreamMetadata
-	Data []unit.Speed `json:"data" units:"kph"`
+	Data []unit.Speed `json:"data" units:"mps"`
 }
 
 // LengthStream of data from an activity
@@ -199,8 +199,8 @@ type Lap struct {
 	StartIndex         int         `json:"start_index"`
 	EndIndex           int         `json:"end_index"`
 	TotalElevationGain unit.Length `json:"total_elevation_gain" units:"m"`
-	AverageSpeed       unit.Speed  `json:"average_speed" units:"kph"`
-	MaxSpeed           unit.Speed  `json:"max_speed" units:"kph"`
+	AverageSpeed       unit.Speed  `json:"average_speed" units:"mps"`
+	MaxSpeed           unit.Speed  `json:"max_speed" units:"mps"`
 	AverageCadence     float64     `json:"average_cadence"`
 	DeviceWatts        bool        `json:"device_watts"`
 	AverageWatts       float64     `json:"average_watts"`
@@ -362,8 +362,8 @@ type Activity struct {
 	Flagged                  bool                   `json:"flagged"`
 	GearID                   string                 `json:"gear_id"`
 	FromAcceptedTag          bool                   `json:"from_accepted_tag"`
-	AverageSpeed             unit.Speed             `json:"average_speed" units:"kph"`
-	MaxSpeed                 unit.Speed             `json:"max_speed" units:"kph"`
+	AverageSpeed             unit.Speed             `json:"average_speed" units:"mps"`
+	MaxSpeed                 unit.Speed             `json:"max_speed" units:"mps"`
 	AverageCadence           float64                `json:"average_cadence"`
 	AverageTemperature       unit.Temperature       `json:"average_temp" units:"C"`
 	AverageWatts             float64                `json:"average_watts"`
