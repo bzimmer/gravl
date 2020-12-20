@@ -26,6 +26,22 @@ type ClimbingAnalysis struct {
 	Number   int       `json:"number"`
 }
 
+type Festive500Analysis struct {
+	Activities []*Activity `json:"activities"`
+}
+
+func (f *Festive500Analysis) Kilometers() float64 {
+	var dst float64
+	for i := 0; i < len(f.Activities); i++ {
+		dst = f.Activities[i].Distance
+	}
+	return dst
+}
+
+func (f *Festive500Analysis) Success() bool {
+	return f.Kilometers() >= 500
+}
+
 type Analysis struct {
 	Units       Units                   `json:"units"`
 	Activities  []*Activity             `json:"activities"`
@@ -35,6 +51,7 @@ type Analysis struct {
 	Eddington   *stats.Eddington        `json:"eddington"`
 	Benford     *stats.Benford          `json:"benford"`
 	KOMs        []*strava.SegmentEffort `json:"koms"`
+	Festive500  *Festive500Analysis     `json:"festive500"`
 }
 
 type Analyzer struct {
@@ -93,6 +110,12 @@ func (a *Analyzer) Analyze() *Analysis {
 
 	koms := KOMs(a.Activities)
 
+	fst := Festive500(a.Activities)
+	fsta := make([]*Activity, len(fst.Activities))
+	for i := 0; i < len(fst.Activities); i++ {
+		fsta[i] = a2a(fst.Activities[i])
+	}
+
 	ay := &Analysis{
 		Activities:  acts,
 		Units:       a.Units,
@@ -102,6 +125,9 @@ func (a *Analyzer) Analyze() *Analysis {
 		Climbing:    cna,
 		Pythagorean: pna,
 		KOMs:        koms,
+		Festive500: &Festive500Analysis{
+			Activities: fsta,
+		},
 	}
 	return ay
 }

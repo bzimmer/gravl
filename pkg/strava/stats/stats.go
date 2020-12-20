@@ -5,6 +5,7 @@ package stats
 import (
 	"math"
 	"sort"
+	"time"
 
 	"github.com/bzimmer/gravl/pkg/common/stats"
 	"github.com/bzimmer/gravl/pkg/strava"
@@ -27,6 +28,23 @@ type Pythagorean struct {
 type Climbing struct {
 	Activity *strava.Activity `json:"activity"`
 	Number   int              `json:"number"`
+}
+
+type Festive struct {
+	Activities []*strava.Activity `json:"activities"`
+}
+
+func (f *Festive) Kilometers() float64 {
+	var dst float64
+	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+		dst = dst + act.Distance.Kilometers()
+		return true
+	}, f.Activities)
+	return dst
+}
+
+func (f *Festive) Success() bool {
+	return f.Kilometers() >= 500
 }
 
 func KOMs(acts []*strava.Activity) []*strava.SegmentEffort {
@@ -118,4 +136,12 @@ func PythagoreanNumber(acts []*strava.Activity) []*Pythagorean {
 		return pn[i].Number > pn[j].Number
 	})
 	return pn
+}
+
+func Festive500(acts []*strava.Activity) *Festive {
+	acts = strava.FilterActivityPtr(func(act *strava.Activity) bool {
+		_, month, date := act.StartDateLocal.Date()
+		return month == time.December && date >= 24 && date <= 31
+	}, acts)
+	return &Festive{Activities: acts}
 }

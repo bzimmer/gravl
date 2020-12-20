@@ -13,10 +13,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava/stats"
 )
 
-const (
-	showBenfordsLaw = false
-)
-
 func readActivities(filename string) ([]*strava.Activity, error) {
 	var err error
 	var sc fastjson.Scanner
