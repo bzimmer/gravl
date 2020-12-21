@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -40,7 +41,7 @@ func withServices(c *Client) {
 	c.Rides = &RidesService{client: c}
 }
 
-func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
+func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values, body io.Reader) (*http.Request, error) {
 	if c.token.AccessToken == "" {
 		return nil, errors.New("accessToken required")
 	}
@@ -52,7 +53,7 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}

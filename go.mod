@@ -21,13 +21,13 @@ require (
 	github.com/twpayne/go-geom v1.3.6
 	github.com/twpayne/go-gpx v1.2.0
 	github.com/twpayne/go-polyline v1.0.1
-	github.com/urfave/cli v1.22.5
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/valyala/fastjson v1.6.3
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
+	golang.org/x/mod v0.4.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324
-	golang.org/x/tools v0.0.0-20201007032633-0806396f153e
+	golang.org/x/tools v0.0.0-20201218024724-ae774e9781d2
 	gonum.org/v1/gonum v0.8.2
 )

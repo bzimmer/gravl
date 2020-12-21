@@ -2,14 +2,50 @@ package gravl
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg/cyclinganalytics"
 )
+
+func collect(name string) ([]*cyclinganalytics.File, error) {
+	var files []*cyclinganalytics.File
+	err := filepath.Walk(name, func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			base := filepath.Base(path)
+			if base == "inProgressActivity.fit" {
+				log.Warn().
+					Str("name", path).
+					Msg("skipping, not a completed activity")
+				return nil
+			}
+			if info.Size() < 1024 {
+				log.Warn().
+					Int64("size", info.Size()).
+					Str("name", path).
+					Msg("skipping, too small")
+				return nil
+			}
+			file, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			files = append(files, &cyclinganalytics.File{
+				Name:   base,
+				Reader: file,
+				Size:   info.Size(),
+			})
+		}
+		return nil
+	})
+	return files, err
+}
 
 var cyclinganalyticsCommand = &cli.Command{
 	Name:     "cyclinganalytics",
@@ -28,6 +64,32 @@ var cyclinganalyticsCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
+
+		if c.Bool("upload") {
+			args := c.Args()
+			for i := 0; i < args.Len(); i++ {
+				// @todo(bzimmer) close files
+				files, err := collect(args.Get(i))
+				if err != nil {
+					return err
+				}
+				for _, file := range files {
+					log.Info().
+						Str("file", file.Name).
+						Int64("size", file.Size).
+						Msg("uploading")
+					u, err := client.Rides.Upload(c.Context, cyclinganalytics.Me, file)
+					if err != nil {
+						return err
+					}
+					if err := encoder.Encode(u); err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		}
+
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
 		if c.Bool("athlete") {
@@ -107,6 +169,12 @@ var cyclingAnalyticsFlags = merge(
 			Aliases: []string{"A"},
 			Value:   false,
 			Usage:   "Activities",
+		},
+		&cli.BoolFlag{
+			Name:    "upload",
+			Aliases: []string{"u"},
+			Value:   false,
+			Usage:   "Upload",
 		},
 	},
 )

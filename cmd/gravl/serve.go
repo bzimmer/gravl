@@ -43,7 +43,7 @@ func newRouter(c *cli.Context) *gin.Engine {
 	config := &oauth2.Config{
 		ClientID:     c.String("cyclinganalytics.client-id"),
 		ClientSecret: c.String("cyclinganalytics.client-secret"),
-		Scopes:       []string{"read_account,read_email,read_athlete,read_rides"},
+		Scopes:       []string{"read_account,read_email,read_athlete,read_rides,create_rides"},
 		RedirectURL:  fmt.Sprintf("%s/cyclinganalytics/auth/callback", address),
 		Endpoint:     cyclinganalytics.Endpoint}
 	p.GET("/auth/login", gin.WrapF(web.AuthHandler(config, state)))

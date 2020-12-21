@@ -1,8 +1,12 @@
 package cyclinganalytics
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -37,7 +41,7 @@ func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions)
 	uri := fmt.Sprintf("ride/%d", rideID)
 
 	params := opts.values()
-	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, params)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, params, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +58,7 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error
 	if userID != Me {
 		uri = fmt.Sprintf("%d/rides", userID)
 	}
-	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +68,50 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error
 		return nil, err
 	}
 	return res.Rides, nil
+}
+
+type File struct {
+	Name   string
+	Reader io.Reader
+	Size   int64
+}
+
+func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*Upload, error) {
+	if file == nil {
+		return nil, errors.New("missing upload file")
+	}
+
+	uri := "me/upload"
+	if userID != Me {
+		uri = fmt.Sprintf("user/%d/upload", userID)
+	}
+
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	if err := w.WriteField("filename", file.Name); err != nil {
+		return nil, err
+	}
+	fw, err := w.CreateFormFile("data", file.Name)
+	if err != nil {
+		return nil, err
+	}
+	if _, err = io.Copy(fw, file.Reader); err != nil {
+		return nil, err
+	}
+	w.Close()
+
+	req, err := s.client.newAPIRequest(ctx, http.MethodPost, uri, nil, &b)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	res := &Upload{}
+	err = s.client.do(req, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 // // ValidStream returns true if the strean name is valid

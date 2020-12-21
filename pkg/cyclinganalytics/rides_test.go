@@ -39,3 +39,14 @@ func TestRide(t *testing.T) {
 	a.NotNil(gears)
 	a.Equal(813, len(gears.Shifts))
 }
+
+func TestRideForbidden(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	client, err := newClient(http.StatusForbidden, "error.json")
+	a.NoError(err)
+	ctx := context.Background()
+	ride, err := client.Rides.Ride(ctx, 175334338355, cyclinganalytics.RideOptions{})
+	a.Error(err)
+	a.Nil(ride)
+}

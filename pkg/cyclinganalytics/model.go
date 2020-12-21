@@ -6,7 +6,7 @@ import (
 
 // Fault represents an error response
 type Fault struct {
-	Message string `json:"message"`
+	Message string `json:"error"`
 }
 
 func (f *Fault) Error() string {
@@ -150,4 +150,17 @@ type Ride struct {
 
 type RidesResponse struct {
 	Rides []*Ride `json:"rides"`
+}
+
+type Upload struct {
+	Status    string   `json:"status"`
+	RideID    int64    `json:"ride_id"`
+	UserID    UserID   `json:"user_id"`
+	Format    string   `json:"format"`
+	Datetime  Datetime `json:"datetime"`
+	UploadID  int64    `json:"upload_id"`
+	Filename  string   `json:"filename"`
+	Size      int64    `json:"size"`
+	Error     string   `json:"error"`
+	ErrorCode string   `json:"error_code"`
 }

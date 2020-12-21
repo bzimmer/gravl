@@ -10,7 +10,7 @@ type UserService service
 
 func (s *UserService) Me(ctx context.Context) (*User, error) {
 	uri := "me"
-	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil, nil)
 	if err != nil {
 		return nil, err
 	}
