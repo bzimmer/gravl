@@ -1,0 +1,12 @@
+{
+    "status": "error",
+    "ride_id": 0,
+    "user_id": 2000000002,
+    "format": "fit",
+    "datetime": "2020-12-21T22:47:01",
+    "upload_id": 1000000001,
+    "filename": "2020-12-08-18-18-52.fit",
+    "size": 130013,
+    "error": "The ride already exists: 500000000005",
+    "error_code": "duplicate_ride"
+}

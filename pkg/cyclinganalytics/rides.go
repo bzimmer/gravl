@@ -76,6 +76,16 @@ type File struct {
 	Size   int64
 }
 
+func (f *File) Close() error {
+	if f.Reader == nil {
+		return nil
+	}
+	if x, ok := f.Reader.(io.Closer); ok {
+		return x.Close()
+	}
+	return nil
+}
+
 func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*Upload, error) {
 	if file == nil {
 		return nil, errors.New("missing upload file")
@@ -106,6 +116,24 @@ func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*
 	}
 	req.Header.Set("Content-Type", w.FormDataContentType())
 
+	res := &Upload{}
+	err = s.client.do(req, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (s *RidesService) Status(ctx context.Context, userID UserID, uploadID int64) (*Upload, error) {
+	uri := "me/upload"
+	if userID != Me {
+		uri = fmt.Sprintf("user/%d/upload", userID)
+	}
+	uri = fmt.Sprintf("%s/%d", uri, uploadID)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil, nil)
+	if err != nil {
+		return nil, err
+	}
 	res := &Upload{}
 	err = s.client.do(req, res)
 	if err != nil {

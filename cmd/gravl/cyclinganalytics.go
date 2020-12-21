@@ -14,6 +14,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/cyclinganalytics"
 )
 
+// collect returns a slice of files for uploading
+// Primary use case has been uploading fit files from Zwift so this function
+//  filters small files (less then 1K) and files of the name "inProgressActivity.fit"
 func collect(name string) ([]*cyclinganalytics.File, error) {
 	var files []*cyclinganalytics.File
 	err := filepath.Walk(name, func(path string, info os.FileInfo, err error) error {
@@ -68,17 +71,19 @@ var cyclinganalyticsCommand = &cli.Command{
 		if c.Bool("upload") {
 			args := c.Args()
 			for i := 0; i < args.Len(); i++ {
-				// @todo(bzimmer) close files
 				files, err := collect(args.Get(i))
 				if err != nil {
 					return err
 				}
 				for _, file := range files {
+					defer file.Close()
+					ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+					defer cancel()
 					log.Info().
 						Str("file", file.Name).
 						Int64("size", file.Size).
 						Msg("uploading")
-					u, err := client.Rides.Upload(c.Context, cyclinganalytics.Me, file)
+					u, err := client.Rides.Upload(ctx, cyclinganalytics.Me, file)
 					if err != nil {
 						return err
 					}
@@ -89,10 +94,27 @@ var cyclinganalyticsCommand = &cli.Command{
 			}
 			return nil
 		}
-
-		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-		defer cancel()
+		if c.Bool("status") {
+			args := c.Args()
+			for i := 0; i < args.Len(); i++ {
+				ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+				defer cancel()
+				uploadID, err := strconv.ParseInt(args.Get(i), 0, 64)
+				if err != nil {
+					return err
+				}
+				status, err := client.Rides.Status(ctx, cyclinganalytics.Me, uploadID)
+				if err != nil {
+					return err
+				}
+				if err = encoder.Encode(status); err != nil {
+					return err
+				}
+			}
+		}
 		if c.Bool("athlete") {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
 			athlete, err := client.User.Me(ctx)
 			if err != nil {
 				return err
@@ -100,6 +122,8 @@ var cyclinganalyticsCommand = &cli.Command{
 			return encoder.Encode(athlete)
 		}
 		if c.Bool("activities") {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
 			rides, err := client.Rides.Rides(ctx, cyclinganalytics.Me)
 			if err != nil {
 				return err
@@ -117,6 +141,8 @@ var cyclinganalyticsCommand = &cli.Command{
 				Streams: []string{"latitude", "longitude", "elevation"},
 			}
 			for i := 0; i < args.Len(); i++ {
+				ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+				defer cancel()
 				rideID, err := strconv.ParseInt(args.Get(i), 0, 64)
 				if err != nil {
 					return err
@@ -175,6 +201,12 @@ var cyclingAnalyticsFlags = merge(
 			Aliases: []string{"u"},
 			Value:   false,
 			Usage:   "Upload",
+		},
+		&cli.BoolFlag{
+			Name:    "status",
+			Aliases: []string{"U"},
+			Value:   false,
+			Usage:   "Upload status",
 		},
 	},
 )
