@@ -10,8 +10,23 @@ import (
 	"github.com/valyala/fastjson"
 
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/stats"
+	"github.com/bzimmer/gravl/pkg/strava/analysis"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/climbing"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/eddington"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/festive500"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/hourrecord"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/koms"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/pythagorean"
 )
+
+var analyzers = []*analysis.Analyzer{
+	climbing.New(),
+	eddington.New(),
+	festive500.New(),
+	hourrecord.New(),
+	koms.New(),
+	pythagorean.New(),
+}
 
 func readActivities(filename string) ([]*strava.Activity, error) {
 	var err error
@@ -108,12 +123,6 @@ var statsCommand = &cli.Command{
 			Value:   false,
 			Usage:   "Include commutes, (default: filtered).",
 		},
-		&cli.BoolFlag{
-			Name:    "metric",
-			Aliases: []string{"m"},
-			Value:   false,
-			Usage:   "Use metric units (default: imperial).",
-		},
 	},
 	Before: func(c *cli.Context) error {
 		if c.NArg() == 0 {
@@ -122,19 +131,6 @@ var statsCommand = &cli.Command{
 		return nil
 	},
 	Action: func(c *cli.Context) error {
-		units := stats.Imperial
-		if c.Bool("metric") {
-			units = stats.Metric
-		}
-
-		var threshold int
-		switch units {
-		case stats.Metric:
-			threshold = 20
-		case stats.Imperial:
-			threshold = 100
-		}
-
 		acts, err := readActivities(c.Args().First())
 		if err != nil {
 			return err
@@ -146,16 +142,21 @@ var statsCommand = &cli.Command{
 		}
 		sort.Ints(years)
 
-		res := make(map[int]*stats.Analysis)
+		results := make(map[int]interface{})
 		for _, year := range years {
-			group := groups[year]
-			anz := stats.Analyzer{
-				Activities:        group,
-				Units:             units,
-				ClimbingThreshold: threshold,
+			pass := &analysis.Pass{
+				Activities: groups[year],
 			}
-			res[year] = anz.Analyze()
+			analysis := analysis.Analysis{
+				Args:      c.Args().Tail(),
+				Analyzers: analyzers,
+			}
+			res, err := analysis.Run(c.Context, pass)
+			if err != nil {
+				return err
+			}
+			results[year] = res
 		}
-		return encoder.Encode(res)
+		return encoder.Encode(results)
 	},
 }
