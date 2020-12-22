@@ -68,7 +68,7 @@ func parseType(t ast.Expr) string {
 		//   })
 		return parseType(s.Elt)
 	case *ast.SelectorExpr:
-		// 	 Type: (*ast.SelectorExpr)(0xc0000e4580)({
+		// 	Type: (*ast.SelectorExpr)(0xc0000e4580)({
 		//   X: (*ast.Ident)(0xc0000e4540)(unit),
 		//   Sel: (*ast.Ident)(0xc0000e4560)(Length)
 		//  })
