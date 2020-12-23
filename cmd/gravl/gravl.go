@@ -1,4 +1,4 @@
-package gravl
+package main
 
 import (
 	"context"
@@ -172,16 +172,14 @@ func commands() []*cli.Command {
 	}
 }
 
-// Run .
+// Run the gravl application
 func Run() error {
 	app := &cli.App{
-		Name:      "gravl",
-		HelpName:  "gravl",
-		Usage:     "Plan trips",
-		UsageText: "gravl - plan trips",
-		Flags:     flags(),
-		Commands:  commands(),
-		Before:    before(initFlags, initLogging, initEncoding, initConfig),
+		Name:     "gravl",
+		HelpName: "gravl",
+		Flags:    flags(),
+		Commands: commands(),
+		Before:   before(initFlags, initLogging, initEncoding, initConfig),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			log.Error().Err(err).Msg("gravl")
 		},
@@ -192,4 +190,12 @@ func Run() error {
 		return err
 	}
 	return nil
+}
+
+func main() {
+	if err := Run(); err != nil {
+		log.Error().Err(err).Send()
+		os.Exit(1)
+	}
+	os.Exit(0)
 }

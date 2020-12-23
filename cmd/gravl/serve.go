@@ -1,4 +1,4 @@
-package gravl
+package main
 
 import (
 	"fmt"

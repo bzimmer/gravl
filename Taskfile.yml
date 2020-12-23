@@ -35,7 +35,7 @@ tasks:
     sources:
       - '**/*.go'
     cmds:
-      - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} main.go
+      - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/gravl/*.go
 
   install:
     desc: Install {{.APP}}
@@ -114,7 +114,7 @@ tasks:
     vars:
       TOOLS:
         # the braces need to be escaped or they are interpreted by Taskfile
-        sh: go list -f '{{"{{range .Imports}}{{.}} {{end}}"}}' tools.go
+        sh: go list -f '{{"{{range .Imports}}{{.}} {{end}}"}}' cmd/tools/tools.go
     cmds:
       - go install {{.TOOLS}}
       - task: tidy
