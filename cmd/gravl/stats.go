@@ -3,9 +3,14 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
-	"sort"
+	"strings"
+	"time"
 
+	"github.com/antonmedv/expr"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/cast"
 	"github.com/urfave/cli/v2"
 	"github.com/valyala/fastjson"
 
@@ -17,7 +22,12 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/hourrecord"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/koms"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/pythagorean"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/splat"
 )
+
+type Env struct {
+	Activities []*strava.Activity
+}
 
 var analyzers = []*analysis.Analyzer{
 	climbing.New(),
@@ -28,11 +38,26 @@ var analyzers = []*analysis.Analyzer{
 	pythagorean.New(),
 }
 
-func readActivities(filename string) ([]*strava.Activity, error) {
-	var err error
-	var sc fastjson.Scanner
-	var acts []*strava.Activity
+func closure(f string) string {
+	if f == "" {
+		return f
+	}
+	if !strings.HasPrefix(f, "{") {
+		f = "{" + f
+	}
+	if !strings.HasSuffix(f, "}") {
+		f = f + "}"
+	}
+	return f
+}
 
+func read(filename string) ([]*strava.Activity, error) {
+	var (
+		err   error
+		sc    fastjson.Scanner
+		acts  []*strava.Activity
+		start = time.Now()
+	)
 	b, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -50,50 +75,83 @@ func readActivities(filename string) ([]*strava.Activity, error) {
 		}
 		acts = append(acts, act)
 	}
+	log.Debug().
+		Int("activities", len(acts)).
+		Dur("elapsed", time.Since(start)).
+		Msg("read")
 	return acts, nil
 }
 
-func groupBy(c *cli.Context, acts []*strava.Activity) map[int][]*strava.Activity {
-	// filter commutes if requested
-	if !c.Bool("commutes") {
-		acts = strava.FilterActivityPtr(func(act *strava.Activity) bool {
-			return !act.Commute
-		}, acts)
+// filter the activities
+// For example:
+//  {.Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]}
+func filter(c *cli.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
+	if !c.IsSet("filter") {
+		return acts, nil
 	}
+	n := len(acts)
+	start := time.Now()
+	code := fmt.Sprintf("filter(Activities, %s)", closure(c.String("filter")))
+	log.Debug().
+		Str("code", code).
+		Msg("filter")
+	program, err := expr.Compile(code, expr.Env(Env{}))
+	if err != nil {
+		return nil, err
+	}
+	out, err := expr.Run(program, Env{Activities: acts})
+	if err != nil {
+		return nil, err
+	}
+	res := out.([]interface{})
+	acts = make([]*strava.Activity, len(res))
+	for i := range res {
+		acts[i] = res[i].(*strava.Activity)
+	}
+	log.Debug().
+		Int("activities{pre}", n).
+		Int("activities{post}", len(acts)).
+		Dur("elapsed", time.Since(start)).
+		Msg("filter")
+	return acts, nil
+}
 
-	// filter activity types if specified
-	activities := make(map[string]bool)
-	activity := c.StringSlice("activity")
-	for i := 0; i < len(activity); i++ {
-		activities[activity[i]] = true
+// groupby groups activities by a key
+// currently only supports a single key for grouping
+func groupby(c *cli.Context, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
+	if !c.IsSet("groupby") {
+		return map[string][]*strava.Activity{
+			"": acts,
+		}, nil
 	}
-	if len(activities) > 0 {
-		acts = strava.FilterActivityPtr(func(act *strava.Activity) bool {
-			return activities[act.Type]
-		}, acts)
+	start := time.Now()
+	code := fmt.Sprintf("map(Activities, %s)", closure(c.String("groupby")))
+	log.Debug().
+		Str("code", code).
+		Msg("groupby")
+	program, err := expr.Compile(code, expr.Env(Env{}))
+	if err != nil {
+		return nil, err
 	}
-
-	// filter years if specified
-	year := c.IntSlice("year")
-	years := make(map[int]bool)
-	for i := 0; i < len(year); i++ {
-		years[year[i]] = true
+	out, err := expr.Run(program, Env{Activities: acts})
+	if err != nil {
+		return nil, err
 	}
-	if len(years) > 0 {
-		acts = strava.FilterActivityPtr(func(act *strava.Activity) bool {
-			return years[act.StartDateLocal.Year()]
-		}, acts)
+	res := out.([]interface{})
+	groups := make(map[string][]*strava.Activity, len(res))
+	for i, k := range res {
+		key, err := cast.ToStringE(k)
+		if err != nil {
+			return nil, err
+		}
+		groups[key] = append(groups[key], acts[i])
 	}
-
-	// use a single grouping (possibly with fewer than all years) if totals are desired
-	if c.Bool("totals") {
-		return map[int][]*strava.Activity{0: acts}
-	}
-
-	// group away by year
-	return strava.GroupByIntActivityPtr(func(act *strava.Activity) int {
-		return act.StartDateLocal.Year()
-	}, acts)
+	log.Debug().
+		Int("activities", len(acts)).
+		Int("groups", len(groups)).
+		Dur("elapsed", time.Since(start)).
+		Msg("groupby")
+	return groups, nil
 }
 
 var statsCommand = &cli.Command{
@@ -101,15 +159,15 @@ var statsCommand = &cli.Command{
 	Category: "route",
 	Usage:    "Compute stats from Strava activities",
 	Flags: []cli.Flag{
-		&cli.StringSliceFlag{
-			Name:    "activity",
-			Aliases: []string{"a"},
-			Usage:   "Activity types to include",
+		&cli.StringFlag{
+			Name:    "filter",
+			Aliases: []string{"f"},
+			Usage:   "Expression for filtering activities",
 		},
-		&cli.IntSliceFlag{
-			Name:    "year",
-			Aliases: []string{"y"},
-			Usage:   "Years to include, if not specified all years are calculated",
+		&cli.StringFlag{
+			Name:    "groupby",
+			Aliases: []string{"g"},
+			Usage:   "Expression for grouping activities",
 		},
 		&cli.BoolFlag{
 			Name:    "totals",
@@ -117,11 +175,10 @@ var statsCommand = &cli.Command{
 			Value:   false,
 			Usage:   "Compute a total rather than grouped by years.",
 		},
-		&cli.BoolFlag{
-			Name:    "commutes",
-			Aliases: []string{"c"},
-			Value:   false,
-			Usage:   "Include commutes, (default: filtered).",
+		&cli.StringSliceFlag{
+			Name:    "analyzer",
+			Aliases: []string{"a"},
+			Usage:   "Analyzers to include (if none specified, default set is used)",
 		},
 	},
 	Before: func(c *cli.Context) error {
@@ -131,31 +188,51 @@ var statsCommand = &cli.Command{
 		return nil
 	},
 	Action: func(c *cli.Context) error {
-		acts, err := readActivities(c.Args().First())
+		if c.IsSet("analyzer") {
+			any := splat.New()
+			names := c.StringSlice("analyzer")
+			var anys []*analysis.Analyzer
+			for i := 0; i < len(names); i++ {
+				if names[i] == any.Name {
+					anys = append(anys, any)
+					continue
+				}
+				for j := 0; j < len(analyzers); j++ {
+					if names[i] == analyzers[j].Name {
+						anys = append(anys, analyzers[j])
+					}
+				}
+			}
+			analyzers = anys
+		}
+		any := analysis.Analysis{
+			Args:      c.Args().Tail(),
+			Analyzers: analyzers,
+		}
+		acts, err := read(c.Args().First())
 		if err != nil {
 			return err
 		}
-		groups := groupBy(c, acts)
-		var years []int
-		for y := range groups {
-			years = append(years, y)
+		acts, err = filter(c, acts)
+		if err != nil {
+			return err
 		}
-		sort.Ints(years)
-
-		results := make(map[int]interface{})
-		for _, year := range years {
-			pass := &analysis.Pass{
-				Activities: groups[year],
-			}
-			analysis := analysis.Analysis{
-				Args:      c.Args().Tail(),
-				Analyzers: analyzers,
-			}
-			res, err := analysis.Run(c.Context, pass)
+		groups, err := groupby(c, acts)
+		if err != nil {
+			return err
+		}
+		results := make(map[string]interface{})
+		for key, group := range groups {
+			pass := &analysis.Pass{Activities: group}
+			res, err := any.Run(c.Context, pass)
 			if err != nil {
 				return err
 			}
-			results[year] = res
+			results[key] = res
+		}
+		// special case, if one group and the key is `""`, return as a list not a map
+		if val, ok := results[""]; ok && len(results) == 1 {
+			return encoder.Encode(val)
 		}
 		return encoder.Encode(results)
 	},

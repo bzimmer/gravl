@@ -20,8 +20,8 @@ var benfordDistribution = []float64{
 var benfordCount = len(benfordDistribution)
 
 type Benford struct {
-	Distribution []float64
-	ChiSquared   float64
+	Distribution []float64 `json:"distribution"`
+	ChiSquared   float64   `json:"chi_squared"`
 }
 
 func distribution(occ []int) []float64 {

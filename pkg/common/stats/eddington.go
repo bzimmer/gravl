@@ -1,9 +1,9 @@
 package stats
 
 type Eddington struct {
-	Number     int
-	Numbers    []int
-	Motivation map[int]int
+	Number     int         `json:"number"`
+	Numbers    []int       `json:"numbers"`
+	Motivation map[int]int `json:"motivation"`
 }
 
 // Eddington computes the Eddington number from a series of rides

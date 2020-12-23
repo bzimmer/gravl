@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/StefanSchroeder/Golang-Ellipsoid v0.0.0-20200928074047-3758eb9e9574
 	github.com/adrg/xdg v0.2.3
+	github.com/antonmedv/expr v1.8.9
 	github.com/bzimmer/httpwares v0.0.2
 	github.com/cheekybits/genny v1.0.0
 	github.com/davecgh/go-spew v1.1.1
@@ -16,6 +17,7 @@ require (
 	github.com/martinlindhe/unit v0.0.0-20190604142932-3b6be53d49af
 	github.com/rs/zerolog v1.20.0
 	github.com/securego/gosec/v2 v2.5.0
+	github.com/spf13/cast v1.3.1
 	github.com/stretchr/testify v1.6.1
 	github.com/tkrajina/go-elevations v0.0.0-20200416152435-2c9e0bec991f
 	github.com/twpayne/go-geom v1.3.6
