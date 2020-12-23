@@ -169,12 +169,6 @@ var statsCommand = &cli.Command{
 			Aliases: []string{"g"},
 			Usage:   "Expression for grouping activities",
 		},
-		&cli.BoolFlag{
-			Name:    "totals",
-			Aliases: []string{"t"},
-			Value:   false,
-			Usage:   "Compute a total rather than grouped by years.",
-		},
 		&cli.StringSliceFlag{
 			Name:    "analyzer",
 			Aliases: []string{"a"},
