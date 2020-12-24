@@ -4,8 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-
-	"github.com/bzimmer/gravl/pkg/strava"
 )
 
 type Analyzer struct {
@@ -16,10 +14,6 @@ type Analyzer struct {
 }
 
 func (a *Analyzer) String() string { return a.Name }
-
-type Pass struct {
-	Activities []*strava.Activity
-}
 
 type Analysis struct {
 	Args      []string
@@ -33,6 +27,9 @@ func (a *Analysis) applyFlags() error {
 
 	analyzers := make(map[string]*Analyzer)
 	for _, y := range a.Analyzers {
+		if y.Flags == nil {
+			continue
+		}
 		analyzers[y.Name] = y
 	}
 

@@ -3,14 +3,11 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"strings"
 	"time"
 
-	"github.com/antonmedv/expr"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/cast"
 	"github.com/urfave/cli/v2"
 	"github.com/valyala/fastjson"
 
@@ -24,10 +21,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/pythagorean"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/splat"
 )
-
-type Env struct {
-	Activities []*strava.Activity
-}
 
 var analyzers = []*analysis.Analyzer{
 	climbing.New(),
@@ -51,7 +44,7 @@ func closure(f string) string {
 	return f
 }
 
-func read(filename string) ([]*strava.Activity, error) {
+func read(filename string) (*analysis.Pass, error) {
 	var (
 		err   error
 		sc    fastjson.Scanner
@@ -79,79 +72,30 @@ func read(filename string) ([]*strava.Activity, error) {
 		Int("activities", len(acts)).
 		Dur("elapsed", time.Since(start)).
 		Msg("read")
-	return acts, nil
+	return &analysis.Pass{Activities: acts}, nil
 }
 
 // filter the activities
 // For example:
 //  {.Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]}
-func filter(c *cli.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
+func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
 	if !c.IsSet("filter") {
-		return acts, nil
+		return pass, nil
 	}
-	n := len(acts)
-	start := time.Now()
-	code := fmt.Sprintf("filter(Activities, %s)", closure(c.String("filter")))
-	log.Debug().
-		Str("code", code).
-		Msg("filter")
-	program, err := expr.Compile(code, expr.Env(Env{}))
-	if err != nil {
-		return nil, err
-	}
-	out, err := expr.Run(program, Env{Activities: acts})
-	if err != nil {
-		return nil, err
-	}
-	res := out.([]interface{})
-	acts = make([]*strava.Activity, len(res))
-	for i := range res {
-		acts[i] = res[i].(*strava.Activity)
-	}
-	log.Debug().
-		Int("activities{pre}", n).
-		Int("activities{post}", len(acts)).
-		Dur("elapsed", time.Since(start)).
-		Msg("filter")
-	return acts, nil
+	q := closure(c.String("filter"))
+	return pass.FilterExpr(q)
 }
 
 // groupby groups activities by a key
 // currently only supports a single key for grouping
-func groupby(c *cli.Context, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
+func groupby(c *cli.Context, pass *analysis.Pass) (map[string]*analysis.Pass, error) {
 	if !c.IsSet("groupby") {
-		return map[string][]*strava.Activity{
-			"": acts,
+		return map[string]*analysis.Pass{
+			"": pass,
 		}, nil
 	}
-	start := time.Now()
-	code := fmt.Sprintf("map(Activities, %s)", closure(c.String("groupby")))
-	log.Debug().
-		Str("code", code).
-		Msg("groupby")
-	program, err := expr.Compile(code, expr.Env(Env{}))
-	if err != nil {
-		return nil, err
-	}
-	out, err := expr.Run(program, Env{Activities: acts})
-	if err != nil {
-		return nil, err
-	}
-	res := out.([]interface{})
-	groups := make(map[string][]*strava.Activity, len(res))
-	for i, k := range res {
-		key, err := cast.ToStringE(k)
-		if err != nil {
-			return nil, err
-		}
-		groups[key] = append(groups[key], acts[i])
-	}
-	log.Debug().
-		Int("activities", len(acts)).
-		Int("groups", len(groups)).
-		Dur("elapsed", time.Since(start)).
-		Msg("groupby")
-	return groups, nil
+	q := closure(c.String("groupby"))
+	return pass.GroupByExpr(q)
 }
 
 var statsCommand = &cli.Command{
@@ -199,25 +143,27 @@ var statsCommand = &cli.Command{
 			}
 			analyzers = anys
 		}
+		if len(analyzers) == 0 {
+			return errors.New("no analyzers configured")
+		}
 		any := analysis.Analysis{
 			Args:      c.Args().Tail(),
 			Analyzers: analyzers,
 		}
-		acts, err := read(c.Args().First())
+		pass, err := read(c.Args().First())
 		if err != nil {
 			return err
 		}
-		acts, err = filter(c, acts)
+		pass, err = filter(c, pass)
 		if err != nil {
 			return err
 		}
-		groups, err := groupby(c, acts)
+		passes, err := groupby(c, pass)
 		if err != nil {
 			return err
 		}
 		results := make(map[string]interface{})
-		for key, group := range groups {
-			pass := &analysis.Pass{Activities: group}
+		for key, pass := range passes {
 			res, err := any.Run(c.Context, pass)
 			if err != nil {
 				return err

@@ -1,6 +1,7 @@
 package strava_test
 
 import (
+	"fmt"
 	"math"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
-func TestGroupByIntActivityPtr(t *testing.T) {
+func TestGroupByStringActivityPtr(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
@@ -18,14 +19,14 @@ func TestGroupByIntActivityPtr(t *testing.T) {
 		{Distance: 10.1}, {Distance: 32.2},
 		{Distance: 30.5}, {Distance: 120.9},
 	}
-	m := strava.GroupByIntActivityPtr(
-		func(a *strava.Activity) int {
-			return int(math.Mod(a.Distance.Meters(), 3))
+	m := strava.GroupByStringActivityPtr(
+		func(a *strava.Activity) string {
+			return fmt.Sprintf("%d", int(math.Mod(a.Distance.Meters(), 3)))
 		}, acts)
 	a.Equal(3, len(m))
-	a.Equal(1, len(m[1]))
-	a.Equal(1, len(m[2]))
-	a.Equal(2, len(m[0]))
+	a.Equal(1, len(m["1"]))
+	a.Equal(1, len(m["2"]))
+	a.Equal(2, len(m["0"]))
 }
 
 func TestFilterActivityPtr(t *testing.T) {

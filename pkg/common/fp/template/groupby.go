@@ -5,7 +5,7 @@ package template
 //
 // Example:
 //   groups := GroupByKeyTypeValueTypePtr(func(val *ValueType) KeyType {
-// 	  return KeyTypeIsh
+// 	   return KeyTypeIsh
 //   }, vals)
 func GroupByKeyTypeValueTypePtr(f func(act *ValueType) KeyType, coll []*ValueType) map[KeyType][]*ValueType {
 	res := make(map[KeyType][]*ValueType)
@@ -22,7 +22,7 @@ func GroupByKeyTypeValueTypePtr(f func(act *ValueType) KeyType, coll []*ValueTyp
 //
 // Example:
 //   groups := GroupByKeyTypeValueType(func(val *ValueType) KeyType {
-// 	  return KeyTypeIsh
+// 	   return KeyTypeIsh
 //   }, vals)
 func GroupByKeyTypeValueType(f func(act ValueType) KeyType, coll []ValueType) map[KeyType][]ValueType {
 	res := make(map[KeyType][]ValueType)

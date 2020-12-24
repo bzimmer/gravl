@@ -4,15 +4,15 @@
 
 package strava
 
-// GroupByIntActivityPtr returns a mapping of int to []*Activity based on the return
+// GroupByStringActivityPtr returns a mapping of string to []*Activity based on the return
 // value of function `f`
 //
 // Example:
-// groups := GroupByIntActivityPtr(func(val *Activity) int {
-// return IntIsh
+// groups := GroupByStringActivityPtr(func(val *Activity) string {
+// return StringIsh
 //   }, vals)
-func GroupByIntActivityPtr(f func(act *Activity) int, coll []*Activity) map[int][]*Activity {
-	res := make(map[int][]*Activity)
+func GroupByStringActivityPtr(f func(act *Activity) string, coll []*Activity) map[string][]*Activity {
+	res := make(map[string][]*Activity)
 	EveryActivityPtr(func(act *Activity) bool {
 		key := f(act)
 		res[key] = append(res[key], act)
@@ -21,15 +21,15 @@ func GroupByIntActivityPtr(f func(act *Activity) int, coll []*Activity) map[int]
 	return res
 }
 
-// GroupByIntActivity returns a mapping of int to []Activity based on the return
+// GroupByStringActivity returns a mapping of string to []Activity based on the return
 // value of function `f`
 //
 // Example:
-// groups := GroupByIntActivity(func(val *Activity) int {
-// return IntIsh
+// groups := GroupByStringActivity(func(val *Activity) string {
+// return StringIsh
 //   }, vals)
-func GroupByIntActivity(f func(act Activity) int, coll []Activity) map[int][]Activity {
-	res := make(map[int][]Activity)
+func GroupByStringActivity(f func(act Activity) string, coll []Activity) map[string][]Activity {
+	res := make(map[string][]Activity)
 	EveryActivity(func(act Activity) bool {
 		key := f(act)
 		res[key] = append(res[key], act)
