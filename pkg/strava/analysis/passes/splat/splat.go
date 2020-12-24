@@ -8,7 +8,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
-const Doc = ``
+const Doc = `splat simply returns all activities in the units specified
+
+This analyzer is useful for debugging the filter.`
 
 type Splat struct {
 	Units analysis.Units
@@ -28,9 +30,9 @@ func New() *analysis.Analyzer {
 		Units: analysis.Imperial,
 	}
 	fs := flag.NewFlagSet("splat", flag.ExitOnError)
-	fs.Var(&analysis.UnitsFlag{Units: &s.Units}, "units", "units to use (default: imperial)")
+	fs.Var(&analysis.UnitsFlag{Units: &s.Units}, "units", "units to use")
 	return &analysis.Analyzer{
-		Name:  "splat",
+		Name:  fs.Name(),
 		Doc:   Doc,
 		Flags: fs,
 		Run:   s.Run,

@@ -40,6 +40,10 @@ func (u *UnitsFlag) Set(value string) error {
 	return nil
 }
 
+func (u *UnitsFlag) Get() interface{} {
+	return u.Units
+}
+
 type Activity struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`

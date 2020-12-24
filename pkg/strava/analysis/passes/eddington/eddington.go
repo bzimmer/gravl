@@ -9,7 +9,10 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
-const Doc = ``
+const Doc = `eddington returns the Eddington number for all activities
+
+The Eddington is the largest integer E, where you have cycled at least
+E miles (or kilometers) on at least E days.`
 
 type Eddington struct {
 	Units analysis.Units
@@ -36,9 +39,9 @@ func New() *analysis.Analyzer {
 		Units: analysis.Imperial,
 	}
 	fs := flag.NewFlagSet("eddington", flag.ExitOnError)
-	fs.Var(&analysis.UnitsFlag{Units: &e.Units}, "units", "units to use (default: imperial)")
+	fs.Var(&analysis.UnitsFlag{Units: &e.Units}, "units", "units to use")
 	return &analysis.Analyzer{
-		Name:  "eddington",
+		Name:  fs.Name(),
 		Doc:   Doc,
 		Flags: fs,
 		Run:   e.Run,

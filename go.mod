@@ -15,6 +15,8 @@ require (
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang/geo v0.0.0-20200730024412-e86565bf3f35
 	github.com/martinlindhe/unit v0.0.0-20190604142932-3b6be53d49af
+	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762
+	github.com/muesli/kmeans v0.2.1
 	github.com/rs/zerolog v1.20.0
 	github.com/securego/gosec/v2 v2.5.0
 	github.com/spf13/cast v1.3.1

@@ -17,6 +17,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/eddington"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/festive500"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/hourrecord"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/kmeans"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/koms"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/pythagorean"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/splat"
@@ -29,6 +30,7 @@ var analyzers = []*analysis.Analyzer{
 	hourrecord.New(),
 	koms.New(),
 	pythagorean.New(),
+	kmeans.New(),
 }
 
 func closure(f string) string {

@@ -48,10 +48,9 @@ func New() *analysis.Analyzer {
 	}
 	fs := flag.NewFlagSet("climbing", flag.ExitOnError)
 	fs.IntVar(&c.Threshold, "threshold", c.Threshold, "climbing threshold")
-	fs.Var(&analysis.UnitsFlag{Units: &c.Units}, "units", "units to use (default: imperial)")
-
+	fs.Var(&analysis.UnitsFlag{Units: &c.Units}, "units", "units to use")
 	return &analysis.Analyzer{
-		Name:  "climbing",
+		Name:  fs.Name(),
 		Doc:   Doc,
 		Flags: fs,
 		Run:   c.Run,
