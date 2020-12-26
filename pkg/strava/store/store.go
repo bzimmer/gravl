@@ -28,18 +28,22 @@ func (s *Store) Update(ctx context.Context, source Source) (int, error) {
 	}
 	log.Info().Int("n", len(acts)).Msg("found activities")
 	err = s.store.Bolt().Update(func(tx *bolt.Tx) error {
-		var act *strava.Activity
 		for i := range acts {
-			err = s.store.TxGet(tx, acts[i].ID, act)
-			if err != bh.ErrNotFound {
+			var t strava.Activity
+			err = s.store.TxGet(tx, acts[i].ID, &t)
+			if err == nil {
 				continue
 			}
+			if err != nil && err != bh.ErrNotFound {
+				return err
+			}
 			log.Info().Int64("ID", acts[i].ID).Msg("querying activity details")
+			var act *strava.Activity
 			act, err = source.Activity(ctx, acts[i].ID)
 			if err != nil {
 				return err
 			}
-			log.Info().Int64("ID", act.ID).Msg("saving activity details")
+			log.Info().Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity details")
 			if err = s.store.TxUpsert(tx, act.ID, act); err != nil {
 				return err
 			}
