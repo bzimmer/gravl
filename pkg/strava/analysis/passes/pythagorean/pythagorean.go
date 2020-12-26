@@ -23,7 +23,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		dst := act.Distance.Meters()
 		elv := act.ElevationGain.Meters()
 		n := int(math.Sqrt(math.Pow(dst, 2) + math.Pow(elv, 2)))
-		res[i] = &Results{Activity: analysis.ToActivity(act), Number: n}
+		res[i] = &Results{Activity: analysis.ToActivity(act, analysis.Metric), Number: n}
 		i++
 		return true
 	}, pass.Activities)

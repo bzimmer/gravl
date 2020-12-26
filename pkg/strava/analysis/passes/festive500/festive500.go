@@ -13,6 +13,8 @@ const Doc = ``
 type Result struct {
 	Activities []*analysis.Activity `json:"activities"`
 	Distance   float64              `json:"distance"`
+	Complete   float64              `json:"complete"`
+	Success    bool                 `json:"success"`
 }
 
 func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
@@ -23,11 +25,15 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		ok := (month == time.December && date >= 24 && date <= 31)
 		if ok {
 			dst = dst + act.Distance.Kilometers()
-			res = append(res, analysis.ToActivityWithUnits(act, analysis.Metric))
+			res = append(res, analysis.ToActivity(act, analysis.Metric))
 		}
 		return true
 	}, pass.Activities)
-	return &Result{Activities: res, Distance: dst}, nil
+	return &Result{
+		Activities: res,
+		Distance:   dst,
+		Complete:   (dst / 500.0) * 100,
+		Success:    dst >= 500.0}, nil
 }
 
 func New() *analysis.Analyzer {

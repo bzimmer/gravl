@@ -80,24 +80,20 @@ func do(ctx context.Context, paginator Paginator, total, start, count int) error
 			return err
 		}
 		all := paginator.Count()
-		log.Debug().
+		log.Info().
 			Int("n", n).
 			Int("all", all).
 			Int("start", start).
 			Int("count", count).
 			Int("total", total).
-			Msg("done")
+			Msg("do")
 		// Strava documentation says receiving fewer than requested results is a
 		// possible scenario so break only if 0 results were returned or we have
 		// enough to fulfill the request
 		if n == 0 {
 			break
 		}
-		if total == 0 {
-			start++
-			continue
-		}
-		if all >= total {
+		if total > 0 && all >= total {
 			break
 		}
 		start++

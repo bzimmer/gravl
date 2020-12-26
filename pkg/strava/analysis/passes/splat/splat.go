@@ -19,7 +19,7 @@ type Splat struct {
 func (s *Splat) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var res []*analysis.Activity
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		res = append(res, analysis.ToActivityWithUnits(act, s.Units))
+		res = append(res, analysis.ToActivity(act, s.Units))
 		return true
 	}, pass.Activities)
 	return res, nil

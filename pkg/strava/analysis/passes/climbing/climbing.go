@@ -34,7 +34,7 @@ func (a *Climbing) Run(ctx context.Context, pass *analysis.Pass) (interface{}, e
 		}
 		c := int(elv / dst)
 		if c > a.Threshold {
-			climbings = append(climbings, &Result{Activity: analysis.ToActivityWithUnits(act, a.Units), Number: c})
+			climbings = append(climbings, &Result{Activity: analysis.ToActivity(act, a.Units), Number: c})
 		}
 		return true
 	}, pass.Activities)

@@ -20,7 +20,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		spd := act.AverageSpeed
 		return float64(dst) >= float64(spd)
 	}, pass.Activities))
-	return analysis.ToActivity(act), nil
+	return analysis.ToActivity(act, analysis.Imperial), nil
 }
 
 func New() *analysis.Analyzer {

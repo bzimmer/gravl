@@ -15,11 +15,7 @@ type Activity struct {
 	Type      string    `json:"type"`
 }
 
-func ToActivity(act *strava.Activity) *Activity {
-	return ToActivityWithUnits(act, Imperial)
-}
-
-func ToActivityWithUnits(act *strava.Activity, units Units) *Activity {
+func ToActivity(act *strava.Activity, units Units) *Activity {
 	var dst, elv float64
 	switch units {
 	case Metric:
@@ -35,5 +31,6 @@ func ToActivityWithUnits(act *strava.Activity, units Units) *Activity {
 		StartDate: act.StartDate,
 		Distance:  dst,
 		Elevation: elv,
+		Type:      act.Type,
 	}
 }

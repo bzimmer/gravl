@@ -59,7 +59,7 @@ func (k *KMeans) Run(ctx context.Context, pass *analysis.Pass) (interface{}, err
 	var d clusters.Observations
 	for i := 0; i < len(pass.Activities); i++ {
 		d = append(d, &Observation{
-			Activity: analysis.ToActivityWithUnits(pass.Activities[i], k.Units),
+			Activity: analysis.ToActivity(pass.Activities[i], k.Units),
 			Coords:   clusters.Coordinates{dsts[i] / dm, elvs[i] / em},
 		})
 	}
