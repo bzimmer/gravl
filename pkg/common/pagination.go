@@ -3,6 +3,8 @@ package common
 import (
 	"context"
 	"errors"
+
+	"github.com/rs/zerolog/log"
 )
 
 // Pagination provides guidance on how to paginate through resources
@@ -46,12 +48,14 @@ func Paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
 	if count <= 0 {
 		count = paginator.Page()
 	}
-	if total > 0 && total <= count {
-		count = total
-	}
-	// if requesting only one page of data then optimize
-	if start <= 1 && total < paginator.Page() {
-		count = total
+	if total > 0 {
+		if total <= count {
+			count = total
+		}
+		// if requesting only one page of data then optimize
+		if start <= 1 && total < paginator.Page() {
+			count = total
+		}
 	}
 	// log.Debug().
 	// 	Str("prepared", "post").
@@ -76,17 +80,24 @@ func do(ctx context.Context, paginator Paginator, total, start, count int) error
 			return err
 		}
 		all := paginator.Count()
-		// log.Debug().
-		// 	Int("n", n).
-		// 	Int("all", all).
-		// 	Int("start", start).
-		// 	Int("count", count).
-		// 	Int("total", total).
-		// 	Msg("done")
+		log.Debug().
+			Int("n", n).
+			Int("all", all).
+			Int("start", start).
+			Int("count", count).
+			Int("total", total).
+			Msg("done")
 		// Strava documentation says receiving fewer than requested results is a
 		// possible scenario so break only if 0 results were returned or we have
 		// enough to fulfill the request
-		if n == 0 || all >= total {
+		if n == 0 {
+			break
+		}
+		if total == 0 {
+			start++
+			continue
+		}
+		if all >= total {
 			break
 		}
 		start++

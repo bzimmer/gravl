@@ -110,6 +110,7 @@ func initLogging(c *cli.Context) error {
 }
 
 func flags() []cli.Flag {
+	dbpath := path.Join(xdg.DataHome, pkg.PackageName, "gravl.db")
 	config := path.Join(xdg.ConfigHome, pkg.PackageName, "gravl.yaml")
 	return []cli.Flag{
 		&cli.StringFlag{
@@ -151,6 +152,13 @@ func flags() []cli.Flag {
 			Aliases: []string{"t"},
 			Value:   time.Millisecond * 10000,
 			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
+		},
+		&cli.PathFlag{
+			Name:      "bolt",
+			Aliases:   []string{"b"},
+			Value:     dbpath,
+			TakesFile: true,
+			Usage:     "Path to the Bolt database",
 		},
 	}
 }

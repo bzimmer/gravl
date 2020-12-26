@@ -30,21 +30,30 @@ func newClienter(status int, filename string, requester httpwares.Requester, res
 
 type ManyTransport struct {
 	Filename string
+	Total    int
+	total    int
 }
 
 func (t *ManyTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	q := req.URL.Query()
 	n, _ := strconv.Atoi(q.Get("per_page"))
+	if t.Total > 0 {
+		n = t.Total
+		if t.total >= t.Total {
+			n = 0
+		}
+	}
 
 	data, err := ioutil.ReadFile(t.Filename)
 	if err != nil {
 		return nil, err
 	}
 
-	acts := make([]string, 0)
+	var acts []string
 	for i := 0; i < n; i++ {
 		acts = append(acts, string(data))
 	}
+	t.total = t.total + len(acts)
 
 	res := strings.Join(acts, ",")
 	return &http.Response{

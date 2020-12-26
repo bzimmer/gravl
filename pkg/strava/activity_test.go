@@ -31,9 +31,16 @@ func TestActivity(t *testing.T) {
 func TestActivities(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
-	client, err := newClient(http.StatusOK, "activities.json")
-	a.NoError(err)
+
 	ctx := context.Background()
+	client, err := strava.NewClient(
+		strava.WithTransport(&ManyTransport{
+			Filename: "testdata/activity.json",
+			Total:    2,
+		}),
+		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}))
+	a.NoError(err)
+
 	acts, err := client.Activity.Activities(ctx, common.Pagination{})
 	a.NoError(err)
 	a.Equal(2, len(acts))

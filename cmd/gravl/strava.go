@@ -2,17 +2,21 @@ package main
 
 import (
 	"context"
+	"errors"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"golang.org/x/time/rate"
-
+	bh "github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	"golang.org/x/time/rate"
 
 	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/strava"
+	"github.com/bzimmer/gravl/pkg/strava/store"
 )
 
 var stravaCommand = &cli.Command{
@@ -35,6 +39,41 @@ var stravaCommand = &cli.Command{
 				rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
 		if err != nil {
 			return err
+		}
+		if c.Bool("update") {
+			fn := c.Path("bolt")
+			if fn == "" {
+				return errors.New("nil db path")
+			}
+			directory := filepath.Dir(fn)
+			if _, err := os.Stat(directory); os.IsNotExist(err) {
+				log.Info().Str("directory", directory).Msg("creating")
+				if err := os.MkdirAll(directory, os.ModeDir|0700); err != nil {
+					return err
+				}
+			}
+			db, err := bh.Open(fn, 0666, nil)
+			if err != nil {
+				return err
+			}
+			defer db.Close()
+
+			var source store.Source
+			if c.NArg() == 1 {
+				source = &store.SourceFile{Path: c.Args().First()}
+			} else {
+				source = &store.SourceStrava{Client: client}
+			}
+
+			store := store.NewStore(db)
+			n, err := store.Update(c.Context, source)
+			if err != nil {
+				return err
+			}
+			if err = encoder.Encode(map[string]int{"activities": n}); err != nil {
+				return err
+			}
+			return nil
 		}
 		if c.Bool("route") || c.Bool("activity") || c.Bool("stream") {
 			args := c.Args()
@@ -185,13 +224,18 @@ var stravaFlags = merge(
 		&cli.IntFlag{
 			Name:    "count",
 			Aliases: []string{"N"},
-			Value:   10,
+			Value:   0,
 			Usage:   "Count",
 		},
 		&cli.BoolFlag{
 			Name:  "refresh",
 			Value: false,
 			Usage: "Refresh",
+		},
+		&cli.BoolFlag{
+			Name:  "update",
+			Value: false,
+			Usage: "Update the databse with the latest activities",
 		},
 	},
 )

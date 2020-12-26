@@ -1,15 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"strings"
-	"time"
 
-	"github.com/rs/zerolog/log"
+	bh "github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
-	"github.com/valyala/fastjson"
 
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/bzimmer/gravl/pkg/strava/analysis"
@@ -46,34 +42,25 @@ func closure(f string) string {
 	return f
 }
 
-func read(filename string) (*analysis.Pass, error) {
-	var (
-		err   error
-		sc    fastjson.Scanner
-		acts  []*strava.Activity
-		start = time.Now()
-	)
-	b, err := ioutil.ReadFile(filename)
+func read(c *cli.Context) (*analysis.Pass, error) {
+	fn := c.Path("bolt")
+	if fn == "" {
+		return nil, errors.New("nil db path")
+	}
+	store, err := bh.Open(fn, 0666, nil)
 	if err != nil {
 		return nil, err
 	}
-	sc.InitBytes(b)
-	for sc.Next() {
-		if err = sc.Error(); err != nil {
-			return nil, err
-		}
-		val := sc.Value()
-		act := &strava.Activity{}
-		err = json.Unmarshal(val.MarshalTo(nil), act)
-		if err != nil {
-			return nil, err
-		}
+	defer store.Close()
+
+	var acts []*strava.Activity
+	err = store.ForEach(&bh.Query{}, func(act *strava.Activity) error {
 		acts = append(acts, act)
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
-	log.Debug().
-		Int("activities", len(acts)).
-		Dur("elapsed", time.Since(start)).
-		Msg("read")
 	return &analysis.Pass{Activities: acts}, nil
 }
 
@@ -121,12 +108,6 @@ var statsCommand = &cli.Command{
 			Usage:   "Analyzers to include (if none specified, default set is used)",
 		},
 	},
-	Before: func(c *cli.Context) error {
-		if c.NArg() == 0 {
-			return errors.New("missing data file")
-		}
-		return nil
-	},
 	Action: func(c *cli.Context) error {
 		if c.IsSet("analyzer") {
 			any := splat.New()
@@ -152,7 +133,7 @@ var statsCommand = &cli.Command{
 			Args:      c.Args().Tail(),
 			Analyzers: analyzers,
 		}
-		pass, err := read(c.Args().First())
+		pass, err := read(c)
 		if err != nil {
 			return err
 		}
