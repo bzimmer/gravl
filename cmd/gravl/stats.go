@@ -99,7 +99,7 @@ func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
 func groupby(c *cli.Context, pass *analysis.Pass) (map[string]*analysis.Pass, error) {
 	if !c.IsSet("groupby") {
 		return map[string]*analysis.Pass{
-			"gravl": pass,
+			c.App.Name: pass,
 		}, nil
 	}
 	q := closure(c.String("groupby"))

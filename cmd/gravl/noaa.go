@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/twpayne/go-geom"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/common/wx"
@@ -36,7 +37,8 @@ var noaaCommand = &cli.Command{
 			if e != nil {
 				return e
 			}
-			fcst, e = client.Points.Forecast(ctx, lng, lat)
+			point := geom.NewPointFlat(geom.XY, []float64{lng, lat})
+			fcst, e = client.Points.Forecast(ctx, point)
 			if e != nil {
 				return e
 			}

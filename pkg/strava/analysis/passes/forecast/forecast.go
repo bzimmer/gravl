@@ -6,6 +6,7 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/noaa"
 	"github.com/bzimmer/gravl/pkg/strava/analysis"
+	"github.com/twpayne/go-geom"
 )
 
 const Doc = ``
@@ -24,7 +25,8 @@ func (a *Forecast) Run(ctx context.Context, pass *analysis.Pass) (interface{}, e
 	var res []*Result
 	for _, act := range pass.Activities {
 		coords := act.StartLatlng
-		forecast, err := a.client.Points.Forecast(ctx, coords[1], coords[0])
+		point := geom.NewPointFlat(geom.XY, []float64{coords[1], coords[0]})
+		forecast, err := a.client.Points.Forecast(ctx, point)
 		if err != nil {
 			return nil, err
 		}

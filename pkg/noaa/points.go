@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/twpayne/go-geom"
 )
 
 // PointsService .
@@ -18,8 +20,8 @@ func float64ToString(f float64) string {
 }
 
 // GridPoint .
-func (s *PointsService) GridPoint(ctx context.Context, longitude, latitude float64) (*GridPoint, error) {
-	uri := fmt.Sprintf("points/%s,%s", float64ToString(latitude), float64ToString(longitude))
+func (s *PointsService) GridPoint(ctx context.Context, point *geom.Point) (*GridPoint, error) {
+	uri := fmt.Sprintf("points/%s,%s", float64ToString(point.Y()), float64ToString(point.X()))
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
@@ -33,14 +35,14 @@ func (s *PointsService) GridPoint(ctx context.Context, longitude, latitude float
 }
 
 // Forecast .
-func (s *PointsService) Forecast(ctx context.Context, longitude, latitude float64) (*Forecast, error) {
-	uri := fmt.Sprintf("points/%s,%s/forecast", float64ToString(latitude), float64ToString(longitude))
+func (s *PointsService) Forecast(ctx context.Context, point *geom.Point) (*Forecast, error) {
+	uri := fmt.Sprintf("points/%s,%s/forecast", float64ToString(point.Y()), float64ToString(point.X()))
 	return s.forecast(ctx, uri)
 }
 
 // ForecastHourly .
-func (s *PointsService) ForecastHourly(ctx context.Context, longitude, latitude float64) (*Forecast, error) {
-	uri := fmt.Sprintf("points/%s,%s/forecast/hourly", float64ToString(latitude), float64ToString(longitude))
+func (s *PointsService) ForecastHourly(ctx context.Context, point *geom.Point) (*Forecast, error) {
+	uri := fmt.Sprintf("points/%s,%s/forecast/hourly", float64ToString(point.Y()), float64ToString(point.X()))
 	return s.forecast(ctx, uri)
 }
 
