@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	bh "github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
 
@@ -17,17 +18,31 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/koms"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/pythagorean"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/splat"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/totals"
 )
 
-var analyzers = []*analysis.Analyzer{
-	climbing.New(),
-	eddington.New(),
-	festive500.New(),
-	hourrecord.New(),
-	koms.New(),
-	pythagorean.New(),
-	kmeans.New(),
+type analyzer struct {
+	analyzer *analysis.Analyzer
+	standard bool
 }
+
+var analyzers = func() map[string]analyzer {
+	res := make(map[string]analyzer)
+	for an, standard := range map[*analysis.Analyzer]bool{
+		climbing.New():    true,
+		eddington.New():   true,
+		festive500.New():  true,
+		hourrecord.New():  true,
+		kmeans.New():      true,
+		koms.New():        true,
+		pythagorean.New(): true,
+		splat.New():       false,
+		totals.New():      true,
+	} {
+		res[an.Name] = analyzer{analyzer: an, standard: standard}
+	}
+	return res
+}()
 
 func closure(f string) string {
 	if f == "" {
@@ -109,29 +124,30 @@ var statsCommand = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		var as []*analysis.Analyzer
 		if c.IsSet("analyzer") {
-			any := splat.New()
 			names := c.StringSlice("analyzer")
-			var anys []*analysis.Analyzer
 			for i := 0; i < len(names); i++ {
-				if names[i] == any.Name {
-					anys = append(anys, any)
+				an, ok := analyzers[names[i]]
+				if !ok {
+					log.Warn().Str("name", names[i]).Msg("missing analyzer")
 					continue
 				}
-				for j := 0; j < len(analyzers); j++ {
-					if names[i] == analyzers[j].Name {
-						anys = append(anys, analyzers[j])
-					}
+				as = append(as, an.analyzer)
+			}
+		} else {
+			for _, an := range analyzers {
+				if an.standard {
+					as = append(as, an.analyzer)
 				}
 			}
-			analyzers = anys
 		}
-		if len(analyzers) == 0 {
-			return errors.New("no analyzers configured")
+		if len(as) == 0 {
+			return errors.New("no analyzers found")
 		}
 		any := analysis.Analysis{
 			Args:      c.Args().Tail(),
-			Analyzers: analyzers,
+			Analyzers: as,
 		}
 		pass, err := read(c)
 		if err != nil {

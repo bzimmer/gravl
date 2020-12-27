@@ -189,20 +189,15 @@ func Run() error {
 		Commands: commands(),
 		Before:   before(initFlags, initLogging, initEncoding, initConfig),
 		ExitErrHandler: func(c *cli.Context, err error) {
-			log.Error().Err(err).Msg("gravl")
+			log.Error().Err(err).Msg(c.App.Name)
 		},
 	}
 	ctx := context.Background()
-	err := app.RunContext(ctx, os.Args)
-	if err != nil {
-		return err
-	}
-	return nil
+	return app.RunContext(ctx, os.Args)
 }
 
 func main() {
 	if err := Run(); err != nil {
-		log.Error().Err(err).Send()
 		os.Exit(1)
 	}
 	os.Exit(0)
