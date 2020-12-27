@@ -14,6 +14,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/climbing"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/eddington"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/festive500"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/forecast"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/hourrecord"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/kmeans"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/koms"
@@ -34,8 +35,9 @@ var analyzers = func() map[string]analyzer {
 		climbing.New():    true,
 		eddington.New():   true,
 		festive500.New():  true,
+		forecast.New():    false,
 		hourrecord.New():  true,
-		kmeans.New():      true,
+		kmeans.New():      false,
 		koms.New():        true,
 		pythagorean.New(): true,
 		splat.New():       false,
