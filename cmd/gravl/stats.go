@@ -5,11 +5,12 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
-	bh "github.com/timshannon/bolthold"
+	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/bzimmer/gravl/pkg/strava/analysis"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/benford"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/climbing"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/eddington"
 	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/festive500"
@@ -29,6 +30,7 @@ type analyzer struct {
 var analyzers = func() map[string]analyzer {
 	res := make(map[string]analyzer)
 	for an, standard := range map[*analysis.Analyzer]bool{
+		benford.New():     false,
 		climbing.New():    true,
 		eddington.New():   true,
 		festive500.New():  true,
@@ -62,14 +64,14 @@ func read(c *cli.Context) (*analysis.Pass, error) {
 	if fn == "" {
 		return nil, errors.New("nil db path")
 	}
-	store, err := bh.Open(fn, 0666, nil)
+	store, err := bolthold.Open(fn, 0666, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer store.Close()
 
 	var acts []*strava.Activity
-	err = store.ForEach(&bh.Query{}, func(act *strava.Activity) error {
+	err = store.ForEach(&bolthold.Query{}, func(act *strava.Activity) error {
 		acts = append(acts, act)
 		return nil
 	})
@@ -95,7 +97,7 @@ func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
 func groupby(c *cli.Context, pass *analysis.Pass) (map[string]*analysis.Pass, error) {
 	if !c.IsSet("groupby") {
 		return map[string]*analysis.Pass{
-			"": pass,
+			"gravl": pass,
 		}, nil
 	}
 	q := closure(c.String("groupby"))
@@ -168,10 +170,6 @@ var statsCommand = &cli.Command{
 				return err
 			}
 			results[key] = res
-		}
-		// special case, if one group and the key is `""`, return as a list not a map
-		if val, ok := results[""]; ok && len(results) == 1 {
-			return encoder.Encode(val)
 		}
 		return encoder.Encode(results)
 	},

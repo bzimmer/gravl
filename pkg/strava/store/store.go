@@ -4,17 +4,17 @@ import (
 	"context"
 
 	"github.com/rs/zerolog/log"
-	bh "github.com/timshannon/bolthold"
-	bolt "go.etcd.io/bbolt"
+	"github.com/timshannon/bolthold"
+	"go.etcd.io/bbolt"
 
 	"github.com/bzimmer/gravl/pkg/strava"
 )
 
 type Store struct {
-	store *bh.Store
+	store *bolthold.Store
 }
 
-func NewStore(store *bh.Store) *Store {
+func NewStore(store *bolthold.Store) *Store {
 	return &Store{store: store}
 }
 
@@ -27,14 +27,14 @@ func (s *Store) Update(ctx context.Context, source Source) (int, error) {
 		return n, err
 	}
 	log.Info().Int("n", len(acts)).Msg("found activities")
-	err = s.store.Bolt().Update(func(tx *bolt.Tx) error {
+	err = s.store.Bolt().Update(func(tx *bbolt.Tx) error {
 		for i := range acts {
 			var t strava.Activity
 			err = s.store.TxGet(tx, acts[i].ID, &t)
 			if err == nil {
 				continue
 			}
-			if err != nil && err != bh.ErrNotFound {
+			if err != nil && err != bolthold.ErrNotFound {
 				return err
 			}
 			log.Info().Int64("ID", acts[i].ID).Msg("querying activity details")

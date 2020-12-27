@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	bh "github.com/timshannon/bolthold"
+	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 	"golang.org/x/time/rate"
@@ -52,7 +52,7 @@ var stravaCommand = &cli.Command{
 					return err
 				}
 			}
-			db, err := bh.Open(fn, 0666, nil)
+			db, err := bolthold.Open(fn, 0666, nil)
 			if err != nil {
 				return err
 			}
