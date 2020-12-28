@@ -13,7 +13,7 @@ const (
 	Doc = `All activities exceedinv the Golden Ratio
 
 	https://blog.wahoofitness.com/by-the-numbers-distance-and-elevation/`
-	GoldenRatioMetric   = 30
+	GoldenRatioMetric   = 20
 	GoldenRatioImperial = 100
 )
 
