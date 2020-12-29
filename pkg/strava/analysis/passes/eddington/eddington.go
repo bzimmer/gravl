@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 
-	"github.com/bzimmer/gravl/pkg/common/stats"
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
@@ -14,11 +13,11 @@ const Doc = `eddington returns the Eddington number for all activities
 The Eddington is the largest integer E, where you have cycled at least
 E miles (or kilometers) on at least E days.`
 
-type Eddington struct {
+type E struct {
 	Units analysis.Units
 }
 
-func (a *Eddington) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (a *E) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var vals []int
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		var dst float64
@@ -31,11 +30,11 @@ func (a *Eddington) Run(ctx context.Context, pass *analysis.Pass) (interface{}, 
 		vals = append(vals, int(dst))
 		return true
 	}, pass.Activities)
-	return stats.EddingtonNumber(vals), nil
+	return Number(vals), nil
 }
 
 func New() *analysis.Analyzer {
-	e := &Eddington{
+	e := &E{
 		Units: analysis.Imperial,
 	}
 	fs := flag.NewFlagSet("eddington", flag.ExitOnError)

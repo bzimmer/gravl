@@ -4,18 +4,17 @@ import (
 	"context"
 	"flag"
 
-	"github.com/bzimmer/gravl/pkg/common/stats"
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
 const Doc = ``
 
-type Benford struct {
+type B struct {
 	Units analysis.Units
 }
 
-func (a *Benford) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (a *B) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var vals []int
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		var dst float64
@@ -28,11 +27,11 @@ func (a *Benford) Run(ctx context.Context, pass *analysis.Pass) (interface{}, er
 		vals = append(vals, int(dst))
 		return true
 	}, pass.Activities)
-	return stats.BenfordsLaw(vals), nil
+	return Law(vals), nil
 }
 
 func New() *analysis.Analyzer {
-	e := &Benford{
+	e := &B{
 		Units: analysis.Imperial,
 	}
 	fs := flag.NewFlagSet("benford", flag.ExitOnError)

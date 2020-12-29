@@ -1,10 +1,11 @@
-package stats_test
+package eddington_test
 
 import (
 	"testing"
 
-	"github.com/bzimmer/gravl/pkg/common/stats"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/eddington"
 )
 
 func TestEddington(t *testing.T) {
@@ -15,7 +16,7 @@ func TestEddington(t *testing.T) {
 	for i := 0; i < len(rides); i++ {
 		r = append(r, int(rides[i]))
 	}
-	e := stats.EddingtonNumber(r)
+	e := eddington.Number(r)
 	a.Equal(21, e.Number)
 }
 

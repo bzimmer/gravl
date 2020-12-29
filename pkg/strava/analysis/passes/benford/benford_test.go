@@ -1,4 +1,4 @@
-package stats_test
+package benford_test
 
 import (
 	"encoding/csv"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/gravl/pkg/common/stats"
+	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/benford"
 )
 
 func TestBenfordsLaw(t *testing.T) {
@@ -33,6 +33,6 @@ func TestBenfordsLaw(t *testing.T) {
 		a.NoError(err)
 		elevations = append(elevations, elv)
 	}
-	b := stats.BenfordsLaw(elevations)
+	b := benford.Law(elevations)
 	a.InEpsilon(0.79663496, b.ChiSquared, 0.0001)
 }

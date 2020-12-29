@@ -1,11 +1,13 @@
-package stats
+package benford
 
 import (
 	"gonum.org/v1/gonum/stat"
 )
 
+const benfordCount = 9
+
 // https://en.wikipedia.org/wiki/Benford%27s_law
-var benfordDistribution = []float64{
+var benfordDistribution = [benfordCount]float64{
 	0.301, // 1
 	0.176, // 2
 	0.125, // 3
@@ -17,9 +19,7 @@ var benfordDistribution = []float64{
 	0.046, // 9
 }
 
-var benfordCount = len(benfordDistribution)
-
-type Benford struct {
+type BenfordsLaw struct {
 	Distribution []float64 `json:"distribution"`
 	ChiSquared   float64   `json:"chi_squared"`
 }
@@ -50,8 +50,8 @@ func occurrences(vals []int) []int {
 	return res
 }
 
-func BenfordsLaw(vals []int) Benford {
+func Law(vals []int) BenfordsLaw {
 	dis := distribution(occurrences(vals))
-	chi := stat.ChiSquare(dis, benfordDistribution)
-	return Benford{Distribution: dis, ChiSquared: chi}
+	chi := stat.ChiSquare(dis, benfordDistribution[:])
+	return BenfordsLaw{Distribution: dis, ChiSquared: chi}
 }

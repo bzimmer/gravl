@@ -1,4 +1,4 @@
-package stats
+package eddington
 
 type Eddington struct {
 	Number     int         `json:"number"`
@@ -7,7 +7,7 @@ type Eddington struct {
 }
 
 // Eddington computes the Eddington number from a series of rides
-func EddingtonNumber(rides []int) Eddington {
+func Number(rides []int) Eddington {
 	n, above := len(rides), 0
 	e := Eddington{
 		Number:     0,
