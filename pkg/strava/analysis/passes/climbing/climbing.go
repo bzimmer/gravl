@@ -2,7 +2,6 @@ package climbing
 
 import (
 	"context"
-	"flag"
 	"sort"
 
 	"github.com/bzimmer/gravl/pkg/strava"
@@ -22,16 +21,12 @@ type Result struct {
 	Number   int                `json:"number"`
 }
 
-type Climbing struct {
-	Units analysis.Units
-}
-
-func (a *Climbing) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var climbings []*Result
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		var thr int
 		var dst, elv float64
-		switch a.Units {
+		switch pass.Units {
 		case analysis.Metric:
 			thr = GoldenRatioMetric
 			dst = act.Distance.Kilometers()
@@ -43,7 +38,7 @@ func (a *Climbing) Run(ctx context.Context, pass *analysis.Pass) (interface{}, e
 		}
 		c := int(elv / dst)
 		if c > thr {
-			climbings = append(climbings, &Result{Activity: analysis.ToActivity(act, a.Units), Number: c})
+			climbings = append(climbings, &Result{Activity: analysis.ToActivity(act, pass.Units), Number: c})
 		}
 		return true
 	}, pass.Activities)
@@ -54,15 +49,9 @@ func (a *Climbing) Run(ctx context.Context, pass *analysis.Pass) (interface{}, e
 }
 
 func New() *analysis.Analyzer {
-	c := &Climbing{
-		Units: analysis.Imperial,
-	}
-	fs := flag.NewFlagSet("climbing", flag.ExitOnError)
-	fs.Var(&analysis.UnitsFlag{Units: &c.Units}, "units", "units to use")
 	return &analysis.Analyzer{
-		Name:  fs.Name(),
-		Doc:   Doc,
-		Flags: fs,
-		Run:   c.Run,
+		Name: "climbing",
+		Doc:  Doc,
+		Run:  Run,
 	}
 }

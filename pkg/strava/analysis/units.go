@@ -7,28 +7,24 @@ import "fmt"
 type Units int
 
 const (
-	Metric   Units = iota // metric
-	Imperial              // imperial
+	Imperial Units = iota // imperial
+	Metric                // metric
 )
 
 type UnitsFlag struct {
-	Units *Units
+	Units Units
 }
 
 func (u *UnitsFlag) String() string {
-	if u.Units == nil {
-		// default to imperial
-		return Imperial.String()
-	}
 	return u.Units.String()
 }
 
 func (u *UnitsFlag) Set(value string) error {
 	switch value {
 	case "imperial":
-		*u.Units = Imperial
+		u.Units = Imperial
 	case "metric":
-		*u.Units = Metric
+		u.Units = Metric
 	default:
 		return fmt.Errorf("unexpected unit '%s'", value)
 	}

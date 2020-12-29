@@ -11,6 +11,7 @@ import (
 )
 
 type Pass struct {
+	Units      Units
 	Activities []*strava.Activity
 }
 
@@ -38,7 +39,7 @@ func (p *Pass) FilterExpr(q string) (*Pass, error) {
 		Int("activities {post}", len(acts)).
 		Dur("elapsed", time.Since(start)).
 		Msg("filter")
-	return &Pass{Activities: acts}, nil
+	return &Pass{Activities: acts, Units: p.Units}, nil
 }
 
 // GroupByExpr groups activities by a key
@@ -61,7 +62,7 @@ func (p *Pass) GroupByExpr(q string) (map[string]*Pass, error) {
 			return nil, err
 		}
 		if _, ok := passes[key]; !ok {
-			passes[key] = new(Pass)
+			passes[key] = &Pass{Units: p.Units}
 		}
 		passes[key].Activities = append(passes[key].Activities, p.Activities[i])
 	}

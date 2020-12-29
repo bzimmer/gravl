@@ -80,7 +80,8 @@ func read(c *cli.Context) (*analysis.Pass, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &analysis.Pass{Activities: acts}, nil
+	uf := c.Generic("units").(*analysis.UnitsFlag)
+	return &analysis.Pass{Activities: acts, Units: uf.Units}, nil
 }
 
 // filter the activities
@@ -111,6 +112,12 @@ var statsCommand = &cli.Command{
 	Category: "route",
 	Usage:    "Compute stats from Strava activities",
 	Flags: []cli.Flag{
+		&cli.GenericFlag{
+			Name:    "units",
+			Aliases: []string{"u"},
+			Usage:   "Units",
+			Value:   &analysis.UnitsFlag{},
+		},
 		&cli.StringFlag{
 			Name:    "filter",
 			Aliases: []string{"f"},

@@ -13,9 +13,8 @@ import (
 const Doc = `clusters returns the activities clustered by (distance, elevation) dimensions`
 
 type KMeans struct {
-	Units     analysis.Units
-	Threshold float64
 	Clusters  int
+	Threshold float64
 }
 
 type Observation struct {
@@ -59,7 +58,7 @@ func (k *KMeans) Run(ctx context.Context, pass *analysis.Pass) (interface{}, err
 	var d clusters.Observations
 	for i := 0; i < len(pass.Activities); i++ {
 		d = append(d, &Observation{
-			Activity: analysis.ToActivity(pass.Activities[i], k.Units),
+			Activity: analysis.ToActivity(pass.Activities[i], pass.Units),
 			Coords:   clusters.Coordinates{dsts[i] / dm, elvs[i] / em},
 		})
 	}
@@ -78,12 +77,10 @@ func (k *KMeans) Run(ctx context.Context, pass *analysis.Pass) (interface{}, err
 
 func New() *analysis.Analyzer {
 	k := &KMeans{
-		Units:     analysis.Imperial,
 		Threshold: 0.01,
 		Clusters:  4,
 	}
 	fs := flag.NewFlagSet("kmeans", flag.ExitOnError)
-	fs.Var(&analysis.UnitsFlag{Units: &k.Units}, "units", "units to use")
 	fs.IntVar(&k.Clusters, "clusters", k.Clusters, "number of clusters")
 	fs.Float64Var(&k.Threshold, "threshold", k.Threshold, `threshold (in percent between 0.0 and 0.1) aborts processing
 if less than n% of data points shifted clusters in the last iteration`)

@@ -2,7 +2,6 @@ package forecast
 
 import (
 	"context"
-	"flag"
 
 	"github.com/bzimmer/gravl/pkg/noaa"
 	"github.com/bzimmer/gravl/pkg/strava/analysis"
@@ -17,7 +16,6 @@ type Result struct {
 }
 
 type Forecast struct {
-	Units  analysis.Units
 	client *noaa.Client
 }
 
@@ -31,7 +29,7 @@ func (a *Forecast) Run(ctx context.Context, pass *analysis.Pass) (interface{}, e
 			return nil, err
 		}
 		res = append(res, &Result{
-			Activity: analysis.ToActivity(act, a.Units),
+			Activity: analysis.ToActivity(act, pass.Units),
 			Forecast: forecast,
 		})
 	}
@@ -43,16 +41,10 @@ func New() *analysis.Analyzer {
 	if err != nil {
 		panic(err)
 	}
-	c := &Forecast{
-		Units:  analysis.Imperial,
-		client: client,
-	}
-	fs := flag.NewFlagSet("forecast", flag.ExitOnError)
-	fs.Var(&analysis.UnitsFlag{Units: &c.Units}, "units", "units to use")
+	f := &Forecast{client: client}
 	return &analysis.Analyzer{
-		Name:  fs.Name(),
-		Doc:   Doc,
-		Flags: fs,
-		Run:   c.Run,
+		Name: "forecast",
+		Doc:  Doc,
+		Run:  f.Run,
 	}
 }

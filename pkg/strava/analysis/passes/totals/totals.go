@@ -2,7 +2,6 @@ package totals
 
 import (
 	"context"
-	"flag"
 	"time"
 
 	"github.com/martinlindhe/unit"
@@ -19,16 +18,12 @@ type Result struct {
 	MovingTime    time.Duration `json:"moving_time"`
 }
 
-type Totals struct {
-	Units analysis.Units
-}
-
-func (s *Totals) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var dst, elv float64
 	var dur time.Duration
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		dur = dur + (time.Duration(act.MovingTime) * time.Second)
-		switch s.Units {
+		switch pass.Units {
 		case analysis.Metric:
 			dst = dst + act.Distance.Kilometers()
 			elv = elv + act.ElevationGain.Meters()
@@ -46,15 +41,9 @@ func (s *Totals) Run(ctx context.Context, pass *analysis.Pass) (interface{}, err
 }
 
 func New() *analysis.Analyzer {
-	s := &Totals{
-		Units: analysis.Imperial,
-	}
-	fs := flag.NewFlagSet("totals", flag.ExitOnError)
-	fs.Var(&analysis.UnitsFlag{Units: &s.Units}, "units", "units to use")
 	return &analysis.Analyzer{
-		Name:  fs.Name(),
-		Doc:   Doc,
-		Flags: fs,
-		Run:   s.Run,
+		Name: "totals",
+		Doc:  Doc,
+		Run:  Run,
 	}
 }
