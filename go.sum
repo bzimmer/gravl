@@ -60,8 +60,6 @@ github.com/antchfx/xpath v1.1.6/go.mod h1:Yee4kTMuNiPYJ7nSNorELQMr1J33uOpXDMByNY
 github.com/antchfx/xpath v1.1.8 h1:PcL6bIX42Px5usSx6xRYw/wjB3wYGkj0MJ9MBzEKVgk=
 github.com/antchfx/xpath v1.1.8/go.mod h1:Yee4kTMuNiPYJ7nSNorELQMr1J33uOpXDMByNYhvtNk=
 github.com/antonmedv/expr v1.8.9/go.mod h1:5qsM3oLGDND7sDmQGDXHkYfkjYMUX14qsgqmHhwGEk8=
-github.com/boltdb/bolt v1.3.1 h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=
-github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 github.com/bzimmer/httpwares v0.0.2 h1:N+zkm9URqOSbGOVj3/RlhmgUm2yV3MeyLgX89ddwHUs=
 github.com/bzimmer/httpwares v0.0.2/go.mod h1:jC141UsrBKzp1zZn34WKiOAtCP9Xm45G1xNSxEMNmG8=
 github.com/cenkalti/backoff/v3 v3.0.0/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4rc0ij+ULvLYs=

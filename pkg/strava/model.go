@@ -417,3 +417,29 @@ type Route struct {
 	Map                 *Map        `json:"map"`
 	Timestamp           int         `json:"timestamp"`
 }
+
+type TrainingDate struct {
+	Year  int `json:"year"`
+	Month int `json:"month"`
+	Day   int `json:"day"`
+}
+
+type FitnessProfile struct {
+	Fitness        float64 `json:"fitness"`
+	Impulse        int     `json:"impulse"`
+	RelativeEffort int     `json:"relative_effort"`
+	Fatigue        float64 `json:"fatigue"`
+	Form           float64 `json:"form"`
+}
+
+type ActivityProfile struct {
+	ID             int64 `json:"id"`
+	Impulse        int   `json:"impulse"`
+	RelativeEffort int   `json:"relative_effort"`
+}
+
+type TrainingLoad struct {
+	TrainingDate   *TrainingDate      `json:"date"`
+	FitnessProfile *FitnessProfile    `json:"fitness_profile"`
+	Activities     []*ActivityProfile `json:"activities"`
+}

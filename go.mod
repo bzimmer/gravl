@@ -6,7 +6,6 @@ require (
 	github.com/StefanSchroeder/Golang-Ellipsoid v0.0.0-20200928074047-3758eb9e9574
 	github.com/adrg/xdg v0.2.3
 	github.com/antonmedv/expr v1.8.9
-	github.com/boltdb/bolt v1.3.1
 	github.com/bzimmer/httpwares v0.0.2
 	github.com/cheekybits/genny v1.0.0
 	github.com/davecgh/go-spew v1.1.1
@@ -32,6 +31,7 @@ require (
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/mod v0.4.0 // indirect
+	golang.org/x/net v0.0.0-20201021035429-f5854403a974
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324

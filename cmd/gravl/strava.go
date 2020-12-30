@@ -36,7 +36,8 @@ var stravaCommand = &cli.Command{
 			strava.WithAutoRefresh(c.Context),
 			strava.WithHTTPTracing(c.Bool("http-tracing")),
 			strava.WithRateLimiter(
-				rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
+				rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)),
+			strava.WithCookieJar())
 		if err != nil {
 			return err
 		}
@@ -117,6 +118,23 @@ var stravaCommand = &cli.Command{
 			}
 			return encoder.Encode(tokens)
 		}
+		if c.Bool("fitness") {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			username, password := c.String("strava.username"), c.String("strava.password")
+			if err := client.Auth.Login(ctx, username, password); err != nil {
+				return err
+			}
+			athlete, err := client.Athlete.Athlete(ctx)
+			if err != nil {
+				return err
+			}
+			foo, err := client.Fitness.TrainingLoad(ctx, athlete.ID)
+			if err != nil {
+				return err
+			}
+			return encoder.Encode(foo)
+		}
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
@@ -181,6 +199,14 @@ var stravaAuthFlags = []cli.Flag{
 		Name:  "strava.refresh-token",
 		Usage: "Refresh token for Strava API",
 	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "strava.username",
+		Usage: "Username for the Strava website",
+	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "strava.password",
+		Usage: "Password for the Strava website",
+	}),
 }
 
 var stravaFlags = merge(
@@ -221,6 +247,12 @@ var stravaFlags = merge(
 			Aliases: []string{"R"},
 			Value:   false,
 			Usage:   "Routes",
+		},
+		&cli.BoolFlag{
+			Name:    "fitness",
+			Aliases: []string{"f"},
+			Value:   false,
+			Usage:   "Fitness profile",
 		},
 		&cli.IntFlag{
 			Name:    "count",
