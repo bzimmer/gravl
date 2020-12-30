@@ -154,11 +154,10 @@ func flags() []cli.Flag {
 			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
 		},
 		&cli.PathFlag{
-			Name:      "bolt",
-			Aliases:   []string{"b"},
+			Name:      "db",
 			Value:     dbpath,
 			TakesFile: true,
-			Usage:     "Path to the Bolt database",
+			Usage:     "Path to the database",
 		},
 	}
 }

@@ -15,6 +15,8 @@ var versionCommand = &cli.Command{
 			"version":    pkg.BuildVersion,
 			"timestamp":  pkg.BuildTime,
 			"user-agent": pkg.UserAgent,
+			"config":     c.String("config"),
+			"db":         c.String("db"),
 		})
 	},
 }

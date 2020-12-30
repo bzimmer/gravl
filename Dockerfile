@@ -17,14 +17,13 @@ COPY go.sum ./
 
 RUN go mod download
 
-COPY main.go ./
 ADD pkg pkg
 ADD cmd cmd
 
-RUN go test ./...
+# RUN go test ./...
 
 ARG VERSION
-RUN go build -o dist/gravl -ldflags "-X github.com/bzimmer/gravl/pkg.BuildVersion=$VERSION -X github.com/bzimmer/gravl/pkg.BuildTime=`date +%Y-%d-%mT%H:%M:%S`" main.go
+RUN go build -o dist/gravl -ldflags "-X github.com/bzimmer/gravl/pkg.BuildVersion=$VERSION -X github.com/bzimmer/gravl/pkg.BuildTime=`date +%Y-%d-%mT%H:%M:%S`" cmd/gravl/*.go
 
 ##############################
 # STEP 2 build a smaller image
@@ -40,6 +39,6 @@ WORKDIR /app
 COPY --from=builder /go/src/github.com/bzimmer/gravl/dist/gravl .
 
 ENV GRAVL_PORT=8080
-ENV GIN_MODE=release
+ENV GIN_MODE=debug
 
 ENTRYPOINT ["/app/gravl", "serve"]

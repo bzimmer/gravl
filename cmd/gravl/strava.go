@@ -41,7 +41,7 @@ var stravaCommand = &cli.Command{
 			return err
 		}
 		if c.Bool("update") {
-			fn := c.Path("bolt")
+			fn := c.Path("db")
 			if fn == "" {
 				return errors.New("nil db path")
 			}
@@ -57,6 +57,7 @@ var stravaCommand = &cli.Command{
 				return err
 			}
 			defer db.Close()
+			log.Info().Str("db", fn).Msg("using database")
 
 			var source store.Source
 			if c.NArg() == 1 {

@@ -94,8 +94,11 @@ tasks:
   docker-run:
     desc: Run the docker container for {{.APP}}
     deps: [docker]
+    vars:
+      CFG:
+        sh: go run cmd/gravl/* version | jq -r ".config"
     cmds:
-      - docker container run -p8080:8080 {{.APP}}
+      - docker container run -p8080:8080 -v {{.CFG}}:/root/.config/com.github.bzimmer.gravl/gravl.yaml:ro {{.APP}}
 
   download:
     desc: Download dependencies

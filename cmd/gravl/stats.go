@@ -62,7 +62,7 @@ func closure(f string) string {
 }
 
 func read(c *cli.Context) (*analysis.Pass, error) {
-	fn := c.Path("bolt")
+	fn := c.Path("db")
 	if fn == "" {
 		return nil, errors.New("nil db path")
 	}
