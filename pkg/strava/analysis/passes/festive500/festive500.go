@@ -18,10 +18,11 @@ var activityTypes = map[string]bool{
 }
 
 type Result struct {
-	Activities []*analysis.Activity `json:"activities"`
-	Distance   float64              `json:"distance"`
-	Complete   float64              `json:"complete"`
-	Success    bool                 `json:"success"`
+	Activities        []*analysis.Activity `json:"activities"`
+	DistanceCompleted float64              `json:"completed"`
+	DistanceRemaining float64              `json:"remaining"`
+	Percent           float64              `json:"percent"`
+	Success           bool                 `json:"success"`
 }
 
 func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
@@ -44,10 +45,11 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		return acts[i].StartDate.Before(acts[j].StartDate)
 	})
 	return &Result{
-		Activities: acts,
-		Distance:   dst,
-		Complete:   (dst / 500.0) * 100,
-		Success:    dst >= 500.0}, nil
+		Activities:        acts,
+		DistanceCompleted: dst,
+		DistanceRemaining: 500.0 - dst,
+		Percent:           (dst / 500.0) * 100,
+		Success:           dst >= 500.0}, nil
 }
 
 func New() *analysis.Analyzer {
