@@ -3,8 +3,8 @@ package eddington
 import (
 	"context"
 
+	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
 const Doc = `eddington returns the Eddington number for all activities

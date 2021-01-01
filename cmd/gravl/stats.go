@@ -8,19 +8,19 @@ import (
 	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/benford"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/climbing"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/cluster"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/eddington"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/festive500"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/forecast"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/hourrecord"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/koms"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/pythagorean"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/benford"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/climbing"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/eddington"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/festive500"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/forecast"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/hourrecord"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/kmeans"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/koms"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/pythagorean"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/splat"
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/totals"
 )
 
 type analyzer struct {
@@ -37,7 +37,7 @@ var analyzers = func() map[string]analyzer {
 		festive500.New():  true,
 		forecast.New():    false,
 		hourrecord.New():  true,
-		kmeans.New():      false,
+		cluster.New():     false,
 		koms.New():        true,
 		pythagorean.New(): true,
 		splat.New():       false,

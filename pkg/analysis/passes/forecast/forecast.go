@@ -3,9 +3,10 @@ package forecast
 import (
 	"context"
 
-	"github.com/bzimmer/gravl/pkg/noaa"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
 	"github.com/twpayne/go-geom"
+
+	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/noaa"
 )
 
 const Doc = ``

@@ -14,9 +14,9 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 	"golang.org/x/time/rate"
 
+	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/store"
 	stravaweb "github.com/bzimmer/gravl/pkg/strava/web"
 )
 

@@ -42,7 +42,7 @@ type Client struct {
 	Activity *ActivityService
 }
 
-func withServices(c *Client) error {
+func withServices(c *Client) error { // nolint:unparam
 	c.Auth = &AuthService{client: c}
 	c.Route = &RouteService{client: c}
 	c.Webhook = &WebhookService{client: c}

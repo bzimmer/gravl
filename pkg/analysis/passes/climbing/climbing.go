@@ -4,8 +4,8 @@ import (
 	"context"
 	"sort"
 
+	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
 const (

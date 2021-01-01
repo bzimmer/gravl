@@ -1,33 +1,33 @@
-package koms
+package benford
 
 import (
 	"context"
 
+	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
 const Doc = ``
 
 func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
-	var efforts []*strava.SegmentEffort
+	var vals []int
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
-		for _, effort := range act.SegmentEfforts {
-			for _, ach := range effort.Achievements {
-				if ach.Rank == 1 && ach.Type == "overall" {
-					efforts = append(efforts, effort)
-					break
-				}
-			}
+		var dst float64
+		switch pass.Units {
+		case analysis.Metric:
+			dst = act.Distance.Kilometers()
+		case analysis.Imperial:
+			dst = act.Distance.Miles()
 		}
+		vals = append(vals, int(dst))
 		return true
 	}, pass.Activities)
-	return efforts, nil
+	return Law(vals), nil
 }
 
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
-		Name: "koms",
+		Name: "benford",
 		Doc:  Doc,
 		Run:  Run,
 	}

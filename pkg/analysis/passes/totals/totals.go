@@ -6,8 +6,8 @@ import (
 
 	"github.com/martinlindhe/unit"
 
+	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
 const Doc = ``

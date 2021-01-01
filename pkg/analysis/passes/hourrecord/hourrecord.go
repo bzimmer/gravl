@@ -3,8 +3,8 @@ package hourrecord
 import (
 	"context"
 
+	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
 const Doc = ``

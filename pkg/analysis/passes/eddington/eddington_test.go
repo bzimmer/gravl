@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/eddington"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/eddington"
 )
 
 func TestEddington(t *testing.T) {

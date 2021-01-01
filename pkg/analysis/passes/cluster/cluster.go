@@ -1,4 +1,4 @@
-package kmeans
+package cluster
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/muesli/clusters"
 	"github.com/muesli/kmeans"
 
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
+	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
 const Doc = `clusters returns the activities clustered by (distance, elevation) dimensions`
