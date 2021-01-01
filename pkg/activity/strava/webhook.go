@@ -14,8 +14,8 @@ import (
 // WebhookService is the API for webhook endpoints
 type WebhookService service
 
-// SubscriptionAcknowledgement describes the details of webhook subscription
-type SubscriptionAcknowledgement struct {
+// Acknowledgement is the ack from Strava a webhook subscription has been received
+type Acknowledgement struct {
 	ID int `json:"id"`
 }
 
@@ -40,7 +40,7 @@ type WebhookMessage struct {
 	Updates        map[string]string `json:"updates"`
 }
 
-// WebhookSubscriber .
+// WebhookSubscriber provides callbacks on webhook messages
 type WebhookSubscriber interface {
 
 	// SubscriptionRequest receives a callback during the subscription request flow
@@ -51,14 +51,14 @@ type WebhookSubscriber interface {
 }
 
 // Subscribe to a webhook
-func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken string) (*SubscriptionAcknowledgement, error) {
+func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken string) (*Acknowledgement, error) {
 	uri := "push_subscriptions"
 	req, err := s.client.newWebhookRequest(ctx, http.MethodPost, uri,
 		map[string]string{"callback_url": callbackURL, "verify_token": verifyToken})
 	if err != nil {
 		return nil, err
 	}
-	ack := &SubscriptionAcknowledgement{}
+	ack := &Acknowledgement{}
 	err = s.client.do(req, ack)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken
 // Unsubscribe to a webhook
 func (s *WebhookService) Unsubscribe(ctx context.Context, subscriptionID int) error {
 	uri := fmt.Sprintf("push_subscriptions/%d", subscriptionID)
-	req, err := s.client.newWebhookRequest(ctx, http.MethodDelete, uri, make(map[string]string))
+	req, err := s.client.newWebhookRequest(ctx, http.MethodDelete, uri, nil)
 	if err != nil {
 		return err
 	}
