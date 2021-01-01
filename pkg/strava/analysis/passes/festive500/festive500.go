@@ -44,10 +44,14 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	sort.Slice(acts, func(i, j int) bool {
 		return acts[i].StartDate.Before(acts[j].StartDate)
 	})
+	remaining := 500.0 - dst
+	if remaining < 0 {
+		remaining = 0
+	}
 	return &Result{
 		Activities:        acts,
 		DistanceCompleted: dst,
-		DistanceRemaining: 500.0 - dst,
+		DistanceRemaining: remaining,
 		Percent:           (dst / 500.0) * 100,
 		Success:           dst >= 500.0}, nil
 }
