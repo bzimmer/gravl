@@ -33,11 +33,6 @@ var Endpoint = oauth2.Endpoint{
 	AuthStyle: oauth2.AuthStyleAutoDetect,
 }
 
-type UsernamePassword struct {
-	Username string
-	Password string
-}
-
 // Client client
 type Client struct {
 	client *http.Client
