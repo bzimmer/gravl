@@ -108,7 +108,9 @@ func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*
 	if _, err = io.Copy(fw, file.Reader); err != nil {
 		return nil, err
 	}
-	w.Close()
+	if err = w.Close(); err != nil {
+		return nil, err
+	}
 
 	req, err := s.client.newAPIRequest(ctx, http.MethodPost, uri, nil, &b)
 	if err != nil {
