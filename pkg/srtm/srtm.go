@@ -20,8 +20,9 @@ type Client struct {
 	Elevation *ElevationService
 }
 
-func withServices(c *Client) {
+func withServices(c *Client) error {
 	c.Elevation = &ElevationService{client: c}
+	return nil
 }
 
 // WithStorage sets the cache implementation for data files

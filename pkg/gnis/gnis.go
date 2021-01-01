@@ -17,6 +17,7 @@ type Client struct {
 	GeoNames *GeoNamesService
 }
 
-func withServices(c *Client) {
+func withServices(c *Client) error {
 	c.GeoNames = &GeoNamesService{client: c}
+	return nil
 }

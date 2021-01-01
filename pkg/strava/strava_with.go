@@ -37,7 +37,9 @@ func NewClient(opts ...Option) (*Client, error) {
 			return nil, err
 		}
 	}
-	withServices(c)
+	if err := withServices(c); err != nil {
+		return nil, err
+	}
 	return c, nil
 }
 

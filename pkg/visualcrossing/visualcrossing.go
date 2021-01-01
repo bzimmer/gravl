@@ -30,8 +30,9 @@ type Client struct {
 	Forecast *ForecastService
 }
 
-func withServices(c *Client) {
+func withServices(c *Client) error {
 	c.Forecast = &ForecastService{client: c}
+	return nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {

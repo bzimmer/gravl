@@ -18,7 +18,8 @@ type Client struct {
 	Regions *RegionsService
 }
 
-func withServices(c *Client) {
+func withServices(c *Client) error {
 	c.Reports = &ReportsService{client: c}
 	c.Regions = &RegionsService{client: c}
+	return nil
 }

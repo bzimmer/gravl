@@ -23,9 +23,10 @@ type Client struct {
 	GridPoints *GridPointsService
 }
 
-func withServices(c *Client) {
+func withServices(c *Client) error {
 	c.Points = &PointsService{client: c}
 	c.GridPoints = &GridPointsService{client: c}
+	return nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) {

@@ -17,6 +17,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/common"
 	"github.com/bzimmer/gravl/pkg/strava"
 	"github.com/bzimmer/gravl/pkg/strava/store"
+	stravaweb "github.com/bzimmer/gravl/pkg/strava/web"
 )
 
 var stravaCommand = &cli.Command{
@@ -36,8 +37,7 @@ var stravaCommand = &cli.Command{
 			strava.WithAutoRefresh(c.Context),
 			strava.WithHTTPTracing(c.Bool("http-tracing")),
 			strava.WithRateLimiter(
-				rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)),
-			strava.WithCookieJar())
+				rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
 		if err != nil {
 			return err
 		}
@@ -119,21 +119,25 @@ var stravaCommand = &cli.Command{
 			return encoder.Encode(tokens)
 		}
 		if c.Bool("fitness") {
+			webclient, err := stravaweb.NewClient(stravaweb.WithCookieJar())
+			if err != nil {
+				return err
+			}
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
 			username, password := c.String("strava.username"), c.String("strava.password")
-			if err := client.Auth.Login(ctx, username, password); err != nil {
+			if err = webclient.Auth.Login(ctx, username, password); err != nil {
 				return err
 			}
 			athlete, err := client.Athlete.Athlete(ctx)
 			if err != nil {
 				return err
 			}
-			foo, err := client.Fitness.TrainingLoad(ctx, athlete.ID)
+			tl, err := webclient.Fitness.TrainingLoad(ctx, athlete.ID)
 			if err != nil {
 				return err
 			}
-			return encoder.Encode(foo)
+			return encoder.Encode(tl)
 		}
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))

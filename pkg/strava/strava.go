@@ -10,20 +10,16 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
-	"strings"
 
-	"golang.org/x/net/publicsuffix"
 	"golang.org/x/oauth2"
 
 	"github.com/bzimmer/gravl/pkg"
 )
 
 const (
-	baseURL    = "https://www.strava.com/api/v3"
-	baseWebURL = "https://www.strava.com/"
-	PageSize   = 100
+	baseURL  = "https://www.strava.com/api/v3"
+	PageSize = 100
 )
 
 // Endpoint is Strava's OAuth 2.0 endpoint
@@ -41,51 +37,18 @@ type Client struct {
 
 	Auth     *AuthService
 	Route    *RouteService
-	Fitness  *FitnessService
 	Webhook  *WebhookService
 	Athlete  *AthleteService
 	Activity *ActivityService
 }
 
-func withServices(c *Client) {
+func withServices(c *Client) error {
 	c.Auth = &AuthService{client: c}
 	c.Route = &RouteService{client: c}
-	c.Fitness = &FitnessService{client: c}
 	c.Webhook = &WebhookService{client: c}
 	c.Athlete = &AthleteService{client: c}
 	c.Activity = &ActivityService{client: c}
-}
-
-func WithCookieJar() Option {
-	return func(c *Client) error {
-		jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
-		if err != nil {
-			return err
-		}
-		c.client.Jar = jar
-		return nil
-	}
-}
-
-func (c *Client) newWebRequest(ctx context.Context, method, uri string, values url.Values) (*http.Request, error) {
-	u, err := url.Parse(fmt.Sprintf("%s/%s", baseWebURL, uri))
-	if err != nil {
-		return nil, err
-	}
-	var b io.Reader
-	if values != nil {
-		b = strings.NewReader(values.Encode())
-	}
-	req, err := http.NewRequestWithContext(ctx, method, u.String(), b)
-	if err != nil {
-		return nil, err
-	}
-	// req.Header.Set("User-Agent", pkg.UserAgent)
-	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	if values != nil {
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	}
-	return req, nil
+	return nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) { // nolint:unparam
