@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
 )
 
 type foo struct {

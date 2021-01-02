@@ -3,9 +3,10 @@ package analysis_test
 import (
 	"testing"
 
-	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/bzimmer/gravl/pkg/strava/analysis"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/strava"
 )
 
 func TestFilter(t *testing.T) {

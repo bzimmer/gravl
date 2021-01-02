@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/gravl/pkg/strava/analysis/passes/benford"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/benford"
 )
 
 func TestBenfordsLaw(t *testing.T) {
