@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog/log"
 	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
@@ -92,19 +95,29 @@ func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
 		return pass, nil
 	}
 	q := closure(c.String("filter"))
-	return pass.FilterExpr(q)
+	return pass.Filter(q)
 }
 
-// groupby groups activities by a key
-// currently only supports a single key for grouping
-func groupby(c *cli.Context, pass *analysis.Pass) (map[string]*analysis.Pass, error) {
+// groupby groups activities by expression values
+func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 	if !c.IsSet("groupby") {
-		return map[string]*analysis.Pass{
-			c.App.Name: pass,
+		return &analysis.Group{
+			Key:  c.App.Name,
+			Pass: pass,
 		}, nil
 	}
-	q := closure(c.String("groupby"))
-	return pass.GroupByExpr(q)
+	var exprs []string
+	for _, g := range c.StringSlice("groupby") {
+		exprs = append(exprs, closure(g))
+	}
+	g, err := pass.GroupBy(exprs...)
+	if err != nil {
+		return nil, err
+	}
+	if g.Key == "" {
+		g.Key = c.App.Name
+	}
+	return g, nil
 }
 
 var statsCommand = &cli.Command{
@@ -123,10 +136,10 @@ var statsCommand = &cli.Command{
 			Aliases: []string{"f"},
 			Usage:   "Expression for filtering activities",
 		},
-		&cli.StringFlag{
+		&cli.StringSliceFlag{
 			Name:    "groupby",
 			Aliases: []string{"g"},
-			Usage:   "Expression for grouping activities",
+			Usage:   "Expressions for grouping activities",
 		},
 		&cli.StringSliceFlag{
 			Name:    "analyzer",
@@ -156,10 +169,6 @@ var statsCommand = &cli.Command{
 		if len(as) == 0 {
 			return errors.New("no analyzers found")
 		}
-		any := analysis.Analysis{
-			Args:      c.Args().Tail(),
-			Analyzers: as,
-		}
 		pass, err := read(c)
 		if err != nil {
 			return err
@@ -168,18 +177,75 @@ var statsCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		passes, err := groupby(c, pass)
+		group, err := groupby(c, pass)
 		if err != nil {
 			return err
 		}
-		results := make(map[string]interface{})
-		for key, pass := range passes {
-			res, err := any.Run(c.Context, pass)
-			if err != nil {
-				return err
-			}
-			results[key] = res
+		w := &Analyzer{
+			Any: analysis.Analysis{
+				Args:      c.Args().Tail(),
+				Analyzers: as,
+			}}
+		if err = group.Walk(c.Context, w.Run); err != nil {
+			return err
 		}
-		return encoder.Encode(results)
+		return encoder.Encode(w.Collect()[c.App.Name])
 	},
+}
+
+type Results struct {
+	Key     string
+	Results interface{}
+}
+
+type Analyzer struct {
+	Any     analysis.Analysis
+	Results []*Results
+}
+
+func (a *Analyzer) Run(ctx context.Context, g *analysis.Group) error {
+	if len(g.Groups) > 0 {
+		a.Results = append(a.Results, &Results{Key: g.Key})
+		return nil
+	}
+	res, err := a.Any.Run(ctx, g.Pass)
+	if err != nil {
+		return err
+	}
+	a.Results = append(a.Results, &Results{Key: g.Key, Results: res})
+	return nil
+}
+
+// there's a bug when more than two levels of grouping
+// the stack popping needs to know how many levels to pop
+const debug = false
+
+func (a *Analyzer) Collect() map[string]interface{} {
+	if debug {
+		spew.Dump(a.Results)
+	}
+	res := []map[string]interface{}{make(map[string]interface{})}
+	for i := range a.Results {
+		x := a.Results[i]
+		if debug {
+			fmt.Printf("> %s\n", x.Key)
+		}
+		if x.Results == nil {
+			if i-1 > 0 && a.Results[i-1].Results != nil {
+				if debug {
+					fmt.Printf("+ %s n: %d\n", x.Key, len(res))
+				}
+				res = res[:len(res)-1]
+				if debug {
+					fmt.Printf("- %s n: %d\n", x.Key, len(res))
+				}
+			}
+			m := make(map[string]interface{})
+			res[len(res)-1][x.Key] = m
+			res = append(res, m)
+			continue
+		}
+		res[len(res)-1][x.Key] = x.Results
+	}
+	return res[0]
 }
