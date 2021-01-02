@@ -30,6 +30,9 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	sort.Slice(res, func(i, j int) bool {
 		return res[i].Number > res[j].Number
 	})
+	if len(res) == 0 {
+		return nil, nil
+	}
 	return res[0], nil
 }
 

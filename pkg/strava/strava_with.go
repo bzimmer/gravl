@@ -91,7 +91,7 @@ func WithAutoRefresh(ctx context.Context) Option {
 // WithRateLimiter rate limits the client's api calls
 func WithRateLimiter(r *rate.Limiter) Option {
 	return func(c *Client) error {
-		if c == nil {
+		if r == nil {
 			return errors.New("nil limiter")
 		}
 		c.client.Transport = &httpwares.RateLimitTransport{
