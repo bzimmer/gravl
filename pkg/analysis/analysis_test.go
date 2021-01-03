@@ -50,17 +50,16 @@ func TestAnalyze(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	res, err := y.Run(ctx, p)
+	res, err := y.RunPass(ctx, p)
 	a.NoError(err)
 	a.NotNil(res)
 	u := res.(map[string]interface{})
 	a.Equal(3, u[x.Name])
 
-	y = analysis.Analysis{
-		Args:      []string{"foo", "--double"},
-		Analyzers: []*analysis.Analyzer{x},
-	}
-	res, err = y.Run(ctx, p)
+	any, err := analysis.NewAnalysis([]*analysis.Analyzer{x}, []string{"foo", "--double"})
+	a.NoError(err)
+	a.NotNil(res)
+	res, err = any.RunPass(ctx, p)
 	a.NoError(err)
 	a.NotNil(res)
 	u = res.(map[string]interface{})

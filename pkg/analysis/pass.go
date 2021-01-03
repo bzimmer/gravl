@@ -3,7 +3,6 @@ package analysis
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/antonmedv/expr"
 	"github.com/bzimmer/gravl/pkg/strava"
@@ -16,11 +15,16 @@ type Pass struct {
 	Activities []*strava.Activity
 }
 
+// Group represents a single group in a group tree
 type Group struct {
-	Key    string
-	Pass   *Pass
+	// Key is the result of apply an expression against an Activity
+	Key string
+	// Pass holds the Activities grouped by Key
+	Pass *Pass
+	// Groups holds child Groups if more than one level of grouping exists
 	Groups []*Group
-	Level  int
+	// Level of the group
+	Level int
 }
 
 func (g *Group) Walk(ctx context.Context, f func(context.Context, *Group) error) error {
@@ -39,12 +43,7 @@ func (g *Group) Walk(ctx context.Context, f func(context.Context, *Group) error)
 // For example:
 //  {.Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]}
 func (p *Pass) Filter(q string) (*Pass, error) {
-	n := len(p.Activities)
-	start := time.Now()
 	code := fmt.Sprintf("filter(Activities, %s)", q)
-	log.Debug().
-		Str("code", code).
-		Msg("filter")
 	out, err := expr.Eval(code, p)
 	if err != nil {
 		return nil, err
@@ -54,21 +53,11 @@ func (p *Pass) Filter(q string) (*Pass, error) {
 	for i := range res {
 		acts[i] = res[i].(*strava.Activity)
 	}
-	log.Debug().
-		Int("activities {pre}", n).
-		Int("activities {post}", len(acts)).
-		Dur("elapsed", time.Since(start)).
-		Msg("filter")
 	return &Pass{Activities: acts, Units: p.Units}, nil
 }
 
 // GroupBy groups activities by a key
 func (p *Pass) GroupBy(exprs ...string) (*Group, error) {
-	defer func(start time.Time) {
-		log.Debug().
-			Dur("elapsed", time.Since(start)).
-			Msg("groupby")
-	}(time.Now())
 	g := &Group{Pass: p}
 	if err := groupby(g, exprs...); err != nil {
 		return nil, err

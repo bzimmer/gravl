@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"errors"
-	"math"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -176,63 +174,14 @@ var statsCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		w := &Analyzer{
-			Any: analysis.Analysis{
-				Args:      c.Args().Tail(),
-				Analyzers: as,
-			}}
-		if err = group.Walk(c.Context, w.Run); err != nil {
+		any, err := analysis.NewAnalysis(as, c.Args().Tail())
+		if err != nil {
 			return err
 		}
-		return encoder.Encode(w.Collect())
+		results, err := any.RunGroup(c.Context, group)
+		if err != nil {
+			return err
+		}
+		return encoder.Encode(results)
 	},
-}
-
-type Results struct {
-	Key     string
-	Level   int
-	Results interface{}
-}
-
-type Analyzer struct {
-	Any     analysis.Analysis
-	Results []*Results
-}
-
-func (a *Analyzer) Run(ctx context.Context, g *analysis.Group) error {
-	if len(g.Groups) > 0 {
-		// not a leaf node so skip evaluation
-		a.Results = append(a.Results, &Results{Key: g.Key, Level: g.Level})
-		return nil
-	}
-	res, err := a.Any.Run(ctx, g.Pass)
-	if err != nil {
-		return err
-	}
-	a.Results = append(a.Results, &Results{Key: g.Key, Results: res, Level: g.Level})
-	return nil
-}
-
-func (a *Analyzer) Collect() map[string]interface{} {
-	var res []map[string]interface{}
-	for _, x := range a.Results {
-		for len(res) > x.Level {
-			res = res[:len(res)-1]
-		}
-		if len(res) == x.Level {
-			m := make(map[string]interface{})
-			if len(res) > 0 {
-				res[len(res)-1][x.Key] = m
-			}
-			res = append(res, m)
-		}
-		if x.Results != nil {
-			n := int(math.Max(float64(x.Level-1), 0))
-			res[n][x.Key] = x.Results
-		}
-	}
-	if len(res) == 0 {
-		return nil
-	}
-	return res[0]
 }
