@@ -13,9 +13,8 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/urfave/cli/v2"
-
 	"github.com/fatih/structtag"
+	"github.com/urfave/cli/v2"
 )
 
 type Field struct {
@@ -108,7 +107,7 @@ func (u *Units) visit(n ast.Node) bool {
 					if err.Error() == "tag does not exist" {
 						continue
 					}
-					fmt.Println(err)
+					fmt.Fprintln(os.Stderr, err)
 					return false
 				}
 				typ := parseType(field.Type)
@@ -147,18 +146,43 @@ func visitUnits(f *ast.File) *Units {
 	return u
 }
 
+func collect(paths ...string) ([]string, error) {
+	var files []string
+	for _, path := range paths {
+		err := filepath.Walk(path, func(name string, info os.FileInfo, err error) error {
+			if info.IsDir() {
+				return nil
+			}
+			if strings.HasSuffix(name, ".go") {
+				files = append(files, name)
+			}
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return files, nil
+}
+
 func main() {
 	app := &cli.App{
 		Name:     "genunits",
 		HelpName: "genunits",
 		Action: func(c *cli.Context) error {
-			args := c.Args().Slice()
-			for _, arg := range args {
-				f, err := parseFile(arg)
+			paths, err := collect(c.Args().Slice()...)
+			if err != nil {
+				return err
+			}
+			for _, path := range paths {
+				f, err := parseFile(path)
 				if err != nil {
 					return err
 				}
 				u := visitUnits(f)
+				if len(u.Structs) == 0 {
+					continue
+				}
 				j := json.NewEncoder(c.App.Writer)
 				if err := j.Encode(u); err != nil {
 					return err
@@ -169,7 +193,7 @@ func main() {
 	}
 	ctx := context.Background()
 	if err := app.RunContext(ctx, os.Args); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	os.Exit(0)

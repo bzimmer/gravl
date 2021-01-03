@@ -124,3 +124,8 @@ tasks:
 
   tools-install:
     deps: [install-tools]
+
+  units:
+    desc: Display all struct fields with units
+    cmds:
+      - go run {{.CWD}}/cmd/genunits/* {{.CWD}}/pkg | jq .
