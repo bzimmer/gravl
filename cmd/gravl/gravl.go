@@ -11,12 +11,13 @@ import (
 	"time"
 
 	"github.com/adrg/xdg"
-	"github.com/bzimmer/gravl/pkg"
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
 var (

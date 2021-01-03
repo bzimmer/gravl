@@ -19,6 +19,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/koms"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/pythagorean"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
 	"github.com/bzimmer/gravl/pkg/strava"
 )
@@ -33,14 +34,15 @@ var analyzers = func() map[string]analyzer {
 	for an, standard := range map[*analysis.Analyzer]bool{
 		benford.New():     false,
 		climbing.New():    true,
+		cluster.New():     false,
 		eddington.New():   true,
 		festive500.New():  true,
 		forecast.New():    false,
 		hourrecord.New():  true,
-		cluster.New():     false,
 		koms.New():        true,
 		pythagorean.New(): true,
 		splat.New():       false,
+		staticmap.New():   false,
 		totals.New():      true,
 	} {
 		res[an.Name] = analyzer{analyzer: an, standard: standard}

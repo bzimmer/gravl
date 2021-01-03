@@ -11,6 +11,8 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.10.0
 	github.com/fatih/structtag v1.2.0
+	github.com/flopp/go-staticmaps v0.0.0-20201128124446-32fe2092006f
+	github.com/fogleman/gg v1.3.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang/geo v0.0.0-20200730024412-e86565bf3f35
