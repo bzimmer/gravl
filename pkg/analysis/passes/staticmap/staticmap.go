@@ -2,63 +2,144 @@ package staticmap
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"image/color"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/adrg/xdg"
 	sm "github.com/flopp/go-staticmaps"
 	"github.com/fogleman/gg"
 	"github.com/golang/geo/s2"
 	"github.com/rs/zerolog/log"
+	"github.com/twpayne/go-geom"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/strava"
 )
 
 const Doc = `staticmap generates a staticmap for every activity`
 
-func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
-	paths := make(map[int64]string)
-	output := filepath.Join(xdg.CacheHome, pkg.PackageName, "passes", "staticmap")
-	if err := os.MkdirAll(output, os.ModeDir|0700); err != nil {
+type smap struct {
+	output  string
+	workers int
+}
+
+type activity struct {
+	a *strava.Activity
+	s *geom.LineString
+	p string
+}
+
+func (s *smap) ilinestrings(ctx context.Context, g *errgroup.Group, acts []*strava.Activity) <-chan *activity {
+	activities := make(chan *activity)
+	g.Go(func() error {
+		defer close(activities)
+		for i := range acts {
+			act := acts[i]
+			if act.Map == nil {
+				continue
+			}
+			trk, err := act.Map.LineString()
+			if err != nil {
+				log.Error().Str("name", act.Name).Err(err).Msg("linestring")
+				continue
+			}
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case activities <- &activity{a: act, s: trk}:
+			}
+		}
+		return nil
+	})
+	return activities
+}
+
+func (s *smap) ipaths(ctx context.Context, g *errgroup.Group, activities <-chan *activity) <-chan *activity {
+	var wg sync.WaitGroup
+	paths := make(chan *activity)
+
+	defer func() {
+		go func() {
+			wg.Wait()
+			close(paths)
+		}()
+	}()
+
+	for i := 0; i < s.workers; i++ {
+		g.Go(func() error {
+			wg.Add(1)
+			defer func() { wg.Done() }()
+			for act := range activities {
+				log.Info().Str("name", act.a.Name).Msg("creating staticmap")
+				ictx := sm.NewContext()
+				ictx.SetSize(1280, 800)
+				for _, coord := range act.s.Coords() {
+					pt := s2.LatLngFromDegrees(coord.Y(), coord.X())
+					ictx.AddMarker(sm.NewMarker(pt, color.RGBA{0xff, 0, 0, 0xff}, 1.0))
+				}
+				img, err := ictx.Render()
+				if err != nil {
+					return err
+				}
+				act.p = filepath.Join(s.output, fmt.Sprintf("%d.png", act.a.ID))
+				if err := gg.SavePNG(act.p, img); err != nil {
+					return err
+				}
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case paths <- act:
+				}
+			}
+			return nil
+		})
+	}
+	return paths
+}
+
+func (s *smap) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+	s.output = filepath.Join(xdg.CacheHome, pkg.PackageName, "passes", "staticmap")
+	if err := os.MkdirAll(s.output, os.ModeDir|0700); err != nil {
 		return nil, err
 	}
-	for i := range pass.Activities {
-		ctx := sm.NewContext()
-		ctx.SetSize(1280, 800)
-		act := pass.Activities[i]
-		if act.Map == nil {
-			continue
+
+	g, ctx := errgroup.WithContext(ctx)
+	paths := s.ipaths(ctx, g, s.ilinestrings(ctx, g, pass.Activities))
+
+	res := make(map[int64]string)
+	g.Go(func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case act := <-paths:
+				if act == nil {
+					return nil
+				}
+				res[act.a.ID] = act.p
+			}
 		}
-		trk, err := act.Map.LineString()
-		if err != nil {
-			return nil, err
-		}
-		log.Info().Str("name", act.Name).Msg("creating staticmap")
-		for _, coord := range trk.Coords() {
-			pt := s2.LatLngFromDegrees(coord.Y(), coord.X())
-			ctx.AddMarker(sm.NewMarker(pt, color.RGBA{0xff, 0, 0, 0xff}, 1.0))
-		}
-		img, err := ctx.Render()
-		if err != nil {
-			return nil, err
-		}
-		path := filepath.Join(output, fmt.Sprintf("%d.png", act.ID))
-		if err := gg.SavePNG(path, img); err != nil {
-			return nil, err
-		}
-		paths[act.ID] = path
-	}
-	return paths, nil
+	})
+	return res, g.Wait()
 }
 
 func New() *analysis.Analyzer {
 	// @todo(bzimmer) add flags
+	s := &smap{
+		workers: 15,
+	}
+	fs := flag.NewFlagSet("staticmap", flag.ExitOnError)
+	fs.IntVar(&s.workers, "workers", s.workers, "number of workers")
 	return &analysis.Analyzer{
-		Name: "staticmap",
-		Doc:  Doc,
-		Run:  Run,
+		Name:  fs.Name(),
+		Doc:   Doc,
+		Flags: fs,
+		Run:   s.Run,
 	}
 }

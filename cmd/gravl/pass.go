@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -176,11 +177,17 @@ var passCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		any, err := analysis.NewAnalysis(as, c.Args().Tail())
+		any, err := analysis.NewAnalysis(as, c.Args().Slice())
 		if err != nil {
 			return err
 		}
-		results, err := any.RunGroup(c.Context, group)
+		ctx := c.Context
+		if c.IsSet("timeout") {
+			x, cancel := context.WithTimeout(ctx, c.Duration("timeout"))
+			defer cancel()
+			ctx = x
+		}
+		results, err := any.RunGroup(ctx, group)
 		if err != nil {
 			return err
 		}
