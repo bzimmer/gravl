@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
+	"math"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog/log"
 	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
@@ -102,7 +101,6 @@ func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
 func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 	if !c.IsSet("groupby") {
 		return &analysis.Group{
-			Key:  c.App.Name,
 			Pass: pass,
 		}, nil
 	}
@@ -113,9 +111,6 @@ func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 	g, err := pass.GroupBy(exprs...)
 	if err != nil {
 		return nil, err
-	}
-	if g.Key == "" {
-		g.Key = c.App.Name
 	}
 	return g, nil
 }
@@ -189,12 +184,13 @@ var statsCommand = &cli.Command{
 		if err = group.Walk(c.Context, w.Run); err != nil {
 			return err
 		}
-		return encoder.Encode(w.Collect()[c.App.Name])
+		return encoder.Encode(w.Collect())
 	},
 }
 
 type Results struct {
 	Key     string
+	Level   int
 	Results interface{}
 }
 
@@ -205,47 +201,38 @@ type Analyzer struct {
 
 func (a *Analyzer) Run(ctx context.Context, g *analysis.Group) error {
 	if len(g.Groups) > 0 {
-		a.Results = append(a.Results, &Results{Key: g.Key})
+		// not a leaf node so skip evaluation
+		a.Results = append(a.Results, &Results{Key: g.Key, Level: g.Level})
 		return nil
 	}
 	res, err := a.Any.Run(ctx, g.Pass)
 	if err != nil {
 		return err
 	}
-	a.Results = append(a.Results, &Results{Key: g.Key, Results: res})
+	a.Results = append(a.Results, &Results{Key: g.Key, Results: res, Level: g.Level})
 	return nil
 }
 
-// there's a bug when more than two levels of grouping
-// the stack popping needs to know how many levels to pop
-const debug = false
-
 func (a *Analyzer) Collect() map[string]interface{} {
-	if debug {
-		spew.Dump(a.Results)
-	}
-	res := []map[string]interface{}{make(map[string]interface{})}
-	for i := range a.Results {
-		x := a.Results[i]
-		if debug {
-			fmt.Printf("> %s\n", x.Key)
+	var res []map[string]interface{}
+	for _, x := range a.Results {
+		for len(res) > x.Level {
+			res = res[:len(res)-1]
 		}
-		if x.Results == nil {
-			if i-1 > 0 && a.Results[i-1].Results != nil {
-				if debug {
-					fmt.Printf("+ %s n: %d\n", x.Key, len(res))
-				}
-				res = res[:len(res)-1]
-				if debug {
-					fmt.Printf("- %s n: %d\n", x.Key, len(res))
-				}
-			}
+		if len(res) == x.Level {
 			m := make(map[string]interface{})
-			res[len(res)-1][x.Key] = m
+			if len(res) > 0 {
+				res[len(res)-1][x.Key] = m
+			}
 			res = append(res, m)
-			continue
 		}
-		res[len(res)-1][x.Key] = x.Results
+		if x.Results != nil {
+			n := int(math.Max(float64(x.Level-1), 0))
+			res[n][x.Key] = x.Results
+		}
+	}
+	if len(res) == 0 {
+		return nil
 	}
 	return res[0]
 }

@@ -20,6 +20,7 @@ type Group struct {
 	Key    string
 	Pass   *Pass
 	Groups []*Group
+	Level  int
 }
 
 func (g *Group) Walk(ctx context.Context, f func(context.Context, *Group) error) error {
@@ -101,7 +102,7 @@ func groupby(group *Group, exprs ...string) error {
 	}
 	tail := exprs[1:]
 	for key, pass := range passes {
-		parent := &Group{Key: key, Pass: pass}
+		parent := &Group{Key: key, Pass: pass, Level: group.Level + 1}
 		group.Groups = append(group.Groups, parent)
 		if len(tail) > 0 {
 			if err = groupby(parent, tail...); err != nil {

@@ -18,6 +18,7 @@ type Centuries struct {
 }
 
 type Result struct {
+	Count         int           `json:"count"`
 	Distance      unit.Length   `json:"distance"`
 	ElevationGain unit.Length   `json:"elevation_gain"`
 	MovingTime    time.Duration `json:"moving_time"`
@@ -47,6 +48,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		return true
 	}, pass.Activities)
 	return &Result{
+		Count:         len(pass.Activities),
 		Distance:      unit.Length(dst),
 		ElevationGain: unit.Length(elv),
 		MovingTime:    dur / (time.Second * 60 * 60),
