@@ -100,7 +100,7 @@ func (a *Analysis) RunPass(ctx context.Context, pass *Pass) (interface{}, error)
 }
 
 func (a *Analysis) RunGroup(ctx context.Context, group *Group) (map[string]interface{}, error) {
-	if err := group.Walk(ctx, a.runGroup); err != nil {
+	if err := group.walk(ctx, a.runGroup); err != nil {
 		return nil, err
 	}
 	return a.collect(), nil

@@ -5,13 +5,16 @@ import (
 	"fmt"
 
 	"github.com/antonmedv/expr"
-	"github.com/bzimmer/gravl/pkg/strava"
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/cast"
+
+	"github.com/bzimmer/gravl/pkg/strava"
 )
 
+// Pass represents a collection of Activities for analysis
 type Pass struct {
-	Units      Units
+	// Units of the resulting Activities
+	Units Units
+	// Activities on which analysis will occur
 	Activities []*strava.Activity
 }
 
@@ -23,16 +26,16 @@ type Group struct {
 	Pass *Pass
 	// Groups holds child Groups if more than one level of grouping exists
 	Groups []*Group
-	// Level of the group
+	// Level of the group in the tree
 	Level int
 }
 
-func (g *Group) Walk(ctx context.Context, f func(context.Context, *Group) error) error {
+func (g *Group) walk(ctx context.Context, f func(context.Context, *Group) error) error {
 	if err := f(ctx, g); err != nil {
 		return err
 	}
 	for i := range g.Groups {
-		if err := g.Groups[i].Walk(ctx, f); err != nil {
+		if err := g.Groups[i].walk(ctx, f); err != nil {
 			return err
 		}
 	}
@@ -69,13 +72,14 @@ func groupby(group *Group, exprs ...string) error {
 	if len(exprs) == 0 {
 		return nil
 	}
+	// map over the activities to generate a group key
 	q := exprs[0]
 	code := fmt.Sprintf("map(Activities, %s)", q)
-	log.Debug().Str("code", code).Msg("groupby")
 	out, err := expr.Eval(code, group.Pass)
 	if err != nil {
 		return err
 	}
+	// group all activities into a Group based on their group key
 	res := out.([]interface{})
 	passes := make(map[string]*Pass, len(res))
 	for i, k := range res {
@@ -89,6 +93,7 @@ func groupby(group *Group, exprs ...string) error {
 		}
 		passes[key].Activities = append(passes[key].Activities, group.Pass.Activities[i])
 	}
+	// recurse if more grouping operators exist
 	tail := exprs[1:]
 	for key, pass := range passes {
 		parent := &Group{Key: key, Pass: pass, Level: group.Level + 1}

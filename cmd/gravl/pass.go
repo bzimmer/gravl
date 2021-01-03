@@ -113,10 +113,10 @@ func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 	return g, nil
 }
 
-var statsCommand = &cli.Command{
-	Name:     "stats",
-	Category: "route",
-	Usage:    "Compute stats from Strava activities",
+var passCommand = &cli.Command{
+	Name:     "pass",
+	Category: "analysis",
+	Usage:    "Produce statistics and other interesting artifacts from Strava activities",
 	Flags: []cli.Flag{
 		&cli.GenericFlag{
 			Name:    "units",
