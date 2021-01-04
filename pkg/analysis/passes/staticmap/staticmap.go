@@ -126,7 +126,10 @@ func (s *smap) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error
 			}
 		}
 	})
-	return res, g.Wait()
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func New() *analysis.Analyzer {
