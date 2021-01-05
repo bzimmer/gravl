@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/visualcrossing"
+	"github.com/bzimmer/gravl/pkg/wx/visualcrossing"
 )
 
 var visualcrossingCommand = &cli.Command{

@@ -8,8 +8,8 @@ import (
 
 	"github.com/valyala/fastjson"
 
-	"github.com/bzimmer/gravl/pkg/common"
-	"github.com/bzimmer/gravl/pkg/strava"
+	"github.com/bzimmer/gravl/pkg/activity"
+	"github.com/bzimmer/gravl/pkg/activity/strava"
 )
 
 type Source interface {
@@ -72,7 +72,7 @@ type SourceStrava struct {
 }
 
 func (s *SourceStrava) Activities(ctx context.Context) ([]*strava.Activity, error) {
-	return s.Client.Activity.Activities(ctx, common.Pagination{})
+	return s.Client.Activity.Activities(ctx, activity.Pagination{})
 }
 
 func (s *SourceStrava) Activity(ctx context.Context, activityID int64) (*strava.Activity, error) {

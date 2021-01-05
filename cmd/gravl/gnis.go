@@ -5,7 +5,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/gravl/pkg/gnis"
+	"github.com/bzimmer/gravl/pkg/geo/gnis"
 )
 
 var gnisCommand = &cli.Command{

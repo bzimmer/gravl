@@ -10,9 +10,9 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 	"golang.org/x/oauth2"
 
-	"github.com/bzimmer/gravl/pkg/common/web"
-	"github.com/bzimmer/gravl/pkg/cyclinganalytics"
-	"github.com/bzimmer/gravl/pkg/strava"
+	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
+	"github.com/bzimmer/gravl/pkg/activity/strava"
+	"github.com/bzimmer/gravl/pkg/web"
 )
 
 var index = []byte(`

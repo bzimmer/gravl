@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg"
-	"github.com/bzimmer/gravl/pkg/srtm"
+	"github.com/bzimmer/gravl/pkg/geo/srtm"
 )
 
 const (

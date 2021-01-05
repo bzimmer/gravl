@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/cyclinganalytics"
+	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
 )
 
 // collect returns a slice of files for uploading

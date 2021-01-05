@@ -8,8 +8,8 @@ import (
 	"github.com/twpayne/go-geom"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/gravl/pkg/common/wx"
-	"github.com/bzimmer/gravl/pkg/noaa"
+	"github.com/bzimmer/gravl/pkg/wx"
+	"github.com/bzimmer/gravl/pkg/wx/noaa"
 )
 
 var noaaCommand = &cli.Command{

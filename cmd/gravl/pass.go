@@ -9,6 +9,7 @@ import (
 	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/benford"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/climbing"
@@ -22,7 +23,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
-	"github.com/bzimmer/gravl/pkg/strava"
 )
 
 type analyzer struct {

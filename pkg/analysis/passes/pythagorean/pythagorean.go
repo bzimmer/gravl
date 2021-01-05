@@ -5,8 +5,8 @@ import (
 	"math"
 	"sort"
 
+	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
-	"github.com/bzimmer/gravl/pkg/strava"
 )
 
 type Results struct {

@@ -3,8 +3,8 @@ package splat
 import (
 	"context"
 
+	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
-	"github.com/bzimmer/gravl/pkg/strava"
 )
 
 const Doc = `splat simply returns all activities in the units specified

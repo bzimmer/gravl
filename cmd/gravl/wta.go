@@ -5,7 +5,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/gravl/pkg/wta"
+	"github.com/bzimmer/gravl/pkg/activity/wta"
 )
 
 var wtaCommand = &cli.Command{

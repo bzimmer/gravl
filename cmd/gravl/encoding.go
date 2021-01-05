@@ -9,7 +9,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	"github.com/bzimmer/gravl/pkg/common/geo"
+	"github.com/bzimmer/gravl/pkg/geo"
 )
 
 type Encoding int

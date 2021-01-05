@@ -6,7 +6,7 @@ import (
 	"github.com/twpayne/go-geom"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
-	"github.com/bzimmer/gravl/pkg/noaa"
+	"github.com/bzimmer/gravl/pkg/wx/noaa"
 )
 
 const Doc = ``

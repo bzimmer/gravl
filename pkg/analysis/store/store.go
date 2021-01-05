@@ -7,7 +7,7 @@ import (
 	"github.com/timshannon/bolthold"
 	"go.etcd.io/bbolt"
 
-	"github.com/bzimmer/gravl/pkg/strava"
+	"github.com/bzimmer/gravl/pkg/activity/strava"
 )
 
 type Store struct {

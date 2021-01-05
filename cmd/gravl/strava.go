@@ -17,10 +17,10 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 	"golang.org/x/time/rate"
 
+	"github.com/bzimmer/gravl/pkg/activity"
+	"github.com/bzimmer/gravl/pkg/activity/strava"
+	stravaweb "github.com/bzimmer/gravl/pkg/activity/strava/web"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
-	"github.com/bzimmer/gravl/pkg/common"
-	"github.com/bzimmer/gravl/pkg/strava"
-	stravaweb "github.com/bzimmer/gravl/pkg/strava/web"
 )
 
 var stravaCommand = &cli.Command{
@@ -199,7 +199,7 @@ var stravaCommand = &cli.Command{
 					Dur("elapsed", time.Since(start)).
 					Msg("activities")
 			}(time.Now())
-			activities, err := client.Activity.Activities(ctx, common.Pagination{Total: c.Int("count")})
+			activities, err := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}
@@ -222,7 +222,7 @@ var stravaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			routes, err := client.Route.Routes(ctx, athlete.ID, common.Pagination{Total: c.Int("count")})
+			routes, err := client.Route.Routes(ctx, athlete.ID, activity.Pagination{Total: c.Int("count")})
 			if err != nil {
 				return err
 			}

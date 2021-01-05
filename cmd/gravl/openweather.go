@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/openweather"
+	"github.com/bzimmer/gravl/pkg/wx/openweather"
 )
 
 var openweatherCommand = &cli.Command{
