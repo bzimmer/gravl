@@ -17,15 +17,18 @@ import (
 	"strings"
 
 	"golang.org/x/net/publicsuffix"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
-const baseWebURL = "https://www.strava.com/"
+const baseWebURL = "https://www.strava.com"
 
 // Client client
 type Client struct {
 	client *http.Client
 
 	Auth    *AuthService
+	Export  *ExportService
 	Fitness *FitnessService
 }
 
@@ -45,6 +48,7 @@ func withServices(c *Client) error {
 		return errors.New("no cookiejar set; use WithHTTPClient() or WithCookieJar()")
 	}
 	c.Auth = &AuthService{client: c}
+	c.Export = &ExportService{client: c}
 	c.Fitness = &FitnessService{client: c}
 	return nil
 }
@@ -62,7 +66,7 @@ func (c *Client) newWebRequest(ctx context.Context, method, uri string, values u
 	if err != nil {
 		return nil, err
 	}
-	// req.Header.Set("User-Agent", pkg.UserAgent)
+	req.Header.Set("User-Agent", pkg.UserAgent)
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 	if values != nil {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")

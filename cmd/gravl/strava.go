@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
+	"text/template"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -118,8 +121,11 @@ var stravaCommand = &cli.Command{
 			}
 			return encoder.Encode(tokens)
 		}
-		if c.Bool("fitness") {
-			webclient, err := stravaweb.NewClient(stravaweb.WithCookieJar())
+		if c.Bool("fitness") || c.IsSet("export") {
+			webclient, err := stravaweb.NewClient(
+				stravaweb.WithHTTPTracing(c.Bool("http-tracing")),
+				stravaweb.WithCookieJar(),
+				stravaweb.WithRateLimiter(rate.NewLimiter(rate.Every(2*time.Second), 5)))
 			if err != nil {
 				return err
 			}
@@ -129,15 +135,61 @@ var stravaCommand = &cli.Command{
 			if err = webclient.Auth.Login(ctx, username, password); err != nil {
 				return err
 			}
-			athlete, err := client.Athlete.Athlete(ctx)
-			if err != nil {
-				return err
+			if c.IsSet("export") {
+				format := stravaweb.ToFormat(c.String("export"))
+				args := c.Args().Slice()
+				for i := 0; i < len(args); i++ {
+					x, err := strconv.ParseInt(args[i], 0, 64)
+					if err != nil {
+						return err
+					}
+					var file *stravaweb.ExportFile
+					file, err = webclient.Export.Export(ctx, x, format)
+					if err != nil {
+						return err
+					}
+					fn := file.Name
+					if c.IsSet("template") {
+						var t *template.Template
+						t, err = template.New("export").Parse(c.String("template"))
+						if err != nil {
+							return err
+						}
+						out := &bytes.Buffer{}
+						err = t.Execute(out, file)
+						if err != nil {
+							return err
+						}
+						fn = out.String()
+					}
+					out, err := os.Create(fn)
+					if err != nil {
+						return err
+					}
+					defer out.Close()
+					_, err = io.Copy(out, file.Reader)
+					if err != nil {
+						return err
+					}
+					err = encoder.Encode(fn)
+					if err != nil {
+						return err
+					}
+				}
+				return nil
 			}
-			tl, err := webclient.Fitness.TrainingLoad(ctx, athlete.ID)
-			if err != nil {
-				return err
+			if c.Bool("fitness") {
+				athlete, err := client.Athlete.Athlete(ctx)
+				if err != nil {
+					return err
+				}
+				tl, err := webclient.Fitness.TrainingLoad(ctx, athlete.ID)
+				if err != nil {
+					return err
+				}
+				return encoder.Encode(tl)
 			}
-			return encoder.Encode(tl)
+			return nil
 		}
 		if c.Bool("activities") {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -257,6 +309,17 @@ var stravaFlags = merge(
 			Aliases: []string{"f"},
 			Value:   false,
 			Usage:   "Fitness profile",
+		},
+		&cli.StringFlag{
+			Name:    "export",
+			Aliases: []string{"x"},
+			Value:   stravaweb.Original.String(),
+			Usage:   "Export data file",
+		},
+		&cli.StringFlag{
+			Name:    "template",
+			Aliases: []string{""},
+			Usage:   "Export data filename template",
 		},
 		&cli.IntFlag{
 			Name:    "count",
