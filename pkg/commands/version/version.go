@@ -8,9 +8,8 @@ import (
 )
 
 var Command = &cli.Command{
-	Name:     "version",
-	Category: "api",
-	Usage:    "Version",
+	Name:  "version",
+	Usage: "Version",
 	Action: func(c *cli.Context) error {
 		return encoding.Encode(map[string]string{
 			"version":    pkg.BuildVersion,

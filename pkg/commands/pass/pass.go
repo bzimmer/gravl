@@ -31,7 +31,7 @@ type analyzer struct {
 	standard bool
 }
 
-var analyzers = func() map[string]analyzer {
+var _analyzers = func() map[string]analyzer {
 	res := make(map[string]analyzer)
 	for an, standard := range map[*analysis.Analyzer]bool{
 		benford.New():     false,
@@ -63,6 +63,31 @@ func closure(f string) string {
 		f = f + "}"
 	}
 	return f
+}
+
+func analyzers(c *cli.Context) ([]*analysis.Analyzer, error) {
+	var ans []*analysis.Analyzer
+	if c.IsSet("analyzer") {
+		names := c.StringSlice("analyzer")
+		for i := 0; i < len(names); i++ {
+			an, ok := _analyzers[names[i]]
+			if !ok {
+				log.Warn().Str("name", names[i]).Msg("missing analyzer")
+				continue
+			}
+			ans = append(ans, an.analyzer)
+		}
+	} else {
+		for _, an := range _analyzers {
+			if an.standard {
+				ans = append(ans, an.analyzer)
+			}
+		}
+	}
+	if len(ans) == 0 {
+		return nil, errors.New("no analyzers found")
+	}
+	return ans, nil
 }
 
 func read(c *cli.Context) (*analysis.Pass, error) {
@@ -145,26 +170,9 @@ var Command = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		var as []*analysis.Analyzer
-		if c.IsSet("analyzer") {
-			names := c.StringSlice("analyzer")
-			for i := 0; i < len(names); i++ {
-				an, ok := analyzers[names[i]]
-				if !ok {
-					log.Warn().Str("name", names[i]).Msg("missing analyzer")
-					continue
-				}
-				as = append(as, an.analyzer)
-			}
-		} else {
-			for _, an := range analyzers {
-				if an.standard {
-					as = append(as, an.analyzer)
-				}
-			}
-		}
-		if len(as) == 0 {
-			return errors.New("no analyzers found")
+		ans, err := analyzers(c)
+		if err != nil {
+			return err
 		}
 		pass, err := read(c)
 		if err != nil {
@@ -178,7 +186,7 @@ var Command = &cli.Command{
 		if err != nil {
 			return err
 		}
-		any, err := analysis.NewAnalysis(as, c.Args().Slice())
+		any, err := analysis.NewAnalysis(ans, c.Args().Slice())
 		if err != nil {
 			return err
 		}
