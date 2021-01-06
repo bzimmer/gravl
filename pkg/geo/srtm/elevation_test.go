@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/twpayne/go-geom"
 
 	"github.com/bzimmer/gravl/pkg/geo/srtm"
 	"github.com/bzimmer/httpwares"
@@ -51,12 +52,16 @@ func TestClient(t *testing.T) {
 			o)
 		a.NoError(err)
 
-		elevation, err := client.Elevation.Elevation(ctx, -120, 48)
+		pt := geom.NewPointFlat(geom.XY, []float64{-120, 48.0})
+		elevation, err := client.Elevation.Elevation(ctx, pt)
 		a.NoError(err)
 		a.Equal(float64(1238), elevation)
 
-		elevations, err := client.Elevation.Elevations(ctx,
-			[][]float64{{-120, 48}, {-120, 48.2}})
+		pts := []*geom.Point{
+			geom.NewPointFlat(geom.XY, []float64{-120, 48.0}),
+			geom.NewPointFlat(geom.XY, []float64{-120, 48.2}),
+		}
+		elevations, err := client.Elevation.Elevations(ctx, pts)
 		a.NoError(err)
 		a.Equal([]float64{1238, 1143}, elevations)
 	}

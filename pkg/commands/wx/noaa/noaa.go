@@ -1,4 +1,4 @@
-package main
+package noaa
 
 import (
 	"context"
@@ -8,13 +8,14 @@ import (
 	"github.com/twpayne/go-geom"
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/wx"
 	"github.com/bzimmer/gravl/pkg/wx/noaa"
 )
 
-var noaaCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:     "noaa",
-	Category: "forecast",
+	Category: "wx",
 	Usage:    "Query NOAA for forecasts",
 	Action: func(c *cli.Context) error {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -63,6 +64,6 @@ var noaaCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		return encoder.Encode(f)
+		return encoding.Encode(f)
 	},
 }

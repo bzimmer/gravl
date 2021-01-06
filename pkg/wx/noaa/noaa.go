@@ -1,6 +1,6 @@
 package noaa
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --client --package noaa
+//go:generate go run ../../../cmd/genwith/genwith.go --do --client --package noaa
 
 import (
 	"context"
@@ -11,9 +11,7 @@ import (
 	"github.com/bzimmer/gravl/pkg"
 )
 
-const (
-	baseURL = "https://api.weather.gov"
-)
+const baseURL = "https://api.weather.gov"
 
 // Client .
 type Client struct {

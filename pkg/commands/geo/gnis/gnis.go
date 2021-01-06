@@ -1,16 +1,17 @@
-package main
+package gnis
 
 import (
 	"context"
 
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/geo/gnis"
 )
 
-var gnisCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:     "gnis",
-	Category: "geolocation",
+	Category: "geo",
 	Usage:    "Query the GNIS database",
 	Action: func(c *cli.Context) error {
 		client, err := gnis.NewClient(
@@ -28,8 +29,7 @@ var gnisCommand = &cli.Command{
 				return err
 			}
 			for _, x := range features {
-				err = encoder.Encode(x)
-				if err != nil {
+				if err = encoding.Encode(x); err != nil {
 					return err
 				}
 			}

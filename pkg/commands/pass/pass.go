@@ -1,4 +1,4 @@
-package main
+package pass
 
 import (
 	"context"
@@ -23,6 +23,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 )
 
 type analyzer struct {
@@ -116,7 +117,7 @@ func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 	return g, nil
 }
 
-var passCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:     "pass",
 	Category: "analysis",
 	Usage:    "Produce statistics and other interesting artifacts from Strava activities",
@@ -191,6 +192,6 @@ var passCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		return encoder.Encode(results)
+		return encoding.Encode(results)
 	},
 }

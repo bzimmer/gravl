@@ -11,18 +11,19 @@ import (
 	"context"
 	"log"
 	"os"
+
+	"github.com/twpayne/go-geom"
 )
 
 func Example() {
 	// Barlow Pass
-	longitude, latitude := -121.4440005, 48.0264959
-	client, err := NewClient(
-		WithStorageLocation("/path/to/storage/directory"))
+	point := geom.NewPointFlat(geom.XY, []float64{-121.4440005, 48.0264959})
+	client, err := NewClient(WithStorageLocation("/tmp"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	ctx := context.Background()
-	elevation, err := client.Elevation.Elevation(ctx, longitude, latitude)
+	elevation, err := client.Elevation.Elevation(ctx, point)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package main
+package openweather
 
 import (
 	"context"
@@ -10,20 +10,16 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/wx/openweather"
 )
 
-var openweatherCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:     "openweather",
 	Aliases:  []string{"ow"},
-	Category: "forecast",
+	Category: "wx",
 	Usage:    "Query OpenWeather for forecasts",
-	Flags: []cli.Flag{
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "openweather.access-token",
-			Usage: "API key for OpenWeather API",
-		}),
-	},
+	Flags:    AuthFlags,
 	Before: func(c *cli.Context) error {
 		if c.Args().Len() != 2 {
 			return fmt.Errorf("invalid number of arguments, expected 2, got {%d}", c.Args().Len())
@@ -56,6 +52,13 @@ var openweatherCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		return encoder.Encode(fcst)
+		return encoding.Encode(fcst)
 	},
+}
+
+var AuthFlags = []cli.Flag{
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "openweather.access-token",
+		Usage: "API key for OpenWeather API",
+	}),
 }

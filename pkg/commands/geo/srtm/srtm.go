@@ -1,4 +1,4 @@
-package main
+package srtm
 
 import (
 	"context"
@@ -7,29 +7,22 @@ import (
 	"strconv"
 
 	"github.com/adrg/xdg"
+	"github.com/twpayne/go-geom"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/geo/srtm"
 )
 
-const (
-	srtmCache = "srtm"
-)
-
-var srtmCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:     "srtm",
-	Category: "geolocation",
+	Category: "geo",
 	Usage:    "Query the SRTM database for elevation data",
 	Action: func(c *cli.Context) error {
-		var (
-			err                 error
-			longitude, latitude float64
-		)
+		var err error
+		var longitude, latitude float64
 		switch c.Args().Len() {
-		case 0:
-			// Barlow Pass
-			longitude, latitude = -121.4440005, 48.0264959
 		case 2:
 			longitude, err = strconv.ParseFloat(c.Args().Get(0), 64)
 			if err != nil {
@@ -40,23 +33,21 @@ var srtmCommand = &cli.Command{
 				return err
 			}
 		default:
-			return fmt.Errorf("only 0 or 2 arguments allowed [%v]", c.Args())
+			return fmt.Errorf("expected <lat> <lng>, found [%v]", c.Args())
 		}
-
 		client, err := srtm.NewClient(
 			srtm.WithHTTPTracing(c.Bool("http-tracing")),
-			srtm.WithStorageLocation(
-				path.Join(xdg.CacheHome, pkg.PackageName, srtmCache)),
-		)
+			srtm.WithStorageLocation(path.Join(xdg.CacheHome, pkg.PackageName, c.Command.Name)))
 		if err != nil {
 			return err
 		}
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
-		elevation, err := client.Elevation.Elevation(ctx, longitude, latitude)
+		pt := geom.NewPointFlat(geom.XY, []float64{longitude, latitude})
+		elevation, err := client.Elevation.Elevation(ctx, pt)
 		if err != nil {
 			return err
 		}
-		return encoder.Encode(elevation)
+		return encoding.Encode(elevation)
 	},
 }

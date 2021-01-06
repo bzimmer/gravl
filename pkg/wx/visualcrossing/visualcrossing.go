@@ -1,6 +1,6 @@
 package visualcrossing
 
-//go:generate go run ../../cmd/genwith/genwith.go --auth --client --package visualcrossing
+//go:generate go run ../../../cmd/genwith/genwith.go --auth --client --package visualcrossing
 
 import (
 	"bytes"

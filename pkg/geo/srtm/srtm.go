@@ -1,6 +1,6 @@
 package srtm
 
-//go:generate go run ../../cmd/genwith/genwith.go --client --package srtm
+//go:generate go run ../../../cmd/genwith/genwith.go --client --package srtm
 
 import (
 	"errors"
@@ -20,7 +20,7 @@ type Client struct {
 	Elevation *ElevationService
 }
 
-func withServices(c *Client) error {
+func withServices(c *Client) error { //nolint:unparam
 	c.Elevation = &ElevationService{client: c}
 	return nil
 }

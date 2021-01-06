@@ -1,6 +1,6 @@
 package strava
 
-//go:generate go run ../../cmd/genwith/genwith.go --do --client --endpoint --auth --ratelimit --package strava
+//go:generate go run ../../../cmd/genwith/genwith.go --do --client --endpoint --auth --ratelimit --package strava
 
 import (
 	"bytes"

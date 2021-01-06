@@ -12,10 +12,7 @@ import (
 func Example() {
 	ctx := context.Background()
 	client, err := NewClient(
-		WithTokenCredentials(
-			"cyclinganalytics.access-token",
-			"cyclinganalytics.refresh-token",
-			time.Time{}),
+		WithTokenCredentials("access-token", "refresh-token", time.Time{}),
 		WithAutoRefresh(ctx))
 	if err != nil {
 		fmt.Println(err)

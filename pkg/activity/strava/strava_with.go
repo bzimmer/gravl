@@ -32,8 +32,7 @@ func NewClient(opts ...Option) (*Client, error) {
 		},
 	}
 	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
+		if err := opt(c); err != nil {
 			return nil, err
 		}
 	}

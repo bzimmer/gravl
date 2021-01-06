@@ -1,4 +1,4 @@
-package main
+package wta
 
 import (
 	"context"
@@ -6,11 +6,12 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/activity/wta"
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 )
 
-var wtaCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:     "wta",
-	Category: "geolocation",
+	Category: "activity",
 	Usage:    "Query the WTA site for trip reports",
 	Action: func(c *cli.Context) error {
 		args := c.Args().Slice()
@@ -18,8 +19,7 @@ var wtaCommand = &cli.Command{
 			// query the most recent if no reporter specified
 			args = append(args, "")
 		}
-		client, err := wta.NewClient(
-			wta.WithHTTPTracing(c.Bool("http-tracing")))
+		client, err := wta.NewClient(wta.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {
 			return err
 		}
@@ -30,8 +30,7 @@ var wtaCommand = &cli.Command{
 			if err != nil {
 				return err
 			}
-			err = encoder.Encode(reports)
-			if err != nil {
+			if err = encoding.Encode(reports); err != nil {
 				return err
 			}
 		}

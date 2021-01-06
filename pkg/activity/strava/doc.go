@@ -15,14 +15,9 @@ import (
 func Example() {
 	ctx := context.Background()
 	client, err := NewClient(
-		WithTokenCredentials(
-			"access-token",
-			"refresh-token",
-			// set the expiry in the past to force token refreshing
-			time.Now().Add(-1*time.Minute)),
-		WithClientCredentials(
-			"client-id",
-			"client-secret"),
+		// set the expiry in the past to force token refreshing
+		WithTokenCredentials("access-token", "refresh-token", time.Now().Add(-1*time.Minute)),
+		WithClientCredentials("client-id", "client-secret"),
 		// with auto refresh enabled an expired access token will be refreshed using the refresh token provided
 		WithAutoRefresh(ctx))
 	if err != nil {

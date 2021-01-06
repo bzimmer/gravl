@@ -1,6 +1,6 @@
 package gnis
 
-//go:generate go run ../../cmd/genwith/genwith.go --client --package gnis
+//go:generate go run ../../../cmd/genwith/genwith.go --client --package gnis
 
 import (
 	"net/http"

@@ -1,6 +1,8 @@
-package main
+package serve
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 
@@ -10,8 +12,11 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 	"golang.org/x/oauth2"
 
-	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
-	"github.com/bzimmer/gravl/pkg/activity/strava"
+	ca "github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
+	st "github.com/bzimmer/gravl/pkg/activity/strava"
+	"github.com/bzimmer/gravl/pkg/commands"
+	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
+	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/web"
 )
 
@@ -26,17 +31,26 @@ var index = []byte(`
 	</body>
 </html>`)
 
-func newRouter(c *cli.Context) *gin.Engine {
+func randomString(n int) (string, error) {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+func newRouter(c *cli.Context) (*gin.Engine, error) {
 	r := gin.New()
 	r.Use(gin.Recovery(), web.LogMiddleware())
-
 	r.GET("/", func(c *gin.Context) {
 		c.Data(http.StatusOK, "text/html", index)
 	})
-
 	r.GET("/version/", gin.WrapF(web.VersionHandler()))
 
-	state := mustRandomString(16)
+	state, err := randomString(16)
+	if err != nil {
+		return nil, err
+	}
 	address := fmt.Sprintf("%s:%d", c.String("serve.origin"), c.Int("serve.port"))
 
 	p := r.Group("/cyclinganalytics")
@@ -45,7 +59,7 @@ func newRouter(c *cli.Context) *gin.Engine {
 		ClientSecret: c.String("cyclinganalytics.client-secret"),
 		Scopes:       []string{"read_account,read_email,read_athlete,read_rides,create_rides"},
 		RedirectURL:  fmt.Sprintf("%s/cyclinganalytics/auth/callback", address),
-		Endpoint:     cyclinganalytics.Endpoint}
+		Endpoint:     ca.Endpoint}
 	p.GET("/auth/login", gin.WrapF(web.AuthHandler(config, state)))
 	p.GET("/auth/callback", gin.WrapF(web.AuthCallbackHandler(config, state)))
 
@@ -55,18 +69,18 @@ func newRouter(c *cli.Context) *gin.Engine {
 		ClientSecret: c.String("strava.client-secret"),
 		Scopes:       []string{"read_all,profile:read_all,activity:read_all"},
 		RedirectURL:  fmt.Sprintf("%s/strava/auth/callback", address),
-		Endpoint:     strava.Endpoint}
+		Endpoint:     st.Endpoint}
 	p.GET("/auth/login", gin.WrapF(web.AuthHandler(config, state)))
 	p.GET("/auth/callback", gin.WrapF(web.AuthCallbackHandler(config, state)))
 
-	return r
+	return r, nil
 }
 
-var serveCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:     "serve",
 	Category: "api",
 	Usage:    "REST endpoints",
-	Flags: merge([]cli.Flag{
+	Flags: commands.Merge([]cli.Flag{
 		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  "serve.origin",
 			Value: "http://localhost",
@@ -77,14 +91,17 @@ var serveCommand = &cli.Command{
 			Value: 8080,
 			Usage: "Port on which to listen",
 		})},
-		cyclingAnalyticsAuthFlags,
-		stravaAuthFlags,
+		cyclinganalytics.AuthFlags,
+		strava.AuthFlags,
 	),
 	Action: func(c *cli.Context) error {
-		r := newRouter(c)
+		router, err := newRouter(c)
+		if err != nil {
+			return err
+		}
 		address := fmt.Sprintf("0.0.0.0:%d", c.Int("serve.port"))
 		log.Info().Str("address", address).Msg("serving ...")
-		if err := r.Run(address); err != nil {
+		if err := router.Run(address); err != nil {
 			return err
 		}
 		return nil

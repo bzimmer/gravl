@@ -65,8 +65,7 @@ func NewClient(opts ...Option) (*Client, error) {
 	{{end}}
 	}
 	for _, opt := range opts {
-		err := opt(c)
-		if err != nil {
+		if err := opt(c); err != nil {
 			return nil, err
 		}
 	}
@@ -217,13 +216,19 @@ func (c *Client) do(req *http.Request, v interface{}) error {
 {{end}}`
 )
 
-func format(file string) error {
-	cmd := exec.Command("gofmt", "-w", "-s", file)
-	if err := cmd.Run(); err != nil {
-		return err
+func format(ctx context.Context, file string) error {
+	cmds := []*exec.Cmd{
+		exec.CommandContext(ctx, "gofmt", "-w", "-s", file),
+		exec.CommandContext(ctx, "goimports", "-w", file),
 	}
-	cmd = exec.Command("goimports", "-w", file)
-	return cmd.Run()
+	for _, cmd := range cmds {
+		b, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, strings.TrimSpace(string(b)))
+			return err
+		}
+	}
+	return nil
 }
 
 func generate(w with, file, tmpl string) error {
@@ -232,14 +237,12 @@ func generate(w with, file, tmpl string) error {
 		log.Error().Err(err).Msg("parsing template")
 		return err
 	}
-
 	src := new(bytes.Buffer)
 	err = t.Execute(src, w)
 	if err != nil {
 		log.Error().Err(err).Msg("executing template")
 		return err
 	}
-
 	if err := ioutil.WriteFile(file, src.Bytes(), 0600); err != nil {
 		return err
 	}
@@ -302,7 +305,7 @@ func main() {
 			if err := generate(w, file, q); err != nil {
 				return err
 			}
-			if err := format(file); err != nil {
+			if err := format(c.Context, file); err != nil {
 				return err
 			}
 			return nil
@@ -310,7 +313,6 @@ func main() {
 	}
 	ctx := context.Background()
 	if err := app.RunContext(ctx, os.Args); err != nil {
-		log.Error().Err(err).Send()
 		os.Exit(1)
 	}
 	os.Exit(0)

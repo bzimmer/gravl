@@ -1,4 +1,6 @@
-package main
+package encoding
+
+//go:generate stringer -type=Encoding -linecomment -output=encoding_string.go
 
 import (
 	"encoding/json"
@@ -25,12 +27,20 @@ const (
 	EncodingSpew                    // spew
 )
 
-type xcoder struct {
+func Encode(v interface{}) error {
+	x, err := NewEncoder(os.Stdout, EncodingNative.String(), false)
+	if err != nil {
+		return err
+	}
+	return x.Encode(v)
+}
+
+type Xcoder struct {
 	enc             Encoding
 	xml, json, spew Encoder
 }
 
-func (x *xcoder) Encode(v interface{}) error {
+func (x *Xcoder) Encode(v interface{}) error {
 	switch x.enc {
 	case EncodingXML:
 		return x.xml(v)
@@ -60,7 +70,7 @@ func (x *xcoder) Encode(v interface{}) error {
 	return nil
 }
 
-func newEncoder(writer io.Writer, encoding string, compact bool) (*xcoder, error) {
+func NewEncoder(writer io.Writer, encoding string, compact bool) (*Xcoder, error) {
 	if writer == nil {
 		writer = os.Stdout
 	}
@@ -99,5 +109,5 @@ func newEncoder(writer io.Writer, encoding string, compact bool) (*xcoder, error
 		return nil, fmt.Errorf("unknown encoder: '%s'", encoding)
 	}
 
-	return &xcoder{enc: enc, xml: xe.Encode, json: je.Encode, spew: sw}, nil
+	return &Xcoder{enc: enc, xml: xe.Encode, json: je.Encode, spew: sw}, nil
 }

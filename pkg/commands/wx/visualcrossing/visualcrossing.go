@@ -1,4 +1,4 @@
-package main
+package visualcrossing
 
 import (
 	"context"
@@ -10,13 +10,14 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/wx/visualcrossing"
 )
 
-var visualcrossingCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:     "visualcrossing",
 	Aliases:  []string{"vc"},
-	Category: "forecast",
+	Category: "wx",
 	Usage:    "Query VisualCrossing for forecasts",
 	Flags: []cli.Flag{
 		altsrc.NewStringFlag(&cli.StringFlag{
@@ -31,16 +32,13 @@ var visualcrossingCommand = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		var (
-			err error
-			opt = visualcrossing.ForecastOptions{
-				Astronomy:      true,
-				AggregateHours: c.Int("interval"),
-				Units:          visualcrossing.UnitsMetric,
-				AlertLevel:     visualcrossing.AlertLevelDetail,
-			}
-		)
-
+		var err error
+		opt := visualcrossing.ForecastOptions{
+			Astronomy:      true,
+			AggregateHours: c.Int("interval"),
+			Units:          visualcrossing.UnitsMetric,
+			AlertLevel:     visualcrossing.AlertLevelDetail,
+		}
 		switch c.Args().Len() {
 		case 1:
 			opt.Location = c.Args().Get(0)
@@ -70,6 +68,6 @@ var visualcrossingCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		return encoder.Encode(fcst)
+		return encoding.Encode(fcst)
 	},
 }
