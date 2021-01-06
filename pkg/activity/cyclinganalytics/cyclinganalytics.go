@@ -36,7 +36,7 @@ var Endpoint = oauth2.Endpoint{
 	AuthStyle: oauth2.AuthStyleAutoDetect,
 }
 
-func withServices(c *Client) error {
+func withServices(c *Client) error { //nolint:unparam
 	c.User = &UserService{client: c}
 	c.Rides = &RidesService{client: c}
 	return nil

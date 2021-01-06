@@ -31,7 +31,7 @@ type Client struct {
 	Trips *TripsService
 }
 
-func withServices(c *Client) error {
+func withServices(c *Client) error { //nolint:unparam
 	c.Users = &UsersService{client: c}
 	c.Trips = &TripsService{client: c}
 	return nil

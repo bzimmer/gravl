@@ -18,7 +18,7 @@ type Client struct {
 	Regions *RegionsService
 }
 
-func withServices(c *Client) error {
+func withServices(c *Client) error { //nolint:unparam
 	c.Reports = &ReportsService{client: c}
 	c.Regions = &RegionsService{client: c}
 	return nil
