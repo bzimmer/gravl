@@ -14,9 +14,7 @@ var Command = &cli.Command{
 	Category: "geo",
 	Usage:    "Query the GNIS database",
 	Action: func(c *cli.Context) error {
-		client, err := gnis.NewClient(
-			gnis.WithHTTPTracing(c.Bool("http-tracing")),
-		)
+		client, err := gnis.NewClient(gnis.WithHTTPTracing(c.Bool("http-tracing")))
 		if err != nil {
 			return err
 		}

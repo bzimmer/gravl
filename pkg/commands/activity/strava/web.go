@@ -98,6 +98,7 @@ var exportCommand = &cli.Command{
 			Usage:   "Export data filename template",
 		},
 	},
+	Usage:  "Export an activity to a local file.",
 	Action: export,
 }
 
@@ -125,5 +126,6 @@ func fitness(c *cli.Context) error {
 
 var fitnessCommand = &cli.Command{
 	Name:   "fitness",
+	Usage:  "Query Strava for training load data.",
 	Action: fitness,
 }
