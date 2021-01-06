@@ -21,6 +21,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/activity/wta"
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gnis"
 	"github.com/bzimmer/gravl/pkg/commands/geo/srtm"
 	"github.com/bzimmer/gravl/pkg/commands/pass"
@@ -56,12 +57,12 @@ func initConfig(c *cli.Context) error {
 	return nil
 }
 
-func initFlags(c *cli.Context) error {
-	return nil
-}
-
-func initEncoding(c *cli.Context) (err error) {
-	// encoder, err = encoding.New(c.App.Writer, c.String("encoding"), c.Bool("compact"))
+func initEncoding(c *cli.Context) error {
+	encoder, err := encoding.NewEncoder(c.App.Writer, c.String("encoding"), c.Bool("compact"))
+	if err != nil {
+		return err
+	}
+	encoding.Encode = encoder.Encode
 	return nil
 }
 
@@ -164,7 +165,7 @@ func Run(args []string) error {
 		HelpName: "gravl",
 		Flags:    Flags,
 		Commands: Commands,
-		Before:   commands.Before(initFlags, initLogging, initEncoding, initConfig),
+		Before:   commands.Before(initLogging, initEncoding, initConfig),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			log.Error().Err(err).Msg(c.App.Name)
 		},

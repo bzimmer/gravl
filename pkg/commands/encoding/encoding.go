@@ -16,8 +16,6 @@ import (
 
 type Encoding int
 
-type Encoder func(v interface{}) error
-
 const (
 	EncodingNative  Encoding = iota // native
 	EncodingXML                     // xml
@@ -27,17 +25,13 @@ const (
 	EncodingSpew                    // spew
 )
 
-func Encode(v interface{}) error {
-	x, err := NewEncoder(os.Stdout, EncodingNative.String(), false)
-	if err != nil {
-		return err
-	}
-	return x.Encode(v)
+var Encode = func(v interface{}) error {
+	return nil
 }
 
 type Xcoder struct {
 	enc             Encoding
-	xml, json, spew Encoder
+	xml, json, spew func(v interface{}) error
 }
 
 func (x *Xcoder) Encode(v interface{}) error {
