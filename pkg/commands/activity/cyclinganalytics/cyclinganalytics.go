@@ -29,34 +29,62 @@ func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 func collect(name string) ([]*cyclinganalytics.File, error) {
 	var files []*cyclinganalytics.File
 	err := filepath.Walk(name, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			base := filepath.Base(path)
-			if base == "inProgressActivity.fit" {
-				log.Warn().
-					Str("name", path).
-					Msg("skipping, not a completed activity")
-				return nil
-			}
-			if info.Size() < 1024 {
-				log.Warn().
-					Int64("size", info.Size()).
-					Str("name", path).
-					Msg("skipping, too small")
-				return nil
-			}
-			file, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			files = append(files, &cyclinganalytics.File{
-				Name:   base,
-				Reader: file,
-				Size:   info.Size(),
-			})
+		if err != nil {
+			return err
 		}
+		if info.IsDir() {
+			return nil
+		}
+		base := filepath.Base(path)
+		if base == "inProgressActivity.fit" {
+			log.Warn().
+				Str("name", path).
+				Msg("skipping, not a completed activity")
+			return nil
+		}
+		if info.Size() < 1024 {
+			log.Warn().
+				Int64("size", info.Size()).
+				Str("name", path).
+				Msg("skipping, too small")
+			return nil
+		}
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		files = append(files, &cyclinganalytics.File{
+			Name:   base,
+			Reader: file,
+			Size:   info.Size(),
+		})
 		return nil
 	})
 	return files, err
+}
+
+// follow the status until processing is complete
+//  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
+func follow(ctx context.Context, client *cyclinganalytics.Client, id int64, follow bool) error {
+	// status: processing, done, or error
+	for {
+		u, err := client.Rides.Status(ctx, cyclinganalytics.Me, id)
+		if err != nil {
+			return err
+		}
+		if err = encoding.Encode(u); err != nil {
+			return err
+		}
+		if !(follow && u.Status == "processing") {
+			break
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(2 * time.Second):
+		}
+	}
+	return nil
 }
 
 func upload(c *cli.Context) error {
@@ -82,6 +110,9 @@ func upload(c *cli.Context) error {
 			if err != nil {
 				return err
 			}
+			if c.Bool("follow") {
+				return follow(ctx, client, u.UploadID, c.Bool("follow"))
+			}
 			if err := encoding.Encode(u); err != nil {
 				return err
 			}
@@ -103,11 +134,7 @@ func status(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		status, err := client.Rides.Status(ctx, cyclinganalytics.Me, uploadID)
-		if err != nil {
-			return err
-		}
-		if err = encoding.Encode(status); err != nil {
+		if err := follow(ctx, client, uploadID, c.Bool("follow")); err != nil {
 			return err
 		}
 	}
@@ -124,6 +151,12 @@ var uploadCommand = &cli.Command{
 			Aliases: []string{"s"},
 			Value:   false,
 			Usage:   "Check the status of the upload",
+		},
+		&cli.BoolFlag{
+			Name:    "follow",
+			Aliases: []string{"f"},
+			Value:   false,
+			Usage:   "Continually check the status of the request until it is completed",
 		},
 	},
 	Action: func(c *cli.Context) error {
