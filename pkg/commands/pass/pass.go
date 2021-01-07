@@ -23,6 +23,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
+	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 )
 
@@ -91,7 +92,7 @@ func analyzers(c *cli.Context) ([]*analysis.Analyzer, error) {
 }
 
 func read(c *cli.Context) (*analysis.Pass, error) {
-	fn := c.Path("db")
+	fn := c.Path("store")
 	if fn == "" {
 		return nil, errors.New("nil db path")
 	}
@@ -169,6 +170,7 @@ var Command = &cli.Command{
 			Aliases: []string{"a"},
 			Usage:   "Analyzers to include (if none specified, default set is used)",
 		},
+		commands.StoreFlag,
 	},
 	Action: func(c *cli.Context) error {
 		ans, err := analyzers(c)

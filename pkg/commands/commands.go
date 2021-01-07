@@ -1,6 +1,13 @@
 package commands
 
-import "github.com/urfave/cli/v2"
+import (
+	"path"
+
+	"github.com/adrg/xdg"
+	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/gravl/pkg"
+)
 
 func Merge(flags ...[]cli.Flag) []cli.Flag {
 	var f []cli.Flag
@@ -23,3 +30,13 @@ func Before(befores ...cli.BeforeFunc) cli.BeforeFunc {
 		return nil
 	}
 }
+
+var StoreFlag = func() cli.Flag {
+	store := path.Join(xdg.DataHome, pkg.PackageName, "gravl.db")
+	return &cli.PathFlag{
+		Name:      "store",
+		Value:     store,
+		TakesFile: true,
+		Usage:     "Path to the database",
+	}
+}()
