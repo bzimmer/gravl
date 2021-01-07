@@ -23,6 +23,8 @@ type RideOptions struct {
 	}
 }
 
+const meupload = "me/upload"
+
 func (r *RideOptions) values() *url.Values {
 	v := &url.Values{}
 	if r.Streams != nil {
@@ -91,7 +93,7 @@ func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*
 		return nil, errors.New("missing upload file")
 	}
 
-	uri := "me/upload"
+	uri := meupload
 	if userID != Me {
 		uri = fmt.Sprintf("user/%d/upload", userID)
 	}
@@ -127,7 +129,7 @@ func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*
 }
 
 func (s *RidesService) Status(ctx context.Context, userID UserID, uploadID int64) (*Upload, error) {
-	uri := "me/upload"
+	uri := meupload
 	if userID != Me {
 		uri = fmt.Sprintf("user/%d/upload", userID)
 	}

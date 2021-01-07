@@ -1,4 +1,4 @@
-// The web package scrapes the strava website for functionality not available via the API.
+// Package web scrapes the strava website for functionality not available via the API.
 //
 // Inspired by https://github.com/pR0Ps/stravaweblib
 package web
@@ -32,6 +32,7 @@ type Client struct {
 	Fitness *FitnessService
 }
 
+// WithCookieJar attaches a cookie jar to the client
 func WithCookieJar() Option {
 	return func(c *Client) error {
 		jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})

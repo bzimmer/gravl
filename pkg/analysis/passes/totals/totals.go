@@ -10,7 +10,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const Doc = ``
+const doc = ``
 
 type Centuries struct {
 	Metric   int `json:"metric"`
@@ -25,7 +25,7 @@ type Result struct {
 	Centuries     Centuries     `json:"centuries"`
 }
 
-func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var cen Centuries
 	var dst, elv float64
 	var dur time.Duration
@@ -59,7 +59,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
 		Name: "totals",
-		Doc:  Doc,
-		Run:  Run,
+		Doc:  doc,
+		Run:  run,
 	}
 }

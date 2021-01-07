@@ -30,8 +30,10 @@ func (f *Fault) Error() string {
 	return f.Message
 }
 
+// Coordinates are a [lat, lng] pair
 type Coordinates []float64
 
+// StreamMetadata for the stream
 type StreamMetadata struct {
 	OriginalSize int    `json:"original_size"`
 	Resolution   string `json:"resolution"`
@@ -68,6 +70,7 @@ type BoolStream struct {
 	Data []bool `json:"data"`
 }
 
+// Streams of data available for an activity, not all activities will have all streams
 type Streams struct {
 	ActivityID  int64             `json:"activity_id"`
 	LatLng      *CoordinateStream `json:"latlng,omitempty"`
@@ -93,7 +96,7 @@ type Gear struct {
 	AthleteID     int         `json:"athlete_id"`
 }
 
-// Totals .
+// Totals for stats
 type Totals struct {
 	Distance         unit.Length `json:"distance" units:"m"`
 	AchievementCount int         `json:"achievement_count"`
@@ -103,7 +106,7 @@ type Totals struct {
 	MovingTime       int         `json:"moving_time"`
 }
 
-// Stats .
+// Stats for the athlete
 type Stats struct {
 	RecentRunTotals           *Totals     `json:"recent_run_totals"`
 	AllRunTotals              *Totals     `json:"all_run_totals"`
@@ -118,6 +121,7 @@ type Stats struct {
 	YTDRunTotals              *Totals     `json:"ytd_run_totals"`
 }
 
+// Club in which an athlete can be a member
 type Club struct {
 	Admin           bool   `json:"admin"`
 	City            string `json:"city"`
@@ -172,7 +176,7 @@ type Athlete struct {
 	Shoes                 []*Gear     `json:"shoes"`
 }
 
-// Map .
+// Map of the activity or route
 type Map struct {
 	ID              string `json:"id"`
 	Polyline        string `json:"polyline"`
@@ -180,11 +184,13 @@ type Map struct {
 	SummaryPolyline string `json:"summary_polyline"`
 }
 
+// LineString of the map
+// This function first checks for a Polyline and then a SummaryPolyline, returning the first non-nil LineString
 func (m *Map) LineString() (*geom.LineString, error) {
 	return polylineToLineString(m.Polyline, m.SummaryPolyline)
 }
 
-// Lap .
+// Lap data
 type Lap struct {
 	ID                 int64       `json:"id"`
 	ResourceState      int         `json:"resource_state"`
@@ -208,6 +214,7 @@ type Lap struct {
 	Split              int         `json:"split"`
 }
 
+// PREffort for the segment
 type PREffort struct {
 	Distance       unit.Length `json:"distance" units:"m"`
 	StartDateLocal time.Time   `json:"start_date_local"`
@@ -218,6 +225,7 @@ type PREffort struct {
 	StartDate      time.Time   `json:"start_date"`
 }
 
+// SegmentStats for the segment
 type SegmentStats struct {
 	PRElapsedTime int       `json:"pr_elapsed_time"`
 	PRDate        time.Time `json:"pr_date"`

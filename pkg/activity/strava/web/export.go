@@ -13,18 +13,24 @@ import (
 	"strings"
 )
 
+// Format of the exported file
 type Format int
 
 const (
+	// Original format uploaded to strava
 	Original Format = iota // original
-	GPX                    // gpx
-	TCX                    // tcx
+	// GPX format from an uploaded activity to strava
+	GPX // gpx
+	// TCX format from an uploaded activity to strava
+	TCX // tcx
 )
 
+// MarshalJSON converts a Format enum to a string representation
 func (f *Format) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf(`"%s"`, f.String())), nil
 }
 
+// ExportFile metadata about an exported file
 type ExportFile struct {
 	ActivityID int64     `json:"id"`
 	Name       string    `json:"name"`

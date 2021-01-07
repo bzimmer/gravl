@@ -6,7 +6,7 @@ type Eddington struct {
 	Motivation map[int]int `json:"motivation"`
 }
 
-// Eddington computes the Eddington number from a series of rides
+// Number computes the Eddington number from a series of rides
 func Number(rides []int) Eddington {
 	n, above := len(rides), 0
 	e := Eddington{

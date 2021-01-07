@@ -10,27 +10,27 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const Doc = `clusters returns the activities clustered by (distance, elevation) dimensions`
+const doc = `clusters returns the activities clustered by (distance, elevation) dimensions`
 
-type KMeans struct {
+type kMeans struct {
 	Clusters  int
 	Threshold float64
 }
 
-type Observation struct {
+type observation struct {
 	Activity *analysis.Activity   `json:"activity"`
 	Coords   clusters.Coordinates `json:"coordinates"`
 }
 
-func (obs *Observation) Coordinates() clusters.Coordinates {
+func (obs *observation) Coordinates() clusters.Coordinates {
 	return obs.Coords
 }
 
-func (obs *Observation) Distance(point clusters.Coordinates) float64 {
+func (obs *observation) Distance(point clusters.Coordinates) float64 {
 	return obs.Coords.Distance(point)
 }
 
-func (k *KMeans) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (k *kMeans) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	// For each activity, create a synthetic coordinate from the distance and elevation
 	//  scaled between 0.0 and 1.0.
 
@@ -57,7 +57,7 @@ func (k *KMeans) Run(ctx context.Context, pass *analysis.Pass) (interface{}, err
 	// 3. Divide each element by the max slice
 	var d clusters.Observations
 	for i := 0; i < len(pass.Activities); i++ {
-		d = append(d, &Observation{
+		d = append(d, &observation{
 			Activity: analysis.ToActivity(pass.Activities[i], pass.Units),
 			Coords:   clusters.Coordinates{dsts[i] / dm, elvs[i] / em},
 		})
@@ -76,18 +76,15 @@ func (k *KMeans) Run(ctx context.Context, pass *analysis.Pass) (interface{}, err
 }
 
 func New() *analysis.Analyzer {
-	k := &KMeans{
-		Threshold: 0.01,
-		Clusters:  4,
-	}
-	fs := flag.NewFlagSet("kmeans", flag.ExitOnError)
+	k := &kMeans{Threshold: 0.01, Clusters: 4}
+	fs := flag.NewFlagSet("cluster", flag.ExitOnError)
 	fs.IntVar(&k.Clusters, "clusters", k.Clusters, "number of clusters")
 	fs.Float64Var(&k.Threshold, "threshold", k.Threshold, `threshold (in percent between 0.0 and 0.1) aborts processing
 if less than n% of data points shifted clusters in the last iteration`)
 	return &analysis.Analyzer{
 		Name:  fs.Name(),
-		Doc:   Doc,
+		Doc:   doc,
 		Flags: fs,
-		Run:   k.Run,
+		Run:   k.run,
 	}
 }

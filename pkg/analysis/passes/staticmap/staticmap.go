@@ -22,7 +22,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const Doc = `staticmap generates a staticmap for every activity`
+const doc = `staticmap generates a staticmap for every activity`
 
 type smap struct {
 	output  string
@@ -35,7 +35,7 @@ type activity struct {
 	p string
 }
 
-func (s *smap) ilinestrings(ctx context.Context, g *errgroup.Group, acts []*strava.Activity) <-chan *activity {
+func (s *smap) linestrings(ctx context.Context, g *errgroup.Group, acts []*strava.Activity) <-chan *activity {
 	activities := make(chan *activity)
 	g.Go(func() error {
 		defer close(activities)
@@ -60,7 +60,7 @@ func (s *smap) ilinestrings(ctx context.Context, g *errgroup.Group, acts []*stra
 	return activities
 }
 
-func (s *smap) ipaths(ctx context.Context, g *errgroup.Group, activities <-chan *activity) <-chan *activity {
+func (s *smap) paths(ctx context.Context, g *errgroup.Group, activities <-chan *activity) <-chan *activity {
 	var wg sync.WaitGroup
 	paths := make(chan *activity)
 
@@ -103,14 +103,14 @@ func (s *smap) ipaths(ctx context.Context, g *errgroup.Group, activities <-chan 
 	return paths
 }
 
-func (s *smap) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (s *smap) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	s.output = filepath.Join(xdg.CacheHome, pkg.PackageName, "passes", "staticmap")
 	if err := os.MkdirAll(s.output, os.ModeDir|0700); err != nil {
 		return nil, err
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
-	paths := s.ipaths(ctx, g, s.ilinestrings(ctx, g, pass.Activities))
+	paths := s.paths(ctx, g, s.linestrings(ctx, g, pass.Activities))
 
 	res := make(map[int64]string)
 	g.Go(func() error {
@@ -141,8 +141,8 @@ func New() *analysis.Analyzer {
 	fs.IntVar(&s.workers, "workers", s.workers, "number of workers")
 	return &analysis.Analyzer{
 		Name:  fs.Name(),
-		Doc:   Doc,
+		Doc:   doc,
 		Flags: fs,
-		Run:   s.Run,
+		Run:   s.run,
 	}
 }

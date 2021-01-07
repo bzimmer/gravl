@@ -7,12 +7,12 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const Doc = `eddington returns the Eddington number for all activities
+const doc = `eddington returns the Eddington number for all activities
 
 The Eddington is the largest integer E, where you have cycled at least
 E miles (or kilometers) on at least E days.`
 
-func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var vals []int
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		var dst float64
@@ -31,7 +31,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
 		Name: "eddington",
-		Doc:  Doc,
-		Run:  Run,
+		Doc:  doc,
+		Run:  run,
 	}
 }

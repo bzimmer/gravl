@@ -7,9 +7,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const Doc = ``
+const doc = ``
 
-func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var vals []int
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		var dst float64
@@ -28,7 +28,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
 		Name: "benford",
-		Doc:  Doc,
-		Run:  Run,
+		Doc:  doc,
+		Run:  run,
 	}
 }

@@ -1,6 +1,8 @@
 
 ## Activity planning and analysis
 
+![gopher](./run.png)
+
 ### Activity
 * [Cycling Analytics](https://cyclinganalytics.com)
 * [Ride with GPS](https://ridewithgps.com)
@@ -36,3 +38,7 @@
  "error_code": ""
 }
 ```
+
+### Credits
+
+Credits to Renee French for the gophers.

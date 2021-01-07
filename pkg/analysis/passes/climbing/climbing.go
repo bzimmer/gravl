@@ -9,10 +9,13 @@ import (
 )
 
 const (
-	Doc = `All activities exceedinv the Golden Ratio
+	doc = `All activities exceedinv the Golden Ratio
 
 	https://blog.wahoofitness.com/by-the-numbers-distance-and-elevation/`
-	GoldenRatioMetric   = 20
+
+	// GoldenRatioMetric in metric units
+	GoldenRatioMetric = 20
+	// GoldenRatioImperial in imperial units
 	GoldenRatioImperial = 100
 )
 
@@ -21,7 +24,7 @@ type Result struct {
 	Number   int                `json:"number"`
 }
 
-func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var climbings []*Result
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		var thr int
@@ -51,7 +54,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
 		Name: "climbing",
-		Doc:  Doc,
-		Run:  Run,
+		Doc:  doc,
+		Run:  run,
 	}
 }

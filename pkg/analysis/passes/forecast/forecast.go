@@ -9,18 +9,18 @@ import (
 	"github.com/bzimmer/gravl/pkg/wx/noaa"
 )
 
-const Doc = ``
+const doc = ``
 
 type Result struct {
 	Activity *analysis.Activity `json:"activity"`
 	Forecast *noaa.Forecast     `json:"forecast"`
 }
 
-type Forecast struct {
+type forecast struct {
 	client *noaa.Client
 }
 
-func (a *Forecast) Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (a *forecast) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var res []*Result
 	for _, act := range pass.Activities {
 		coords := act.StartLatlng
@@ -42,10 +42,10 @@ func New() *analysis.Analyzer {
 	if err != nil {
 		panic(err)
 	}
-	f := &Forecast{client: client}
+	f := &forecast{client: client}
 	return &analysis.Analyzer{
 		Name: "forecast",
-		Doc:  Doc,
-		Run:  f.Run,
+		Doc:  doc,
+		Run:  f.run,
 	}
 }

@@ -7,11 +7,11 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const Doc = `splat simply returns all activities in the units specified
+const doc = `splat simply returns all activities in the units specified
 
 This analyzer is useful for debugging the filter.`
 
-func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var res []*analysis.Activity
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
 		res = append(res, analysis.ToActivity(act, pass.Units))
@@ -23,7 +23,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
 		Name: "splat",
-		Doc:  Doc,
-		Run:  Run,
+		Doc:  doc,
+		Run:  run,
 	}
 }

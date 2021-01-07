@@ -4,19 +4,7 @@
 
 package strava
 
-func FilterActivity(f func(Activity) bool, coll []Activity) []Activity {
-	if f == nil {
-		return []Activity{}
-	}
-	var w []Activity
-	for _, v := range coll {
-		if f(v) {
-			w = append(w, v)
-		}
-	}
-	return w
-}
-
+// FilterActivityPtr filters all Activity instances not fulfilling the predicate
 func FilterActivityPtr(f func(*Activity) bool, coll []*Activity) []*Activity {
 	if f == nil {
 		return []*Activity{}
@@ -29,3 +17,15 @@ func FilterActivityPtr(f func(*Activity) bool, coll []*Activity) []*Activity {
 	}
 	return w
 }
+
+// func FilterActivity(f func(Activity) bool, coll []Activity) []Activity {
+// 	if f == nil {
+// return []Activity{}
+// 	}
+// var w []Activity
+// 	for _, v := range coll {
+// 		if f(v) {
+// 			w = append(w, v)
+// 		}
+// 	}
+// 	return w

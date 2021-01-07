@@ -13,6 +13,7 @@ import (
 // AuthService is the API for auth endpoints
 type AuthService service
 
+// Login creates a user session for the username/password
 func (s *AuthService) Login(ctx context.Context, username, password string) error {
 	if s.client.client.Jar == nil {
 		return errors.New("cookiejar not set on http client")

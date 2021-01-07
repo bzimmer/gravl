@@ -4,6 +4,7 @@
 
 package strava
 
+// EveryActivityPtr iterates all Activity
 func EveryActivityPtr(f func(*Activity) bool, coll []*Activity) bool {
 	if f == nil || len(coll) == 0 {
 		return false
@@ -16,14 +17,13 @@ func EveryActivityPtr(f func(*Activity) bool, coll []*Activity) bool {
 	return true
 }
 
-func EveryActivity(f func(Activity) bool, coll []Activity) bool {
-	if f == nil || len(coll) == 0 {
-		return false
-	}
-	for _, v := range coll {
-		if !f(v) {
-			return false
-		}
-	}
-	return true
-}
+// func EveryActivity(f func(Activity) bool, coll []Activity) bool {
+// 	if f == nil || len(coll) == 0 {
+// 		return false
+// 	}
+// 	for _, v := range coll {
+// 		if !f(v) {
+// 			return false
+// 		}
+// 	}
+// 	return true

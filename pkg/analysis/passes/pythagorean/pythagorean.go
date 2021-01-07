@@ -14,9 +14,9 @@ type Results struct {
 	Number   int                `json:"number"`
 }
 
-const Doc = ``
+const doc = ``
 
-func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var i int
 	res := make([]*Results, len(pass.Activities))
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
@@ -39,7 +39,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
 		Name: "pythagorean",
-		Doc:  Doc,
-		Run:  Run,
+		Doc:  doc,
+		Run:  run,
 	}
 }

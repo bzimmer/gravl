@@ -1,8 +1,10 @@
-// Package strava provides a client to access the Strava API.
+/*
+Package strava provides a client to access the Strava API.
 
-// Information about the Strava API can be found at Strava's (site)
-// https://developers.com/. This client provides read-only
-// access and is not intended to be a complete implementation.
+Information about the Strava API can be found at Strava's (site)
+https://developers.com/. This client provides read-only
+access and is not intended to be a complete implementation.
+*/
 package strava
 
 import (
@@ -12,6 +14,7 @@ import (
 	"time"
 )
 
+// Example use case of the strava package
 func Example() {
 	ctx := context.Background()
 	client, err := NewClient(

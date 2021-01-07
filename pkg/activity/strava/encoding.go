@@ -43,6 +43,7 @@ func polylineToLineString(polylines ...string) (*geom.LineString, error) {
 	return linestring, nil
 }
 
+// GPX representation of an activity
 func (a *Activity) GPX() (x *gpx.GPX, err error) {
 	// minimally require the lat/lng
 	if a.Streams != nil && a.Streams.LatLng != nil {
@@ -75,6 +76,7 @@ func (a *Activity) GPX() (x *gpx.GPX, err error) {
 	return
 }
 
+// GPX representation of an route
 func (r *Route) GPX() (*gpx.GPX, error) {
 	ls, err := polylineToLineString(r.Map.Polyline, r.Map.SummaryPolyline)
 	if err != nil {
@@ -92,6 +94,7 @@ func (r *Route) GPX() (*gpx.GPX, error) {
 	}, nil
 }
 
+// GPX representation of a streams
 func (s *Streams) GPX() (*gpx.GPX, error) {
 	return toGPXFromStreams(s, time.Time{})
 }

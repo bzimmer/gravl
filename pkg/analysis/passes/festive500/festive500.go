@@ -9,7 +9,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const Doc = ``
+const doc = ``
 
 var activityTypes = map[string]bool{
 	"Ride":        true,
@@ -25,7 +25,7 @@ type Result struct {
 	Success           bool                 `json:"success"`
 }
 
-func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var dst float64
 	var acts []*analysis.Activity
 	strava.EveryActivityPtr(func(act *strava.Activity) bool {
@@ -59,7 +59,7 @@ func Run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
 		Name: "festive500",
-		Doc:  Doc,
-		Run:  Run,
+		Doc:  doc,
+		Run:  run,
 	}
 }

@@ -21,19 +21,18 @@ func GroupByStringActivityPtr(f func(act *Activity) string, coll []*Activity) ma
 	return res
 }
 
-// GroupByStringActivity returns a mapping of string to []Activity based on the return
-// value of function `f`
-//
-// Example:
-// groups := GroupByStringActivity(func(val *Activity) string {
-// return StringIsh
-//   }, vals)
-func GroupByStringActivity(f func(act Activity) string, coll []Activity) map[string][]Activity {
-	res := make(map[string][]Activity)
-	EveryActivity(func(act Activity) bool {
-		key := f(act)
-		res[key] = append(res[key], act)
-		return true
-	}, coll)
-	return res
-}
+// // GroupByStringActivity returns a mapping of string to []Activity based on the return
+// // value of function `f`
+// //
+// // Example:
+// // groups := GroupByStringActivity(func(val *Activity) string {
+// // return StringIsh
+// //   }, vals)
+// func GroupByStringActivity(f func(act Activity) String, coll []Activity) map[String][]Activity {
+// res := make(map[String][]Activity)
+// EveryActivity(func(act Activity) bool {
+// 		key := f(act)
+// 		res[key] = append(res[key], act)
+// 		return true
+// 	}, coll)
+// 	return res

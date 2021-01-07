@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	baseURL  = "https://www.strava.com/api/v3"
+	baseURL = "https://www.strava.com/api/v3"
+	// PageSize default for querying bulk entities (eg activities, routes)
 	PageSize = 100
 )
 
@@ -29,7 +30,7 @@ var Endpoint = oauth2.Endpoint{
 	AuthStyle: oauth2.AuthStyleAutoDetect,
 }
 
-// Client client
+// Client for communicating with Strava
 type Client struct {
 	client *http.Client
 	config oauth2.Config
@@ -69,12 +70,11 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 }
 
 func (c *Client) newWebhookRequest(ctx context.Context, method, uri string, body map[string]string) (*http.Request, error) {
+	var buf io.Reader
 	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
 	}
-
-	var buf io.Reader
 	if body != nil {
 		form := url.Values{}
 		form.Set("client_id", c.config.ClientID)
@@ -84,15 +84,12 @@ func (c *Client) newWebhookRequest(ctx context.Context, method, uri string, body
 		}
 		buf = ioutil.NopCloser(bytes.NewBufferString(form.Encode()))
 	}
-
 	req, err := http.NewRequestWithContext(ctx, method, u.String(), buf)
 	if err != nil {
 		return nil, err
 	}
-
 	if body != nil {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded; param=value")
 	}
-
 	return req, nil
 }

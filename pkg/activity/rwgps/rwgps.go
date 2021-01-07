@@ -18,10 +18,11 @@ import (
 const (
 	apiVersion = "2"
 	baseURL    = "https://ridewithgps.com"
-	PageSize   = 30
+	// PageSize default for querying bulk entities (eg trips, routes)
+	PageSize = 30
 )
 
-// Client .
+// Client for communicating with RWGPS
 type Client struct {
 	config oauth2.Config
 	token  oauth2.Token
