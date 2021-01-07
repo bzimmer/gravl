@@ -144,6 +144,7 @@ func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 
 var Command = &cli.Command{
 	Name:     "pass",
+	Aliases:  []string{"analysis"},
 	Category: "analysis",
 	Usage:    "Produce statistics and other interesting artifacts from Strava activities",
 	Flags: []cli.Flag{

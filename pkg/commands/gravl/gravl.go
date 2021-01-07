@@ -87,7 +87,7 @@ func initLogging(c *cli.Context) error {
 	return nil
 }
 
-var Flags = func() []cli.Flag {
+var flags = func() []cli.Flag {
 	dbpath := path.Join(xdg.DataHome, pkg.PackageName, "gravl.db")
 	config := path.Join(xdg.ConfigHome, pkg.PackageName, "gravl.yaml")
 	return []cli.Flag{
@@ -132,6 +132,11 @@ var Flags = func() []cli.Flag {
 			Value:   time.Millisecond * 10000,
 			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
 		},
+		// &cli.DurationFlag{
+		// 	Name:  "deadline",
+		// 	Value: time.Minute * 1,
+		// 	Usage: "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
+		// },
 		&cli.PathFlag{
 			Name:      "db",
 			Value:     dbpath,
@@ -141,7 +146,7 @@ var Flags = func() []cli.Flag {
 	}
 }()
 
-var Commands = func() []*cli.Command {
+var gravlCommands = func() []*cli.Command {
 	return []*cli.Command{
 		cyclinganalytics.Command,
 		gnis.Command,
@@ -163,8 +168,8 @@ func Run(args []string) error {
 	app := &cli.App{
 		Name:     "gravl",
 		HelpName: "gravl",
-		Flags:    Flags,
-		Commands: Commands,
+		Flags:    flags,
+		Commands: gravlCommands,
 		Before:   commands.Before(initLogging, initEncoding, initConfig),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			log.Error().Err(err).Msg(c.App.Name)

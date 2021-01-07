@@ -16,7 +16,6 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 			for _, ach := range effort.Achievements {
 				if ach.Rank == 1 && ach.Type == "overall" {
 					efforts = append(efforts, effort)
-					break
 				}
 			}
 		}
