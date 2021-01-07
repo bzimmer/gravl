@@ -4,7 +4,7 @@
 ![gopher](./run.png)
 
 ### Activity
-* [Cycling Analytics](https://cyclinganalytics.com)
+* [Cycling Analytics](https://www.cyclinganalytics.com/)
 * [Ride with GPS](https://ridewithgps.com)
 * [Strava](https://strava.com)
 * [WTA](https://wta.org)
@@ -14,16 +14,16 @@
 * [SRTM](https://github.com/sakisds/go-srtm)
 
 ### Weather
-* [NOAA](https://api.weather.gov)
+* [NOAA](https://weather.gov)
 * [OpenWeather API](https://openweathermap.org/api)
-* [VisualCrossing](https://weather.visualcrossing.com)
+* [VisualCrossing](https://visualcrossing.com)
 
 ### Examples
 
 ```sh
-~/Development/src/github.com/bzimmer/gravl (cli) > go run cmd/gravl/* strava --export original 4569050661
+gravl > go run cmd/gravl/* strava --export original 4569050661
 "Paris.fit"
-~/Development/src/github.com/bzimmer/gravl (cli) > go run cmd/gravl/* ca --upload Paris.fit
+gravl > go run cmd/gravl/* ca --upload Paris.fit
 2021-01-04T20:38:12-08:00 INF uploading file=Paris.fit size=67629
 {
  "status": "processing",

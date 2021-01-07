@@ -20,7 +20,7 @@ var Command = &cli.Command{
 		routeCommand,
 		routesCommand,
 		streamsCommand,
-		updateCommand,
+		storeCommand,
 	},
 }
 

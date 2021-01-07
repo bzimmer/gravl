@@ -3,6 +3,7 @@ package analysis
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/antonmedv/expr"
 	"github.com/spf13/cast"
@@ -40,6 +41,20 @@ func (g *Group) walk(ctx context.Context, f func(context.Context, *Group) error)
 		}
 	}
 	return nil
+}
+
+// Closure wraps an attribute in {} if required
+func Closure(f string) string {
+	if f == "" {
+		return f
+	}
+	if !strings.HasPrefix(f, "{") {
+		f = "{" + f
+	}
+	if !strings.HasSuffix(f, "}") {
+		f = f + "}"
+	}
+	return f
 }
 
 // Filter filters the activities using an expression

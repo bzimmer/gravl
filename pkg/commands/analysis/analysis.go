@@ -1,9 +1,8 @@
-package pass
+package analysis
 
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/rs/zerolog/log"
 	"github.com/timshannon/bolthold"
@@ -52,19 +51,6 @@ var _analyzers = func() map[string]analyzer {
 	}
 	return res
 }()
-
-func closure(f string) string {
-	if f == "" {
-		return f
-	}
-	if !strings.HasPrefix(f, "{") {
-		f = "{" + f
-	}
-	if !strings.HasSuffix(f, "}") {
-		f = f + "}"
-	}
-	return f
-}
 
 func analyzers(c *cli.Context) ([]*analysis.Analyzer, error) {
 	var ans []*analysis.Analyzer
@@ -121,7 +107,7 @@ func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
 	if !c.IsSet("filter") {
 		return pass, nil
 	}
-	q := closure(c.String("filter"))
+	q := analysis.Closure(c.String("filter"))
 	return pass.Filter(q)
 }
 
@@ -134,7 +120,7 @@ func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 	}
 	var exprs []string
 	for _, g := range c.StringSlice("groupby") {
-		exprs = append(exprs, closure(g))
+		exprs = append(exprs, analysis.Closure(g))
 	}
 	g, err := pass.GroupBy(exprs...)
 	if err != nil {
@@ -144,8 +130,8 @@ func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 }
 
 var Command = &cli.Command{
-	Name:     "pass",
-	Aliases:  []string{"analysis"},
+	Name:     "analysis",
+	Aliases:  []string{"pass"},
 	Category: "analysis",
 	Usage:    "Produce statistics and other interesting artifacts from Strava activities",
 	Flags: []cli.Flag{

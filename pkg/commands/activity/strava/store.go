@@ -4,7 +4,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/rs/zerolog/log"
 	"github.com/timshannon/bolthold"
@@ -12,6 +11,7 @@ import (
 	"go.etcd.io/bbolt"
 
 	"github.com/bzimmer/gravl/pkg/activity/strava"
+	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
@@ -40,26 +40,38 @@ func remove(c *cli.Context) error {
 	}
 	defer db.Close()
 
-	var x int64
-	args := c.Args().Slice()
-	ids := make([]interface{}, len(args))
-	for i := 0; i < len(args); i++ {
-		x, err = strconv.ParseInt(args[i], 0, 64)
+	var acts []*strava.Activity
+	err = db.ForEach(&bolthold.Query{}, func(act *strava.Activity) error {
+		acts = append(acts, act)
+		return nil
+	})
+	pass := &analysis.Pass{Activities: acts}
+	if c.IsSet("filter") {
+		q := analysis.Closure(c.String("filter"))
+		pass, err = pass.Filter(q)
 		if err != nil {
 			return err
 		}
-		ids[i] = x
 	}
-
+	ids := make([]interface{}, len(pass.Activities))
+	for i, act := range pass.Activities {
+		ids[i] = act.ID
+	}
+	if c.Bool("dryrun") {
+		return encoding.Encode(ids)
+	}
 	q := bolthold.Where("ID").In(ids...)
+	log.Info().Str("q", q.String()).Msg("deleting activities")
 	err = db.Bolt().Update(func(tx *bbolt.Tx) error {
-		log.Info().Str("q", q.String()).Msg("deleting activities")
 		if err = db.TxDeleteMatching(tx, strava.Activity{}, q); err != nil {
 			return err
 		}
 		return nil
 	})
-	return err
+	if err != nil {
+		return nil
+	}
+	return encoding.Encode(ids)
 }
 
 func update(c *cli.Context) error {
@@ -91,22 +103,35 @@ func update(c *cli.Context) error {
 	return nil
 }
 
-var updateCommand = &cli.Command{
-	Name:  "update",
-	Usage: "Query Strava for activities and update the local db",
+var storeCommand = &cli.Command{
+	Name:  "store",
+	Usage: "Manage a local store of Strava activities",
 	Flags: []cli.Flag{
 		commands.StoreFlag,
-		&cli.BoolFlag{
-			Name:    "remove",
-			Aliases: []string{"r"},
-			Value:   false,
-			Usage:   "Delete keys",
-		},
 	},
-	Action: func(c *cli.Context) error {
-		if c.Bool("remove") {
-			return remove(c)
-		}
-		return update(c)
+	Subcommands: []*cli.Command{
+		{
+			Name:   "update",
+			Usage:  "Query and update Strava activities to local storage",
+			Action: update,
+		},
+		{
+			Name:  "remove",
+			Usage: "Remove activities from local storage",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:    "filter",
+					Aliases: []string{"f"},
+					Usage:   "Expression for filtering activities",
+				},
+				&cli.BoolFlag{
+					Name:    "dryrun",
+					Aliases: []string{"n"},
+					Value:   false,
+					Usage:   "Don't actually remove anything, just show what would be done.",
+				},
+			},
+			Action: remove,
+		},
 	},
 }

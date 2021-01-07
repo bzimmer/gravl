@@ -21,10 +21,10 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/activity/wta"
+	"github.com/bzimmer/gravl/pkg/commands/analysis"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gnis"
 	"github.com/bzimmer/gravl/pkg/commands/geo/srtm"
-	"github.com/bzimmer/gravl/pkg/commands/pass"
 	"github.com/bzimmer/gravl/pkg/commands/serve"
 	"github.com/bzimmer/gravl/pkg/commands/version"
 	"github.com/bzimmer/gravl/pkg/commands/wx/noaa"
@@ -140,7 +140,7 @@ var gravlCommands = func() []*cli.Command {
 		gnis.Command,
 		noaa.Command,
 		openweather.Command,
-		pass.Command,
+		analysis.Command,
 		rwgps.Command,
 		serve.Command,
 		srtm.Command,
