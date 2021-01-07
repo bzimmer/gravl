@@ -16,7 +16,7 @@ import (
 )
 
 // Maximum number of times to request status updates on uploads
-const maxFollows = 5
+const follows = 5
 
 func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 	return cyclinganalytics.NewClient(
@@ -70,7 +70,7 @@ func collect(name string) ([]*cyclinganalytics.File, error) {
 //  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
 func follow(ctx context.Context, client *cyclinganalytics.Client, id int64, follow bool) error {
 	// status: processing, done, or error
-	i := maxFollows
+	i := follows
 	for {
 		u, err := client.Rides.Status(ctx, cyclinganalytics.Me, id)
 		if err != nil {
@@ -84,7 +84,7 @@ func follow(ctx context.Context, client *cyclinganalytics.Client, id int64, foll
 		}
 		i--
 		if i == 0 {
-			log.Warn().Int("follows", maxFollows).Msg("exceeded max follows")
+			log.Warn().Int("follows", follows).Msg("exceeded max follows")
 			break
 		}
 		select {
