@@ -60,8 +60,8 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 }
 
 // Activity returns the activity specified by id
-func (s *ActivityService) Activity(ctx context.Context, id int64, streams ...string) (*Activity, error) {
-	uri := fmt.Sprintf("activities/%d", id)
+func (s *ActivityService) Activity(ctx context.Context, activityID int64, streams ...string) (*Activity, error) {
+	uri := fmt.Sprintf("activities/%d", activityID)
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
@@ -71,11 +71,11 @@ func (s *ActivityService) Activity(ctx context.Context, id int64, streams ...str
 	if err != nil {
 		return nil, err
 	}
-	var sms *Streams
 	if len(streams) > 0 {
+		var sms *Streams
 		log.Debug().Strs("streams", streams).Msg("querying")
-		// @todo querying in parallel to the activity
-		sms, err = s.Streams(ctx, id, streams...)
+		// @todo(bzimmer) query streams concurrently to activity
+		sms, err = s.Streams(ctx, activityID, streams...)
 		if err != nil {
 			return nil, err
 		}
@@ -86,10 +86,7 @@ func (s *ActivityService) Activity(ctx context.Context, id int64, streams ...str
 
 // Activities returns a page of activities for an athlete
 func (s *ActivityService) Activities(ctx context.Context, spec activity.Pagination) ([]*Activity, error) {
-	p := &activityPaginator{
-		service:    *s,
-		activities: make([]*Activity, 0),
-	}
+	p := &activityPaginator{service: *s, activities: make([]*Activity, 0)}
 	err := activity.Paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err

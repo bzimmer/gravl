@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"path"
 
 	"github.com/adrg/xdg"
@@ -29,6 +31,14 @@ func Before(befores ...cli.BeforeFunc) cli.BeforeFunc {
 		}
 		return nil
 	}
+}
+
+func Token(n int) (string, error) {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
 }
 
 var StoreFlag = func() cli.Flag {

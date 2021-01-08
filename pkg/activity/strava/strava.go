@@ -70,11 +70,11 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 }
 
 func (c *Client) newWebhookRequest(ctx context.Context, method, uri string, body map[string]string) (*http.Request, error) {
-	var buf io.Reader
 	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
 	}
+	var buf io.Reader
 	if body != nil {
 		form := url.Values{}
 		form.Set("client_id", c.config.ClientID)

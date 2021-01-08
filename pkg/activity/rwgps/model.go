@@ -1,6 +1,6 @@
 package rwgps
 
-//go:generate stringer -type=Origin -linecomment -output=model_string.go
+//go:generate stringer -type=Type -linecomment -output=model_string.go
 
 import (
 	"time"
@@ -8,14 +8,14 @@ import (
 	"github.com/martinlindhe/unit"
 )
 
-// Origin of the trip
-type Origin int
+// Type of the trip
+type Type int
 
 const (
-	// OriginTrip is a ride which was recorded by GPS
-	OriginTrip Origin = iota // trip
-	// OriginRoute is a ride which was planned on the RWGPS route builder
-	OriginRoute // route
+	// TypeTrip is a ride which was recorded by GPS
+	TypeTrip Type = iota // trip
+	// TypeRoute is a ride which was planned on the RWGPS route builder
+	TypeRoute // route
 )
 
 type UserID int64
@@ -110,7 +110,7 @@ type Trip struct {
 	ElevationLoss unit.Length   `json:"elevation_loss" units:"m"`
 	ID            int64         `json:"id"`
 	Name          string        `json:"name"`
-	Origin        Origin        `json:"-"`
+	Type          string        `json:"type"`
 	TrackID       string        `json:"track_id"`
 	TrackPoints   []*TrackPoint `json:"track_points,omitempty"`
 	UpdatedAt     time.Time     `json:"updated_at"`

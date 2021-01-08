@@ -16,11 +16,13 @@ var Command = &cli.Command{
 		athleteCommand,
 		exportCommand,
 		fitnessCommand,
+		oauthCommand,
 		refreshCommand,
 		routeCommand,
 		routesCommand,
 		streamsCommand,
 		storeCommand,
+		webhookCommand,
 	},
 }
 

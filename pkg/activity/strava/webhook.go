@@ -14,14 +14,14 @@ import (
 // WebhookService is the API for webhook endpoints
 type WebhookService service
 
-// Acknowledgement is the ack from Strava a webhook subscription has been received
-type Acknowledgement struct {
-	ID int `json:"id"`
+// WebhookAcknowledgement is the ack from Strava a webhook subscription has been received
+type WebhookAcknowledgement struct {
+	ID int64 `json:"id"`
 }
 
-// Subscription describes the details of webhook subscription
-type Subscription struct {
-	ID            int       `json:"id"`
+// WebhookSubscription describes the details of webhook subscription
+type WebhookSubscription struct {
+	ID            int64     `json:"id"`
 	ResourceState int       `json:"resource_state"`
 	ApplicationID int       `json:"application_id"`
 	CallbackURL   string    `json:"callback_url"`
@@ -35,7 +35,7 @@ type WebhookMessage struct {
 	ObjectID       int               `json:"object_id"`
 	AspectType     string            `json:"aspect_type"`
 	OwnerID        int               `json:"owner_id"`
-	SubscriptionID int               `json:"subscription_id"`
+	SubscriptionID int64             `json:"subscription_id"`
 	EventTime      int               `json:"event_time"`
 	Updates        map[string]string `json:"updates"`
 }
@@ -51,14 +51,14 @@ type WebhookSubscriber interface {
 }
 
 // Subscribe to a webhook
-func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken string) (*Acknowledgement, error) {
+func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken string) (*WebhookAcknowledgement, error) {
 	uri := "push_subscriptions"
 	req, err := s.client.newWebhookRequest(ctx, http.MethodPost, uri,
 		map[string]string{"callback_url": callbackURL, "verify_token": verifyToken})
 	if err != nil {
 		return nil, err
 	}
-	ack := &Acknowledgement{}
+	ack := &WebhookAcknowledgement{}
 	err = s.client.do(req, ack)
 	if err != nil {
 		return nil, err
@@ -67,37 +67,37 @@ func (s *WebhookService) Subscribe(ctx context.Context, callbackURL, verifyToken
 }
 
 // Unsubscribe to a webhook
-func (s *WebhookService) Unsubscribe(ctx context.Context, subscriptionID int) error {
+func (s *WebhookService) Unsubscribe(ctx context.Context, subscriptionID int64) error {
 	uri := fmt.Sprintf("push_subscriptions/%d", subscriptionID)
-	req, err := s.client.newWebhookRequest(ctx, http.MethodDelete, uri, nil)
+	// the empty body for credentials to be included in the request
+	req, err := s.client.newWebhookRequest(ctx, http.MethodDelete, uri, map[string]string{})
 	if err != nil {
 		return err
 	}
 	return s.client.do(req, nil)
 }
 
-// Subscriptions returns a list of subscriptions
-func (s *WebhookService) Subscriptions(ctx context.Context) (*[]Subscription, error) {
+// List active webhook subscriptions
+func (s *WebhookService) List(ctx context.Context) ([]*WebhookSubscription, error) {
 	uri := fmt.Sprintf("push_subscriptions?client_id=%s&client_secret=%s",
 		s.client.config.ClientID, s.client.config.ClientSecret)
 	req, err := s.client.newWebhookRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
 	}
-	subs := &[]Subscription{}
-	err = s.client.do(req, subs)
+	var subs []*WebhookSubscription
+	err = s.client.do(req, &subs)
 	if err != nil {
 		return nil, err
 	}
 	return subs, err
 }
 
-// WebhookSubscriptionHandler handles subscription requests from Strava
+// WebhookSubscriptionHandler handles subscription requests from Strava (GET)
 func WebhookSubscriptionHandler(subscriber WebhookSubscriber) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		verify, _ := c.GetQuery("hub.verify_token")
 		challenge, _ := c.GetQuery("hub.challenge")
-
 		if subscriber != nil {
 			// if err is not nil the verification failed
 			err := subscriber.SubscriptionRequest(challenge, verify)
@@ -112,7 +112,7 @@ func WebhookSubscriptionHandler(subscriber WebhookSubscriber) func(c *gin.Contex
 	}
 }
 
-// WebhookEventHandler receives the webhook callbacks from Strava
+// WebhookEventHandler receives the webhook callbacks from Strava (POST)
 func WebhookEventHandler(subscriber WebhookSubscriber) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		m := &WebhookMessage{}

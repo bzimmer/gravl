@@ -52,11 +52,7 @@ func (p *tripsPaginator) Do(ctx context.Context, start, count int) (int, error) 
 
 // Trips returns a slice of Trips
 func (s *TripsService) Trips(ctx context.Context, userID UserID, spec activity.Pagination) ([]*Trip, error) {
-	p := &tripsPaginator{
-		service: *s,
-		userID:  userID,
-		trips:   make([]*Trip, 0),
-	}
+	p := &tripsPaginator{service: *s, userID: userID, trips: make([]*Trip, 0)}
 	err := activity.Paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err
@@ -66,15 +62,15 @@ func (s *TripsService) Trips(ctx context.Context, userID UserID, spec activity.P
 
 // Trip returns a trip for the `tripID`
 func (s *TripsService) Trip(ctx context.Context, tripID int64) (*Trip, error) {
-	return s.trip(ctx, OriginTrip, fmt.Sprintf("trips/%d.json", tripID))
+	return s.trip(ctx, TypeTrip, fmt.Sprintf("trips/%d.json", tripID))
 }
 
 // Route returns a trip for the `routeID`
 func (s *TripsService) Route(ctx context.Context, routeID int64) (*Trip, error) {
-	return s.trip(ctx, OriginRoute, fmt.Sprintf("routes/%d.json", routeID))
+	return s.trip(ctx, TypeRoute, fmt.Sprintf("routes/%d.json", routeID))
 }
 
-func (s *TripsService) trip(ctx context.Context, origin Origin, uri string) (*Trip, error) {
+func (s *TripsService) trip(ctx context.Context, entity Type, uri string) (*Trip, error) {
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
@@ -93,14 +89,12 @@ func (s *TripsService) trip(ctx context.Context, origin Origin, uri string) (*Tr
 	}
 
 	var t *Trip
-	switch origin {
-	case OriginTrip:
+	switch entity {
+	case TypeTrip:
 		t = res.Trip
-	case OriginRoute:
+	case TypeRoute:
 		t = res.Route
-	default:
-		return nil, fmt.Errorf("unknown origin type {%d}", origin)
 	}
-	t.Origin = origin
+	t.Type = entity.String()
 	return t, nil
 }

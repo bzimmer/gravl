@@ -25,7 +25,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gnis"
 	"github.com/bzimmer/gravl/pkg/commands/geo/srtm"
-	"github.com/bzimmer/gravl/pkg/commands/serve"
 	"github.com/bzimmer/gravl/pkg/commands/version"
 	"github.com/bzimmer/gravl/pkg/commands/wx/noaa"
 	"github.com/bzimmer/gravl/pkg/commands/wx/openweather"
@@ -142,7 +141,6 @@ var gravlCommands = func() []*cli.Command {
 		openweather.Command,
 		analysis.Command,
 		rwgps.Command,
-		serve.Command,
 		srtm.Command,
 		strava.Command,
 		version.Command,

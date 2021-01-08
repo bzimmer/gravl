@@ -36,7 +36,7 @@ func Test_WebhookSubscribe(t *testing.T) {
 	msg, err := client.Webhook.Subscribe(ctx, "https://example.com/wh/callback", "verifyToken123")
 	a.NoError(err)
 	a.NotNil(msg)
-	a.Equal(887228, msg.ID)
+	a.Equal(int64(887228), msg.ID)
 }
 
 func Test_WebhookUnsubscribe(t *testing.T) {
@@ -49,16 +49,16 @@ func Test_WebhookUnsubscribe(t *testing.T) {
 	a.NoError(err)
 }
 
-func Test_WebhookSubscriptions(t *testing.T) {
+func Test_WebhookList(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	client, err := newClient(http.StatusOK, "subscriptions.json")
 	a.NoError(err)
 	ctx := context.Background()
-	msgs, err := client.Webhook.Subscriptions(ctx)
+	subs, err := client.Webhook.List(ctx)
 	a.NoError(err)
-	a.NotNil(msgs)
-	a.Equal(1, len(*msgs))
+	a.NotNil(subs)
+	a.Equal(1, len(subs))
 }
 
 type TestSubscriber struct {

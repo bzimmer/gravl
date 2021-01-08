@@ -29,7 +29,7 @@ func (t *Trip) GeoJSON() (*geojson.Feature, error) {
 		ID:       fmt.Sprintf("%d", t.ID),
 		Geometry: geom.NewLineStringFlat(layout, coords),
 		Properties: map[string]interface{}{
-			"type":   t.Origin.String(),
+			"type":   t.Type,
 			"name":   t.Name,
 			"source": baseURL,
 		},
@@ -39,10 +39,10 @@ func (t *Trip) GeoJSON() (*geojson.Feature, error) {
 
 func (t *Trip) GPX() (*gpx.GPX, error) {
 	var layout geom.Layout
-	switch t.Origin {
-	case OriginTrip:
+	switch t.Type {
+	case TypeTrip.String():
 		layout = geom.XYZM
-	case OriginRoute:
+	case TypeRoute.String():
 		// routes do not have a `time` dimension
 		layout = geom.XYZ
 	}

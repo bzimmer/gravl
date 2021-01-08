@@ -268,6 +268,7 @@ var Command = &cli.Command{
 		activitiesCommand,
 		activityCommand,
 		athleteCommand,
+		oauthCommand,
 		uploadCommand,
 	},
 }

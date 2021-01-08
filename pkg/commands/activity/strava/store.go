@@ -106,9 +106,7 @@ func update(c *cli.Context) error {
 var storeCommand = &cli.Command{
 	Name:  "store",
 	Usage: "Manage a local store of Strava activities",
-	Flags: []cli.Flag{
-		commands.StoreFlag,
-	},
+	Flags: []cli.Flag{commands.StoreFlag},
 	Subcommands: []*cli.Command{
 		{
 			Name:   "update",

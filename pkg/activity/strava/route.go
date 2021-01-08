@@ -42,11 +42,7 @@ func (p *routePaginator) Do(ctx context.Context, start, count int) (int, error) 
 
 // Routes returns a page of routes for an athlete
 func (s *RouteService) Routes(ctx context.Context, athleteID int, spec activity.Pagination) ([]*Route, error) {
-	p := &routePaginator{
-		service:   *s,
-		athleteID: athleteID,
-		routes:    make([]*Route, 0),
-	}
+	p := &routePaginator{service: *s, athleteID: athleteID, routes: make([]*Route, 0)}
 	err := activity.Paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err

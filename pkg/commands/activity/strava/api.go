@@ -13,6 +13,8 @@ import (
 	"golang.org/x/time/rate"
 )
 
+type entityFunc func(context.Context, *strava.Client, int64) (interface{}, error)
+
 func NewAPIClient(c *cli.Context) (*strava.Client, error) {
 	return strava.NewClient(
 		strava.WithTokenCredentials(
@@ -148,16 +150,15 @@ var routesCommand = &cli.Command{
 	Action: routes,
 }
 
-func entity(c *cli.Context, f func(context.Context, *strava.Client, int64) (interface{}, error)) error {
+func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
 	client, err := NewAPIClient(c)
 	if err != nil {
 		return err
 	}
-	args := c.Args()
-	for i := 0; i < args.Len(); i++ {
+	for i := 0; i < len(args); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
-		x, err := strconv.ParseInt(args.Get(i), 0, 64)
+		x, err := strconv.ParseInt(args[i], 0, 64)
 		if err != nil {
 			return err
 		}
@@ -172,13 +173,38 @@ func entity(c *cli.Context, f func(context.Context, *strava.Client, int64) (inte
 	return nil
 }
 
+func entity(c *cli.Context, f entityFunc) error {
+	return entityWithArgs(c, f, c.Args().Slice())
+}
+
+var streamFlag = &cli.StringSliceFlag{
+	Name:    "stream",
+	Aliases: []string{"s"},
+	Value:   cli.NewStringSlice(),
+	Usage:   "Streams to include in the activity",
+}
+
 var activityCommand = &cli.Command{
 	Name:    "activity",
 	Aliases: []string{"a"},
 	Usage:   "Query an activity from Strava",
+	Flags:   []cli.Flag{streamFlag},
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
-			return client.Activity.Activity(ctx, id)
+			return client.Activity.Activity(ctx, id, c.StringSlice("stream")...)
+		})
+	},
+}
+
+var streamsCommand = &cli.Command{
+	Name:    "stream",
+	Aliases: []string{"s"},
+	Usage:   "Query streams for an activity from Strava",
+	Flags:   []cli.Flag{streamFlag},
+	Action: func(c *cli.Context) error {
+		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			streams := append([]string{"latlng", "altitude", "time"}, c.StringSlice("stream")...)
+			return client.Activity.Streams(ctx, id, streams...)
 		})
 	},
 }
@@ -190,17 +216,6 @@ var routeCommand = &cli.Command{
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
 			return client.Route.Route(ctx, id)
-		})
-	},
-}
-
-var streamsCommand = &cli.Command{
-	Name:    "stream",
-	Aliases: []string{"s"},
-	Usage:   "Query streams for an activity from Strava",
-	Action: func(c *cli.Context) error {
-		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
-			return client.Activity.Streams(ctx, id, "latlng", "altitude", "time")
 		})
 	},
 }
