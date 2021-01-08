@@ -38,7 +38,3 @@ gravl > go run cmd/gravl/* ca --upload Paris.fit
  "error_code": ""
 }
 ```
-
-### Credits
-
-Credits to Renee French for the gophers.
