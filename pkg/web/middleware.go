@@ -4,41 +4,61 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
-// LogMiddleware .
-func LogMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		start := time.Now()
-		c.Next()
-		duration := time.Since(start)
+type respwriter struct {
+	http.ResponseWriter
+	wrote  bool
+	status int
+}
 
-		msg := "Request"
-		if len(c.Errors) > 0 {
-			msg = c.Errors.String()
-		}
+func (w *respwriter) Status() int {
+	return w.status
+}
 
-		var entry *zerolog.Event
-		switch {
-		case c.Writer.Status() >= http.StatusBadRequest && c.Writer.Status() < http.StatusInternalServerError:
-			entry = log.Warn()
-		case c.Writer.Status() >= http.StatusInternalServerError:
-			entry = log.Error()
-		default:
-			entry = log.Info()
-		}
+func (w *respwriter) Write(p []byte) (n int, err error) {
+	if !w.wrote {
+		w.WriteHeader(http.StatusOK)
+	}
+	return w.ResponseWriter.Write(p)
+}
 
-		entry.
-			Str("client_ip", c.ClientIP()).
-			Dur("elapsed", duration).
-			Str("method", c.Request.Method).
-			Str("path", c.Request.RequestURI).
-			Int("status", c.Writer.Status()).
-			Str("referrer", c.Request.Referer()).
-			Str("user_agent", c.Request.Header.Get("User-Agent")).
-			Msg(msg)
+func (w *respwriter) WriteHeader(code int) {
+	w.ResponseWriter.WriteHeader(code)
+	if w.wrote {
+		return
+	}
+	w.wrote = true
+	w.status = code
+}
+
+func NewLogHandler(log zerolog.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			sw := &respwriter{ResponseWriter: w}
+			start := time.Now()
+			next.ServeHTTP(sw, r)
+			duration := time.Since(start)
+
+			var entry *zerolog.Event
+			switch {
+			case sw.status >= http.StatusBadRequest && sw.status < http.StatusInternalServerError:
+				entry = log.Warn()
+			case sw.status >= http.StatusInternalServerError:
+				entry = log.Error()
+			default:
+				entry = log.Info()
+			}
+
+			entry.
+				Str("client_ip", r.RemoteAddr).
+				Dur("elapsed", duration).
+				Str("method", r.Method).
+				Str("path", r.URL.String()).
+				Int("status", sw.status).
+				Str("user_agent", r.Header.Get("User-Agent")).
+				Msg("request")
+		})
 	}
 }

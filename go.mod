@@ -11,13 +11,13 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/flopp/go-staticmaps v0.0.0-20201128124446-32fe2092006f
 	github.com/fogleman/gg v1.3.0
-	github.com/gin-gonic/gin v1.6.3
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang/geo v0.0.0-20210108004804-a63082ebfb66
 	github.com/martinlindhe/unit v0.0.0-20210106170819-f78511d0c518
 	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762
 	github.com/muesli/kmeans v0.2.1
 	github.com/rs/zerolog v1.20.0
+	github.com/securego/gosec/v2 v2.5.0
 	github.com/spf13/cast v1.3.1
 	github.com/stretchr/testify v1.6.1
 	github.com/timshannon/bolthold v0.0.0-20200817130212-4a25ab140645
@@ -28,9 +28,11 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/valyala/fastjson v1.6.3
 	go.etcd.io/bbolt v1.3.5
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324
+	golang.org/x/tools v0.0.0-20201007032633-0806396f153e
 	gonum.org/v1/gonum v0.8.2
 )

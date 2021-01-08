@@ -2,11 +2,12 @@ package strava
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 //  API documented at https://developers.strava.com/docs/webhooks/
@@ -93,45 +94,74 @@ func (s *WebhookService) List(ctx context.Context) ([]*WebhookSubscription, erro
 	return subs, err
 }
 
-// WebhookSubscriptionHandler handles subscription requests from Strava (GET)
-func WebhookSubscriptionHandler(subscriber WebhookSubscriber) func(c *gin.Context) {
-	return func(c *gin.Context) {
-		verify, _ := c.GetQuery("hub.verify_token")
-		challenge, _ := c.GetQuery("hub.challenge")
+// webhookSubscriptionHandler handles subscription requests from Strava (GET)
+func webhookSubscriptionHandler(subscriber WebhookSubscriber) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		verify, ok := q["hub.verify_token"]
+		if !ok && len(verify) == 1 {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		challenge, ok := q["hub.challenge"]
+		if !ok && len(verify) == 1 {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		if subscriber != nil {
 			// if err is not nil the verification failed
-			err := subscriber.SubscriptionRequest(challenge, verify)
+			err := subscriber.SubscriptionRequest(challenge[0], verify[0])
 			if err != nil {
-				c.Abort()
-				_ = c.Error(err)
-				c.JSON(http.StatusInternalServerError, gin.H{"status": "failed"})
-				return
+				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}
-		c.JSON(http.StatusOK, gin.H{"hub.challenge": challenge})
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(map[string]string{"hub.challenge": challenge[0]}); err != nil {
+			log.Error().Err(err).Send()
+		}
 	}
 }
 
-// WebhookEventHandler receives the webhook callbacks from Strava (POST)
-func WebhookEventHandler(subscriber WebhookSubscriber) func(c *gin.Context) {
-	return func(c *gin.Context) {
+// webhookEventHandler receives the webhook callbacks from Strava (POST)
+func webhookEventHandler(subscriber WebhookSubscriber) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		m := &WebhookMessage{}
-		err := c.BindJSON(m)
+		err := json.NewDecoder(r.Body).Decode(m)
 		if err != nil {
-			c.Abort()
-			_ = c.Error(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"status": "ok"})
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		if subscriber != nil {
 			err := subscriber.MessageReceived(m)
 			if err != nil {
-				c.Abort()
-				_ = c.Error(err)
-				c.JSON(http.StatusInternalServerError, gin.H{"status": "failed"})
+				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 		}
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(map[string]string{"status": "ok"}); err != nil {
+			log.Error().Err(err).Send()
+		}
 	}
+}
+
+type webhookHandler struct {
+	sub WebhookSubscriber
+}
+
+func (h *webhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		webhookSubscriptionHandler(h.sub)(w, r)
+	case http.MethodPost:
+		webhookEventHandler(h.sub)(w, r)
+	default:
+		log.Error().Str("method", r.Method).Msg("unhandled http method")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
+// NewWebhookHandler returns a http.Handler for servicing webhook requests
+func NewWebhookHandler(sub WebhookSubscriber) http.Handler {
+	return &webhookHandler{sub: sub}
 }

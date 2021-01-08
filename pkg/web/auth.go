@@ -8,7 +8,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// AuthHandler .
+// AuthHandler redirects to the oauth provider's credential acceptance page
 func AuthHandler(c *oauth2.Config, state string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		u := c.AuthCodeURL(state)
@@ -16,7 +16,7 @@ func AuthHandler(c *oauth2.Config, state string) http.HandlerFunc {
 	}
 }
 
-// AuthCallback .
+// AuthCallback receives the callback from the oauth provider with the credentials
 func AuthCallbackHandler(c *oauth2.Config, state string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {

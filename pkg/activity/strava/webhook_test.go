@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/activity/strava"
@@ -85,13 +84,11 @@ func (t *TestSubscriber) MessageReceived(msg *strava.WebhookMessage) error {
 	return nil
 }
 
-func setupTestRouter() (*TestSubscriber, *gin.Engine) {
+func setupTestRouter() (*TestSubscriber, *http.ServeMux) {
 	sub := &TestSubscriber{fail: false}
-	gin.SetMode(gin.TestMode)
-	r := gin.Default()
-	r.GET("/webhook", strava.WebhookSubscriptionHandler(sub))
-	r.POST("/webhook", strava.WebhookEventHandler(sub))
-	return sub, r
+	mux := http.NewServeMux()
+	mux.Handle("/webhook", strava.NewWebhookHandler(sub))
+	return sub, mux
 }
 
 func Test_WebhookEventHandler(t *testing.T) {
