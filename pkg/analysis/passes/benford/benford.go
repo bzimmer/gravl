@@ -3,7 +3,6 @@ package benford
 import (
 	"context"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
@@ -11,7 +10,8 @@ const doc = ``
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var vals []int
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+	for i := 0; i < len(pass.Activities); i++ {
+		act := pass.Activities[i]
 		var dst float64
 		switch pass.Units {
 		case analysis.Metric:
@@ -20,8 +20,7 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 			dst = act.Distance.Miles()
 		}
 		vals = append(vals, int(dst))
-		return true
-	}, pass.Activities)
+	}
 	return Law(vals), nil
 }
 

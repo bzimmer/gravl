@@ -6,7 +6,6 @@ require (
 	github.com/adrg/xdg v0.2.3
 	github.com/antonmedv/expr v1.8.9
 	github.com/bzimmer/httpwares v0.0.3
-	github.com/cheekybits/genny v1.0.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.10.0
 	github.com/fatih/structtag v1.2.0
@@ -14,7 +13,7 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gocolly/colly/v2 v2.1.0
-	github.com/golang/geo v0.0.0-20200730024412-e86565bf3f35
+	github.com/golang/geo v0.0.0-20210108004804-a63082ebfb66
 	github.com/martinlindhe/unit v0.0.0-20210106170819-f78511d0c518
 	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762
 	github.com/muesli/kmeans v0.2.1
@@ -26,7 +25,6 @@ require (
 	github.com/twpayne/go-geom v1.3.6
 	github.com/twpayne/go-gpx v1.2.0
 	github.com/twpayne/go-polyline v1.0.1
-	github.com/urfave/cli v1.22.5
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/valyala/fastjson v1.6.3
 	go.etcd.io/bbolt v1.3.5

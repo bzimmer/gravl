@@ -4,7 +4,6 @@ import (
 	"context"
 	"sort"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
@@ -26,7 +25,8 @@ type Result struct {
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var climbings []*Result
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+	for i := 0; i < len(pass.Activities); i++ {
+		act := pass.Activities[i]
 		var thr int
 		var dst, elv float64
 		switch pass.Units {
@@ -43,8 +43,7 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		if c > thr {
 			climbings = append(climbings, &Result{Activity: analysis.ToActivity(act, pass.Units), Number: c})
 		}
-		return true
-	}, pass.Activities)
+	}
 	sort.Slice(climbings, func(i, j int) bool {
 		return climbings[i].Number < climbings[j].Number
 	})

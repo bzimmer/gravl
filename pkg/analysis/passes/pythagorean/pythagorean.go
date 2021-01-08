@@ -5,7 +5,6 @@ import (
 	"math"
 	"sort"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
@@ -17,16 +16,15 @@ type Results struct {
 const doc = ``
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
-	var i int
 	res := make([]*Results, len(pass.Activities))
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+	for i := 0; i < len(pass.Activities); i++ {
+		act := pass.Activities[i]
 		dst := act.Distance.Meters()
 		elv := act.ElevationGain.Meters()
 		n := int(math.Sqrt(math.Pow(dst, 2) + math.Pow(elv, 2)))
 		res[i] = &Results{Activity: analysis.ToActivity(act, analysis.Metric), Number: n}
 		i++
-		return true
-	}, pass.Activities)
+	}
 	sort.Slice(res, func(i, j int) bool {
 		return res[i].Number > res[j].Number
 	})

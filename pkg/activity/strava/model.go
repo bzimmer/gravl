@@ -1,11 +1,5 @@
 package strava
 
-//go:generate genny -in ../../fp/template/every.go -out "strava_fp_every.go" -pkg "strava" gen "ValueType=Activity"
-//go:generate genny -in ../../fp/template/filter.go -out "strava_fp_filter.go" -pkg "strava" gen "ValueType=Activity"
-//go:generate genny -in ../../fp/template/map.go -out "strava_fp_map.go" -pkg "strava" gen "ValueType=Activity"
-//go:generate genny -in ../../fp/template/reduce.go -out "strava_fp_reduce.go" -pkg "strava" gen "ValueType=Activity"
-//go:generate genny -in ../../fp/template/groupby.go -out "strava_fp_groupby.go" -pkg "strava" gen "ValueType=Activity KeyType=string"
-
 import (
 	"time"
 

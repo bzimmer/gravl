@@ -5,7 +5,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
@@ -28,10 +27,11 @@ type Result struct {
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var dst float64
 	var acts []*analysis.Activity
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+	for i := 0; i < len(pass.Activities); i++ {
+		act := pass.Activities[i]
 		_, ok := activityTypes[act.Type]
 		if !ok {
-			return true
+			continue
 		}
 		_, month, date := act.StartDateLocal.Date()
 		ok = (month == time.December && date >= 24 && date <= 31)
@@ -39,8 +39,7 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 			dst = dst + act.Distance.Kilometers()
 			acts = append(acts, analysis.ToActivity(act, analysis.Metric))
 		}
-		return true
-	}, pass.Activities)
+	}
 	sort.Slice(acts, func(i, j int) bool {
 		return acts[i].StartDate.Before(acts[j].StartDate)
 	})

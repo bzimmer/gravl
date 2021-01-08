@@ -3,7 +3,6 @@ package eddington
 import (
 	"context"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
@@ -13,8 +12,9 @@ The Eddington is the largest integer E, where you have cycled at least
 E miles (or kilometers) on at least E days.`
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
-	var vals []int
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+	vals := make([]int, len(pass.Activities))
+	for i := 0; i < len(pass.Activities); i++ {
+		act := pass.Activities[i]
 		var dst float64
 		switch pass.Units {
 		case analysis.Metric:
@@ -22,9 +22,8 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		case analysis.Imperial:
 			dst = act.Distance.Miles()
 		}
-		vals = append(vals, int(dst))
-		return true
-	}, pass.Activities)
+		vals[i] = int(dst)
+	}
 	return Number(vals), nil
 }
 

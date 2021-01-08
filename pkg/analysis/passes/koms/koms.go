@@ -11,7 +11,8 @@ const doc = `Return all KOMs for the activities.`
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var efforts []*strava.SegmentEffort
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+	for i := 0; i < len(pass.Activities); i++ {
+		act := pass.Activities[i]
 		for _, effort := range act.SegmentEfforts {
 			for _, ach := range effort.Achievements {
 				if ach.Rank == 1 && ach.Type == "overall" {
@@ -19,8 +20,7 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 				}
 			}
 		}
-		return true
-	}, pass.Activities)
+	}
 	return efforts, nil
 }
 

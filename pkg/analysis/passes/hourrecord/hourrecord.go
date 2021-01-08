@@ -4,6 +4,7 @@ package hourrecord
 
 import (
 	"context"
+	"sort"
 
 	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
@@ -12,20 +13,22 @@ import (
 const doc = `The longest distance traveled (in miles | kilometers) exceeding the average speed (mph | mps).`
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
-	act := strava.ReduceActivityPtr(func(act0, act1 *strava.Activity) *strava.Activity {
-		if act0.AverageSpeed > act1.AverageSpeed {
-			return act0
-		}
-		return act1
-	}, strava.FilterActivityPtr(func(act *strava.Activity) bool {
+	var res []*strava.Activity
+	for i := 0; i < len(pass.Activities); i++ {
+		act := pass.Activities[i]
 		dst := act.Distance
 		spd := act.AverageSpeed
-		return float64(dst) >= float64(spd)
-	}, pass.Activities))
-	if act == nil {
+		if float64(dst) >= float64(spd) {
+			res = append(res, act)
+		}
+	}
+	if len(res) == 0 {
 		return nil, nil
 	}
-	return analysis.ToActivity(act, pass.Units), nil
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].AverageSpeed > res[j].AverageSpeed
+	})
+	return analysis.ToActivity(res[0], pass.Units), nil
 }
 
 func New() *analysis.Analyzer {

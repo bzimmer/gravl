@@ -6,7 +6,6 @@ import (
 
 	"github.com/martinlindhe/unit"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
@@ -29,7 +28,8 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var cen Centuries
 	var dst, elv float64
 	var dur time.Duration
-	strava.EveryActivityPtr(func(act *strava.Activity) bool {
+	for i := 0; i < len(pass.Activities); i++ {
+		act := pass.Activities[i]
 		dur = dur + (time.Duration(act.MovingTime) * time.Second)
 		switch pass.Units {
 		case analysis.Metric:
@@ -45,8 +45,7 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		if act.Distance.Miles() >= 100.0 {
 			cen.Imperial++
 		}
-		return true
-	}, pass.Activities)
+	}
 	return &Result{
 		Count:         len(pass.Activities),
 		Distance:      unit.Length(dst),
