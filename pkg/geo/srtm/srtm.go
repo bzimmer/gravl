@@ -1,6 +1,6 @@
 package srtm
 
-//go:generate go run ../../../cmd/genwith/genwith.go --client --package srtm
+//go:generate go run ../../../cmd/genwith/genwith.go --client --noservicese --noservicese --package srtm
 
 import (
 	"errors"
@@ -20,9 +20,8 @@ type Client struct {
 	Elevation *ElevationService
 }
 
-func withServices(c *Client) error { //nolint:unparam
+func withServices(c *Client) {
 	c.Elevation = &ElevationService{client: c}
-	return nil
 }
 
 // WithStorage sets the cache implementation for data files

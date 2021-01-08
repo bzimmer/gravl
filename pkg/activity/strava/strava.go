@@ -1,6 +1,6 @@
 package strava
 
-//go:generate go run ../../../cmd/genwith/genwith.go --do --client --endpoint --auth --ratelimit --package strava
+//go:generate go run ../../../cmd/genwith/genwith.go --do --client --endpoint --auth --noservicese --ratelimit --package strava
 
 import (
 	"bytes"
@@ -43,13 +43,12 @@ type Client struct {
 	Activity *ActivityService
 }
 
-func withServices(c *Client) error { // nolint:unparam
+func withServices(c *Client) {
 	c.Auth = &AuthService{client: c}
 	c.Route = &RouteService{client: c}
 	c.Webhook = &WebhookService{client: c}
 	c.Athlete = &AthleteService{client: c}
 	c.Activity = &ActivityService{client: c}
-	return nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) { // nolint:unparam

@@ -1,6 +1,6 @@
 package gnis
 
-//go:generate go run ../../../cmd/genwith/genwith.go --client --package gnis
+//go:generate go run ../../../cmd/genwith/genwith.go --client --noservicese --package gnis
 
 import (
 	"net/http"
@@ -17,7 +17,6 @@ type Client struct {
 	GeoNames *GeoNamesService
 }
 
-func withServices(c *Client) error { //nolint
+func withServices(c *Client) {
 	c.GeoNames = &GeoNamesService{client: c}
-	return nil
 }

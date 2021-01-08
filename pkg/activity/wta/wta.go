@@ -1,6 +1,6 @@
 package wta
 
-//go:generate go run ../../../cmd/genwith/genwith.go --client --package wta
+//go:generate go run ../../../cmd/genwith/genwith.go --client --noservicese --package wta
 
 import (
 	"net/http"
@@ -18,8 +18,7 @@ type Client struct {
 	Regions *RegionsService
 }
 
-func withServices(c *Client) error { //nolint:unparam
+func withServices(c *Client) {
 	c.Reports = &ReportsService{client: c}
 	c.Regions = &RegionsService{client: c}
-	return nil
 }

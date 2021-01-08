@@ -1,6 +1,6 @@
 package cyclinganalytics
 
-//go:generate go run ../../../cmd/genwith/genwith.go --do --client --endpoint --auth --package cyclinganalytics
+//go:generate go run ../../../cmd/genwith/genwith.go --do --client --endpoint --auth --noservicese --package cyclinganalytics
 
 import (
 	"context"
@@ -36,10 +36,9 @@ var Endpoint = oauth2.Endpoint{
 	AuthStyle: oauth2.AuthStyleAutoDetect,
 }
 
-func withServices(c *Client) error { //nolint:unparam
+func withServices(c *Client) {
 	c.User = &UserService{client: c}
 	c.Rides = &RidesService{client: c}
-	return nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values, body io.Reader) (*http.Request, error) {

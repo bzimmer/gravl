@@ -1,6 +1,6 @@
 package rwgps
 
-//go:generate go run ../../../cmd/genwith/genwith.go --do --client --auth --package rwgps
+//go:generate go run ../../../cmd/genwith/genwith.go --do --client --auth --noservicese --package rwgps
 
 import (
 	"bytes"
@@ -32,10 +32,9 @@ type Client struct {
 	Trips *TripsService
 }
 
-func withServices(c *Client) error { //nolint:unparam
+func withServices(c *Client) {
 	c.Users = &UsersService{client: c}
 	c.Trips = &TripsService{client: c}
-	return nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, params map[string]string) (*http.Request, error) {

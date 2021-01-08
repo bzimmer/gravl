@@ -1,6 +1,6 @@
 package visualcrossing
 
-//go:generate go run ../../../cmd/genwith/genwith.go --auth --client --package visualcrossing
+//go:generate go run ../../../cmd/genwith/genwith.go --auth --client --noservicese --package visualcrossing
 
 import (
 	"bytes"
@@ -17,11 +17,9 @@ import (
 	"github.com/bzimmer/gravl/pkg"
 )
 
-const (
-	baseURL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata"
-)
+const baseURL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata"
 
-// Client .
+// Client for
 type Client struct {
 	config oauth2.Config
 	token  oauth2.Token
@@ -30,9 +28,8 @@ type Client struct {
 	Forecast *ForecastService
 }
 
-func withServices(c *Client) error { //nolint
+func withServices(c *Client) {
 	c.Forecast = &ForecastService{client: c}
-	return nil
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {
