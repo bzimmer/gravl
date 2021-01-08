@@ -1,7 +1,7 @@
 
 ## Activity planning and analysis
 
-![gopher](./run.png)
+![gopher](./gravl.png)
 
 ### Activity
 * [Cycling Analytics](https://www.cyclinganalytics.com/)
