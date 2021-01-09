@@ -103,34 +103,38 @@ func update(c *cli.Context) error {
 	return nil
 }
 
+var updateCommand = &cli.Command{
+	Name:   "update",
+	Usage:  "Query and update Strava activities to local storage",
+	Action: update,
+}
+
+var removeCommand = &cli.Command{
+	Name:  "remove",
+	Usage: "Remove activities from local storage",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:     "filter",
+			Aliases:  []string{"f"},
+			Required: true,
+			Usage:    "Expression for filtering activities to remove",
+		},
+		&cli.BoolFlag{
+			Name:    "dryrun",
+			Aliases: []string{"n"},
+			Value:   false,
+			Usage:   "Don't actually remove anything, just show what would be done",
+		},
+	},
+	Action: remove,
+}
+
 var storeCommand = &cli.Command{
 	Name:  "store",
 	Usage: "Manage a local store of Strava activities",
 	Flags: []cli.Flag{commands.StoreFlag},
 	Subcommands: []*cli.Command{
-		{
-			Name:   "update",
-			Usage:  "Query and update Strava activities to local storage",
-			Action: update,
-		},
-		{
-			Name:  "remove",
-			Usage: "Remove activities from local storage",
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:     "filter",
-					Aliases:  []string{"f"},
-					Required: true,
-					Usage:    "Expression for filtering activities",
-				},
-				&cli.BoolFlag{
-					Name:    "dryrun",
-					Aliases: []string{"n"},
-					Value:   false,
-					Usage:   "Don't actually remove anything, just show what would be done.",
-				},
-			},
-			Action: remove,
-		},
+		updateCommand,
+		removeCommand,
 	},
 }
