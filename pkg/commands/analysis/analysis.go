@@ -10,6 +10,7 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/ageride"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/benford"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/climbing"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/cluster"
@@ -34,6 +35,7 @@ type analyzer struct {
 var _analyzers = func() map[string]analyzer {
 	res := make(map[string]analyzer)
 	for an, standard := range map[*analysis.Analyzer]bool{
+		ageride.New():     false,
 		benford.New():     false,
 		climbing.New():    true,
 		cluster.New():     false,
