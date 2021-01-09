@@ -1,6 +1,6 @@
 package visualcrossing
 
-//go:generate go run ../../../cmd/genwith/genwith.go --auth --client --noservicese --package visualcrossing
+//go:generate go run ../../../cmd/genwith/genwith.go --auth --client --package visualcrossing
 
 import (
 	"bytes"
@@ -28,8 +28,11 @@ type Client struct {
 	Forecast *ForecastService
 }
 
-func withServices(c *Client) {
-	c.Forecast = &ForecastService{client: c}
+func withServices() Option {
+	return func(c *Client) error {
+		c.Forecast = &ForecastService{client: c}
+		return nil
+	}
 }
 
 func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *url.Values) (*http.Request, error) {

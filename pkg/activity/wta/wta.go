@@ -1,6 +1,6 @@
 package wta
 
-//go:generate go run ../../../cmd/genwith/genwith.go --client --noservicese --package wta
+//go:generate go run ../../../cmd/genwith/genwith.go --client --package wta
 
 import "net/http"
 
@@ -14,7 +14,10 @@ type Client struct {
 	Regions *RegionsService
 }
 
-func withServices(c *Client) {
-	c.Reports = &ReportsService{client: c}
-	c.Regions = &RegionsService{client: c}
+func withServices() Option {
+	return func(c *Client) error {
+		c.Reports = &ReportsService{client: c}
+		c.Regions = &RegionsService{client: c}
+		return nil
+	}
 }

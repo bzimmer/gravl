@@ -1,6 +1,6 @@
 package ngrok
 
-//go:generate go run ../../../cmd/genwith/genwith.go --client --do --noservicese --package ngrok
+//go:generate go run ../../../cmd/genwith/genwith.go --client --do --package ngrok
 
 import (
 	"context"
@@ -18,8 +18,11 @@ type Client struct {
 	Tunnels *TunnelsService
 }
 
-func withServices(c *Client) {
-	c.Tunnels = &TunnelsService{c}
+func withServices() Option {
+	return func(c *Client) error {
+		c.Tunnels = &TunnelsService{c}
+		return nil
+	}
 }
 
 func (c *Client) newRequest(ctx context.Context, method, uri string) (*http.Request, error) {

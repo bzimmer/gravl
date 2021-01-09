@@ -22,13 +22,11 @@ func NewClient(opts ...Option) (*Client, error) {
 	c := &Client{
 		client: &http.Client{},
 	}
+	opts = append(opts, withServices())
 	for _, opt := range opts {
 		if err := opt(c); err != nil {
 			return nil, err
 		}
-	}
-	if err := withServices(c); err != nil {
-		return nil, err
 	}
 	return c, nil
 }

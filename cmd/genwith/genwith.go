@@ -22,7 +22,6 @@ type with struct {
 	Client      bool
 	Endpoint    bool
 	RateLimiter bool
-	NoServicesE bool
 	Flags       string
 	Package     string
 }
@@ -65,18 +64,12 @@ func NewClient(opts ...Option) (*Client, error) {
 		},
 	{{end}}
 	}
+	opts = append(opts, withServices())
 	for _, opt := range opts {
 		if err := opt(c); err != nil {
 			return nil, err
 		}
 	}
-	{{- if .NoServicesE}}
-	withServices(c)
-	{{- else}}
-	if err := withServices(c); err != nil {
-		return nil, err
-	}
-	{{- end}}
 	return c, nil
 }
 {{end}}
@@ -284,11 +277,6 @@ func main() {
 				Value: false,
 				Usage: "Include a rate limiting transport option",
 			},
-			&cli.BoolFlag{
-				Name:  "noservicese",
-				Value: false,
-				Usage: "Disable withServices from returning an error",
-			},
 			&cli.StringFlag{
 				Name:     "package",
 				Value:    "",
@@ -309,7 +297,6 @@ func main() {
 				Client:      c.Bool("client"),
 				Endpoint:    c.Bool("endpoint"),
 				RateLimiter: c.Bool("ratelimit"),
-				NoServicesE: c.Bool("noservicese"),
 				Flags:       strings.Join(os.Args[1:], " "),
 				Package:     c.String("package")}
 			file := fmt.Sprintf("%s_with.go", c.String("package"))

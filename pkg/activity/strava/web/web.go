@@ -32,6 +32,18 @@ type Client struct {
 	Fitness *FitnessService
 }
 
+func withServices() Option {
+	return func(c *Client) error {
+		if c.client.Jar == nil {
+			return errors.New("no cookiejar set; use WithHTTPClient() or WithCookieJar()")
+		}
+		c.Auth = &AuthService{client: c}
+		c.Export = &ExportService{client: c}
+		c.Fitness = &FitnessService{client: c}
+		return nil
+	}
+}
+
 // WithCookieJar attaches a cookie jar to the client
 func WithCookieJar() Option {
 	return func(c *Client) error {
@@ -42,16 +54,6 @@ func WithCookieJar() Option {
 		c.client.Jar = jar
 		return nil
 	}
-}
-
-func withServices(c *Client) error {
-	if c.client.Jar == nil {
-		return errors.New("no cookiejar set; use WithHTTPClient() or WithCookieJar()")
-	}
-	c.Auth = &AuthService{client: c}
-	c.Export = &ExportService{client: c}
-	c.Fitness = &FitnessService{client: c}
-	return nil
 }
 
 func (c *Client) newWebRequest(ctx context.Context, method, uri string, values url.Values) (*http.Request, error) {
