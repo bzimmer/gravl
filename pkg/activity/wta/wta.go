@@ -2,15 +2,11 @@ package wta
 
 //go:generate go run ../../../cmd/genwith/genwith.go --client --noservicese --package wta
 
-import (
-	"net/http"
-)
+import "net/http"
 
-const (
-	baseURL = "https://www.wta.org/@@search_tripreport_listing/"
-)
+const baseURL = "https://www.wta.org/@@search_tripreport_listing/"
 
-// Client .
+// Client for accessing WTA trip reports
 type Client struct {
 	client *http.Client
 

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -11,8 +13,11 @@ import (
 	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/net/ngrok"
 	"github.com/bzimmer/gravl/pkg/web"
 )
+
+const webhookPath = "/webhook"
 
 type sub struct {
 	verify string
@@ -35,6 +40,32 @@ func subscriber(c *cli.Context) (*sub, error) {
 		}
 	}
 	return &sub{verify: t}, nil
+}
+
+func tunnel(c *cli.Context) (*ngrok.Tunnel, error) {
+	ng, err := ngrok.NewClient(ngrok.WithHTTPTracing(c.Bool("http-tracing")))
+	if err != nil {
+		return nil, err
+	}
+	tns, err := ng.Tunnels.Tunnels(c.Context)
+	if err != nil {
+		return nil, err
+	}
+
+	port := c.String("port")
+	for _, tn := range tns {
+		if tn.Proto != "https" {
+			continue
+		}
+		u, err := url.Parse(tn.Config.Address)
+		if err != nil {
+			return nil, err
+		}
+		if u.Port() == port {
+			return tn, nil
+		}
+	}
+	return nil, fmt.Errorf("no tunnel for port %s", port)
 }
 
 func list(c *cli.Context, f func(sub *strava.WebhookSubscription) error) error {
@@ -114,10 +145,45 @@ func whserve(c *cli.Context) error {
 	}
 	mux := http.NewServeMux()
 	handle := web.NewLogHandler(log.Logger)
-	mux.Handle("/webhook", handle(strava.NewWebhookHandler(sub)))
+	mux.Handle(webhookPath, handle(strava.NewWebhookHandler(sub)))
 	address := fmt.Sprintf("0.0.0.0:%d", c.Int("port"))
 	log.Info().Str("address", address).Str("verify", sub.verify).Msg("serving ...")
 	return http.ListenAndServe(address, mux)
+}
+
+func whdaemon(c *cli.Context) error {
+	// url:
+	//   if url: nothing
+	//   if "" or ngrok: query for local ngrok endpoints and ensure a tunnel exists for the port
+	// verify:
+	//   if verify: nothing
+	//   if "": generate token
+	// launch the server
+	// remove all active subscriptions
+	// start the new one
+	uri := c.String("url")
+	if uri == "" || uri == "ngrok" {
+		tn, err := tunnel(c)
+		if err != nil {
+			if strings.Contains(err.Error(), "connection refused") {
+				log.Warn().Msg("Make sure ngrok is running.")
+			}
+			return err
+		}
+		uri = strings.TrimSuffix(tn.PublicURL, "/")
+		uri = fmt.Sprintf("%s%s", uri, webhookPath)
+	}
+	verify := c.String("verify")
+	if verify == "" {
+		t, err := commands.Token(16)
+		if err != nil {
+			return err
+		}
+		verify = t
+	}
+	fmt.Printf("gravl strava webhook serve --verify '%s'\n", verify)
+	fmt.Printf("gravl strava webhook subscribe --url '%s' --verify '%s'\n", uri, verify)
+	return nil
 }
 
 var verifyFlag = &cli.StringFlag{
@@ -165,10 +231,29 @@ var whserveCommand = &cli.Command{
 	Action: whserve,
 }
 
+var whdaemonCommand = &cli.Command{
+	Name:    "daemon",
+	Aliases: []string{""},
+	Usage:   "Start the webhook listener and a new subscription",
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:  "port",
+			Value: 9003,
+			Usage: "Port on which to listen"},
+		&cli.StringFlag{
+			Name:  "url",
+			Value: "",
+			Usage: "Address where webhook events will be sent (max length 255 characters"},
+		verifyFlag,
+	},
+	Action: whdaemon,
+}
+
 var webhookCommand = &cli.Command{
 	Name:  "webhook",
 	Usage: "Manage webhook subscriptions",
 	Subcommands: []*cli.Command{
+		whdaemonCommand,
 		whlistCommand,
 		whserveCommand,
 		whsubscribeCommand,
