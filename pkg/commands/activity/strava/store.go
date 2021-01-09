@@ -118,9 +118,10 @@ var storeCommand = &cli.Command{
 			Usage: "Remove activities from local storage",
 			Flags: []cli.Flag{
 				&cli.StringFlag{
-					Name:    "filter",
-					Aliases: []string{"f"},
-					Usage:   "Expression for filtering activities",
+					Name:     "filter",
+					Aliases:  []string{"f"},
+					Required: true,
+					Usage:    "Expression for filtering activities",
 				},
 				&cli.BoolFlag{
 					Name:    "dryrun",
