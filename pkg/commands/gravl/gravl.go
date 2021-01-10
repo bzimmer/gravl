@@ -2,6 +2,7 @@ package gravl
 
 import (
 	"context"
+	"errors"
 	stdlog "log"
 	"os"
 	"path"
@@ -39,18 +40,27 @@ func (w logger) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
+func flatten(cmds []*cli.Command) []*cli.Command {
+	var res []*cli.Command
+	for i := range cmds {
+		res = append(res, cmds[i])
+		res = append(res, flatten(cmds[i].Subcommands)...)
+	}
+	return res
+}
+
 func initConfig(c *cli.Context) error {
 	cfg := c.String("config")
 	if _, err := os.Stat(cfg); os.IsNotExist(err) {
-		log.Warn().
+		log.Error().
 			Str("path", cfg).
 			Msg("unable to find config file")
-		return nil
+		return errors.New("invalid config file")
 	}
 	config := func() (altsrc.InputSourceContext, error) {
 		return altsrc.NewYamlSourceFromFile(cfg)
 	}
-	for _, cmd := range c.App.Commands {
+	for _, cmd := range flatten(c.App.Commands) {
 		cmd.Before = commands.Before(altsrc.InitInputSource(cmd.Flags, config), cmd.Before)
 	}
 	return nil
@@ -116,7 +126,7 @@ var flags = func() []cli.Flag {
 		&cli.BoolFlag{
 			Name:  "http-tracing",
 			Value: false,
-			Usage: "Log all http calls (warning: this will log ids, keys, and other sensitive information)",
+			Usage: "Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)",
 		},
 		&cli.PathFlag{
 			Name:      "config",

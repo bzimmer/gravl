@@ -54,19 +54,24 @@ func (a *ageRide) run(ctx context.Context, pass *analysis.Pass) (interface{}, er
 			}
 		}
 	}
-	sort.Float64s(dsts)
+	var mean, median, total float64
+	if len(dsts) > 0 {
+		sort.Float64s(dsts)
+		mean = stat.Mean(dsts, nil)
+		median = stat.Quantile(0.5, stat.Empirical, dsts, nil)
+		total = floats.Sum(dsts)
+	}
 	return &Result{
 		Activities:     acts,
 		Count:          len(acts),
-		DistanceMean:   stat.Mean(dsts, nil),
-		DistanceMedian: stat.Quantile(0.5, stat.Empirical, dsts, nil),
-		DistanceTotal:  floats.Sum(dsts)}, nil
+		DistanceMean:   mean,
+		DistanceMedian: median,
+		DistanceTotal:  total}, nil
 }
 
 func New() *analysis.Analyzer {
 	r := &ageRide{birthday: &analysis.TimeFlag{Time: time.Time{}}}
 	fs := flag.NewFlagSet("ageride", flag.ExitOnError)
-	// @todo(bzimmer) ideally this would use the athlete's birthdate on strava
 	fs.Var(r.birthday, "birthday", "the athlete's birthday")
 	return &analysis.Analyzer{
 		Name:  fs.Name(),

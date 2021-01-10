@@ -7,6 +7,7 @@ import (
 
 	"github.com/adrg/xdg"
 	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg"
 )
@@ -43,10 +44,9 @@ func Token(n int) (string, error) {
 
 var StoreFlag = func() cli.Flag {
 	store := path.Join(xdg.DataHome, pkg.PackageName, "gravl.db")
-	return &cli.PathFlag{
-		Name:      "store",
-		Value:     store,
-		TakesFile: true,
-		Usage:     "Path to the database",
-	}
+	return altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "store",
+		Value: store,
+		Usage: "Path to the database",
+	})
 }()

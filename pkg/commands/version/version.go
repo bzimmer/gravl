@@ -16,7 +16,6 @@ var Command = &cli.Command{
 			"timestamp":  pkg.BuildTime,
 			"user-agent": pkg.UserAgent,
 			"config":     c.String("config"),
-			"db":         c.String("db"),
 		})
 	},
 }
