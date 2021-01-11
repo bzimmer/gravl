@@ -14,9 +14,7 @@ import (
 	"github.com/bzimmer/gravl/pkg"
 )
 
-const (
-	baseURL = "http://api.openweathermap.org/data/2.5"
-)
+const baseURL = "http://api.openweathermap.org/data/2.5"
 
 // Client .
 type Client struct {

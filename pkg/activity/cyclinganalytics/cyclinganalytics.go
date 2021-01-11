@@ -15,9 +15,7 @@ import (
 	"github.com/bzimmer/gravl/pkg"
 )
 
-const (
-	baseURL = "https://www.cyclinganalytics.com/api"
-)
+const baseURL = "https://www.cyclinganalytics.com/api"
 
 // Client .
 type Client struct {
