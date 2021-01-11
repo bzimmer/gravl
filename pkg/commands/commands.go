@@ -26,8 +26,8 @@ func Before(befores ...cli.BeforeFunc) cli.BeforeFunc {
 			if fn == nil {
 				continue
 			}
-			if e := fn(c); e != nil {
-				return e
+			if err := fn(c); err != nil {
+				return err
 			}
 		}
 		return nil
