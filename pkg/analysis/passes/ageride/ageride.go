@@ -14,7 +14,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const doc = ``
+const doc = `ageride returns all activities whose distance is greater than the athlete's age at the time of the activity`
 
 const yearSeconds = 365.2425 /*(days)*/ * 24 /*(hours/day)*/ * 3600 /*(seconds/hour)*/
 

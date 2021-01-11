@@ -6,7 +6,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const doc = `splat simply returns all activities in the units specified
+const doc = `splat returns all activities in the units specified.
 
 This analyzer is useful for debugging the filter.`
 

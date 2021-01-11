@@ -20,6 +20,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/hourrecord"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/koms"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/pythagorean"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/rolling"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
@@ -45,6 +46,7 @@ var _analyzers = func() map[string]analyzer {
 		hourrecord.New():  true,
 		koms.New():        true,
 		pythagorean.New(): true,
+		rolling.New():     true,
 		splat.New():       false,
 		staticmap.New():   false,
 		totals.New():      true,

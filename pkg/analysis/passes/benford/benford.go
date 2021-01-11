@@ -6,7 +6,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const doc = ``
+const doc = `benford returns the benford distribution of all the activities`
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var vals []int

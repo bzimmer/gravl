@@ -10,7 +10,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const doc = `The longest distance traveled (in miles | kilometers) exceeding the average speed (mph | mps).`
+const doc = `hourrecord returns the longest distance traveled (in miles | kilometers) exceeding the average speed (mph | mps).`
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var res []*strava.Activity

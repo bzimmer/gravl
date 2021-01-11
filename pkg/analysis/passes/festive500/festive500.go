@@ -8,7 +8,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
-const doc = ``
+const doc = `festive500 returns the activities and distance ridden during the annual #festive500 challenge
+
+Thanks Rapha! https://www.rapha.cc/us/en_US/stories/festive-500`
 
 var activityTypes = map[string]bool{
 	"Ride":        true,

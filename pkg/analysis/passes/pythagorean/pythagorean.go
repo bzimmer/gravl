@@ -13,7 +13,9 @@ type Results struct {
 	Number   int                `json:"number"`
 }
 
-const doc = ``
+const doc = `pythagorean results the activity with the highest pythagorean value.
+
+The pythagorean value is the sqrt of the distance^2 + elevation^2.`
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	res := make([]*Results, len(pass.Activities))
