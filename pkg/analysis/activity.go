@@ -3,7 +3,7 @@ package analysis
 import (
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 type Activity struct {

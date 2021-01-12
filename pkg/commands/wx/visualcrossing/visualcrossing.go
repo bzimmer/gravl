@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/wx/visualcrossing"
+	"github.com/bzimmer/gravl/pkg/providers/wx/visualcrossing"
 )
 
 func NewClient(c *cli.Context) (*visualcrossing.Client, error) {

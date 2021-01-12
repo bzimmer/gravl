@@ -3,8 +3,8 @@ package koms
 import (
 	"context"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const doc = `koms returns all KOMs for the activities.`

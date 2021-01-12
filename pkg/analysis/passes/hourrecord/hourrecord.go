@@ -6,8 +6,8 @@ import (
 	"context"
 	"sort"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const doc = `hourrecord returns the longest distance traveled (in miles | kilometers) exceeding the average speed (mph | mps).`

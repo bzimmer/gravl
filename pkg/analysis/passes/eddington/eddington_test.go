@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/eddington"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 func TestEddingtonAnalysisEmpty(t *testing.T) {

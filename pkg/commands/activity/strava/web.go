@@ -12,8 +12,8 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
-	stravaweb "github.com/bzimmer/gravl/pkg/activity/strava/web"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	stravaweb "github.com/bzimmer/gravl/pkg/providers/activity/strava/web"
 )
 
 func NewWebClient(c *cli.Context) (*stravaweb.Client, error) {

@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/activity"
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"

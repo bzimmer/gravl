@@ -8,8 +8,8 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
 
-	ca "github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/commands"
+	ca "github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/web"
 )
 

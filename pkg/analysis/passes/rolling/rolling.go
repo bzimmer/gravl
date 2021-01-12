@@ -9,8 +9,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"gonum.org/v1/gonum/floats"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const debug = false

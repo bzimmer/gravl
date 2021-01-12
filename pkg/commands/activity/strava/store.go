@@ -10,11 +10,11 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.etcd.io/bbolt"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 func database(c *cli.Context) (*bolthold.Store, error) {

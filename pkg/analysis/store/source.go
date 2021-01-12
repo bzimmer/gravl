@@ -8,8 +8,8 @@ import (
 
 	"github.com/valyala/fastjson"
 
-	"github.com/bzimmer/gravl/pkg/activity"
-	"github.com/bzimmer/gravl/pkg/activity/strava"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 type Source interface {

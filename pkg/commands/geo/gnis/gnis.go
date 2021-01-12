@@ -6,7 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/geo/gnis"
+	"github.com/bzimmer/gravl/pkg/providers/geo/gnis"
 )
 
 func forecast(c *cli.Context) error {

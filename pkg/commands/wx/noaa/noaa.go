@@ -9,8 +9,8 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/wx"
-	"github.com/bzimmer/gravl/pkg/wx/noaa"
+	"github.com/bzimmer/gravl/pkg/providers/wx"
+	"github.com/bzimmer/gravl/pkg/providers/wx/noaa"
 )
 
 func NewClient(c *cli.Context) (*noaa.Client, error) {

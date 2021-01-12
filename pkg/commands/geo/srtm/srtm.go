@@ -12,7 +12,7 @@ import (
 
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/geo/srtm"
+	"github.com/bzimmer/gravl/pkg/providers/geo/srtm"
 )
 
 var Command = &cli.Command{

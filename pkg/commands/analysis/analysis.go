@@ -8,7 +8,6 @@ import (
 	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/ageride"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/benford"
@@ -26,6 +25,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 type analyzer struct {

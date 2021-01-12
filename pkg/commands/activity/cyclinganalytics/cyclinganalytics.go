@@ -11,8 +11,8 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
 
 // Maximum number of times to request status updates on uploads

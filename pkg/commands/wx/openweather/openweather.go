@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/wx/openweather"
+	"github.com/bzimmer/gravl/pkg/providers/wx/openweather"
 )
 
 func NewClient(c *cli.Context) (*openweather.Client, error) {

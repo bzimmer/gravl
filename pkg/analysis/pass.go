@@ -8,7 +8,7 @@ import (
 	"github.com/antonmedv/expr"
 	"github.com/spf13/cast"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 // Pass represents a collection of Activities for analysis

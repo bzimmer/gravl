@@ -8,8 +8,8 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
 
-	st "github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands"
+	st "github.com/bzimmer/gravl/pkg/providers/activity/strava"
 	"github.com/bzimmer/gravl/pkg/web"
 )
 

@@ -8,9 +8,9 @@ import (
 	"github.com/martinlindhe/unit"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/festive500"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 func TestFestive500(t *testing.T) {

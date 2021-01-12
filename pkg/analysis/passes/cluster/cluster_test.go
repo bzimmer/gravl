@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/cluster"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 func TestCluster(t *testing.T) {

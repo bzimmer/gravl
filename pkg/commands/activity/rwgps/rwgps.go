@@ -8,9 +8,9 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/activity"
-	"github.com/bzimmer/gravl/pkg/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
+	"github.com/bzimmer/gravl/pkg/providers/activity/rwgps"
 )
 
 func NewClient(c *cli.Context) (*rwgps.Client, error) {
