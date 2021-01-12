@@ -2,12 +2,8 @@ package analysis
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
-	"github.com/antonmedv/expr"
-	"github.com/spf13/cast"
-
+	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
@@ -43,70 +39,42 @@ func (g *Group) walk(ctx context.Context, f func(context.Context, *Group) error)
 	return nil
 }
 
-// Closure wraps an attribute in {} if required
-func Closure(f string) string {
-	if f == "" {
-		return f
-	}
-	if !strings.HasPrefix(f, "{") {
-		f = "{" + f
-	}
-	if !strings.HasSuffix(f, "}") {
-		f = f + "}"
-	}
-	return f
-}
-
 // Filter filters the activities using an expression
 // For example:
 //  {.Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]}
-func (p *Pass) Filter(q string) (*Pass, error) {
-	code := fmt.Sprintf("filter(Activities, %s)", q)
-	out, err := expr.Eval(code, p)
+func (p *Pass) Filter(ctx context.Context, q string) (*Pass, error) {
+	evaluator := antonmedv.New()
+	acts, err := evaluator.Filter(ctx, q, p.Activities)
 	if err != nil {
 		return nil, err
-	}
-	res := out.([]interface{})
-	acts := make([]*strava.Activity, len(res))
-	for i := range res {
-		acts[i] = res[i].(*strava.Activity)
 	}
 	return &Pass{Activities: acts, Units: p.Units}, nil
 }
 
 // GroupBy groups activities by a key
-func (p *Pass) GroupBy(exprs ...string) (*Group, error) {
+func (p *Pass) GroupBy(ctx context.Context, exprs ...string) (*Group, error) {
 	g := &Group{Pass: p}
-	if err := groupby(g, exprs...); err != nil {
+	if err := groupby(ctx, g, exprs...); err != nil {
 		return nil, err
 	}
 	return g, nil
 }
 
-func groupby(group *Group, exprs ...string) error {
+func groupby(ctx context.Context, group *Group, exprs ...string) error {
 	if len(exprs) == 0 {
 		return nil
 	}
 	// map over the activities to generate a group key
+	// group all activities into a Group based on their group key
 	q := exprs[0]
-	code := fmt.Sprintf("map(Activities, %s)", q)
-	out, err := expr.Eval(code, group.Pass)
+	evaluator := antonmedv.New()
+	res, err := evaluator.Group(ctx, q, group.Pass.Activities)
 	if err != nil {
 		return err
 	}
-	// group all activities into a Group based on their group key
-	res := out.([]interface{})
 	passes := make(map[string]*Pass, len(res))
-	for i, k := range res {
-		var key string
-		key, err = cast.ToStringE(k)
-		if err != nil {
-			return err
-		}
-		if _, ok := passes[key]; !ok {
-			passes[key] = &Pass{Units: group.Pass.Units}
-		}
-		passes[key].Activities = append(passes[key].Activities, group.Pass.Activities[i])
+	for key, acts := range res {
+		passes[key] = &Pass{Activities: acts, Units: group.Pass.Units}
 	}
 	// recurse if more grouping operators exist
 	tail := exprs[1:]
@@ -114,7 +82,7 @@ func groupby(group *Group, exprs ...string) error {
 		parent := &Group{Key: key, Pass: pass, Level: group.Level + 1}
 		group.Groups = append(group.Groups, parent)
 		if len(tail) > 0 {
-			if err = groupby(parent, tail...); err != nil {
+			if err = groupby(ctx, parent, tail...); err != nil {
 				return err
 			}
 		}

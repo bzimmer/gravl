@@ -1,6 +1,7 @@
 package analysis_test
 
 import (
+	"context"
 	"sort"
 	"testing"
 	"time"
@@ -15,6 +16,7 @@ func TestFilter(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
+	ctx := context.Background()
 	p := &analysis.Pass{
 		Activities: []*strava.Activity{
 			{Distance: 142000, ElevationGain: 30},
@@ -22,15 +24,15 @@ func TestFilter(t *testing.T) {
 			{Distance: 202000, ElevationGain: 85},
 		},
 	}
-	q, err := p.Filter("{.Distance.Kilometers() > 150}")
+	q, err := p.Filter(ctx, "{.Distance.Kilometers() > 150}")
 	a.NoError(err)
 	a.Equal(2, len(q.Activities))
 
-	q, err = p.Filter("{.Distance.Kilometers() > 150 && .ElevationGain.Meters() > 80}")
+	q, err = p.Filter(ctx, "{.Distance.Kilometers() > 150 && .ElevationGain.Meters() > 80}")
 	a.NoError(err)
 	a.Equal(1, len(q.Activities))
 
-	q, err = p.Filter("{.Distance.Kilometers() < 150 && .ElevationGain.Meters() > 80}")
+	q, err = p.Filter(ctx, "{.Distance.Kilometers() < 150 && .ElevationGain.Meters() > 80}")
 	a.NoError(err)
 	a.Equal(0, len(q.Activities))
 }
@@ -59,18 +61,19 @@ func TestGroupBy(t *testing.T) {
 			{ID: 6, Type: "Run", Distance: 600000, ElevationGain: 180, StartDateLocal: time.Date(2011, time.May, 10, 8, 0, 0, 0, time.UTC)},
 		},
 	}
-	q, err := p.GroupBy()
+	ctx := context.Background()
+	q, err := p.GroupBy(ctx)
 	a.NoError(err)
 	a.NotNil(q)
 	a.Equal(0, len(q.Groups))
 	a.Equal(6, len(q.Pass.Activities))
 
-	q, err = p.GroupBy("{.Type}")
+	q, err = p.GroupBy(ctx, "{.Type}")
 	a.NoError(err)
 	a.NotNil(q)
 	a.Equal(3, len(q.Groups))
 
-	q, err = p.GroupBy("{.StartDateLocal.Year()}", "{.Type}")
+	q, err = p.GroupBy(ctx, "{.StartDateLocal.Year()}", "{.Type}")
 	a.NoError(err)
 	a.NotNil(q)
 	a.Equal(3, len(q.Groups))

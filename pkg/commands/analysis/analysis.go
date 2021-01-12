@@ -111,8 +111,7 @@ func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
 	if !c.IsSet("filter") {
 		return pass, nil
 	}
-	q := analysis.Closure(c.String("filter"))
-	return pass.Filter(q)
+	return pass.Filter(c.Context, c.String("filter"))
 }
 
 // groupby groups activities by expression values
@@ -120,11 +119,7 @@ func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
 	if !c.IsSet("groupby") {
 		return &analysis.Group{Pass: pass}, nil
 	}
-	var exprs []string
-	for _, g := range c.StringSlice("groupby") {
-		exprs = append(exprs, analysis.Closure(g))
-	}
-	g, err := pass.GroupBy(exprs...)
+	g, err := pass.GroupBy(c.Context, c.StringSlice("groupby")...)
 	if err != nil {
 		return nil, err
 	}

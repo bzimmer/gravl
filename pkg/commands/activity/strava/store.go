@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.etcd.io/bbolt"
 
-	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
@@ -45,16 +45,15 @@ func remove(c *cli.Context) error {
 		acts = append(acts, act)
 		return nil
 	})
-	pass := &analysis.Pass{Activities: acts}
 	if c.IsSet("filter") {
-		q := analysis.Closure(c.String("filter"))
-		pass, err = pass.Filter(q)
+		evaluator := antonmedv.New()
+		acts, err = evaluator.Filter(c.Context, c.String("filter"), acts)
 		if err != nil {
 			return err
 		}
 	}
-	ids := make([]interface{}, len(pass.Activities))
-	for i, act := range pass.Activities {
+	ids := make([]interface{}, len(acts))
+	for i, act := range acts {
 		ids[i] = act.ID
 	}
 	if c.Bool("dryrun") {

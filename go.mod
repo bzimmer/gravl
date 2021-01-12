@@ -3,6 +3,7 @@ module github.com/bzimmer/gravl
 go 1.15
 
 require (
+	github.com/PaesslerAG/gval v1.1.0
 	github.com/adrg/xdg v0.2.3
 	github.com/antonmedv/expr v1.8.9
 	github.com/bzimmer/httpwares v0.0.3
