@@ -39,7 +39,7 @@ func TestFilter(t *testing.T) {
 	a.Equal(1, len(acts))
 }
 
-func TestGroup(t *testing.T) {
+func TestGroupBy(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
@@ -47,7 +47,7 @@ func TestGroup(t *testing.T) {
 	q := `.Type`
 	acts := []*strava.Activity{{Type: "Run"}, {Type: "Ride"}, {Type: "Run"}, {Type: "Walk"}}
 	a.Equal(4, len(acts))
-	groups, err := v.Group(context.Background(), q, acts)
+	groups, err := v.GroupBy(context.Background(), q, acts)
 	a.NotNil(acts)
 	a.NoError(err)
 	a.Equal(3, len(groups))

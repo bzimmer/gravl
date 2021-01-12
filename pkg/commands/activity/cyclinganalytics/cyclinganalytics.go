@@ -66,9 +66,9 @@ func collect(name string) ([]*cyclinganalytics.File, error) {
 	return files, err
 }
 
-// follow the status until processing is complete
+// poll the status possibly following until the operation is completedd
 //  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
-func follow(ctx context.Context, client *cyclinganalytics.Client, id int64, follow bool) error {
+func poll(ctx context.Context, client *cyclinganalytics.Client, id int64, follow bool) error {
 	// status: processing, done, or error
 	i := follows
 	for {
@@ -119,12 +119,12 @@ func upload(c *cli.Context) error {
 			if err != nil {
 				return err
 			}
-			if c.Bool("follow") {
-				return follow(ctx, client, u.UploadID, c.Bool("follow"))
+			if !c.Bool("follow") {
+				if err := encoding.Encode(u); err != nil {
+					return err
+				}
 			}
-			if err := encoding.Encode(u); err != nil {
-				return err
-			}
+			return poll(ctx, client, u.UploadID, true)
 		}
 	}
 	return nil
@@ -143,7 +143,7 @@ func status(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		if err := follow(ctx, client, uploadID, c.Bool("follow")); err != nil {
+		if err := poll(ctx, client, uploadID, c.Bool("follow")); err != nil {
 			return err
 		}
 	}

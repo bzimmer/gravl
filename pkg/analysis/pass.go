@@ -68,7 +68,7 @@ func groupby(ctx context.Context, group *Group, exprs ...string) error {
 	// group all activities into a Group based on their group key
 	q := exprs[0]
 	evaluator := antonmedv.New()
-	res, err := evaluator.Group(ctx, q, group.Pass.Activities)
+	res, err := evaluator.GroupBy(ctx, q, group.Pass.Activities)
 	if err != nil {
 		return err
 	}

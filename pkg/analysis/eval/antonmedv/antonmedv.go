@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/antonmedv/expr"
-	"github.com/spf13/cast"
 
 	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
@@ -53,7 +52,7 @@ func (x *evaluator) Filter(ctx context.Context, q string, acts []*strava.Activit
 	return apply(code, acts)
 }
 
-func (x *evaluator) Group(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
+func (x *evaluator) GroupBy(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
 	// map over the activities to generate a group key
 	code := fmt.Sprintf("map(Activities, %s)", closure(q))
 	out, err := expr.Eval(code, &env{Activities: acts})
@@ -64,14 +63,7 @@ func (x *evaluator) Group(ctx context.Context, q string, acts []*strava.Activity
 	res := out.([]interface{})
 	groups := make(map[string][]*strava.Activity, len(res))
 	for i, k := range res {
-		var key string
-		key, err = cast.ToStringE(k)
-		if err != nil {
-			return nil, err
-		}
-		if _, ok := groups[key]; !ok {
-			groups[key] = make([]*strava.Activity, 0)
-		}
+		var key = fmt.Sprintf("%v", k)
 		groups[key] = append(groups[key], acts[i])
 	}
 	return groups, nil

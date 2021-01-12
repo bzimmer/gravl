@@ -19,7 +19,6 @@ require (
 	github.com/muesli/kmeans v0.2.1
 	github.com/rs/zerolog v1.20.0
 	github.com/securego/gosec/v2 v2.5.0
-	github.com/spf13/cast v1.3.1
 	github.com/stretchr/testify v1.6.1
 	github.com/timshannon/bolthold v0.0.0-20200817130212-4a25ab140645
 	github.com/tkrajina/go-elevations v0.0.0-20200416152435-2c9e0bec991f

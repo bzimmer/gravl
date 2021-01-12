@@ -34,7 +34,7 @@ func (p *paesslerag) Filter(ctx context.Context, q string, acts []*strava.Activi
 	return res, nil
 }
 
-func (p *paesslerag) Group(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
+func (p *paesslerag) GroupBy(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
 	eval, err := p.language.NewEvaluable(q)
 	if err != nil {
 		return nil, err
