@@ -18,6 +18,9 @@ const doc = `pythagorean results the activity with the highest pythagorean value
 The pythagorean value is the sqrt of the distance^2 + elevation^2.`
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+	if len(pass.Activities) == 0 {
+		return &Results{}, nil
+	}
 	res := make([]*Results, len(pass.Activities))
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
@@ -25,14 +28,10 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		elv := act.ElevationGain.Meters()
 		n := int(math.Sqrt(math.Pow(dst, 2) + math.Pow(elv, 2)))
 		res[i] = &Results{Activity: analysis.ToActivity(act, analysis.Metric), Number: n}
-		i++
 	}
 	sort.Slice(res, func(i, j int) bool {
 		return res[i].Number > res[j].Number
 	})
-	if len(res) == 0 {
-		return nil, nil
-	}
 	return res[0], nil
 }
 

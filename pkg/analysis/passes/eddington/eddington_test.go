@@ -1,14 +1,63 @@
 package eddington_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/bzimmer/gravl/pkg/activity/strava"
+	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/eddington"
 )
 
-func TestEddington(t *testing.T) {
+func TestEddingtonAnalysisEmpty(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	any := eddington.New()
+	a.NotNil(any)
+
+	pass := &analysis.Pass{Activities: []*strava.Activity{}, Units: analysis.Metric}
+	res, err := any.Run(context.Background(), pass)
+	a.NoError(err)
+	a.NotNil(res)
+	r, ok := res.(*eddington.Eddington)
+	a.True(ok)
+	a.Equal(0, r.Number)
+	a.Equal([]int{}, r.Numbers)
+	a.Equal(map[int]int{}, r.Motivation)
+}
+
+func TestEddingtonAnalysis(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	any := eddington.New()
+	a.NotNil(any)
+
+	pass := &analysis.Pass{
+		Activities: []*strava.Activity{
+			{ID: 100, Type: "Ride", Distance: 1000, ElevationGain: 240},
+			{ID: 200, Type: "Ride", Distance: 2000, ElevationGain: 281},
+			{ID: 300, Type: "Ride", Distance: 1000, ElevationGain: 103},
+			{ID: 400, Type: "Ride", Distance: 3000, ElevationGain: 220},
+			{ID: 500, Type: "Ride", Distance: 2000, ElevationGain: 101},
+			{ID: 600, Type: "Ride", Distance: 1000, ElevationGain: 220},
+		},
+		Units: analysis.Metric,
+	}
+	res, err := any.Run(context.Background(), pass)
+	a.NoError(err)
+	a.NotNil(res)
+	r, ok := res.(*eddington.Eddington)
+	a.True(ok)
+	a.Equal(2, r.Number)
+	a.Equal([]int{1, 1, 1, 2, 2, 2}, r.Numbers)
+	a.Equal(map[int]int{3: 1}, r.Motivation)
+}
+
+func TestEddingtonNumber(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 

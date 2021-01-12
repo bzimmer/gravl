@@ -12,10 +12,10 @@ The Eddington is the largest integer E, where you have cycled at least
 E miles (or kilometers) on at least E days.`
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
-	vals := make([]int, len(pass.Activities))
+	var dst float64
+	var vals = make([]int, len(pass.Activities))
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
-		var dst float64
 		switch pass.Units {
 		case analysis.Metric:
 			dst = act.Distance.Kilometers()

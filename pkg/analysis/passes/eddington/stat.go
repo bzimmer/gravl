@@ -7,10 +7,9 @@ type Eddington struct {
 }
 
 // Number computes the Eddington number from a series of rides
-func Number(rides []int) Eddington {
+func Number(rides []int) *Eddington {
 	n, above := len(rides), 0
-	e := Eddington{
-		Number:     0,
+	e := &Eddington{
 		Numbers:    make([]int, n),
 		Motivation: make(map[int]int),
 	}

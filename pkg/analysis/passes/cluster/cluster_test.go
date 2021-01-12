@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/muesli/clusters"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/activity/strava"
@@ -37,7 +36,7 @@ func TestCluster(t *testing.T) {
 	res, err := any.Run(context.Background(), pass)
 	a.NoError(err)
 	a.NotNil(res)
-	f, ok := res.(clusters.Clusters)
+	f, ok := res.([]*cluster.Cluster)
 	a.True(ok)
 	a.NotNil(f)
 	a.Equal(2, len(f))

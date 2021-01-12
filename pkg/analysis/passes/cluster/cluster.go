@@ -6,6 +6,7 @@ import (
 
 	"github.com/muesli/clusters"
 	"github.com/muesli/kmeans"
+	"github.com/rs/zerolog/log"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
@@ -15,6 +16,28 @@ const doc = `clusters returns the activities clustered by (distance, elevation) 
 type kMeans struct {
 	Clusters  int
 	Threshold float64
+}
+
+type Cluster struct {
+	Center     []float64            `json:"center"`
+	Activities []*analysis.Activity `json:"activities"`
+}
+
+// results converts the internal cluster struct to one suitable for use externally
+func results(c clusters.Clusters) []*Cluster {
+	var res []*Cluster
+	if c == nil {
+		return res
+	}
+	for i := 0; i < len(c); i++ {
+		x := &Cluster{Center: c[i].Center, Activities: make([]*analysis.Activity, 0)}
+		for j := 0; j < len(c[i].Observations); j++ {
+			obs := c[i].Observations[j].(*observation)
+			x.Activities = append(x.Activities, obs.Activity)
+		}
+		res = append(res, x)
+	}
+	return res
 }
 
 type observation struct {
@@ -31,35 +54,37 @@ func (obs *observation) Distance(point clusters.Coordinates) float64 {
 }
 
 func (k *kMeans) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+	if len(pass.Activities) < k.Clusters {
+		log.Warn().Int("n", len(pass.Activities)).Int("clusters", k.Clusters).Msg("too few activities")
+		return results(nil), nil
+	}
 	// For each activity, create a synthetic coordinate from the distance and elevation
 	//  scaled between 0.0 and 1.0.
 
 	// 1. Create two slices, one for distance and one for elevation
 	// 2. Find the max of each slice
-	var dm, em float64
+	var dmax, emax float64
 	var dsts, elvs []float64
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
-
 		dst := act.Distance.Meters()
 		dsts = append(dsts, dst)
-		if dst > dm {
-			dm = dst
+		if dst > dmax {
+			dmax = dst
 		}
-
 		elv := act.ElevationGain.Meters()
 		elvs = append(elvs, elv)
-		if elv > em {
-			em = elv
+		if elv > emax {
+			emax = elv
 		}
 	}
 
-	// 3. Divide each element by the max slice
+	// 3. Divide each element by the max value
 	var d clusters.Observations
 	for i := 0; i < len(pass.Activities); i++ {
 		d = append(d, &observation{
 			Activity: analysis.ToActivity(pass.Activities[i], pass.Units),
-			Coords:   clusters.Coordinates{dsts[i] / dm, elvs[i] / em},
+			Coords:   clusters.Coordinates{dsts[i] / dmax, elvs[i] / emax},
 		})
 	}
 
@@ -72,7 +97,7 @@ func (k *kMeans) run(ctx context.Context, pass *analysis.Pass) (interface{}, err
 	if err != nil {
 		return nil, err
 	}
-	return clusters, nil
+	return results(clusters), nil
 }
 
 func New() *analysis.Analyzer {

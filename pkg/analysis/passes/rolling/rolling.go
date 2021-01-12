@@ -35,7 +35,7 @@ func (r *rollingWindow) activities(acts []*strava.Activity, idx int, units analy
 
 func (r *rollingWindow) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	if len(pass.Activities) < r.Window {
-		log.Error().Int("n", len(pass.Activities)).Int("window", r.Window).Msg("too few activities")
+		log.Warn().Int("n", len(pass.Activities)).Int("window", r.Window).Msg("too few activities")
 		return &Result{}, nil
 	}
 	var dsts = make([]float64, len(pass.Activities))
