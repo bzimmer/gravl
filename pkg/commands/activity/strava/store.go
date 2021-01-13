@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval"
+	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/analysis/store/bolt"
 	"github.com/bzimmer/gravl/pkg/analysis/store/file"
@@ -42,13 +42,13 @@ func remove(c *cli.Context) error {
 		return err
 	}
 	defer db.Close()
-
 	acts, err := db.Activities(c.Context)
 	if err != nil {
 		return err
 	}
 	if c.IsSet("filter") {
-		acts, err = eval.DefaultEvaluator.Filter(c.Context, c.String("filter"), acts)
+		evaluator := antonmedv.New()
+		acts, err = evaluator.Filter(c.Context, c.String("filter"), acts)
 		if err != nil {
 			return err
 		}

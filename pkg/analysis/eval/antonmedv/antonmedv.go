@@ -24,19 +24,6 @@ func closure(f string) string {
 	return f
 }
 
-func apply(q string, acts []*strava.Activity) ([]*strava.Activity, error) {
-	out, err := expr.Eval(q, &env{Activities: acts})
-	if err != nil {
-		return nil, err
-	}
-	res := out.([]interface{})
-	p := make([]*strava.Activity, len(res))
-	for i := range res {
-		p[i] = res[i].(*strava.Activity)
-	}
-	return p, nil
-}
-
 type evaluator struct{}
 
 type env struct {
@@ -49,7 +36,16 @@ func New() eval.Evaluator {
 
 func (x *evaluator) Filter(ctx context.Context, q string, acts []*strava.Activity) ([]*strava.Activity, error) {
 	code := fmt.Sprintf("filter(Activities, %s)", closure(q))
-	return apply(code, acts)
+	out, err := expr.Eval(code, &env{Activities: acts})
+	if err != nil {
+		return nil, err
+	}
+	res := out.([]interface{})
+	p := make([]*strava.Activity, len(res))
+	for i := range res {
+		p[i] = res[i].(*strava.Activity)
+	}
+	return p, nil
 }
 
 func (x *evaluator) GroupBy(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {

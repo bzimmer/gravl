@@ -3,7 +3,7 @@ package analysis
 import (
 	"context"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval"
+	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
@@ -43,7 +43,8 @@ func (g *Group) walk(ctx context.Context, f func(context.Context, *Group) error)
 // For example:
 //  {.Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]}
 func (p *Pass) Filter(ctx context.Context, q string) (*Pass, error) {
-	acts, err := eval.DefaultEvaluator.Filter(ctx, q, p.Activities)
+	evaluator := antonmedv.New()
+	acts, err := evaluator.Filter(ctx, q, p.Activities)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,8 @@ func groupby(ctx context.Context, group *Group, exprs ...string) error {
 	// map over the activities to generate a group key
 	// group all activities into a Group based on their group key
 	q := exprs[0]
-	res, err := eval.DefaultEvaluator.GroupBy(ctx, q, group.Pass.Activities)
+	evaluator := antonmedv.New()
+	res, err := evaluator.GroupBy(ctx, q, group.Pass.Activities)
 	if err != nil {
 		return err
 	}

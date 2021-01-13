@@ -9,15 +9,15 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-type paesslerag struct {
+type evaluator struct {
 	language gval.Language
 }
 
 func New() eval.Evaluator {
-	return &paesslerag{language: gval.Full()}
+	return &evaluator{language: gval.Full()}
 }
 
-func (p *paesslerag) Filter(ctx context.Context, q string, acts []*strava.Activity) ([]*strava.Activity, error) {
+func (p *evaluator) Filter(ctx context.Context, q string, acts []*strava.Activity) ([]*strava.Activity, error) {
 	eval, err := p.language.NewEvaluable(q)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (p *paesslerag) Filter(ctx context.Context, q string, acts []*strava.Activi
 	return res, nil
 }
 
-func (p *paesslerag) GroupBy(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
+func (p *evaluator) GroupBy(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
 	eval, err := p.language.NewEvaluable(q)
 	if err != nil {
 		return nil, err

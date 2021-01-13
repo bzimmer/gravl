@@ -17,8 +17,6 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg"
-	"github.com/bzimmer/gravl/pkg/analysis/eval"
-	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
@@ -49,12 +47,6 @@ func flatten(cmds []*cli.Command) []*cli.Command {
 		res = append(res, flatten(cmds[i].Subcommands)...)
 	}
 	return res
-}
-
-func initEvaluator(c *cli.Context) error {
-	// @todo(bzimmer) should not be a global
-	eval.DefaultEvaluator = antonmedv.New()
-	return nil
 }
 
 func initConfig(c *cli.Context) error {
@@ -104,9 +96,19 @@ func initLogging(c *cli.Context) error {
 	return nil
 }
 
-var flags = func() []cli.Flag {
+// ConfigFlag for the default gravl configuration file
+var ConfigFlag = func() cli.Flag {
 	config := path.Join(xdg.ConfigHome, pkg.PackageName, "gravl.yaml")
+	return &cli.PathFlag{
+		Name:  "config",
+		Value: config,
+		Usage: "File containing configuration settings",
+	}
+}()
+
+var flags = func() []cli.Flag {
 	return []cli.Flag{
+		ConfigFlag,
 		&cli.StringFlag{
 			Name:    "verbosity",
 			Aliases: []string{"v"},
@@ -135,12 +137,6 @@ var flags = func() []cli.Flag {
 			Name:  "http-tracing",
 			Value: false,
 			Usage: "Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)",
-		},
-		&cli.PathFlag{
-			Name:      "config",
-			Value:     config,
-			TakesFile: true,
-			Usage:     "File containing configuration settings",
 		},
 		&cli.DurationFlag{
 			Name:    "timeout",
@@ -174,7 +170,7 @@ func Run(args []string) error {
 		HelpName: "gravl",
 		Flags:    flags,
 		Commands: gravlCommands,
-		Before:   commands.Before(initLogging, initEncoding, initConfig, initEvaluator),
+		Before:   commands.Before(initLogging, initEncoding, initConfig),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			log.Error().Err(err).Msg(c.App.Name)
 		},
