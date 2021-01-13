@@ -17,6 +17,8 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/analysis/eval"
+	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
@@ -47,6 +49,12 @@ func flatten(cmds []*cli.Command) []*cli.Command {
 		res = append(res, flatten(cmds[i].Subcommands)...)
 	}
 	return res
+}
+
+func initEvaluator(c *cli.Context) error {
+	// @todo(bzimmer) should not be a global
+	eval.DefaultEvaluator = antonmedv.New()
+	return nil
 }
 
 func initConfig(c *cli.Context) error {
@@ -166,7 +174,7 @@ func Run(args []string) error {
 		HelpName: "gravl",
 		Flags:    flags,
 		Commands: gravlCommands,
-		Before:   commands.Before(initLogging, initEncoding, initConfig),
+		Before:   commands.Before(initLogging, initEncoding, initConfig, initEvaluator),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			log.Error().Err(err).Msg(c.App.Name)
 		},

@@ -6,11 +6,11 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
+	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
-	"github.com/bzimmer/gravl/pkg/analysis/store/source/bolt"
-	"github.com/bzimmer/gravl/pkg/analysis/store/source/file"
-	api "github.com/bzimmer/gravl/pkg/analysis/store/source/strava"
+	"github.com/bzimmer/gravl/pkg/analysis/store/bolt"
+	"github.com/bzimmer/gravl/pkg/analysis/store/file"
+	api "github.com/bzimmer/gravl/pkg/analysis/store/strava"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 )
@@ -48,8 +48,7 @@ func remove(c *cli.Context) error {
 		return err
 	}
 	if c.IsSet("filter") {
-		evaluator := antonmedv.New()
-		acts, err = evaluator.Filter(c.Context, c.String("filter"), acts)
+		acts, err = eval.DefaultEvaluator.Filter(c.Context, c.String("filter"), acts)
 		if err != nil {
 			return err
 		}

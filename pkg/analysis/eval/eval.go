@@ -6,6 +6,8 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
+var DefaultEvaluator Evaluator = nil
+
 type Evaluator interface {
 
 	// Filter the collection of activities by the expression returning those evaluating to true
