@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/PaesslerAG/gval"
+
 	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )

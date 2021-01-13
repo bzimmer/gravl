@@ -21,19 +21,32 @@
 ### Examples
 
 ```sh
-gravl > go run cmd/gravl/* strava --export original 4569050661
-"Paris.fit"
-gravl > go run cmd/gravl/* ca --upload Paris.fit
-2021-01-04T20:38:12-08:00 INF uploading file=Paris.fit size=67629
+$ gravl strava export 4612178259
+2021-01-12T20:22:13-08:00 INF export activityID=4612178259 format=original
+"Innsbruck.fit"
+$ gravl ca upload -f Innsbruck.fit
+2021-01-12T20:23:12-08:00 INF uploading file=Innsbruck.fit size=112732
 {
  "status": "processing",
  "ride_id": 0,
  "user_id": 1603533,
  "format": "fit",
- "datetime": "2021-01-05T04:38:14",
- "upload_id": 7899891711,
- "filename": "Paris.fit",
- "size": 67629,
+ "datetime": "2021-01-13T04:23:15",
+ "upload_id": 4775060590,
+ "filename": "Innsbruck.fit",
+ "size": 112732,
+ "error": "",
+ "error_code": ""
+}
+{
+ "status": "done",
+ "ride_id": 382207409453,
+ "user_id": 1603533,
+ "format": "fit",
+ "datetime": "2021-01-13T04:23:15",
+ "upload_id": 4775060590,
+ "filename": "Innsbruck.fit",
+ "size": 112732,
  "error": "",
  "error_code": ""
 }

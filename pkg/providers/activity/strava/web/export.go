@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 // Format of the exported file
@@ -62,6 +64,10 @@ func (s *ExportService) Export(ctx context.Context, activityID int64, format For
 	if err != nil {
 		return nil, err
 	}
+	log.Info().
+		Str("format", format.String()).
+		Int64("activityID", activityID).
+		Msg("export")
 	res, err := s.client.client.Do(req)
 	if err != nil {
 		select {

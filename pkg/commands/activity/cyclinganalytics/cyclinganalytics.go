@@ -120,9 +120,7 @@ func upload(c *cli.Context) error {
 				return err
 			}
 			if !c.Bool("follow") {
-				if err := encoding.Encode(u); err != nil {
-					return err
-				}
+				return encoding.Encode(u)
 			}
 			return poll(ctx, client, u.UploadID, true)
 		}

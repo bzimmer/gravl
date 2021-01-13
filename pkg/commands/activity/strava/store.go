@@ -2,49 +2,51 @@ package strava
 
 import (
 	"errors"
-	"os"
-	"path/filepath"
 
 	"github.com/rs/zerolog/log"
-	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
-	"go.etcd.io/bbolt"
 
 	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
+	"github.com/bzimmer/gravl/pkg/analysis/store/source/bolt"
+	"github.com/bzimmer/gravl/pkg/analysis/store/source/file"
+	api "github.com/bzimmer/gravl/pkg/analysis/store/source/strava"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-func database(c *cli.Context) (*bolthold.Store, error) {
-	fn := c.Path("store")
-	if fn == "" {
-		return nil, errors.New("nil db path")
-	}
-	log.Info().Str("store", fn).Msg("using database")
-	directory := filepath.Dir(fn)
-	if _, err := os.Stat(directory); os.IsNotExist(err) {
-		log.Info().Str("directory", directory).Msg("creating")
-		if err = os.MkdirAll(directory, os.ModeDir|0700); err != nil {
+func source(c *cli.Context) (store.Source, error) {
+	switch {
+	case c.NArg() == 1:
+		return file.Open(c.Args().First())
+	default:
+		client, err := NewAPIClient(c)
+		if err != nil {
 			return nil, err
 		}
+		return api.Open(client), nil
 	}
-	return bolthold.Open(fn, 0666, nil)
+}
+
+func sink(c *cli.Context) (store.SourceSink, error) {
+	path := c.Path("store")
+	if path == "" {
+		return nil, errors.New("nil db path")
+	}
+	return bolt.Open(path)
 }
 
 func remove(c *cli.Context) error {
-	db, err := database(c)
+	db, err := sink(c)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	var acts []*strava.Activity
-	err = db.ForEach(&bolthold.Query{}, func(act *strava.Activity) error {
-		acts = append(acts, act)
-		return nil
-	})
+	acts, err := db.Activities(c.Context)
+	if err != nil {
+		return err
+	}
 	if c.IsSet("filter") {
 		evaluator := antonmedv.New()
 		acts, err = evaluator.Filter(c.Context, c.String("filter"), acts)
@@ -52,51 +54,60 @@ func remove(c *cli.Context) error {
 			return err
 		}
 	}
-	ids := make([]interface{}, len(acts))
+	ids := make([]int64, len(acts))
 	for i, act := range acts {
 		ids[i] = act.ID
 	}
 	if c.Bool("dryrun") {
 		return encoding.Encode(ids)
 	}
-	q := bolthold.Where("ID").In(ids...)
-	log.Info().Str("q", q.String()).Msg("deleting activities")
-	err = db.Bolt().Update(func(tx *bbolt.Tx) error {
-		if err = db.TxDeleteMatching(tx, strava.Activity{}, q); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return nil
+	if err := db.Remove(c.Context, acts...); err != nil {
+		return err
 	}
 	return encoding.Encode(ids)
 }
 
 func update(c *cli.Context) error {
-	client, err := NewAPIClient(c)
-	if err != nil {
-		return err
-	}
-	db, err := database(c)
+	db, err := sink(c)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-
-	var source store.Source
-	if c.NArg() == 1 {
-		source = &store.SourceFile{Path: c.Args().First()}
-	} else {
-		source = &store.SourceStrava{Client: client}
-	}
-
-	store := store.NewStore(db)
-	n, err := store.Update(c.Context, source)
+	src, err := source(c)
 	if err != nil {
 		return err
 	}
-	if err = encoding.Encode(map[string]int{"activities": n}); err != nil {
+	defer src.Close()
+	acts, err := src.Activities(c.Context)
+	if err != nil {
+		return err
+	}
+	var n int
+	for i := 0; i < len(acts); i++ {
+		var ok bool
+		act := acts[i]
+		ok, err = db.Exists(c.Context, act.ID)
+		if err != nil {
+			return err
+		}
+		if ok {
+			continue
+		}
+		log.Info().Int64("ID", act.ID).Msg("querying activity details")
+		act, err = src.Activity(c.Context, act.ID)
+		if err != nil {
+			return err
+		}
+		log.Info().Int("n", n+1).Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity details")
+		if err = db.Save(c.Context, act); err != nil {
+			return nil
+		}
+		n++
+	}
+	if err = encoding.Encode(map[string]int{
+		"total":    len(acts),
+		"new":      n,
+		"existing": len(acts) - n}); err != nil {
 		return err
 	}
 	return nil
