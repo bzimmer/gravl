@@ -92,12 +92,12 @@ type Gear struct {
 
 // Totals for stats
 type Totals struct {
-	Distance         unit.Length `json:"distance" units:"m"`
-	AchievementCount int         `json:"achievement_count"`
-	Count            int         `json:"count"`
-	ElapsedTime      int         `json:"elapsed_time"`
-	ElevationGain    unit.Length `json:"elevation_gain" units:"m"`
-	MovingTime       int         `json:"moving_time"`
+	Distance         unit.Length   `json:"distance" units:"m"`
+	AchievementCount int           `json:"achievement_count"`
+	Count            int           `json:"count"`
+	ElapsedTime      unit.Duration `json:"elapsed_time" units:"s"`
+	ElevationGain    unit.Length   `json:"elevation_gain" units:"m"`
+	MovingTime       unit.Duration `json:"moving_time" units:"s"`
 }
 
 // Stats for the athlete
@@ -186,45 +186,45 @@ func (m *Map) LineString() (*geom.LineString, error) {
 
 // Lap data
 type Lap struct {
-	ID                 int64       `json:"id"`
-	ResourceState      int         `json:"resource_state"`
-	Name               string      `json:"name"`
-	Activity           *Activity   `json:"activity"`
-	Athlete            *Athlete    `json:"athlete"`
-	ElapsedTime        int         `json:"elapsed_time"`
-	MovingTime         int         `json:"moving_time"`
-	StartDate          time.Time   `json:"start_date"`
-	StartDateLocal     time.Time   `json:"start_date_local"`
-	Distance           unit.Length `json:"distance" units:"m"`
-	StartIndex         int         `json:"start_index"`
-	EndIndex           int         `json:"end_index"`
-	TotalElevationGain unit.Length `json:"total_elevation_gain" units:"m"`
-	AverageSpeed       unit.Speed  `json:"average_speed" units:"mps"`
-	MaxSpeed           unit.Speed  `json:"max_speed" units:"mps"`
-	AverageCadence     float64     `json:"average_cadence"`
-	DeviceWatts        bool        `json:"device_watts"`
-	AverageWatts       float64     `json:"average_watts"`
-	LapIndex           int         `json:"lap_index"`
-	Split              int         `json:"split"`
+	ID                 int64         `json:"id"`
+	ResourceState      int           `json:"resource_state"`
+	Name               string        `json:"name"`
+	Activity           *Activity     `json:"activity"`
+	Athlete            *Athlete      `json:"athlete"`
+	ElapsedTime        unit.Duration `json:"elapsed_time" units:"s"`
+	MovingTime         unit.Duration `json:"moving_time" units:"s"`
+	StartDate          time.Time     `json:"start_date"`
+	StartDateLocal     time.Time     `json:"start_date_local"`
+	Distance           unit.Length   `json:"distance" units:"m"`
+	StartIndex         int           `json:"start_index"`
+	EndIndex           int           `json:"end_index"`
+	TotalElevationGain unit.Length   `json:"total_elevation_gain" units:"m"`
+	AverageSpeed       unit.Speed    `json:"average_speed" units:"mps"`
+	MaxSpeed           unit.Speed    `json:"max_speed" units:"mps"`
+	AverageCadence     float64       `json:"average_cadence"`
+	DeviceWatts        bool          `json:"device_watts"`
+	AverageWatts       float64       `json:"average_watts"`
+	LapIndex           int           `json:"lap_index"`
+	Split              int           `json:"split"`
 }
 
 // PREffort for the segment
 type PREffort struct {
-	Distance       unit.Length `json:"distance" units:"m"`
-	StartDateLocal time.Time   `json:"start_date_local"`
-	ActivityID     int         `json:"activity_id"`
-	ElapsedTime    int         `json:"elapsed_time"`
-	IsKOM          bool        `json:"is_kom"`
-	ID             int         `json:"id"`
-	StartDate      time.Time   `json:"start_date"`
+	Distance       unit.Length   `json:"distance" units:"m"`
+	StartDateLocal time.Time     `json:"start_date_local"`
+	ActivityID     int           `json:"activity_id"`
+	ElapsedTime    unit.Duration `json:"elapsed_time" units:"s"`
+	IsKOM          bool          `json:"is_kom"`
+	ID             int           `json:"id"`
+	StartDate      time.Time     `json:"start_date"`
 }
 
 // SegmentStats for the segment
 type SegmentStats struct {
-	PRElapsedTime int       `json:"pr_elapsed_time"`
-	PRDate        time.Time `json:"pr_date"`
-	EffortCount   int       `json:"effort_count"`
-	PRActivityID  int       `json:"pr_activity_id"`
+	PRElapsedTime unit.Duration `json:"pr_elapsed_time" units:"s"`
+	PRDate        time.Time     `json:"pr_date"`
+	EffortCount   int           `json:"effort_count"`
+	PRActivityID  int           `json:"pr_activity_id"`
 }
 
 // Segment .
@@ -278,8 +278,8 @@ type SegmentEffort struct {
 	Name           string         `json:"name"`
 	Activity       *MetaActivity  `json:"activity"`
 	Athlete        *Athlete       `json:"athlete"`
-	ElapsedTime    int            `json:"elapsed_time"`
-	MovingTime     int            `json:"moving_time"`
+	ElapsedTime    unit.Duration  `json:"elapsed_time" units:"s"`
+	MovingTime     unit.Duration  `json:"moving_time" units:"s"`
 	StartDate      time.Time      `json:"start_date"`
 	StartDateLocal time.Time      `json:"start_date_local"`
 	Distance       unit.Length    `json:"distance" units:"m"`
@@ -297,13 +297,13 @@ type SegmentEffort struct {
 
 // SplitsMetric .
 type SplitsMetric struct {
-	Distance            unit.Length `json:"distance" units:"m"`
-	ElapsedTime         int         `json:"elapsed_time"`
-	ElevationDifference unit.Length `json:"elevation_difference" units:"m"`
-	MovingTime          int         `json:"moving_time"`
-	Split               int         `json:"split"`
-	AverageSpeed        float64     `json:"average_speed"`
-	PaceZone            int         `json:"pace_zone"`
+	Distance            unit.Length   `json:"distance" units:"m"`
+	ElapsedTime         unit.Duration `json:"elapsed_time" units:"s"`
+	ElevationDifference unit.Length   `json:"elevation_difference" units:"m"`
+	MovingTime          unit.Duration `json:"moving_time" units:"s"`
+	Split               int           `json:"split"`
+	AverageSpeed        float64       `json:"average_speed"`
+	PaceZone            int           `json:"pace_zone"`
 }
 
 // HighlightedKudosers .
@@ -338,8 +338,8 @@ type Activity struct {
 	Athlete                  *Athlete               `json:"athlete"`
 	Name                     string                 `json:"name"`
 	Distance                 unit.Length            `json:"distance" units:"m"`
-	MovingTime               int                    `json:"moving_time"`
-	ElapsedTime              int                    `json:"elapsed_time"`
+	MovingTime               unit.Duration          `json:"moving_time" units:"s"`
+	ElapsedTime              unit.Duration          `json:"elapsed_time" units:"s"`
 	ElevationGain            unit.Length            `json:"total_elevation_gain" units:"m"`
 	Type                     string                 `json:"type"`
 	StartDate                time.Time              `json:"start_date"`
@@ -401,23 +401,23 @@ type Activity struct {
 
 // Route .
 type Route struct {
-	Private             bool        `json:"private"`
-	Distance            unit.Length `json:"distance" units:"m"`
-	Athlete             *Athlete    `json:"athlete"`
-	Description         string      `json:"description"`
-	CreatedAt           time.Time   `json:"created_at"`
-	ElevationGain       unit.Length `json:"elevation_gain" units:"m"`
-	Type                int         `json:"type"`
-	EstimatedMovingTime int         `json:"estimated_moving_time"`
-	Segments            []*Segment  `json:"segments"`
-	Starred             bool        `json:"starred"`
-	UpdatedAt           time.Time   `json:"updated_at"`
-	SubType             int         `json:"sub_type"`
-	IDString            string      `json:"id_str"`
-	Name                string      `json:"name"`
-	ID                  int         `json:"id"`
-	Map                 *Map        `json:"map"`
-	Timestamp           int         `json:"timestamp"`
+	Private             bool          `json:"private"`
+	Distance            unit.Length   `json:"distance" units:"m"`
+	Athlete             *Athlete      `json:"athlete"`
+	Description         string        `json:"description"`
+	CreatedAt           time.Time     `json:"created_at"`
+	ElevationGain       unit.Length   `json:"elevation_gain" units:"m"`
+	Type                int           `json:"type"`
+	EstimatedMovingTime unit.Duration `json:"estimated_moving_time" units:"s"`
+	Segments            []*Segment    `json:"segments"`
+	Starred             bool          `json:"starred"`
+	UpdatedAt           time.Time     `json:"updated_at"`
+	SubType             int           `json:"sub_type"`
+	IDString            string        `json:"id_str"`
+	Name                string        `json:"name"`
+	ID                  int           `json:"id"`
+	Map                 *Map          `json:"map"`
+	Timestamp           int           `json:"timestamp"`
 }
 
 type TrainingDate struct {

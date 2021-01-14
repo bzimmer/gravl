@@ -12,6 +12,7 @@ type Activity struct {
 	StartDate    time.Time `json:"startdate"`
 	Distance     float64   `json:"distance"`
 	Elevation    float64   `json:"elevation"`
+	MovingTime   float64   `json:"moving_time"`
 	AverageSpeed float64   `json:"average_speed"`
 	Type         string    `json:"type"`
 }
@@ -35,6 +36,7 @@ func ToActivity(act *strava.Activity, units Units) *Activity {
 		Distance:     dst,
 		Elevation:    elv,
 		AverageSpeed: spd,
+		MovingTime:   act.MovingTime.Seconds(),
 		Type:         act.Type,
 	}
 }

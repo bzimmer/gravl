@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/martinlindhe/unit"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -46,6 +47,6 @@ func Test_AthleteStats(t *testing.T) {
 	a.NoError(err, "failed decoding")
 	a.NotNil(sts)
 	a.Equal(float64(14492298), math.Trunc(sts.AllRideTotals.Distance.Meters()))
-	a.Equal(12441, sts.AllSwimTotals.ElapsedTime)
+	a.Equal(unit.Duration(12441), sts.AllSwimTotals.ElapsedTime)
 	a.Equal(float64(1597), math.Trunc(sts.BiggestClimbElevationGain.Meters()))
 }

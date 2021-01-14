@@ -5,6 +5,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/martinlindhe/unit"
+
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
@@ -24,10 +26,12 @@ type Result struct {
 	DistanceRemaining float64              `json:"remaining"`
 	Percent           float64              `json:"percent"`
 	Success           bool                 `json:"success"`
+	MovingTime        unit.Duration        `json:"moving_time"`
 }
 
 func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 	var dst float64
+	var dur unit.Duration
 	var acts []*analysis.Activity
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
@@ -38,6 +42,7 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		_, month, date := act.StartDateLocal.Date()
 		ok = (month == time.December && date >= 24 && date <= 31)
 		if ok {
+			dur = dur + act.MovingTime
 			dst = dst + act.Distance.Kilometers()
 			acts = append(acts, analysis.ToActivity(act, analysis.Metric))
 		}
@@ -54,7 +59,8 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		DistanceCompleted: dst,
 		DistanceRemaining: remaining,
 		Percent:           (dst / 500.0) * 100,
-		Success:           dst >= 500.0}, nil
+		Success:           dst >= 500.0,
+		MovingTime:        dur}, nil
 }
 
 func New() *analysis.Analyzer {

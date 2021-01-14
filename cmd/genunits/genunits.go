@@ -56,27 +56,29 @@ func parseFile(filename string) (*ast.File, error) {
 }
 
 func parseType(t ast.Expr) string {
-	switch s := t.(type) {
-	case *ast.ArrayType:
-		//  Type: (*ast.ArrayType)(0xc000073ec0)({
-		//   Lbrack: (token.Pos) 1647,
-		//   Len: (ast.Expr) <nil>,
-		//   Elt: (*ast.SelectorExpr)(0xc0001a2940)({
-		//    X: (*ast.Ident)(0xc0001a2900)(unit),
-		//    Sel: (*ast.Ident)(0xc0001a2920)(Length)
-		//   })
-		return parseType(s.Elt)
-	case *ast.SelectorExpr:
-		// 	Type: (*ast.SelectorExpr)(0xc0000e4580)({
-		//   X: (*ast.Ident)(0xc0000e4540)(unit),
-		//   Sel: (*ast.Ident)(0xc0000e4560)(Length)
-		//  })
-		if s.X != nil {
-			return fmt.Sprintf("%s.%s", s.X, s.Sel)
+	for {
+		switch s := t.(type) {
+		case *ast.ArrayType:
+			//  Type: (*ast.ArrayType)(0xc000073ec0)({
+			//   Lbrack: (token.Pos) 1647,
+			//   Len: (ast.Expr) <nil>,
+			//   Elt: (*ast.SelectorExpr)(0xc0001a2940)({
+			//    X: (*ast.Ident)(0xc0001a2900)(unit),
+			//    Sel: (*ast.Ident)(0xc0001a2920)(Length)
+			//   })
+			t = s.Elt
+		case *ast.SelectorExpr:
+			// 	Type: (*ast.SelectorExpr)(0xc0000e4580)({
+			//   X: (*ast.Ident)(0xc0000e4540)(unit),
+			//   Sel: (*ast.Ident)(0xc0000e4560)(Length)
+			//  })
+			if s.X != nil {
+				return fmt.Sprintf("%s.%s", s.X, s.Sel)
+			}
+			return s.Sel.String()
+		default:
+			return ""
 		}
-		return s.Sel.String()
-	default:
-		return ""
 	}
 }
 
