@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/martinlindhe/unit"
 	"github.com/stretchr/testify/assert"
 	gpx "github.com/twpayne/go-gpx"
 
@@ -20,8 +21,8 @@ func TestSummarize(t *testing.T) {
 
 	s := geo.SummarizeTracks(x)
 	a.Equal(13, s.Points, "points")
-	a.Equal(10.0, s.Ascent, "ascent")
-	a.Equal(15.0, s.Descent, "descent")
+	a.Equal(unit.Length(10.0), s.Ascent, "ascent")
+	a.Equal(unit.Length(15.0), s.Descent, "descent")
 	a.Equal(14683, int(s.Distance2D), "distance")
 	a.Equal(14683, int(s.Distance2D), "distance")
 }

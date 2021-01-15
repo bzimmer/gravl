@@ -21,7 +21,6 @@ var Command = &cli.Command{
 		routeCommand,
 		routesCommand,
 		streamsCommand,
-		storeCommand,
 		webhookCommand,
 	},
 }

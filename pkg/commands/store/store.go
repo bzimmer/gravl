@@ -1,4 +1,4 @@
-package strava
+package store
 
 import (
 	"errors"
@@ -12,6 +12,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/store/file"
 	api "github.com/bzimmer/gravl/pkg/analysis/store/strava"
 	"github.com/bzimmer/gravl/pkg/commands"
+	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 )
 
@@ -20,7 +21,7 @@ func source(c *cli.Context) (store.Source, error) {
 	case c.NArg() == 1:
 		return file.Open(c.Args().First())
 	default:
-		client, err := NewAPIClient(c)
+		client, err := strava.NewAPIClient(c)
 		if err != nil {
 			return nil, err
 		}
@@ -138,10 +139,10 @@ var removeCommand = &cli.Command{
 	Action: remove,
 }
 
-var storeCommand = &cli.Command{
+var Command = &cli.Command{
 	Name:  "store",
 	Usage: "Manage a local store of Strava activities",
-	Flags: []cli.Flag{commands.StoreFlag},
+	Flags: commands.Merge([]cli.Flag{commands.StoreFlag}, strava.AuthFlags),
 	Subcommands: []*cli.Command{
 		updateCommand,
 		removeCommand,

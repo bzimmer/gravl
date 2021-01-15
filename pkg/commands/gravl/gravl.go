@@ -25,7 +25,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/analysis"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gnis"
+	"github.com/bzimmer/gravl/pkg/commands/geo/gpx"
 	"github.com/bzimmer/gravl/pkg/commands/geo/srtm"
+	"github.com/bzimmer/gravl/pkg/commands/store"
 	"github.com/bzimmer/gravl/pkg/commands/version"
 	"github.com/bzimmer/gravl/pkg/commands/wx/noaa"
 	"github.com/bzimmer/gravl/pkg/commands/wx/openweather"
@@ -149,13 +151,15 @@ var flags = func() []cli.Flag {
 
 var gravlCommands = func() []*cli.Command {
 	return []*cli.Command{
+		analysis.Command,
 		cyclinganalytics.Command,
 		gnis.Command,
+		gpx.Command,
 		noaa.Command,
 		openweather.Command,
-		analysis.Command,
 		rwgps.Command,
 		srtm.Command,
+		store.Command,
 		strava.Command,
 		version.Command,
 		visualcrossing.Command,
