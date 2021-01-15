@@ -1,6 +1,6 @@
 package srtm
 
-//go:generate go run ../../../cmd/genwith/genwith.go --client --package srtm
+//go:generate genwith --client --package srtm
 
 import (
 	"errors"

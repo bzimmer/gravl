@@ -6,7 +6,9 @@ require (
 	github.com/PaesslerAG/gval v1.1.0
 	github.com/adrg/xdg v0.2.3
 	github.com/antonmedv/expr v1.8.9
+	github.com/bzimmer/genwith v0.1.0
 	github.com/bzimmer/httpwares v0.0.3
+	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.10.0
 	github.com/fatih/structtag v1.2.0
@@ -18,6 +20,7 @@ require (
 	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762
 	github.com/muesli/kmeans v0.2.1
 	github.com/rs/zerolog v1.20.0
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/securego/gosec/v2 v2.5.0
 	github.com/stretchr/testify v1.6.1
 	github.com/timshannon/bolthold v0.0.0-20200817130212-4a25ab140645

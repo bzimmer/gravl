@@ -1,6 +1,6 @@
 package wta
 
-//go:generate go run ../../../cmd/genwith/genwith.go --client --package wta
+//go:generate genwith --client --package wta
 
 import "net/http"
 

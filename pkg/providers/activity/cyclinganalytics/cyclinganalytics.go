@@ -1,6 +1,6 @@
 package cyclinganalytics
 
-//go:generate go run ../../../cmd/genwith/genwith.go --do --client --endpoint --auth --package cyclinganalytics
+//go:generate genwith --do --client --endpoint --auth --package cyclinganalytics
 
 import (
 	"context"

@@ -7,6 +7,7 @@ import (
 	// _ "github.com/go-task/task/v3/cmd/task"
 	// brew install golangci-lint
 	// _ "github.com/golangci/golangci-lint/cmd/golangci-lint"
+	_ "github.com/bzimmer/genwith"
 	_ "github.com/securego/gosec/v2/cmd/gosec"
 	_ "golang.org/x/lint/golint"
 	_ "golang.org/x/tools/cmd/goimports"

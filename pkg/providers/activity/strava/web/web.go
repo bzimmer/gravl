@@ -3,7 +3,7 @@
 // Inspired by https://github.com/pR0Ps/stravaweblib
 package web
 
-//go:generate go run ../../../../cmd/genwith/genwith.go --client --ratelimit --package web
+//go:generate genwith --client --ratelimit --package web
 
 import (
 	"context"

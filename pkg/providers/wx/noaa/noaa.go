@@ -1,6 +1,6 @@
 package noaa
 
-//go:generate go run ../../../cmd/genwith/genwith.go --do --client --package noaa
+//go:generate genwith --do --client --package noaa
 
 import (
 	"context"
