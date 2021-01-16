@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/antonmedv/expr"
 
@@ -24,19 +25,40 @@ func closure(f string) string {
 	return f
 }
 
-type evaluator struct{}
-
-type env struct {
-	Activities []*strava.Activity
+type ISOWeek struct {
+	Year, Week int
 }
+
+func (w ISOWeek) String() string {
+	return fmt.Sprintf("[%04d %02d]", w.Year, w.Week)
+}
+
+func isoweek(t time.Time) ISOWeek {
+	year, week := t.ISOWeek()
+	return ISOWeek{year, week}
+}
+
+func newEnv(acts []*strava.Activity) map[string]interface{} {
+	return map[string]interface{}{
+		"Activities": acts,
+		"isoweek":    isoweek,
+	}
+}
+
+type evaluator struct{}
 
 func New() eval.Evaluator {
 	return &evaluator{}
 }
 
 func (x *evaluator) Filter(ctx context.Context, q string, acts []*strava.Activity) ([]*strava.Activity, error) {
+	env := newEnv(acts)
 	code := fmt.Sprintf("filter(Activities, %s)", closure(q))
-	out, err := expr.Eval(code, &env{Activities: acts})
+	pgrm, err := expr.Compile(code, expr.Env(env))
+	if err != nil {
+		return nil, err
+	}
+	out, err := expr.Run(pgrm, env)
 	if err != nil {
 		return nil, err
 	}
@@ -49,13 +71,18 @@ func (x *evaluator) Filter(ctx context.Context, q string, acts []*strava.Activit
 }
 
 func (x *evaluator) GroupBy(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
+	env := newEnv(acts)
 	// map over the activities to generate a group key
 	code := fmt.Sprintf("map(Activities, %s)", closure(q))
-	out, err := expr.Eval(code, &env{Activities: acts})
+	pgrm, err := expr.Compile(code, expr.Env(env))
 	if err != nil {
 		return nil, err
 	}
-	// group all activities into a Group based on their group key
+	out, err := expr.Run(pgrm, env)
+	if err != nil {
+		return nil, err
+	}
+	// group all activities into a slice with their key
 	res := out.([]interface{})
 	groups := make(map[string][]*strava.Activity, len(res))
 	for i, k := range res {
