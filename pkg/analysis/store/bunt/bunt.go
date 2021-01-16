@@ -118,7 +118,7 @@ func (b *bunt) Save(ctx context.Context, acts ...*strava.Activity) error {
 	return b.db.Update(func(tx *buntdb.Tx) error {
 		for i := range acts {
 			act := acts[i]
-			log.Debug().Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity")
+			log.Info().Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity")
 			val, err := marshal(act)
 			if err != nil {
 				return err
@@ -135,7 +135,7 @@ func (b *bunt) Save(ctx context.Context, acts ...*strava.Activity) error {
 func (b *bunt) Remove(ctx context.Context, acts ...*strava.Activity) error {
 	return b.db.Update(func(tx *buntdb.Tx) error {
 		for i := range acts {
-			log.Debug().Int64("id", acts[i].ID).Str("name", acts[i].Name).Msg("deleting activity")
+			log.Info().Int64("id", acts[i].ID).Str("name", acts[i].Name).Msg("deleting activity")
 			_, err := tx.Delete(id(acts[i].ID))
 			if err != nil {
 				return err
