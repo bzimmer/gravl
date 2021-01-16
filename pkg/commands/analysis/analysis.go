@@ -99,7 +99,7 @@ func read(c *cli.Context) (*analysis.Pass, error) {
 
 // filter the activities
 // For example:
-//  {.Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]}
+//  .Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]
 func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
 	if !c.IsSet("filter") {
 		return pass, nil

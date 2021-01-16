@@ -10,10 +10,11 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
 	"github.com/bzimmer/gravl/pkg/analysis/store/file"
-	api "github.com/bzimmer/gravl/pkg/analysis/store/strava"
+	stravastore "github.com/bzimmer/gravl/pkg/analysis/store/strava"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	stravaapi "github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 func source(c *cli.Context) (store.Source, error) {
@@ -25,7 +26,7 @@ func source(c *cli.Context) (store.Source, error) {
 		if err != nil {
 			return nil, err
 		}
-		return api.Open(client), nil
+		return stravastore.Open(client), nil
 	}
 }
 
@@ -35,6 +36,18 @@ func sink(c *cli.Context) (store.SourceSink, error) {
 		return nil, errors.New("nil db path")
 	}
 	return bunt.Open(path)
+}
+
+func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, error) {
+	if !c.IsSet("filter") {
+		return acts, nil
+	}
+	evaluator := antonmedv.New()
+	acts, err := evaluator.Filter(c.Context, c.String("filter"), acts)
+	if err != nil {
+		return nil, err
+	}
+	return acts, nil
 }
 
 func export(c *cli.Context) error {
@@ -47,12 +60,9 @@ func export(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if c.IsSet("filter") {
-		evaluator := antonmedv.New()
-		acts, err = evaluator.Filter(c.Context, c.String("filter"), acts)
-		if err != nil {
-			return err
-		}
+	acts, err = filter(c, acts)
+	if err != nil {
+		return err
 	}
 	for _, act := range acts {
 		if err := encoding.Encode(act); err != nil {
@@ -72,12 +82,9 @@ func remove(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if c.IsSet("filter") {
-		evaluator := antonmedv.New()
-		acts, err = evaluator.Filter(c.Context, c.String("filter"), acts)
-		if err != nil {
-			return err
-		}
+	acts, err = filter(c, acts)
+	if err != nil {
+		return err
 	}
 	ids := make([]int64, len(acts))
 	for i, act := range acts {
