@@ -37,6 +37,31 @@ func sink(c *cli.Context) (store.SourceSink, error) {
 	return bunt.Open(path)
 }
 
+func export(c *cli.Context) error {
+	db, err := sink(c)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	acts, err := db.Activities(c.Context)
+	if err != nil {
+		return err
+	}
+	if c.IsSet("filter") {
+		evaluator := antonmedv.New()
+		acts, err = evaluator.Filter(c.Context, c.String("filter"), acts)
+		if err != nil {
+			return err
+		}
+	}
+	for _, act := range acts {
+		if err := encoding.Encode(act); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func remove(c *cli.Context) error {
 	db, err := sink(c)
 	if err != nil {
@@ -113,6 +138,15 @@ func update(c *cli.Context) error {
 	return nil
 }
 
+func filterFlag(required bool) cli.Flag {
+	return &cli.StringFlag{
+		Name:     "filter",
+		Aliases:  []string{"f"},
+		Required: required,
+		Usage:    "Expression for filtering activities to remove",
+	}
+}
+
 var updateCommand = &cli.Command{
 	Name:   "update",
 	Usage:  "Query and update Strava activities to local storage",
@@ -123,12 +157,7 @@ var removeCommand = &cli.Command{
 	Name:  "remove",
 	Usage: "Remove activities from local storage",
 	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:     "filter",
-			Aliases:  []string{"f"},
-			Required: true,
-			Usage:    "Expression for filtering activities to remove",
-		},
+		filterFlag(true),
 		&cli.BoolFlag{
 			Name:    "dryrun",
 			Aliases: []string{"n"},
@@ -139,12 +168,20 @@ var removeCommand = &cli.Command{
 	Action: remove,
 }
 
+var exportCommand = &cli.Command{
+	Name:   "export",
+	Usage:  "Export activities from local storage",
+	Flags:  []cli.Flag{filterFlag(false)},
+	Action: export,
+}
+
 var Command = &cli.Command{
 	Name:  "store",
 	Usage: "Manage a local store of Strava activities",
 	Flags: commands.Merge([]cli.Flag{commands.StoreFlag}, strava.AuthFlags),
 	Subcommands: []*cli.Command{
-		updateCommand,
+		exportCommand,
 		removeCommand,
+		updateCommand,
 	},
 }
