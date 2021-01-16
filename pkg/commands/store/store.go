@@ -8,7 +8,7 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
-	"github.com/bzimmer/gravl/pkg/analysis/store/bolt"
+	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
 	"github.com/bzimmer/gravl/pkg/analysis/store/file"
 	api "github.com/bzimmer/gravl/pkg/analysis/store/strava"
 	"github.com/bzimmer/gravl/pkg/commands"
@@ -34,7 +34,7 @@ func sink(c *cli.Context) (store.SourceSink, error) {
 	if path == "" {
 		return nil, errors.New("nil db path")
 	}
-	return bolt.Open(path)
+	return bunt.Open(path)
 }
 
 func remove(c *cli.Context) error {

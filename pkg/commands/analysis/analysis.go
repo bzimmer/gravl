@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/rs/zerolog/log"
-	"github.com/timshannon/bolthold"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
@@ -23,9 +22,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
+	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 type analyzer struct {
@@ -82,21 +81,15 @@ func analyzers(c *cli.Context) ([]*analysis.Analyzer, error) {
 }
 
 func read(c *cli.Context) (*analysis.Pass, error) {
-	fn := c.Path("store")
-	if fn == "" {
+	path := c.Path("store")
+	if path == "" {
 		return nil, errors.New("nil db path")
 	}
-	store, err := bolthold.Open(fn, 0666, nil)
+	db, err := bunt.Open(path)
 	if err != nil {
 		return nil, err
 	}
-	defer store.Close()
-
-	var acts []*strava.Activity
-	err = store.ForEach(&bolthold.Query{}, func(act *strava.Activity) error {
-		acts = append(acts, act)
-		return nil
-	})
+	acts, err := db.Activities(c.Context)
 	if err != nil {
 		return nil, err
 	}

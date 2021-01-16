@@ -23,14 +23,13 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/securego/gosec/v2 v2.5.0
 	github.com/stretchr/testify v1.6.1
-	github.com/timshannon/bolthold v0.0.0-20200817130212-4a25ab140645
+	github.com/tidwall/buntdb v1.1.7
 	github.com/tkrajina/go-elevations v0.0.0-20200416152435-2c9e0bec991f
 	github.com/twpayne/go-geom v1.3.6
 	github.com/twpayne/go-gpx v1.2.0
 	github.com/twpayne/go-polyline v1.0.1
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/valyala/fastjson v1.6.3
-	go.etcd.io/bbolt v1.3.5
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
