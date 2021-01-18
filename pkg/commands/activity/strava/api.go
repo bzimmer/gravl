@@ -78,7 +78,8 @@ func activities(c *cli.Context) error {
 			Dur("elapsed", time.Since(start)).
 			Msg("activities")
 	}(time.Now())
-	activities, err := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
+	acts, errs := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
+	activities, err := strava.Activities(ctx, acts, errs)
 	if err != nil {
 		return err
 	}

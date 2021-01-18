@@ -93,24 +93,27 @@ func (b *bunt) Activity(ctx context.Context, activityID int64) (*strava.Activity
 	return act, nil
 }
 
-// Activities returns a slice of (potentially incomplete) Activity instances
-func (b *bunt) Activities(ctx context.Context) ([]*strava.Activity, error) {
-	var err error
-	var acts []*strava.Activity
-	err = b.db.View(func(tx *buntdb.Tx) error {
-		return tx.Ascend("", func(_, val string) bool {
-			var act *strava.Activity
-			if act, err = unmarshal(val); err != nil {
-				return false
-			}
-			acts = append(acts, act)
-			return true
+// Activities returns channels for activities and errors for an athlete
+func (b *bunt) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan error) {
+	errs := make(chan error)
+	acts := make(chan *strava.Activity)
+
+	go func() {
+		defer close(errs)
+		defer close(acts)
+		_ = b.db.View(func(tx *buntdb.Tx) error {
+			return tx.Ascend("", func(_, val string) bool {
+				act, err := unmarshal(val)
+				if err != nil {
+					errs <- err
+					return false
+				}
+				acts <- act
+				return true
+			})
 		})
-	})
-	if err != nil {
-		return nil, err
-	}
-	return acts, nil
+	}()
+	return acts, errs
 }
 
 // Save the activities to the source

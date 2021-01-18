@@ -41,7 +41,8 @@ func TestActivities(t *testing.T) {
 		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}))
 	a.NoError(err)
 
-	acts, err := client.Activity.Activities(ctx, activity.Pagination{})
+	ca, ce := client.Activity.Activities(ctx, activity.Pagination{})
+	acts, err := strava.Activities(ctx, ca, ce)
 	a.NoError(err)
 	a.Equal(2, len(acts))
 }
@@ -67,7 +68,8 @@ func TestActivitiesRequestedGTAvailable(t *testing.T) {
 	client, err := newClienter(http.StatusOK, "activities.json", nil, (&F{}).X)
 	a.NoError(err)
 	ctx := context.Background()
-	acts, err := client.Activity.Activities(ctx, activity.Pagination{Total: 325})
+	ca, ce := client.Activity.Activities(ctx, activity.Pagination{Total: 325})
+	acts, err := strava.Activities(ctx, ca, ce)
 	a.NoError(err)
 	a.Equal(2, len(acts))
 }
@@ -86,7 +88,8 @@ func TestActivitiesMany(t *testing.T) {
 
 	// test total, start, and count
 	// success: the requested number of activities because count/pagesize == 1
-	acts, err := client.Activity.Activities(ctx, activity.Pagination{Total: 127, Start: 0, Count: 1})
+	ca, ce := client.Activity.Activities(ctx, activity.Pagination{Total: 127, Start: 0, Count: 1})
+	acts, err := strava.Activities(ctx, ca, ce)
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(127, len(acts))
@@ -95,7 +98,8 @@ func TestActivitiesMany(t *testing.T) {
 	// success: the requested number of activities is exceeded because count/pagesize not specified
 	x := 234
 	n := int(math.Floor(float64(x)/strava.PageSize)*strava.PageSize + strava.PageSize)
-	acts, err = client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0})
+	ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0})
+	acts, err = strava.Activities(ctx, ca, ce)
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(n, len(acts))
@@ -103,7 +107,8 @@ func TestActivitiesMany(t *testing.T) {
 	// test total and start less than PageSize
 	// success: the requested number of activities because count/pagesize <= strava.PageSize
 	a.True(27 < strava.PageSize)
-	acts, err = client.Activity.Activities(ctx, activity.Pagination{Total: 27, Start: 0})
+	ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: 27, Start: 0})
+	acts, err = strava.Activities(ctx, ca, ce)
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(27, len(acts))
@@ -111,7 +116,8 @@ func TestActivitiesMany(t *testing.T) {
 	// test different Count values
 	count := strava.PageSize + 100
 	for _, x = range []int{27, 350, strava.PageSize} {
-		acts, err = client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0, Count: count})
+		ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0, Count: count})
+		acts, err = strava.Activities(ctx, ca, ce)
 		a.NoError(err)
 		a.NotNil(acts)
 
@@ -123,7 +129,8 @@ func TestActivitiesMany(t *testing.T) {
 	}
 
 	// negative test
-	acts, err = client.Activity.Activities(ctx, activity.Pagination{Total: -1})
+	ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: -1})
+	acts, err = strava.Activities(ctx, ca, ce)
 	a.Error(err)
 	a.Nil(acts)
 }

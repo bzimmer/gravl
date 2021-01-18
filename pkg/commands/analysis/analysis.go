@@ -25,6 +25,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 type analyzer struct {
@@ -89,7 +90,8 @@ func read(c *cli.Context) (*analysis.Pass, error) {
 	if err != nil {
 		return nil, err
 	}
-	acts, err := db.Activities(c.Context)
+	ca, ce := db.Activities(c.Context)
+	acts, err := strava.Activities(c.Context, ca, ce)
 	if err != nil {
 		return nil, err
 	}

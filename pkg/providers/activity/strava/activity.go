@@ -14,20 +14,55 @@ import (
 // ActivityService is the API for activity endpoints
 type ActivityService service
 
-type activityPaginator struct {
+var _ activity.Paginator = &slicePaginator{}
+var _ activity.Paginator = &channelPaginator{}
+
+type channelPaginator struct {
+	service    ActivityService
+	count      int
+	activities chan *Activity
+}
+
+func (p *channelPaginator) Page() int {
+	return PageSize
+}
+
+func (p *channelPaginator) Count() int {
+	return p.count
+}
+
+func (p *channelPaginator) Do(ctx context.Context, start, count int) (int, error) {
+	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
+	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
+	if err != nil {
+		return 0, err
+	}
+	var acts []*Activity
+	err = p.service.client.do(req, &acts)
+	if err != nil {
+		return 0, err
+	}
+	for _, act := range acts {
+		p.count++
+		p.activities <- act
+	}
+	return len(acts), nil
+}
+
+type slicePaginator struct {
 	service    ActivityService
 	activities []*Activity
 }
 
-func (p *activityPaginator) Page() int {
+func (p *slicePaginator) Page() int {
 	return PageSize
 }
 
-func (p *activityPaginator) Count() int {
+func (p *slicePaginator) Count() int {
 	return len(p.activities)
 }
 
-func (p *activityPaginator) Do(ctx context.Context, start, count int) (int, error) {
+func (p *slicePaginator) Do(ctx context.Context, start, count int) (int, error) {
 	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
@@ -84,14 +119,48 @@ func (s *ActivityService) Activity(ctx context.Context, activityID int64, stream
 	return act, err
 }
 
-// Activities returns a page of activities for an athlete
-func (s *ActivityService) Activities(ctx context.Context, spec activity.Pagination) ([]*Activity, error) {
-	p := &activityPaginator{service: *s, activities: make([]*Activity, 0)}
-	err := activity.Paginate(ctx, p, spec)
-	if err != nil {
-		return nil, err
+// Activities returns channels for activities and errors for an athlete
+//
+// Either the first error or last activity will close the channels
+func (s *ActivityService) Activities(ctx context.Context, spec activity.Pagination) (<-chan *Activity, <-chan error) {
+	errs := make(chan error)
+	acts := make(chan *Activity)
+	go func() {
+		defer close(acts)
+		defer close(errs)
+		p := &channelPaginator{service: *s, activities: acts}
+		err := activity.Paginate(ctx, p, spec)
+		if err != nil {
+			errs <- err
+		}
+	}()
+	return acts, errs
+}
+
+// Activities returns a slice of activities from the channels returned by `ActivityService.Activities`
+//
+// This is a convenience function for those operations which require the full activity slice.
+func Activities(ctx context.Context, acts <-chan *Activity, errs <-chan error) ([]*Activity, error) {
+	var activities []*Activity
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case err, ok := <-errs:
+			// if the channel was not closed an error occurred so return it
+			// if the channel is closed do nothing to ensure the activity channel can run to
+			//  completion and return the full slice of activities
+			if ok {
+				return nil, err
+			}
+		case act, ok := <-acts:
+			if !ok {
+				// the channel is closed, return the activities
+				return activities, nil
+			}
+			activities = append(activities, act)
+		}
 	}
-	return p.activities, nil
 }
 
 // // ValidStream returns true if the strean name is valid

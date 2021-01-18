@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"errors"
 
 	"github.com/rs/zerolog/log"
@@ -56,7 +57,8 @@ func export(c *cli.Context) error {
 		return err
 	}
 	defer db.Close()
-	acts, err := db.Activities(c.Context)
+	ca, ce := db.Activities(c.Context)
+	acts, err := stravaapi.Activities(c.Context, ca, ce)
 	if err != nil {
 		return err
 	}
@@ -78,7 +80,8 @@ func remove(c *cli.Context) error {
 		return err
 	}
 	defer db.Close()
-	acts, err := db.Activities(c.Context)
+	ca, ce := db.Activities(c.Context)
+	acts, err := stravaapi.Activities(c.Context, ca, ce)
 	if err != nil {
 		return err
 	}
@@ -100,49 +103,58 @@ func remove(c *cli.Context) error {
 }
 
 func update(c *cli.Context) error {
-	db, err := sink(c)
+	var ok bool
+	var err error
+	var total, n int
+	output, err := sink(c)
 	if err != nil {
 		return err
 	}
-	defer db.Close()
-	src, err := source(c)
+	defer output.Close()
+	input, err := source(c)
 	if err != nil {
 		return err
 	}
-	defer src.Close()
-	acts, err := src.Activities(c.Context)
-	if err != nil {
-		return err
+	ctx, cancel := context.WithCancel(c.Context)
+	defer cancel()
+	acts, errs := input.Activities(ctx)
+	for active := true; active; {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case err, ok = <-errs:
+			// if the channel is not closed, return the error
+			// if the channel is closed, do nothing to ensure all activities are consumed
+			if ok {
+				return err
+			}
+		case act, ok := <-acts:
+			if !ok {
+				// break the loop to return the processing results
+				active = false
+				break
+			}
+			total++
+			ok, err = output.Exists(ctx, act.ID)
+			if err != nil {
+				return err
+			}
+			if ok {
+				break
+			}
+			log.Info().Int64("ID", act.ID).Msg("querying activity details")
+			act, err = input.Activity(ctx, act.ID)
+			if err != nil {
+				return err
+			}
+			n++
+			log.Info().Int("n", n).Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity details")
+			if err = output.Save(ctx, act); err != nil {
+				return err
+			}
+		}
 	}
-	var n int
-	for i := 0; i < len(acts); i++ {
-		var ok bool
-		act := acts[i]
-		ok, err = db.Exists(c.Context, act.ID)
-		if err != nil {
-			return err
-		}
-		if ok {
-			continue
-		}
-		log.Info().Int64("ID", act.ID).Msg("querying activity details")
-		act, err = src.Activity(c.Context, act.ID)
-		if err != nil {
-			return err
-		}
-		log.Info().Int("n", n+1).Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity details")
-		if err = db.Save(c.Context, act); err != nil {
-			return nil
-		}
-		n++
-	}
-	if err = encoding.Encode(map[string]int{
-		"total":    len(acts),
-		"new":      n,
-		"existing": len(acts) - n}); err != nil {
-		return err
-	}
-	return nil
+	return encoding.Encode(map[string]int{"total": total, "new": n, "existing": total - n})
 }
 
 func filterFlag(required bool) cli.Flag {

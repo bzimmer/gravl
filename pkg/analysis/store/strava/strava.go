@@ -22,8 +22,8 @@ func (s *api) Close() error {
 	return nil
 }
 
-// Activities returns a slice of (potentially incomplete) Activity instances
-func (s *api) Activities(ctx context.Context) ([]*strava.Activity, error) {
+// Activities returns channels for activities and errors for an athlete
+func (s *api) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan error) {
 	return s.client.Activity.Activities(ctx, activity.Pagination{})
 }
 

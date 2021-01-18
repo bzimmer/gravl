@@ -15,8 +15,8 @@ type Closer interface {
 type Source interface {
 	Closer
 
-	// Activities returns a slice of (potentially incomplete) Activity instances
-	Activities(ctx context.Context) ([]*strava.Activity, error)
+	// Activities channels for activities and errors
+	Activities(ctx context.Context) (<-chan *strava.Activity, <-chan error)
 
 	// Activity returns a fully populated Activity
 	Activity(ctx context.Context, activityID int64) (*strava.Activity, error)
