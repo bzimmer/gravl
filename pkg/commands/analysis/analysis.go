@@ -8,7 +8,6 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/eval"
-	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
@@ -42,8 +41,8 @@ func filter(c *cli.Context, acts []*strava.Activity) ([]*strava.Activity, error)
 	if !c.IsSet("filter") {
 		return acts, nil
 	}
-	evaluator := antonmedv.New(c.String("filter"))
-	return evaluator.Filter(c.Context, acts)
+	filterer := commands.Filterer(c.String("filter"))
+	return filterer.Filter(c.Context, acts)
 }
 
 // group groups activities by expression values
@@ -51,11 +50,11 @@ func filter(c *cli.Context, acts []*strava.Activity) ([]*strava.Activity, error)
 // The result of the expression will be converted a string and used as the key
 // in the final result map.
 func group(c *cli.Context, acts []*strava.Activity) (*analysis.Pass, error) {
-	var expressions []eval.Mapper
+	var mappers []eval.Mapper
 	for _, q := range c.StringSlice("group") {
-		expressions = append(expressions, antonmedv.New(q))
+		mappers = append(mappers, commands.Mapper(q))
 	}
-	return analysis.Group(c.Context, acts, expressions...)
+	return analysis.Group(c.Context, acts, mappers...)
 }
 
 var Command = &cli.Command{

@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
 	"github.com/bzimmer/gravl/pkg/analysis/store/file"
@@ -43,7 +42,7 @@ func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, 
 	if !c.IsSet("filter") {
 		return acts, nil
 	}
-	evaluator := antonmedv.New(c.String("filter"))
+	evaluator := commands.Filterer(c.String("filter"))
 	return evaluator.Filter(c.Context, acts)
 }
 

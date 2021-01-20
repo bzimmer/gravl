@@ -49,11 +49,15 @@ type evaluator struct {
 	q string
 }
 
-func New(q string) eval.Evaluator {
-	return &evaluator{q: closure(q)}
+func Mapper(q string) eval.Mapper {
+	return &evaluator{closure(q)}
 }
 
-func run(q string, acts []*strava.Activity) ([]interface{}, error) {
+func Filterer(q string) eval.Filterer {
+	return &evaluator{closure(q)}
+}
+
+func (x *evaluator) run(q string, acts []*strava.Activity) ([]interface{}, error) {
 	env := newEnv(acts)
 	pgrm, err := expr.Compile(q, expr.Env(env))
 	if err != nil {
@@ -68,7 +72,7 @@ func run(q string, acts []*strava.Activity) ([]interface{}, error) {
 
 func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
 	code := fmt.Sprintf("filter(Activities, %s)", x.q)
-	res, err := run(code, acts)
+	res, err := x.run(code, acts)
 	if err != nil {
 		return nil, err
 	}
@@ -81,5 +85,5 @@ func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*str
 
 func (x *evaluator) Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error) {
 	code := fmt.Sprintf("map(Activities, %s)", x.q)
-	return run(code, acts)
+	return x.run(code, acts)
 }

@@ -17,9 +17,3 @@ type Mapper interface {
 	// Map over the collection of activities producing a slice of expression evaluation values
 	Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error)
 }
-
-// Evaluator perform both mapping and filtering
-type Evaluator interface {
-	Mapper
-	Filterer
-}

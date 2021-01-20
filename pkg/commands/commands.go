@@ -10,7 +10,19 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/analysis/eval"
+	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 )
+
+// Filterer returns a filterer for the expression
+func Filterer(q string) eval.Filterer {
+	return antonmedv.Filterer(q)
+}
+
+// Mapper returns a mapper for the expression
+func Mapper(q string) eval.Mapper {
+	return antonmedv.Mapper(q)
+}
 
 // Merge multiple slices of cli flags into a single slice
 func Merge(flags ...[]cli.Flag) []cli.Flag {
