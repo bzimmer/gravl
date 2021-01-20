@@ -1,8 +1,6 @@
 package totals
 
 import (
-	"context"
-
 	"github.com/martinlindhe/unit"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
@@ -23,14 +21,14 @@ type Result struct {
 	Centuries     Centuries     `json:"centuries"`
 }
 
-func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	var cen Centuries
 	var dst, elv float64
 	var dur unit.Duration
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
 		dur = dur + act.MovingTime
-		switch pass.Units {
+		switch ctx.Units {
 		case analysis.Metric:
 			dst = dst + act.Distance.Kilometers()
 			elv = elv + act.ElevationGain.Meters()

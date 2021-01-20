@@ -1,8 +1,6 @@
 package forecast
 
 import (
-	"context"
-
 	"github.com/twpayne/go-geom"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
@@ -20,7 +18,7 @@ type forecast struct {
 	client *noaa.Client
 }
 
-func (a *forecast) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (a *forecast) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	var res []*Result
 	for _, act := range pass.Activities {
 		coords := act.StartLatlng
@@ -30,7 +28,7 @@ func (a *forecast) run(ctx context.Context, pass *analysis.Pass) (interface{}, e
 			return nil, err
 		}
 		res = append(res, &Result{
-			Activity: analysis.ToActivity(act, pass.Units),
+			Activity: analysis.ToActivity(act, ctx.Units),
 			Forecast: forecast,
 		})
 	}

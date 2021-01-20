@@ -1,7 +1,6 @@
 package climbing
 
 import (
-	"context"
 	"sort"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
@@ -23,13 +22,13 @@ type Result struct {
 	Number   int                `json:"number"`
 }
 
-func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	var climbings []*Result
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
 		var thr int
 		var dst, elv float64
-		switch pass.Units {
+		switch ctx.Units {
 		case analysis.Metric:
 			thr = GoldenRatioMetric
 			dst = act.Distance.Kilometers()
@@ -41,7 +40,7 @@ func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
 		}
 		c := int(elv / dst)
 		if c > thr {
-			climbings = append(climbings, &Result{Activity: analysis.ToActivity(act, pass.Units), Number: c})
+			climbings = append(climbings, &Result{Activity: analysis.ToActivity(act, ctx.Units), Number: c})
 		}
 	}
 	sort.Slice(climbings, func(i, j int) bool {

@@ -19,7 +19,6 @@ func TestKOMs(t *testing.T) {
 	a.NotNil(any)
 
 	pass := &analysis.Pass{
-		Units: analysis.Imperial,
 		Activities: []*strava.Activity{
 			{Distance: 142000, ElevationGain: 30,
 				SegmentEfforts: []*strava.SegmentEffort{
@@ -45,7 +44,8 @@ func TestKOMs(t *testing.T) {
 			{Distance: 202000, ElevationGain: 85},
 		},
 	}
-	res, err := any.Run(context.Background(), pass)
+	ctx := analysis.WithContext(context.Background(), analysis.Imperial)
+	res, err := any.Run(ctx, pass)
 	a.NoError(err)
 	a.NotNil(res)
 	f, ok := res.([]*strava.SegmentEffort)

@@ -1,7 +1,6 @@
 package rolling
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"sort"
@@ -33,7 +32,7 @@ func (r *rollingWindow) activities(acts []*strava.Activity, idx int, units analy
 	return res
 }
 
-func (r *rollingWindow) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (r *rollingWindow) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	if len(pass.Activities) < r.Window {
 		log.Warn().Int("n", len(pass.Activities)).Int("window", r.Window).Msg("too few activities")
 		return &Result{}, nil
@@ -47,7 +46,7 @@ func (r *rollingWindow) run(ctx context.Context, pass *analysis.Pass) (interface
 		return acts[i].StartDateLocal.Before(acts[j].StartDateLocal)
 	})
 	for i := 0; i < len(acts); i++ {
-		switch pass.Units {
+		switch ctx.Units {
 		case analysis.Metric:
 			dsts[i] = acts[i].Distance.Kilometers()
 		case analysis.Imperial:
@@ -73,7 +72,7 @@ func (r *rollingWindow) run(ctx context.Context, pass *analysis.Pass) (interface
 			}
 		}
 	}
-	res := r.activities(acts, idx, pass.Units)
+	res := r.activities(acts, idx, ctx.Units)
 	return &Result{Activities: res, Distance: val}, nil
 }
 

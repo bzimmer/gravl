@@ -28,7 +28,8 @@ func TestFestive500(t *testing.T) {
 			{Type: "Ride", Distance: 175000, ElevationGain: 100, StartDateLocal: time.Date(2020, time.December, 5, 8, 0, 0, 0, time.UTC)},
 		},
 	}
-	res, err := any.Run(context.Background(), pass)
+	ctx := analysis.WithContext(context.Background(), analysis.Metric)
+	res, err := any.Run(ctx, pass)
 	a.NoError(err)
 	a.NotNil(res)
 	f, ok := res.(*festive500.Result)

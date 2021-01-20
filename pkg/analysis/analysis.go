@@ -1,7 +1,6 @@
 package analysis
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"math"
@@ -11,7 +10,7 @@ type Analyzer struct {
 	Name  string
 	Doc   string
 	Flags *flag.FlagSet
-	Run   func(context.Context, *Pass) (interface{}, error)
+	Run   func(*Context, *Pass) (interface{}, error)
 }
 
 func (a *Analyzer) String() string { return a.Name }
@@ -87,36 +86,32 @@ func (a *Analysis) applyFlags() error {
 	return nil
 }
 
-func (a *Analysis) RunPass(ctx context.Context, pass *Pass) (interface{}, error) {
-	results := make(map[string]interface{})
-	for _, analyzer := range a.Analyzers {
-		res, err := analyzer.Run(ctx, pass)
-		if err != nil {
-			return nil, err
-		}
-		results[analyzer.Name] = res
-	}
-	return results, nil
-}
-
-func (a *Analysis) RunGroup(ctx context.Context, group *Group) (map[string]interface{}, error) {
-	if err := group.walk(ctx, a.runGroup); err != nil {
+func (a *Analysis) Run(ctx *Context, pass *Pass) (map[string]interface{}, error) {
+	if err := a.run(ctx, pass, 0); err != nil {
 		return nil, err
 	}
 	return a.collect(), nil
 }
 
-func (a *Analysis) runGroup(ctx context.Context, g *Group) error {
-	if len(g.Groups) > 0 {
-		// not a leaf node so skip evaluation
-		a.results = append(a.results, &results{Key: g.Key, Level: g.Level})
+func (a *Analysis) run(ctx *Context, pass *Pass, level int) error {
+	if len(pass.Children) > 0 {
+		a.results = append(a.results, &results{Key: pass.Key, Level: level})
+		for _, child := range pass.Children {
+			if err := a.run(ctx, child, level+1); err != nil {
+				return err
+			}
+		}
 		return nil
 	}
-	res, err := a.RunPass(ctx, g.Pass)
-	if err != nil {
-		return err
+	res := make(map[string]interface{})
+	for _, analyzer := range a.Analyzers {
+		r, err := analyzer.Run(ctx, pass)
+		if err != nil {
+			return err
+		}
+		res[analyzer.Name] = r
 	}
-	a.results = append(a.results, &results{Key: g.Key, Results: res, Level: g.Level})
+	a.results = append(a.results, &results{Key: pass.Key, Results: res, Level: level})
 	return nil
 }
 

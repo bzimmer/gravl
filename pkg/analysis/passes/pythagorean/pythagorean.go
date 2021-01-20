@@ -1,7 +1,6 @@
 package pythagorean
 
 import (
-	"context"
 	"math"
 	"sort"
 
@@ -17,7 +16,7 @@ const doc = `pythagorean results the activity with the highest pythagorean value
 
 The pythagorean value is the sqrt of the distance^2 + elevation^2.`
 
-func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	if len(pass.Activities) == 0 {
 		return &Results{}, nil
 	}

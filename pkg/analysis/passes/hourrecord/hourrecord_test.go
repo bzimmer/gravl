@@ -26,7 +26,8 @@ func TestHourRecord(t *testing.T) {
 			{ID: 400, Type: "Ride", Distance: 242000, AverageSpeed: 22},
 		},
 	}
-	res, err := any.Run(context.Background(), pass)
+	ctx := analysis.WithContext(context.Background(), analysis.Imperial)
+	res, err := any.Run(ctx, pass)
 	a.NoError(err)
 	a.NotNil(res)
 	f, ok := res.(*analysis.Activity)

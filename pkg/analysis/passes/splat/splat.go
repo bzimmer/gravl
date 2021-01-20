@@ -1,8 +1,6 @@
 package splat
 
 import (
-	"context"
-
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
@@ -10,11 +8,11 @@ const doc = `splat returns all activities in the units specified.
 
 This analyzer is useful for debugging the filter.`
 
-func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	var res []*analysis.Activity
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
-		res = append(res, analysis.ToActivity(act, pass.Units))
+		res = append(res, analysis.ToActivity(act, ctx.Units))
 	}
 	return res, nil
 }

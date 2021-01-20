@@ -1,7 +1,6 @@
 package cluster
 
 import (
-	"context"
 	"flag"
 
 	"github.com/muesli/clusters"
@@ -53,7 +52,7 @@ func (obs *observation) Distance(point clusters.Coordinates) float64 {
 	return obs.Coords.Distance(point)
 }
 
-func (k *kMeans) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (k *kMeans) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	if len(pass.Activities) < k.Clusters {
 		log.Warn().Int("n", len(pass.Activities)).Int("clusters", k.Clusters).Msg("too few activities")
 		return results(nil), nil
@@ -83,7 +82,7 @@ func (k *kMeans) run(ctx context.Context, pass *analysis.Pass) (interface{}, err
 	var d clusters.Observations
 	for i := 0; i < len(pass.Activities); i++ {
 		d = append(d, &observation{
-			Activity: analysis.ToActivity(pass.Activities[i], pass.Units),
+			Activity: analysis.ToActivity(pass.Activities[i], ctx.Units),
 			Coords:   clusters.Coordinates{dsts[i] / dmax, elvs[i] / emax},
 		})
 	}

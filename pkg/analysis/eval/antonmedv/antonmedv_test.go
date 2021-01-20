@@ -15,7 +15,6 @@ func TestFilter(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	v := antonmedv.New()
 	acts := []*strava.Activity{
 		{ID: 1, Type: "Hike", Distance: 100000, ElevationGain: 30, StartDateLocal: time.Date(2009, time.November, 10, 8, 0, 0, 0, time.UTC)},
 		{ID: 2, Type: "Ride", Distance: 200000, ElevationGain: 60, StartDateLocal: time.Date(2010, time.December, 10, 8, 0, 0, 0, time.UTC)},
@@ -26,29 +25,15 @@ func TestFilter(t *testing.T) {
 	}
 	a.Equal(6, len(acts))
 
-	q := `.Type == "Ride"`
-	acts, err := v.Filter(context.Background(), q, acts)
+	q := antonmedv.New(`.Type == "Ride"`)
+	acts, err := q.Filter(context.Background(), acts)
 	a.NotNil(acts)
 	a.NoError(err)
 	a.Equal(3, len(acts))
 
-	q = `.Type == "Ride" && .StartDateLocal.Year() == 2010`
-	acts, err = v.Filter(context.Background(), q, acts)
+	q = antonmedv.New(`.Type == "Ride" && .StartDateLocal.Year() == 2010`)
+	acts, err = q.Filter(context.Background(), acts)
 	a.NotNil(acts)
 	a.NoError(err)
 	a.Equal(1, len(acts))
-}
-
-func TestGroupBy(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-
-	v := antonmedv.New()
-	q := `.Type`
-	acts := []*strava.Activity{{Type: "Run"}, {Type: "Ride"}, {Type: "Run"}, {Type: "Walk"}}
-	a.Equal(4, len(acts))
-	groups, err := v.GroupBy(context.Background(), q, acts)
-	a.NotNil(acts)
-	a.NoError(err)
-	a.Equal(3, len(groups))
 }

@@ -28,9 +28,9 @@ func TestAgeride(t *testing.T) {
 			{Type: "Ride", Distance: 32000, ElevationGain: 85, StartDateLocal: time.Date(2020, time.December, 28, 8, 0, 0, 0, time.UTC)},
 			{Type: "Ride", Distance: 17500, ElevationGain: 100, StartDateLocal: time.Date(2020, time.December, 5, 8, 0, 0, 0, time.UTC)},
 		},
-		Units: analysis.Imperial,
 	}
-	res, err := any.Run(context.Background(), pass)
+	ctx := analysis.WithContext(context.Background(), analysis.Imperial)
+	res, err := any.Run(ctx, pass)
 	a.NoError(err)
 	a.NotNil(res)
 	r, ok := res.(*ageride.Result)

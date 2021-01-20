@@ -2,90 +2,50 @@ package analysis
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
+	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 // Pass represents a collection of Activities for analysis
 type Pass struct {
-	// Units of the resulting Activities
-	Units Units
+	// Key is the result of applying an expression on an Activity
+	Key string `json:"key"`
 	// Activities on which analysis will occur
-	Activities []*strava.Activity
+	Activities []*strava.Activity `json:"activities"`
+	// Children contains all the child Passes
+	Children []*Pass `json:"children"`
 }
 
-// Group represents a single group in a group tree
-type Group struct {
-	// Key is the result of apply an expression against an Activity
-	Key string
-	// Pass holds the Activities grouped by Key
-	Pass *Pass
-	// Groups holds child Groups if more than one level of grouping exists
-	Groups []*Group
-	// Level of the group in the tree
-	Level int
+// Group groups activities by the evaluators
+func Group(ctx context.Context, acts []*strava.Activity, evals ...eval.Evaluator) (*Pass, error) {
+	pass := &Pass{Activities: acts}
+	return pass, group(ctx, pass, evals)
 }
 
-func (g *Group) walk(ctx context.Context, f func(context.Context, *Group) error) error {
-	if err := f(ctx, g); err != nil {
-		return err
-	}
-	for i := range g.Groups {
-		if err := g.Groups[i].walk(ctx, f); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// Filter filters the activities using an expression
-// For example:
-//  {.Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]}
-func (p *Pass) Filter(ctx context.Context, q string) (*Pass, error) {
-	evaluator := antonmedv.New()
-	acts, err := evaluator.Filter(ctx, q, p.Activities)
-	if err != nil {
-		return nil, err
-	}
-	return &Pass{Activities: acts, Units: p.Units}, nil
-}
-
-// GroupBy groups activities by a key
-func (p *Pass) GroupBy(ctx context.Context, exprs ...string) (*Group, error) {
-	g := &Group{Pass: p}
-	if err := groupby(ctx, g, exprs...); err != nil {
-		return nil, err
-	}
-	return g, nil
-}
-
-func groupby(ctx context.Context, group *Group, exprs ...string) error {
-	if len(exprs) == 0 {
+func group(ctx context.Context, pass *Pass, evals []eval.Evaluator) error {
+	if len(evals) == 0 {
 		return nil
 	}
-	// map over the activities to generate a group key
-	// group all activities into a Group based on their group key
-	q := exprs[0]
-	evaluator := antonmedv.New()
-	res, err := evaluator.GroupBy(ctx, q, group.Pass.Activities)
+
+	keys, err := evals[0].Map(ctx, pass.Activities)
 	if err != nil {
 		return err
 	}
-	passes := make(map[string]*Pass, len(res))
-	for key, acts := range res {
-		passes[key] = &Pass{Activities: acts, Units: group.Pass.Units}
+
+	groups := make(map[string][]*strava.Activity)
+	for i := range keys {
+		key := fmt.Sprintf("%v", keys[i])
+		groups[key] = append(groups[key], pass.Activities[i])
 	}
-	// recurse if more grouping operators exist
-	tail := exprs[1:]
-	for key, pass := range passes {
-		parent := &Group{Key: key, Pass: pass, Level: group.Level + 1}
-		group.Groups = append(group.Groups, parent)
-		if len(tail) > 0 {
-			if err = groupby(ctx, parent, tail...); err != nil {
-				return err
-			}
+
+	for key, acts := range groups {
+		child := &Pass{Activities: acts, Key: key}
+		if err := group(ctx, child, evals[1:]); err != nil {
+			return err
 		}
+		pass.Children = append(pass.Children, child)
 	}
 	return nil
 }

@@ -1,7 +1,6 @@
 package festive500
 
 import (
-	"context"
 	"sort"
 	"time"
 
@@ -29,7 +28,7 @@ type Result struct {
 	MovingTime        unit.Duration        `json:"moving_time"`
 }
 
-func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	var dst float64
 	var dur unit.Duration
 	var acts []*analysis.Activity

@@ -1,15 +1,13 @@
 package koms
 
 import (
-	"context"
-
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const doc = `koms returns all KOMs for the activities.`
 
-func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	var efforts []*strava.SegmentEffort
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]

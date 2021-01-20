@@ -43,8 +43,8 @@ func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, 
 	if !c.IsSet("filter") {
 		return acts, nil
 	}
-	evaluator := antonmedv.New()
-	acts, err := evaluator.Filter(c.Context, c.String("filter"), acts)
+	evaluator := antonmedv.New(c.String("filter"))
+	acts, err := evaluator.Filter(c.Context, acts)
 	if err != nil {
 		return nil, err
 	}

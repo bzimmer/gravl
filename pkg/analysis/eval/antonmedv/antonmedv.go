@@ -45,16 +45,17 @@ func newEnv(acts []*strava.Activity) map[string]interface{} {
 	}
 }
 
-type evaluator struct{}
-
-func New() eval.Evaluator {
-	return &evaluator{}
+type evaluator struct {
+	q string
 }
 
-func (x *evaluator) Filter(ctx context.Context, q string, acts []*strava.Activity) ([]*strava.Activity, error) {
+func New(q string) eval.Evaluator {
+	return &evaluator{q: closure(q)}
+}
+
+func run(q string, acts []*strava.Activity) ([]interface{}, error) {
 	env := newEnv(acts)
-	code := fmt.Sprintf("filter(Activities, %s)", closure(q))
-	pgrm, err := expr.Compile(code, expr.Env(env))
+	pgrm, err := expr.Compile(q, expr.Env(env))
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +63,15 @@ func (x *evaluator) Filter(ctx context.Context, q string, acts []*strava.Activit
 	if err != nil {
 		return nil, err
 	}
-	res := out.([]interface{})
+	return out.([]interface{}), nil
+}
+
+func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
+	code := fmt.Sprintf("filter(Activities, %s)", x.q)
+	res, err := run(code, acts)
+	if err != nil {
+		return nil, err
+	}
 	p := make([]*strava.Activity, len(res))
 	for i := range res {
 		p[i] = res[i].(*strava.Activity)
@@ -70,24 +79,7 @@ func (x *evaluator) Filter(ctx context.Context, q string, acts []*strava.Activit
 	return p, nil
 }
 
-func (x *evaluator) GroupBy(ctx context.Context, q string, acts []*strava.Activity) (map[string][]*strava.Activity, error) {
-	env := newEnv(acts)
-	// map over the activities to generate a group key
-	code := fmt.Sprintf("map(Activities, %s)", closure(q))
-	pgrm, err := expr.Compile(code, expr.Env(env))
-	if err != nil {
-		return nil, err
-	}
-	out, err := expr.Run(pgrm, env)
-	if err != nil {
-		return nil, err
-	}
-	// group all activities into a slice with their key
-	res := out.([]interface{})
-	groups := make(map[string][]*strava.Activity, len(res))
-	for i, k := range res {
-		var key = fmt.Sprintf("%v", k)
-		groups[key] = append(groups[key], acts[i])
-	}
-	return groups, nil
+func (x *evaluator) Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error) {
+	code := fmt.Sprintf("map(Activities, %s)", x.q)
+	return run(code, acts)
 }

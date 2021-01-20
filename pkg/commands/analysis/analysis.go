@@ -8,6 +8,8 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/analysis/eval"
+	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/ageride"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/benford"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/climbing"
@@ -81,7 +83,7 @@ func analyzers(c *cli.Context) ([]*analysis.Analyzer, error) {
 	return ans, nil
 }
 
-func read(c *cli.Context) (*analysis.Pass, error) {
+func read(c *cli.Context) ([]*strava.Activity, error) {
 	path := c.Path("store")
 	if path == "" {
 		return nil, errors.New("nil db path")
@@ -95,30 +97,28 @@ func read(c *cli.Context) (*analysis.Pass, error) {
 	if err != nil {
 		return nil, err
 	}
-	uf := c.Generic("units").(*analysis.UnitsFlag)
-	return &analysis.Pass{Activities: acts, Units: uf.Units}, nil
+	return acts, nil
 }
 
 // filter the activities
+//
 // For example:
 //  .Type in ["Ride"] && !.Commute && .StartDateLocal.Year() in [2020, 2019]
-func filter(c *cli.Context, pass *analysis.Pass) (*analysis.Pass, error) {
+func filter(c *cli.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
 	if !c.IsSet("filter") {
-		return pass, nil
+		return acts, nil
 	}
-	return pass.Filter(c.Context, c.String("filter"))
+	evaluator := antonmedv.New(c.String("filter"))
+	return evaluator.Filter(c.Context, acts)
 }
 
-// groupby groups activities by expression values
-func groupby(c *cli.Context, pass *analysis.Pass) (*analysis.Group, error) {
-	if !c.IsSet("groupby") {
-		return &analysis.Group{Pass: pass}, nil
+// group groups activities by expression values
+func group(c *cli.Context, acts []*strava.Activity) (*analysis.Pass, error) {
+	var expressions []eval.Evaluator
+	for _, q := range c.StringSlice("group") {
+		expressions = append(expressions, antonmedv.New(q))
 	}
-	g, err := pass.GroupBy(c.Context, c.StringSlice("groupby")...)
-	if err != nil {
-		return nil, err
-	}
-	return g, nil
+	return analysis.Group(c.Context, acts, expressions...)
 }
 
 var Command = &cli.Command{
@@ -139,7 +139,7 @@ var Command = &cli.Command{
 			Usage:   "Expression for filtering activities",
 		},
 		&cli.StringSliceFlag{
-			Name:    "groupby",
+			Name:    "group",
 			Aliases: []string{"g"},
 			Usage:   "Expressions for grouping activities",
 		},
@@ -151,19 +151,19 @@ var Command = &cli.Command{
 		commands.StoreFlag,
 	},
 	Action: func(c *cli.Context) error {
+		acts, err := read(c)
+		if err != nil {
+			return err
+		}
+		acts, err = filter(c, acts)
+		if err != nil {
+			return err
+		}
+		pass, err := group(c, acts)
+		if err != nil {
+			return err
+		}
 		ans, err := analyzers(c)
-		if err != nil {
-			return err
-		}
-		pass, err := read(c)
-		if err != nil {
-			return err
-		}
-		pass, err = filter(c, pass)
-		if err != nil {
-			return err
-		}
-		group, err := groupby(c, pass)
 		if err != nil {
 			return err
 		}
@@ -177,7 +177,9 @@ var Command = &cli.Command{
 			defer cancel()
 			ctx = x
 		}
-		results, err := any.RunGroup(ctx, group)
+		uf := c.Generic("units").(*analysis.UnitsFlag)
+		x := analysis.WithContext(ctx, uf.Units)
+		results, err := any.Run(x, pass)
 		if err != nil {
 			return err
 		}

@@ -1,19 +1,17 @@
 package benford
 
 import (
-	"context"
-
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
 const doc = `benford returns the benford distribution of all the activities`
 
-func run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	var vals []int
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
 		var dst float64
-		switch pass.Units {
+		switch ctx.Units {
 		case analysis.Metric:
 			dst = act.Distance.Kilometers()
 		case analysis.Imperial:

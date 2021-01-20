@@ -15,7 +15,7 @@ type foo struct {
 	Double bool
 }
 
-func (f *foo) run(ctx context.Context, pass *analysis.Pass) (interface{}, error) {
+func (f *foo) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	n := len(pass.Activities)
 	if f.Double {
 		n = n * 2
@@ -49,19 +49,19 @@ func TestAnalyze(t *testing.T) {
 		Analyzers: []*analysis.Analyzer{x},
 	}
 
-	ctx := context.Background()
-	res, err := y.RunPass(ctx, p)
+	ctx := analysis.WithContext(context.Background(), analysis.Imperial)
+	res, err := y.Run(ctx, p)
 	a.NoError(err)
 	a.NotNil(res)
-	u := res.(map[string]interface{})
+	u := res[""].(map[string]interface{})
 	a.Equal(3, u[x.Name])
 
 	any, err := analysis.NewAnalysis([]*analysis.Analyzer{x}, []string{"foo", "--double"})
 	a.NoError(err)
 	a.NotNil(res)
-	res, err = any.RunPass(ctx, p)
+	res, err = any.Run(ctx, p)
 	a.NoError(err)
 	a.NotNil(res)
-	u = res.(map[string]interface{})
+	u = res[""].(map[string]interface{})
 	a.Equal(6, u[x.Name])
 }
