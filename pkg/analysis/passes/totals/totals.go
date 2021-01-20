@@ -14,11 +14,11 @@ type Centuries struct {
 }
 
 type Result struct {
-	Count         int           `json:"count"`
-	Distance      unit.Length   `json:"distance"`
-	ElevationGain unit.Length   `json:"elevation_gain"`
-	MovingTime    unit.Duration `json:"moving_time"`
-	Centuries     Centuries     `json:"centuries"`
+	Count      int           `json:"count"`
+	Distance   float64       `json:"distance"`
+	Elevation  float64       `json:"elevation"`
+	MovingTime unit.Duration `json:"movingtime"`
+	Centuries  Centuries     `json:"centuries"`
 }
 
 func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
@@ -44,11 +44,11 @@ func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 		}
 	}
 	return &Result{
-		Count:         len(pass.Activities),
-		Distance:      unit.Length(dst),
-		ElevationGain: unit.Length(elv),
-		MovingTime:    dur,
-		Centuries:     cen,
+		Count:      len(pass.Activities),
+		Distance:   dst,
+		Elevation:  elv,
+		MovingTime: dur,
+		Centuries:  cen,
 	}, nil
 }
 

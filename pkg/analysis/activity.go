@@ -12,8 +12,8 @@ type Activity struct {
 	StartDate    time.Time `json:"startdate"`
 	Distance     float64   `json:"distance"`
 	Elevation    float64   `json:"elevation"`
-	MovingTime   float64   `json:"moving_time"`
-	AverageSpeed float64   `json:"average_speed"`
+	MovingTime   float64   `json:"movingtime"`
+	AverageSpeed float64   `json:"averagespeed"`
 	Type         string    `json:"type"`
 }
 
