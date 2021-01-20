@@ -2,10 +2,11 @@ package analysis
 
 import "context"
 
+// Context of the analysis pass
 type Context struct {
 	context.Context
 
-	// Units of the resulting Activities
+	// Units to observe when performing analysis and returning results
 	Units Units
 }
 

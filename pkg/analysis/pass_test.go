@@ -31,34 +31,15 @@ var acts = []*strava.Activity{
 	{ID: 6, Type: "Run", Distance: 600000, ElevationGain: 180, StartDateLocal: time.Date(2011, time.May, 10, 8, 0, 0, 0, time.UTC)},
 }
 
-type year struct{}
-
-// Filter the collection of activities by the expression returning those evaluating to true
-func (x *year) Filter(ctx context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
-	panic("filter")
+type mapper struct {
+	fn func(*strava.Activity) interface{}
 }
 
 // Map over the collection of activities producing a slice of expression evaluation values
-func (x *year) Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error) {
+func (x *mapper) Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error) {
 	res := make([]interface{}, len(acts))
 	for i := range acts {
-		res[i] = acts[i].StartDateLocal.Year()
-	}
-	return res, nil
-}
-
-type typ struct{}
-
-// Filter the collection of activities by the expression returning those evaluating to true
-func (x *typ) Filter(ctx context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
-	panic("filter")
-}
-
-// Map over the collection of activities producing a slice of expression evaluation values
-func (x *typ) Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error) {
-	res := make([]interface{}, len(acts))
-	for i := range acts {
-		res[i] = acts[i].Type
+		res[i] = x.fn(acts[i])
 	}
 	return res, nil
 }
@@ -74,12 +55,18 @@ func TestGroup(t *testing.T) {
 	a.Equal(0, len(q.Children))
 	a.Equal(6, len(q.Activities))
 
-	q, err = analysis.Group(ctx, acts, &typ{})
+	fnyear := func(act *strava.Activity) interface{} {
+		return act.StartDateLocal.Year()
+	}
+	q, err = analysis.Group(ctx, acts, &mapper{fnyear})
 	a.NoError(err)
 	a.NotNil(q)
 	a.Equal(3, len(q.Children))
 
-	q, err = analysis.Group(ctx, acts, &year{}, &typ{})
+	fntype := func(act *strava.Activity) interface{} {
+		return act.Type
+	}
+	q, err = analysis.Group(ctx, acts, &mapper{fnyear}, &mapper{fntype})
 	a.NoError(err)
 	a.NotNil(q)
 	a.Equal(3, len(q.Children))

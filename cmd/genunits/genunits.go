@@ -17,12 +17,14 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// Field represents a single field with a unit
 type Field struct {
 	Name string
 	Type string
 	Base string
 }
 
+// Struct represents a struct containing fields with units
 type Struct struct {
 	Name   string
 	Fields []*Field
@@ -35,6 +37,7 @@ func (s *Struct) add(f *Field) {
 	s.Fields = append(s.Fields, f)
 }
 
+// Units contains all the structs in a package with fields with units
 type Units struct {
 	Package string
 	Structs []*Struct

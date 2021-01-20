@@ -6,11 +6,20 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-type Evaluator interface {
-
+// Filterer performs activity filtering
+type Filterer interface {
 	// Filter the collection of activities by the expression returning those evaluating to true
 	Filter(ctx context.Context, acts []*strava.Activity) ([]*strava.Activity, error)
+}
 
+// Mapper performs activity mapping
+type Mapper interface {
 	// Map over the collection of activities producing a slice of expression evaluation values
 	Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error)
+}
+
+// Evaluator perform both mapping and filtering
+type Evaluator interface {
+	Mapper
+	Filterer
 }

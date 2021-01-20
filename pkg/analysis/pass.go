@@ -19,12 +19,12 @@ type Pass struct {
 }
 
 // Group groups activities by the evaluators
-func Group(ctx context.Context, acts []*strava.Activity, evals ...eval.Evaluator) (*Pass, error) {
+func Group(ctx context.Context, acts []*strava.Activity, mappers ...eval.Mapper) (*Pass, error) {
 	pass := &Pass{Activities: acts}
-	return pass, group(ctx, pass, evals)
+	return pass, group(ctx, pass, mappers)
 }
 
-func group(ctx context.Context, pass *Pass, evals []eval.Evaluator) error {
+func group(ctx context.Context, pass *Pass, evals []eval.Mapper) error {
 	if len(evals) == 0 {
 		return nil
 	}

@@ -66,8 +66,8 @@ func (s *smap) paths(ctx context.Context, g *errgroup.Group, activities <-chan *
 
 	defer func() {
 		go func() {
+			defer close(paths)
 			wg.Wait()
-			close(paths)
 		}()
 	}()
 
@@ -118,8 +118,8 @@ func (s *smap) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, err
 			select {
 			case <-c.Done():
 				return c.Err()
-			case act := <-paths:
-				if act == nil {
+			case act, ok := <-paths:
+				if !ok {
 					return nil
 				}
 				res[act.a.ID] = act.p
@@ -133,10 +133,7 @@ func (s *smap) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, err
 }
 
 func New() *analysis.Analyzer {
-	// @todo(bzimmer) add flags
-	s := &smap{
-		workers: 15,
-	}
+	s := &smap{workers: 15}
 	fs := flag.NewFlagSet("staticmap", flag.ExitOnError)
 	fs.IntVar(&s.workers, "workers", s.workers, "number of workers")
 	return &analysis.Analyzer{

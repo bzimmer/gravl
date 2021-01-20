@@ -44,11 +44,7 @@ func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, 
 		return acts, nil
 	}
 	evaluator := antonmedv.New(c.String("filter"))
-	acts, err := evaluator.Filter(c.Context, acts)
-	if err != nil {
-		return nil, err
-	}
-	return acts, nil
+	return evaluator.Filter(c.Context, acts)
 }
 
 func export(c *cli.Context) error {

@@ -12,6 +12,7 @@ import (
 	"github.com/bzimmer/gravl/pkg"
 )
 
+// Merge multiple slices of cli flags into a single slice
 func Merge(flags ...[]cli.Flag) []cli.Flag {
 	var f []cli.Flag
 	for _, x := range flags {
@@ -20,6 +21,7 @@ func Merge(flags ...[]cli.Flag) []cli.Flag {
 	return f
 }
 
+// Before combines multiple before functions into a single before functions
 func Before(befores ...cli.BeforeFunc) cli.BeforeFunc {
 	return func(c *cli.Context) error {
 		for _, fn := range befores {
@@ -34,6 +36,7 @@ func Before(befores ...cli.BeforeFunc) cli.BeforeFunc {
 	}
 }
 
+// Token produces a random token of length `n`
 func Token(n int) (string, error) {
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {
@@ -42,6 +45,7 @@ func Token(n int) (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
+// StoreFlag for the path local storage
 var StoreFlag = func() cli.Flag {
 	store := path.Join(xdg.DataHome, pkg.PackageName, "gravl.db")
 	return altsrc.NewStringFlag(&cli.StringFlag{
