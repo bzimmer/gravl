@@ -110,6 +110,7 @@ func update(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	defer input.Close()
 	ctx, cancel := context.WithCancel(c.Context)
 	defer cancel()
 	acts, errs := input.Activities(ctx)
