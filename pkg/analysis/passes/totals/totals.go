@@ -17,24 +17,25 @@ type Result struct {
 	Count      int           `json:"count"`
 	Distance   float64       `json:"distance"`
 	Elevation  float64       `json:"elevation"`
+	Calories   float64       `json:"calories"`
 	MovingTime unit.Duration `json:"movingtime"`
 	Centuries  Centuries     `json:"centuries"`
 }
 
 func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	var cen Centuries
-	var dst, elv float64
+	var dst, elv, cal float64
 	var dur unit.Duration
 	for i := 0; i < len(pass.Activities); i++ {
 		act := pass.Activities[i]
-		dur = dur + act.MovingTime
+		dur += act.MovingTime
 		switch ctx.Units {
 		case analysis.Metric:
-			dst = dst + act.Distance.Kilometers()
-			elv = elv + act.ElevationGain.Meters()
+			dst += act.Distance.Kilometers()
+			elv += act.ElevationGain.Meters()
 		case analysis.Imperial:
-			dst = dst + act.Distance.Miles()
-			elv = elv + act.ElevationGain.Feet()
+			dst += act.Distance.Miles()
+			elv += act.ElevationGain.Feet()
 		}
 		if act.Distance.Kilometers() >= 100.0 {
 			cen.Metric++
@@ -42,11 +43,13 @@ func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 		if act.Distance.Miles() >= 100.0 {
 			cen.Imperial++
 		}
+		cal += act.Calories
 	}
 	return &Result{
 		Count:      len(pass.Activities),
 		Distance:   dst,
 		Elevation:  elv,
+		Calories:   cal,
 		MovingTime: dur,
 		Centuries:  cen,
 	}, nil

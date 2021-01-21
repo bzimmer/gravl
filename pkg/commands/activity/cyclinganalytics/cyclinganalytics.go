@@ -15,8 +15,8 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
 
-// Maximum number of times to request status updates on uploads
-const follows = 5
+// Maximum number of times to poll status updates on uploads
+const polls = 5
 
 func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 	return cyclinganalytics.NewClient(
@@ -70,7 +70,7 @@ func collect(name string) ([]*cyclinganalytics.File, error) {
 //  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
 func poll(ctx context.Context, client *cyclinganalytics.Client, id int64, follow bool) error {
 	// status: processing, done, or error
-	i := follows
+	i := polls
 	for {
 		u, err := client.Rides.Status(ctx, cyclinganalytics.Me, id)
 		if err != nil {
@@ -84,7 +84,7 @@ func poll(ctx context.Context, client *cyclinganalytics.Client, id int64, follow
 		}
 		i--
 		if i == 0 {
-			log.Warn().Int("follows", follows).Msg("exceeded max follows")
+			log.Warn().Int("polls", polls).Msg("exceeded max polls")
 			break
 		}
 		select {
@@ -119,7 +119,7 @@ func upload(c *cli.Context) error {
 			if err != nil {
 				return err
 			}
-			if !c.Bool("follow") {
+			if !c.Bool("poll") {
 				return encoding.Encode(u)
 			}
 			return poll(ctx, client, u.UploadID, true)
@@ -141,7 +141,7 @@ func status(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		if err := poll(ctx, client, uploadID, c.Bool("follow")); err != nil {
+		if err := poll(ctx, client, uploadID, c.Bool("poll")); err != nil {
 			return err
 		}
 	}
@@ -160,8 +160,8 @@ var uploadCommand = &cli.Command{
 			Usage:   "Check the status of the upload",
 		},
 		&cli.BoolFlag{
-			Name:    "follow",
-			Aliases: []string{"f"},
+			Name:    "poll",
+			Aliases: []string{"p"},
 			Value:   false,
 			Usage:   "Continually check the status of the request until it is completed",
 		},

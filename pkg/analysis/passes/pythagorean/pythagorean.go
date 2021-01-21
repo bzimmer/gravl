@@ -7,14 +7,13 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 )
 
+// Results of running the pythagorean algorithm
 type Results struct {
 	Activity *analysis.Activity `json:"activity"`
 	Number   int                `json:"number"`
 }
 
-const doc = `pythagorean results the activity with the highest pythagorean value.
-
-The pythagorean value is the sqrt of the distance^2 + elevation^2.`
+const doc = `pythagorean determines the activity with the highest pythagorean value defined as the sqrt(distance^2 + elevation^2) in meters.`
 
 func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	if len(pass.Activities) == 0 {
@@ -34,6 +33,7 @@ func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	return res[0], nil
 }
 
+// New returns a new analyzer
 func New() *analysis.Analyzer {
 	return &analysis.Analyzer{
 		Name: "pythagorean",
