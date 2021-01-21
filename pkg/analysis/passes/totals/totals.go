@@ -4,6 +4,7 @@ import (
 	"github.com/martinlindhe/unit"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const doc = `totals returns the number of centuries (100 mi or 100 km).`
@@ -22,12 +23,12 @@ type Result struct {
 	Centuries  Centuries     `json:"centuries"`
 }
 
-func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var cen Centuries
 	var dst, elv, cal float64
 	var dur unit.Duration
-	for i := 0; i < len(pass.Activities); i++ {
-		act := pass.Activities[i]
+	for i := 0; i < len(pass); i++ {
+		act := pass[i]
 		dur += act.MovingTime
 		switch ctx.Units {
 		case analysis.Metric:
@@ -46,7 +47,7 @@ func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 		cal += act.Calories
 	}
 	return &Result{
-		Count:      len(pass.Activities),
+		Count:      len(pass),
 		Distance:   dst,
 		Elevation:  elv,
 		Calories:   cal,

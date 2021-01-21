@@ -176,6 +176,9 @@ func Run(args []string) error {
 		Commands: gravlCommands,
 		Before:   commands.Before(initLogging, initEncoding, initConfig),
 		ExitErrHandler: func(c *cli.Context, err error) {
+			if err == nil {
+				return
+			}
 			log.Error().Err(err).Msg(c.App.Name)
 		},
 	}

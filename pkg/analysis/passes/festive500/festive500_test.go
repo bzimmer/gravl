@@ -20,13 +20,11 @@ func TestFestive500(t *testing.T) {
 	any := festive500.New()
 	a.NotNil(any)
 
-	pass := &analysis.Pass{
-		Activities: []*strava.Activity{
-			{Type: "Ride", Distance: 142000, ElevationGain: 30, StartDateLocal: time.Date(2020, time.December, 26, 8, 0, 0, 0, time.UTC)},
-			{Type: "Ride", Distance: 155000, ElevationGain: 23, StartDateLocal: time.Date(2020, time.December, 27, 8, 0, 0, 0, time.UTC)},
-			{Type: "Ride", Distance: 202000, ElevationGain: 85, StartDateLocal: time.Date(2020, time.December, 28, 8, 0, 0, 0, time.UTC)},
-			{Type: "Ride", Distance: 175000, ElevationGain: 100, StartDateLocal: time.Date(2020, time.December, 5, 8, 0, 0, 0, time.UTC)},
-		},
+	pass := []*strava.Activity{
+		{Type: "Ride", Distance: 142000, ElevationGain: 30, StartDateLocal: time.Date(2020, time.December, 26, 8, 0, 0, 0, time.UTC)},
+		{Type: "Ride", Distance: 155000, ElevationGain: 23, StartDateLocal: time.Date(2020, time.December, 27, 8, 0, 0, 0, time.UTC)},
+		{Type: "Ride", Distance: 202000, ElevationGain: 85, StartDateLocal: time.Date(2020, time.December, 28, 8, 0, 0, 0, time.UTC)},
+		{Type: "Ride", Distance: 175000, ElevationGain: 100, StartDateLocal: time.Date(2020, time.December, 5, 8, 0, 0, 0, time.UTC)},
 	}
 	ctx := analysis.WithContext(context.Background(), analysis.Metric)
 	res, err := any.Run(ctx, pass)

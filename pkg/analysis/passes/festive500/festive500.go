@@ -1,12 +1,14 @@
 package festive500
 
 import (
+	"math"
 	"sort"
 	"time"
 
 	"github.com/martinlindhe/unit"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const doc = `festive500 returns the activities and distance ridden during the annual #festive500 challenge
@@ -28,12 +30,12 @@ type Result struct {
 	MovingTime        unit.Duration        `json:"moving_time"`
 }
 
-func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var dst float64
 	var dur unit.Duration
 	var acts []*analysis.Activity
-	for i := 0; i < len(pass.Activities); i++ {
-		act := pass.Activities[i]
+	for i := 0; i < len(pass); i++ {
+		act := pass[i]
 		_, ok := activityTypes[act.Type]
 		if !ok {
 			continue
@@ -49,14 +51,10 @@ func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
 	sort.Slice(acts, func(i, j int) bool {
 		return acts[i].StartDate.Before(acts[j].StartDate)
 	})
-	remaining := 500.0 - dst
-	if remaining < 0 {
-		remaining = 0
-	}
 	return &Result{
 		Activities:        acts,
 		DistanceCompleted: dst,
-		DistanceRemaining: remaining,
+		DistanceRemaining: math.Max(500.0-dst, 0),
 		Percent:           (dst / 500.0) * 100,
 		Success:           dst >= 500.0,
 		MovingTime:        dur}, nil

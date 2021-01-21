@@ -6,11 +6,12 @@ import (
 	"sort"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"gonum.org/v1/gonum/floats"
 	"gonum.org/v1/gonum/stat"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
-	"github.com/rs/zerolog/log"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const doc = `ageride returns all activities whose distance is greater than the athlete's age at the time of the activity`
@@ -29,7 +30,7 @@ type Result struct {
 	DistanceTotal  float64              `json:"distance_total"`
 }
 
-func (a *ageRide) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
+func (a *ageRide) run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var dsts []float64
 	var acts []*analysis.Activity
 	var bday = a.birthday.Get().(time.Time)
@@ -37,8 +38,8 @@ func (a *ageRide) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, 
 		return nil, errors.New("birthday not set")
 	}
 	log.Info().Time("birthday", bday).Msg("ageride")
-	for i := 0; i < len(pass.Activities); i++ {
-		act := pass.Activities[i]
+	for i := 0; i < len(pass); i++ {
+		act := pass[i]
 		yrs := act.StartDateLocal.Sub(bday).Seconds() / yearSeconds
 		switch ctx.Units {
 		case analysis.Imperial:

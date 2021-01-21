@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const doc = `clusters returns the activities clustered by (distance, elevation) dimensions`
@@ -52,9 +53,9 @@ func (obs *observation) Distance(point clusters.Coordinates) float64 {
 	return obs.Coords.Distance(point)
 }
 
-func (k *kMeans) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
-	if len(pass.Activities) < k.Clusters {
-		log.Warn().Int("n", len(pass.Activities)).Int("clusters", k.Clusters).Msg("too few activities")
+func (k *kMeans) run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
+	if len(pass) < k.Clusters {
+		log.Warn().Int("n", len(pass)).Int("clusters", k.Clusters).Msg("too few activities")
 		return results(nil), nil
 	}
 	// For each activity, create a synthetic coordinate from the distance and elevation
@@ -64,8 +65,8 @@ func (k *kMeans) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, e
 	// 2. Find the max of each slice
 	var dmax, emax float64
 	var dsts, elvs []float64
-	for i := 0; i < len(pass.Activities); i++ {
-		act := pass.Activities[i]
+	for i := 0; i < len(pass); i++ {
+		act := pass[i]
 		dst := act.Distance.Meters()
 		dsts = append(dsts, dst)
 		if dst > dmax {
@@ -80,9 +81,9 @@ func (k *kMeans) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, e
 
 	// 3. Divide each element by the max value
 	var d clusters.Observations
-	for i := 0; i < len(pass.Activities); i++ {
+	for i := 0; i < len(pass); i++ {
 		d = append(d, &observation{
-			Activity: analysis.ToActivity(pass.Activities[i], ctx.Units),
+			Activity: analysis.ToActivity(pass[i], ctx.Units),
 			Coords:   clusters.Coordinates{dsts[i] / dmax, elvs[i] / emax},
 		})
 	}

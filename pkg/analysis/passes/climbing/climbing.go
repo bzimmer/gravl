@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 const (
@@ -22,10 +23,10 @@ type Result struct {
 	Number   int                `json:"number"`
 }
 
-func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var climbings []*Result
-	for i := 0; i < len(pass.Activities); i++ {
-		act := pass.Activities[i]
+	for i := 0; i < len(pass); i++ {
+		act := pass[i]
 		var thr int
 		var dst, elv float64
 		switch ctx.Units {

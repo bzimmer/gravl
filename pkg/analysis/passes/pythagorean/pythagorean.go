@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 // Results of running the pythagorean algorithm
@@ -15,13 +16,13 @@ type Results struct {
 
 const doc = `pythagorean determines the activity with the highest pythagorean value defined as the sqrt(distance^2 + elevation^2) in meters.`
 
-func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
-	if len(pass.Activities) == 0 {
+func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
+	if len(pass) == 0 {
 		return &Results{}, nil
 	}
-	res := make([]*Results, len(pass.Activities))
-	for i := 0; i < len(pass.Activities); i++ {
-		act := pass.Activities[i]
+	res := make([]*Results, len(pass))
+	for i := 0; i < len(pass); i++ {
+		act := pass[i]
 		dst := act.Distance.Meters()
 		elv := act.ElevationGain.Meters()
 		n := int(math.Sqrt(math.Pow(dst, 2) + math.Pow(elv, 2)))

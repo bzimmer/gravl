@@ -20,12 +20,10 @@ func TestClimbing(t *testing.T) {
 	a.NotNil(any)
 
 	mi := unit.Length(155000).Miles()
-	pass := &analysis.Pass{
-		Activities: []*strava.Activity{
-			{Distance: 142000, ElevationGain: 30},
-			{Distance: 155000, ElevationGain: unit.Length((mi * climbing.GoldenRatioImperial) + 10)},
-			{Distance: 202000, ElevationGain: 85},
-		},
+	pass := []*strava.Activity{
+		{Distance: 142000, ElevationGain: 30},
+		{Distance: 155000, ElevationGain: unit.Length((mi * climbing.GoldenRatioImperial) + 10)},
+		{Distance: 202000, ElevationGain: 85},
 	}
 	ctx := analysis.WithContext(context.Background(), analysis.Imperial)
 	res, err := any.Run(ctx, pass)

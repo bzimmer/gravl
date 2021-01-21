@@ -4,13 +4,15 @@ import (
 	"flag"
 	"fmt"
 	"math"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 type Analyzer struct {
 	Name  string
 	Doc   string
 	Flags *flag.FlagSet
-	Run   func(*Context, *Pass) (interface{}, error)
+	Run   func(*Context, []*strava.Activity) (interface{}, error)
 }
 
 func (a *Analyzer) String() string { return a.Name }
@@ -105,7 +107,7 @@ func (a *Analysis) run(ctx *Context, pass *Pass, level int) error {
 	}
 	res := make(map[string]interface{})
 	for _, analyzer := range a.Analyzers {
-		r, err := analyzer.Run(ctx, pass)
+		r, err := analyzer.Run(ctx, pass.Activities)
 		if err != nil {
 			return err
 		}

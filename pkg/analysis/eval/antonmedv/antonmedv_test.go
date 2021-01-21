@@ -27,16 +27,16 @@ func TestFilterer(t *testing.T) {
 	a.Equal(6, len(acts))
 
 	q := antonmedv.Filterer(`.Type == "Ride"`)
-	acts, err := q.Filter(context.Background(), acts)
-	a.NotNil(acts)
+	vals, err := q.Filter(context.Background(), acts)
+	a.NotNil(vals)
 	a.NoError(err)
-	a.Equal(3, len(acts))
+	a.Equal(3, len(vals))
 
 	q = antonmedv.Filterer(`.Type == "Ride" && .StartDateLocal.Year() == 2010`)
-	acts, err = q.Filter(context.Background(), acts)
-	a.NotNil(acts)
+	vals, err = q.Filter(context.Background(), acts)
+	a.NotNil(vals)
 	a.NoError(err)
-	a.Equal(1, len(acts))
+	a.Equal(1, len(vals))
 }
 
 func TestMapper(t *testing.T) {

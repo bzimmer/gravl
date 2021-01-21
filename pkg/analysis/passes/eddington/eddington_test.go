@@ -19,8 +19,7 @@ func TestEddingtonAnalysisEmpty(t *testing.T) {
 	a.NotNil(any)
 
 	ctx := analysis.WithContext(context.Background(), analysis.Metric)
-	pass := &analysis.Pass{Activities: []*strava.Activity{}}
-	res, err := any.Run(ctx, pass)
+	res, err := any.Run(ctx, []*strava.Activity{})
 	a.NoError(err)
 	a.NotNil(res)
 	r, ok := res.(*eddington.Eddington)
@@ -37,15 +36,13 @@ func TestEddingtonAnalysis(t *testing.T) {
 	any := eddington.New()
 	a.NotNil(any)
 
-	pass := &analysis.Pass{
-		Activities: []*strava.Activity{
-			{ID: 100, Type: "Ride", Distance: 1000, ElevationGain: 240},
-			{ID: 200, Type: "Ride", Distance: 2000, ElevationGain: 281},
-			{ID: 300, Type: "Ride", Distance: 1000, ElevationGain: 103},
-			{ID: 400, Type: "Ride", Distance: 3000, ElevationGain: 220},
-			{ID: 500, Type: "Ride", Distance: 2000, ElevationGain: 101},
-			{ID: 600, Type: "Ride", Distance: 1000, ElevationGain: 220},
-		},
+	pass := []*strava.Activity{
+		{ID: 100, Type: "Ride", Distance: 1000, ElevationGain: 240},
+		{ID: 200, Type: "Ride", Distance: 2000, ElevationGain: 281},
+		{ID: 300, Type: "Ride", Distance: 1000, ElevationGain: 103},
+		{ID: 400, Type: "Ride", Distance: 3000, ElevationGain: 220},
+		{ID: 500, Type: "Ride", Distance: 2000, ElevationGain: 101},
+		{ID: 600, Type: "Ride", Distance: 1000, ElevationGain: 220},
 	}
 	ctx := analysis.WithContext(context.Background(), analysis.Metric)
 	res, err := any.Run(ctx, pass)

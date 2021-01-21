@@ -19,14 +19,12 @@ func TestPythagorean(t *testing.T) {
 	any := pythagorean.New()
 	a.NotNil(any)
 
-	pass := &analysis.Pass{
-		Activities: []*strava.Activity{
-			{ID: 100, Type: "Ride", Distance: 142000, ElevationGain: 240},
-			{ID: 200, Type: "Ride", Distance: 152000, ElevationGain: 281},
-			{ID: 300, Type: "Ride", Distance: 112000, ElevationGain: 103},
-			{ID: 400, Type: "Ride", Distance: 242000, ElevationGain: 220},
-			{ID: 500, Type: "Run", Distance: 192000, ElevationGain: 81},
-		},
+	pass := []*strava.Activity{
+		{ID: 100, Type: "Ride", Distance: 142000, ElevationGain: 240},
+		{ID: 200, Type: "Ride", Distance: 152000, ElevationGain: 281},
+		{ID: 300, Type: "Ride", Distance: 112000, ElevationGain: 103},
+		{ID: 400, Type: "Ride", Distance: 242000, ElevationGain: 220},
+		{ID: 500, Type: "Run", Distance: 192000, ElevationGain: 81},
 	}
 	ctx := analysis.WithContext(context.Background(), analysis.Metric)
 	res, err := any.Run(ctx, pass)
@@ -47,8 +45,7 @@ func TestPythagoreanEmpty(t *testing.T) {
 	a.NotNil(any)
 
 	ctx := analysis.WithContext(context.Background(), analysis.Metric)
-	pass := &analysis.Pass{Activities: []*strava.Activity{}}
-	res, err := any.Run(ctx, pass)
+	res, err := any.Run(ctx, []*strava.Activity{})
 	a.NoError(err)
 	a.NotNil(res)
 	r, ok := res.(*pythagorean.Results)

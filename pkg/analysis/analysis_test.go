@@ -15,8 +15,8 @@ type foo struct {
 	Double bool
 }
 
-func (f *foo) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
-	n := len(pass.Activities)
+func (f *foo) run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
+	n := len(pass)
 	if f.Double {
 		n = n * 2
 	}

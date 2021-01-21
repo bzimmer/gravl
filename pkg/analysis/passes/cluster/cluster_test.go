@@ -19,18 +19,16 @@ func TestCluster(t *testing.T) {
 	a.NotNil(any)
 	a.NoError(any.Flags.Parse([]string{"--clusters", "2", "--threshold", "0.05"}))
 
-	pass := &analysis.Pass{
-		Activities: []*strava.Activity{
-			{Distance: 100000, ElevationGain: 100},
-			{Distance: 100000, ElevationGain: 100},
-			{Distance: 100000, ElevationGain: 100},
-			{Distance: 400000, ElevationGain: 100},
-			{Distance: 100000, ElevationGain: 100},
-			{Distance: 400000, ElevationGain: 100},
-			{Distance: 100000, ElevationGain: 100},
-			{Distance: 400000, ElevationGain: 100},
-			{Distance: 100000, ElevationGain: 100},
-		},
+	pass := []*strava.Activity{
+		{Distance: 100000, ElevationGain: 100},
+		{Distance: 100000, ElevationGain: 100},
+		{Distance: 100000, ElevationGain: 100},
+		{Distance: 400000, ElevationGain: 100},
+		{Distance: 100000, ElevationGain: 100},
+		{Distance: 400000, ElevationGain: 100},
+		{Distance: 100000, ElevationGain: 100},
+		{Distance: 400000, ElevationGain: 100},
+		{Distance: 100000, ElevationGain: 100},
 	}
 	ctx := analysis.WithContext(context.Background(), analysis.Imperial)
 	res, err := any.Run(ctx, pass)

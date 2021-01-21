@@ -4,6 +4,7 @@ import (
 	"github.com/twpayne/go-geom"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 	"github.com/bzimmer/gravl/pkg/providers/wx/noaa"
 )
 
@@ -18,9 +19,9 @@ type forecast struct {
 	client *noaa.Client
 }
 
-func (a *forecast) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
+func (a *forecast) run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var res []*Result
-	for _, act := range pass.Activities {
+	for _, act := range pass {
 		coords := act.StartLatlng
 		point := geom.NewPointFlat(geom.XY, []float64{coords[1], coords[0]})
 		forecast, err := a.client.Points.Forecast(ctx, point)

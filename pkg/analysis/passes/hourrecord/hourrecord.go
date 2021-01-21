@@ -11,10 +11,10 @@ import (
 
 const doc = `hourrecord returns the longest distance traveled (in miles | kilometers) exceeding the average speed (mph | mps).`
 
-func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var res []*strava.Activity
-	for i := 0; i < len(pass.Activities); i++ {
-		act := pass.Activities[i]
+	for i := 0; i < len(pass); i++ {
+		act := pass[i]
 		dst := act.Distance
 		spd := act.AverageSpeed
 		if float64(dst) >= float64(spd) {

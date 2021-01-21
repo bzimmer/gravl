@@ -18,13 +18,11 @@ func TestHourRecord(t *testing.T) {
 	any := hourrecord.New()
 	a.NotNil(any)
 
-	pass := &analysis.Pass{
-		Activities: []*strava.Activity{
-			{ID: 100, Type: "Ride", Distance: 142000, AverageSpeed: 24},
-			{ID: 200, Type: "Ride", Distance: 152000, AverageSpeed: 28},
-			{ID: 300, Type: "Ride", Distance: 112000, AverageSpeed: 10},
-			{ID: 400, Type: "Ride", Distance: 242000, AverageSpeed: 22},
-		},
+	pass := []*strava.Activity{
+		{ID: 100, Type: "Ride", Distance: 142000, AverageSpeed: 24},
+		{ID: 200, Type: "Ride", Distance: 152000, AverageSpeed: 28},
+		{ID: 300, Type: "Ride", Distance: 112000, AverageSpeed: 10},
+		{ID: 400, Type: "Ride", Distance: 242000, AverageSpeed: 22},
 	}
 	ctx := analysis.WithContext(context.Background(), analysis.Imperial)
 	res, err := any.Run(ctx, pass)

@@ -32,15 +32,15 @@ func (r *rollingWindow) activities(acts []*strava.Activity, idx int, units analy
 	return res
 }
 
-func (r *rollingWindow) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
-	if len(pass.Activities) < r.Window {
-		log.Warn().Int("n", len(pass.Activities)).Int("window", r.Window).Msg("too few activities")
+func (r *rollingWindow) run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
+	if len(pass) < r.Window {
+		log.Warn().Int("n", len(pass)).Int("window", r.Window).Msg("too few activities")
 		return &Result{}, nil
 	}
-	var dsts = make([]float64, len(pass.Activities))
-	var acts = make([]*strava.Activity, len(pass.Activities))
-	if n := copy(acts, pass.Activities); n != len(pass.Activities) {
-		return nil, fmt.Errorf("%d != %d", n, len(pass.Activities))
+	var dsts = make([]float64, len(pass))
+	var acts = make([]*strava.Activity, len(pass))
+	if n := copy(acts, pass); n != len(pass) {
+		return nil, fmt.Errorf("%d != %d", n, len(pass))
 	}
 	sort.Slice(acts, func(i, j int) bool {
 		return acts[i].StartDateLocal.Before(acts[j].StartDateLocal)

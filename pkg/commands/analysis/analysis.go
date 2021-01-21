@@ -57,6 +57,58 @@ func group(c *cli.Context, acts []*strava.Activity) (*analysis.Pass, error) {
 	return analysis.Group(c.Context, acts, mappers...)
 }
 
+func analyze(c *cli.Context) error {
+	acts, err := read(c)
+	if err != nil {
+		return err
+	}
+	acts, err = filter(c, acts)
+	if err != nil {
+		return err
+	}
+	pass, err := group(c, acts)
+	if err != nil {
+		return err
+	}
+	ans, err := analyzers(c)
+	if err != nil {
+		return err
+	}
+	any, err := analysis.NewAnalysis(ans, c.Args().Slice())
+	if err != nil {
+		return err
+	}
+	ctx := c.Context
+	if c.IsSet("timeout") {
+		x, cancel := context.WithTimeout(ctx, c.Duration("timeout"))
+		defer cancel()
+		ctx = x
+	}
+	uf := c.Generic("units").(*analysis.UnitsFlag)
+	x := analysis.WithContext(ctx, uf.Units)
+	results, err := any.Run(x, pass)
+	if err != nil {
+		return err
+	}
+	return encoding.Encode(results)
+}
+
+var listCommand = &cli.Command{
+	Name:    "list",
+	Aliases: []string{""},
+	Usage:   "Return the list of available analyzers",
+	Action: func(c *cli.Context) error {
+		res := make(map[string]map[string]interface{})
+		for nm, an := range _analyzers {
+			res[nm] = make(map[string]interface{})
+			res[nm]["doc"] = an.analyzer.Doc
+			res[nm]["base"] = an.standard
+			res[nm]["flags"] = (an.analyzer.Flags != nil)
+		}
+		return encoding.Encode(res)
+	},
+}
+
 var Command = &cli.Command{
 	Name:     "analysis",
 	Aliases:  []string{"pass"},
@@ -86,39 +138,8 @@ var Command = &cli.Command{
 		},
 		commands.StoreFlag,
 	},
-	Action: func(c *cli.Context) error {
-		acts, err := read(c)
-		if err != nil {
-			return err
-		}
-		acts, err = filter(c, acts)
-		if err != nil {
-			return err
-		}
-		pass, err := group(c, acts)
-		if err != nil {
-			return err
-		}
-		ans, err := analyzers(c)
-		if err != nil {
-			return err
-		}
-		any, err := analysis.NewAnalysis(ans, c.Args().Slice())
-		if err != nil {
-			return err
-		}
-		ctx := c.Context
-		if c.IsSet("timeout") {
-			x, cancel := context.WithTimeout(ctx, c.Duration("timeout"))
-			defer cancel()
-			ctx = x
-		}
-		uf := c.Generic("units").(*analysis.UnitsFlag)
-		x := analysis.WithContext(ctx, uf.Units)
-		results, err := any.Run(x, pass)
-		if err != nil {
-			return err
-		}
-		return encoding.Encode(results)
+	Subcommands: []*cli.Command{
+		listCommand,
 	},
+	Action: analyze,
 }

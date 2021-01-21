@@ -7,10 +7,10 @@ import (
 
 const doc = `koms returns all KOMs for the activities.`
 
-func run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
+func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var efforts []*strava.SegmentEffort
-	for i := 0; i < len(pass.Activities); i++ {
-		act := pass.Activities[i]
+	for i := 0; i < len(pass); i++ {
+		act := pass[i]
 		for _, effort := range act.SegmentEfforts {
 			for _, ach := range effort.Achievements {
 				if ach.Rank == 1 && ach.Type == "overall" {

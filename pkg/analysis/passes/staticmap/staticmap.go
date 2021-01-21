@@ -103,14 +103,14 @@ func (s *smap) paths(ctx context.Context, g *errgroup.Group, activities <-chan *
 	return paths
 }
 
-func (s *smap) run(ctx *analysis.Context, pass *analysis.Pass) (interface{}, error) {
+func (s *smap) run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	s.output = filepath.Join(xdg.CacheHome, pkg.PackageName, "passes", "staticmap")
 	if err := os.MkdirAll(s.output, os.ModeDir|0700); err != nil {
 		return nil, err
 	}
 
 	g, c := errgroup.WithContext(ctx.Context)
-	paths := s.paths(c, g, s.linestrings(c, g, pass.Activities))
+	paths := s.paths(c, g, s.linestrings(c, g, pass))
 
 	res := make(map[int64]string)
 	g.Go(func() error {
