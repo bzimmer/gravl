@@ -22,7 +22,15 @@ type Client struct {
 
 func withServices() Option {
 	return func(c *Client) error {
-		c.Elevation = &ElevationService{client: c}
+		if c.storage == nil {
+			return errors.New("nil storage")
+		}
+		m, err := geoelevations.NewSrtmWithCustomStorage(c.client, c.storage)
+		if err != nil {
+			return err
+		}
+		c.Elevation = &ElevationService{srtm: m}
+		c.Elevation.client = c
 		return nil
 	}
 }
@@ -58,11 +66,4 @@ func WithStorageLocation(directory string) Option {
 		log.Debug().Str("directory", directory).Msg("SRTM cache location")
 		return nil
 	}
-}
-
-func (c *Client) srtm() (*geoelevations.Srtm, error) {
-	if c.storage == nil {
-		return nil, errors.New("nil storage")
-	}
-	return geoelevations.NewSrtmWithCustomStorage(c.client, c.storage)
 }

@@ -1,11 +1,13 @@
 package geo
 
 import (
+	"context"
 	"math"
 	"time"
 
 	"github.com/golang/geo/s2"
 	"github.com/martinlindhe/unit"
+	"github.com/rs/zerolog/log"
 	geom "github.com/twpayne/go-geom"
 	gpx "github.com/twpayne/go-gpx"
 )
@@ -13,8 +15,16 @@ import (
 const earthRadiusM = 6367000.0
 const movingTimeThreshold = 0.1
 
+// GPX instances can return a gpx instance
 type GPX interface {
+	// GPX returns a gpx instance
 	GPX() (*gpx.GPX, error)
+}
+
+// Elevator instances can provide an elevation for a point
+type Elevator interface {
+	// Elevation for a point
+	Elevation(ctx context.Context, point *geom.Point) (float64, error)
 }
 
 type Summary struct {
@@ -39,6 +49,42 @@ func distance(p, q *gpx.WptType) unit.Length {
 	llp := s2.LatLngFromDegrees(p.Lat, p.Lon)
 	llq := s2.LatLngFromDegrees(q.Lat, q.Lon)
 	return unit.Length(llp.Distance(llq)) * earthRadiusM
+}
+
+func CorrectElevations(ctx context.Context, gpx *gpx.GPX, elevator Elevator) error {
+	defer func(start time.Time) {
+		log.Info().
+			Dur("elapsed", time.Since(start)).
+			Msg("elevation corrections")
+	}(time.Now())
+	for _, track := range gpx.Trk {
+		for _, segment := range track.TrkSeg {
+			for _, point := range segment.TrkPt {
+				elv, err := elevator.Elevation(ctx, point.Geom(geom.XY))
+				if err != nil {
+					return err
+				}
+				// fmt.Println(point.Lat, point.Lon, point.Ele, elv)
+				// log.Debug().
+				// 	Float64("lat", point.Lat).
+				// 	Float64("lon", point.Lon).
+				// 	Float64("elv", point.Ele).
+				// 	Float64("srtm", elv).
+				// 	Msg("track")
+				point.Ele = elv
+			}
+		}
+	}
+	for _, rte := range gpx.Rte {
+		for _, point := range rte.RtePt {
+			elv, err := elevator.Elevation(ctx, point.Geom(geom.XY))
+			if err != nil {
+				return err
+			}
+			point.Ele = elv
+		}
+	}
+	return nil
 }
 
 func FlattenTracks(gpx *gpx.GPX, layout geom.Layout) *geom.LineString {
@@ -78,32 +124,33 @@ func SummarizeTracks(gpx *gpx.GPX) *Summary {
 			s.Segments++
 			for j, point := range segment.TrkPt {
 				s.Points++
+				if j == n-1 {
+					continue
+				}
 				if j == 0 {
 					if (s.StartTime == time.Time{}) || point.Time.Before(s.StartTime) {
 						s.StartTime = point.Time
 					}
 				}
-				if j < n-1 {
-					p, q := point, segment.TrkPt[j+1]
-					d2 := distance(p, q)
-					ele := unit.Length(q.Ele - p.Ele)
-					d3 := unit.Length(math.Sqrt(math.Pow(d2.Meters(), 2) + math.Pow(ele.Meters(), 2)))
+				p, q := point, segment.TrkPt[j+1]
+				d2 := distance(p, q)
+				ele := unit.Length(q.Ele - p.Ele)
+				d3 := unit.Length(math.Sqrt(math.Pow(d2.Meters(), 2) + math.Pow(ele.Meters(), 2)))
 
-					s.Distance2D += d2
-					s.Distance3D += d3
-					switch {
-					case ele > 0:
-						s.Ascent += ele
-					case ele < 0:
-						s.Descent -= ele
-					}
+				s.Distance2D += d2
+				s.Distance3D += d3
+				switch {
+				case ele > 0:
+					s.Ascent += ele
+				case ele < 0:
+					s.Descent -= ele
+				}
 
-					t := unit.Duration(q.Time.Sub(p.Time).Seconds())
-					if d2 > movingTimeThreshold {
-						s.MovingTime += t
-					} else {
-						s.StoppedTime += t
-					}
+				t := unit.Duration(q.Time.Sub(p.Time).Seconds())
+				if d2 > movingTimeThreshold {
+					s.MovingTime += t
+				} else {
+					s.StoppedTime += t
 				}
 			}
 		}
@@ -118,20 +165,21 @@ func SummarizeRoutes(gpx *gpx.GPX) *Summary {
 		n := len(rte.RtePt)
 		for j, point := range rte.RtePt {
 			s.Points++
-			if j < n-1 {
-				p, q := point, rte.RtePt[j+1]
-				d2 := distance(p, q)
-				elv := unit.Length(q.Ele - p.Ele)
-				d3 := unit.Length(math.Sqrt(math.Pow(d2.Meters(), 2) + math.Pow(elv.Meters(), 2)))
+			if j == n-1 {
+				continue
+			}
+			p, q := point, rte.RtePt[j+1]
+			d2 := distance(p, q)
+			elv := unit.Length(q.Ele - p.Ele)
+			d3 := unit.Length(math.Sqrt(math.Pow(d2.Meters(), 2) + math.Pow(elv.Meters(), 2)))
 
-				s.Distance2D += d2
-				s.Distance3D += d3
-				switch {
-				case elv > 0:
-					s.Ascent += elv
-				case elv < 0:
-					s.Descent -= elv
-				}
+			s.Distance2D += d2
+			s.Distance3D += d3
+			switch {
+			case elv > 0:
+				s.Ascent += elv
+			case elv < 0:
+				s.Descent -= elv
 			}
 		}
 	}
