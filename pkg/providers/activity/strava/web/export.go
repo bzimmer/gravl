@@ -34,11 +34,11 @@ func (f *Format) MarshalJSON() ([]byte, error) {
 
 // ExportFile metadata about an exported file
 type ExportFile struct {
-	ActivityID int64     `json:"id"`
-	Name       string    `json:"name"`
-	Format     Format    `json:"format"`
-	Extension  string    `json:"ext"`
-	Reader     io.Reader `json:"-"`
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Format    Format    `json:"format"`
+	Extension string    `json:"ext"`
+	Reader    io.Reader `json:"-"`
 }
 
 // ExportService is the API for export endpoints
@@ -91,10 +91,10 @@ func (s *ExportService) Export(ctx context.Context, activityID int64, format For
 	name := params["filename"]
 	ext := strings.TrimPrefix(filepath.Ext(name), ".")
 	return &ExportFile{
-		ActivityID: activityID,
-		Name:       params["filename"],
-		Reader:     out,
-		Format:     format,
-		Extension:  ext,
+		ID:        activityID,
+		Name:      params["filename"],
+		Reader:    out,
+		Format:    format,
+		Extension: ext,
 	}, nil
 }

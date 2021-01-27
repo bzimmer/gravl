@@ -95,10 +95,10 @@ var exportCommand = &cli.Command{
 		&cli.StringFlag{
 			Name:    "template",
 			Aliases: []string{"t"},
-			Usage:   "Export data filename template",
+			Usage:   "Export data filename template; fields: ID, Name, Format, Extension",
 		},
 	},
-	Usage:  "Export an activity to a local file.",
+	Usage:  "Export an activity to a local file",
 	Action: export,
 }
 
@@ -126,6 +126,6 @@ func fitness(c *cli.Context) error {
 
 var fitnessCommand = &cli.Command{
 	Name:   "fitness",
-	Usage:  "Query Strava for training load data.",
+	Usage:  "Query Strava for training load data",
 	Action: fitness,
 }
