@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
@@ -59,12 +60,16 @@ func export(c *cli.Context) error {
 			if err != nil {
 				return err
 			}
-			out := &bytes.Buffer{}
-			err = t.Execute(out, file)
+			var out bytes.Buffer
+			err = t.Execute(&out, file)
 			if err != nil {
 				return err
 			}
 			fn = out.String()
+		}
+		if _, err = os.Stat(fn); err == nil && !c.Bool("overwrite") {
+			log.Error().Str("filename", fn).Msg("file exists and -o flag not specified")
+			return os.ErrExist
 		}
 		out, err := os.Create(fn)
 		if err != nil {
@@ -75,8 +80,8 @@ func export(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		err = encoding.Encode(fn)
-		if err != nil {
+		file.Name = fn
+		if err = encoding.Encode(file); err != nil {
 			return err
 		}
 	}
@@ -84,21 +89,27 @@ func export(c *cli.Context) error {
 }
 
 var exportCommand = &cli.Command{
-	Name: "export",
+	Name:  "export",
+	Usage: "export a Strava activity by id, optionally specifying the format and filename template",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "format",
-			Aliases: []string{"f"},
+			Aliases: []string{"F"},
 			Value:   stravaweb.Original.String(),
-			Usage:   "Export data file",
+			Usage:   "Export data file in the specified format",
 		},
 		&cli.StringFlag{
 			Name:    "template",
-			Aliases: []string{"t"},
+			Aliases: []string{"T"},
 			Usage:   "Export data filename template; fields: ID, Name, Format, Extension",
 		},
+		&cli.BoolFlag{
+			Name:    "overwrite",
+			Aliases: []string{"o"},
+			Value:   false,
+			Usage:   "Overwrite the file if it exists; fail otherwise",
+		},
 	},
-	Usage:  "Export an activity to a local file",
 	Action: export,
 }
 

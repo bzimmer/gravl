@@ -73,23 +73,30 @@ func activities(c *cli.Context) error {
 	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	defer func(start time.Time) {
-		log.Debug().
-			Dur("elapsed", time.Since(start)).
-			Msg("activities")
-	}(time.Now())
+	var ok bool
+	var act *strava.Activity
 	acts, errs := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
-	activities, err := strava.Activities(ctx, acts, errs)
-	if err != nil {
-		return err
-	}
-	for _, act := range activities {
-		err = encoding.Encode(act)
-		if err != nil {
-			return err
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case err, ok = <-errs:
+			// if the channel was not closed an error occurred so return it
+			// if the channel is closed do nothing to ensure the activity channel can run to
+			//  completion and return the full slice of activities
+			if ok {
+				return err
+			}
+		case act, ok = <-acts:
+			if !ok {
+				// the channel is closed, done
+				return nil
+			}
+			if err = encoding.Encode(act); err != nil {
+				return err
+			}
 		}
 	}
-	return nil
 }
 
 var activitiesCommand = &cli.Command{

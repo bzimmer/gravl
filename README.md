@@ -104,37 +104,71 @@ Each of the group expressions will result in a new level in the output of the an
 
 ## Examples
 
-Export an activity data file from Strava using the web client, upload it to [Cycling Analytics](https://www.cyclinganalytics.com/), and poll the status until processing is completed.
+The following bash script will export an activity data file from Strava using the web client, upload it to [Cycling Analytics](https://www.cyclinganalytics.com/), and poll the status until processing is completed.
 
 ```sh
-~ > gravl strava export 4612178259
-2021-01-12T20:22:13-08:00 INF export activityID=4612178259 format=original
-"Innsbruck.fit"
-~ > gravl ca upload -p Innsbruck.fit
-2021-01-12T20:23:12-08:00 INF uploading file=Innsbruck.fit size=112732
+#!/bin/bash
+set -e
+
+num="${NUM_ACTIVITIES:-50}"
+
+# If no activity is provided display the most recent rides
+if [[ $# -eq 0 ]]
+then
+    gravl --timeout 1m strava activities -N $num | jq -s -c '.[] | select(.type == "VirtualRide") | [.id, .name, .start_date_local]'
+    exit 0
+fi
+
+for arg in "$@"
+do
+gravl strava export -o -T "$arg.fit" -F fit $arg
+gravl ca upload -p "$arg.fit"
+rm -f "$arg.fit"
+done
+```
+
+When executed the command output will look something like this:
+
+```sh
+~ > zwift2ca.sh
+2021-01-28T20:39:50-08:00 INF do all=50 count=50 n=50 start=1 total=50
+[4687554641,"Innsbruck","2021-01-26T18:15:29Z"]
+[4612178259,"Innsbruck","2021-01-12T18:40:56Z"]
+[4569050661,"Paris","2021-01-04T19:21:36Z"]
+[4481763454,"Watopia","2020-12-16T19:04:41Z"]
+
+~ > zwift2ca.sh 4334103705
+2021-01-28T20:37:16-08:00 INF export activityID=4334103705 format=original
+{
+ "id": 4334103705,
+ "name": "4334103705.fit",
+ "format": "original",
+ "ext": "fit"
+}
+2021-01-28T20:37:17-08:00 INF uploading file=4334103705.fit size=101003
 {
  "status": "processing",
  "ride_id": 0,
  "user_id": 1603533,
  "format": "fit",
- "datetime": "2021-01-13T04:23:15",
- "upload_id": 4775060590,
- "filename": "Innsbruck.fit",
- "size": 112732,
+ "datetime": "2021-01-29T04:37:20",
+ "upload_id": 1394198469,
+ "filename": "4334103705.fit",
+ "size": 101003,
  "error": "",
  "error_code": ""
 }
 {
- "status": "done",
- "ride_id": 382207409453,
+ "status": "error",
+ "ride_id": 0,
  "user_id": 1603533,
  "format": "fit",
- "datetime": "2021-01-13T04:23:15",
- "upload_id": 4775060590,
- "filename": "Innsbruck.fit",
- "size": 112732,
- "error": "",
- "error_code": ""
+ "datetime": "2021-01-29T04:37:20",
+ "upload_id": 1394198469,
+ "filename": "4334103705.fit",
+ "size": 101003,
+ "error": "The ride already exists: 260297069518",
+ "error_code": "duplicate_ride"
 }
 ```
 
