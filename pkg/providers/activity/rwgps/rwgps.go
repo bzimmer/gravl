@@ -1,6 +1,6 @@
 package rwgps
 
-//go:generate genwith --do --client --auth --package rwgps
+//go:generate genwith --do --client --token --config --package rwgps
 
 import (
 	"bytes"

@@ -1,6 +1,6 @@
 package openweather
 
-//go:generate genwith --do --auth --client --package openweather
+//go:generate genwith --do --token --client --package openweather
 
 import (
 	"context"

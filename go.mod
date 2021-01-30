@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/adrg/xdg v0.2.3
 	github.com/antonmedv/expr v1.8.9
-	github.com/bzimmer/genwith v0.1.0
+	github.com/bzimmer/genwith v0.3.0
 	github.com/bzimmer/httpwares v0.0.3
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1
