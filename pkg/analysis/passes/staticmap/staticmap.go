@@ -81,7 +81,7 @@ func (s *smap) paths(ctx context.Context, g *errgroup.Group, activities <-chan *
 				ictx.SetSize(1280, 800)
 				for _, coord := range act.s.Coords() {
 					pt := s2.LatLngFromDegrees(coord.Y(), coord.X())
-					ictx.AddMarker(sm.NewMarker(pt, color.RGBA{0xff, 0, 0, 0xff}, 1.0))
+					ictx.AddObject(sm.NewMarker(pt, color.RGBA{0xff, 0, 0, 0xff}, 1.0))
 				}
 				img, err := ictx.Render()
 				if err != nil {

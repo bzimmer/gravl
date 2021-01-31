@@ -39,7 +39,7 @@ type bunt struct {
 }
 
 // Open a bolt database; the file will be created if it does not exist
-func Open(path string) (store.SourceSink, error) {
+func Open(path string) (store.Store, error) {
 	directory := filepath.Dir(path)
 	if _, err := os.Stat(directory); os.IsNotExist(err) {
 		log.Info().Str("directory", directory).Msg("creating")
@@ -121,7 +121,7 @@ func (b *bunt) Save(ctx context.Context, acts ...*strava.Activity) error {
 	return b.db.Update(func(tx *buntdb.Tx) error {
 		for i := range acts {
 			act := acts[i]
-			log.Info().Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity")
+			// log.Info().Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity")
 			val, err := marshal(act)
 			if err != nil {
 				return err
@@ -138,7 +138,7 @@ func (b *bunt) Save(ctx context.Context, acts ...*strava.Activity) error {
 func (b *bunt) Remove(ctx context.Context, acts ...*strava.Activity) error {
 	return b.db.Update(func(tx *buntdb.Tx) error {
 		for i := range acts {
-			log.Info().Int64("id", acts[i].ID).Str("name", acts[i].Name).Msg("deleting activity")
+			// log.Info().Int64("id", acts[i].ID).Str("name", acts[i].Name).Msg("deleting activity")
 			_, err := tx.Delete(id(acts[i].ID))
 			if err != nil {
 				return err

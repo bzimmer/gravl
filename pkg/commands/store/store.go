@@ -2,41 +2,15 @@ package store
 
 import (
 	"context"
-	"errors"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/gravl/pkg/analysis/store"
-	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
-	"github.com/bzimmer/gravl/pkg/analysis/store/file"
-	stravastore "github.com/bzimmer/gravl/pkg/analysis/store/strava"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	stravaapi "github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
-
-func source(c *cli.Context) (store.Source, error) {
-	switch {
-	case c.NArg() == 1:
-		return file.Open(c.Args().First())
-	default:
-		client, err := strava.NewAPIClient(c)
-		if err != nil {
-			return nil, err
-		}
-		return stravastore.Open(client), nil
-	}
-}
-
-func sink(c *cli.Context) (store.SourceSink, error) {
-	path := c.Path("store")
-	if path == "" {
-		return nil, errors.New("nil db path")
-	}
-	return bunt.Open(path)
-}
 
 func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, error) {
 	if !c.IsSet("filter") {
@@ -47,7 +21,7 @@ func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, 
 }
 
 func export(c *cli.Context) error {
-	db, err := sink(c)
+	db, err := Open(c, "input", DefaultLocalStore)
 	if err != nil {
 		return err
 	}
@@ -70,7 +44,7 @@ func export(c *cli.Context) error {
 }
 
 func remove(c *cli.Context) error {
-	db, err := sink(c)
+	db, err := Open(c, "input", DefaultLocalStore)
 	if err != nil {
 		return err
 	}
@@ -101,19 +75,19 @@ func update(c *cli.Context) error {
 	var ok bool
 	var err error
 	var total, n int
-	output, err := sink(c)
+	in, err := Open(c, "input", "strava")
 	if err != nil {
 		return err
 	}
-	defer output.Close()
-	input, err := source(c)
+	defer in.Close()
+	out, err := Open(c, "output", DefaultLocalStore)
 	if err != nil {
 		return err
 	}
-	defer input.Close()
+	defer out.Close()
 	ctx, cancel := context.WithCancel(c.Context)
 	defer cancel()
-	acts, errs := input.Activities(ctx)
+	acts, errs := in.Activities(ctx)
 	for active := true; active; {
 		select {
 		case <-ctx.Done():
@@ -131,7 +105,7 @@ func update(c *cli.Context) error {
 				break
 			}
 			total++
-			ok, err = output.Exists(ctx, act.ID)
+			ok, err = out.Exists(ctx, act.ID)
 			if err != nil {
 				return err
 			}
@@ -139,13 +113,13 @@ func update(c *cli.Context) error {
 				break
 			}
 			log.Info().Int64("ID", act.ID).Msg("querying activity details")
-			act, err = input.Activity(ctx, act.ID)
+			act, err = in.Activity(ctx, act.ID)
 			if err != nil {
 				return err
 			}
 			n++
 			log.Info().Int("n", n).Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity details")
-			if err = output.Save(ctx, act); err != nil {
+			if err = out.Save(ctx, act); err != nil {
 				return err
 			}
 		}
@@ -166,12 +140,14 @@ var updateCommand = &cli.Command{
 	Name:   "update",
 	Usage:  "Query and update Strava activities to local storage",
 	Action: update,
+	Flags:  append([]cli.Flag{InputFlag("strava"), OutputFlag(DefaultLocalStore)}, strava.AuthFlags...),
 }
 
 var removeCommand = &cli.Command{
 	Name:  "remove",
 	Usage: "Remove activities from local storage",
 	Flags: []cli.Flag{
+		InputFlag(DefaultLocalStore),
 		filterFlag(true),
 		&cli.BoolFlag{
 			Name:    "dryrun",
@@ -186,14 +162,30 @@ var removeCommand = &cli.Command{
 var exportCommand = &cli.Command{
 	Name:   "export",
 	Usage:  "Export activities from local storage",
-	Flags:  []cli.Flag{filterFlag(false)},
+	Flags:  []cli.Flag{InputFlag(DefaultLocalStore), filterFlag(false)},
 	Action: export,
+}
+
+func InputFlag(storeDefault string) cli.Flag {
+	return &cli.StringFlag{
+		Name:    "input",
+		Aliases: []string{"i"},
+		Value:   storeDefault,
+		Usage:   "Input data store"}
+}
+
+func OutputFlag(storeDefault string) cli.Flag {
+	return &cli.StringFlag{
+		Name:    "output",
+		Aliases: []string{"o"},
+		Value:   storeDefault,
+		Usage:   "Output data store",
+	}
 }
 
 var Command = &cli.Command{
 	Name:  "store",
 	Usage: "Manage a local store of Strava activities",
-	Flags: commands.Merge([]cli.Flag{commands.StoreFlag}, strava.AuthFlags),
 	Subcommands: []*cli.Command{
 		exportCommand,
 		removeCommand,

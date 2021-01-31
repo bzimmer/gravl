@@ -56,7 +56,7 @@ func TestAnalyze(t *testing.T) {
 	u := res[""].(map[string]interface{})
 	a.Equal(3, u[x.Name])
 
-	any, err := analysis.NewAnalysis([]*analysis.Analyzer{x}, []string{"foo", "--double"})
+	any, err := analysis.NewAnalysis([]*analysis.Analyzer{x}, []string{"--", "foo", "--double"})
 	a.NoError(err)
 	a.NotNil(res)
 	res, err = any.Run(ctx, p)

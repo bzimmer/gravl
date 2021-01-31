@@ -53,11 +53,15 @@ func (a *Analysis) applyFlags() error {
 		analyzers[y.Name] = y
 	}
 
-	analyzer := ""
+	dashes, analyzer := false, ""
 	flags := make(map[string][]string)
 	for i := 0; i < len(a.Args); i++ {
 		arg := a.Args[i]
 		if arg == "--" {
+			dashes = true
+			continue
+		}
+		if !dashes {
 			continue
 		}
 		if analyzer == "" {

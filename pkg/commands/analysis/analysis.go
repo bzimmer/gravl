@@ -2,27 +2,19 @@ package analysis
 
 import (
 	"context"
-	"errors"
 
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/eval"
-	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
+	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	storecmd "github.com/bzimmer/gravl/pkg/commands/store"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-func read(c *cli.Context) ([]*strava.Activity, error) {
-	path := c.Path("store")
-	if path == "" {
-		return nil, errors.New("nil db path")
-	}
-	db, err := bunt.Open(path)
-	if err != nil {
-		return nil, err
-	}
+func read(c *cli.Context, db store.Store) ([]*strava.Activity, error) {
 	ca, ce := db.Activities(c.Context)
 	acts, err := strava.Activities(c.Context, ca, ce)
 	if err != nil {
@@ -58,7 +50,11 @@ func group(c *cli.Context, acts []*strava.Activity) (*analysis.Pass, error) {
 }
 
 func analyze(c *cli.Context) error {
-	acts, err := read(c)
+	db, err := storecmd.Open(c, "input", storecmd.DefaultLocalStore)
+	if err != nil {
+		return err
+	}
+	acts, err := read(c, db)
 	if err != nil {
 		return err
 	}
@@ -136,10 +132,8 @@ var Command = &cli.Command{
 			Aliases: []string{"a"},
 			Usage:   "Analyzers to include (if none specified, default set is used)",
 		},
-		commands.StoreFlag,
+		storecmd.InputFlag(storecmd.DefaultLocalStore),
 	},
-	Subcommands: []*cli.Command{
-		listCommand,
-	},
-	Action: analyze,
+	Subcommands: []*cli.Command{listCommand},
+	Action:      analyze,
 }

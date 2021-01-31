@@ -3,13 +3,9 @@ package commands
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"path"
 
-	"github.com/adrg/xdg"
 	"github.com/urfave/cli/v2"
-	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
 )
@@ -22,15 +18,6 @@ func Filterer(q string) eval.Filterer {
 // Mapper returns a mapper for the expression
 func Mapper(q string) eval.Mapper {
 	return antonmedv.Mapper(q)
-}
-
-// Merge multiple slices of cli flags into a single slice
-func Merge(flags ...[]cli.Flag) []cli.Flag {
-	var f []cli.Flag
-	for _, x := range flags {
-		f = append(f, x...)
-	}
-	return f
 }
 
 // Before combines multiple before functions into a single before functions
@@ -56,13 +43,3 @@ func Token(n int) (string, error) {
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
 }
-
-// StoreFlag for the path local storage
-var StoreFlag = func() cli.Flag {
-	store := path.Join(xdg.DataHome, pkg.PackageName, "gravl.db")
-	return altsrc.NewStringFlag(&cli.StringFlag{
-		Name:  "store",
-		Value: store,
-		Usage: "Path to the database",
-	})
-}()

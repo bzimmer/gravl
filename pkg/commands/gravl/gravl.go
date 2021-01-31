@@ -3,6 +3,7 @@ package gravl
 import (
 	"context"
 	"errors"
+	"fmt"
 	stdlog "log"
 	"os"
 	"path"
@@ -98,6 +99,26 @@ func initLogging(c *cli.Context) error {
 	return nil
 }
 
+var helperCommand = &cli.Command{
+	Name:   "helper",
+	Hidden: true,
+	Usage:  "Print all possible commands",
+	Action: func(c *cli.Context) error {
+		var printer func(string, []*cli.Command)
+		printer = func(prefix string, cmds []*cli.Command) {
+			for i := range cmds {
+				s := fmt.Sprintf("%s %s", prefix, cmds[i].Name)
+				if !cmds[i].Hidden && cmds[i].Action != nil {
+					fmt.Println(s + " -h")
+				}
+				printer(s, cmds[i].Subcommands)
+			}
+		}
+		printer(c.App.Name, c.App.Commands)
+		return nil
+	},
+}
+
 // ConfigFlag for the default gravl configuration file
 var ConfigFlag = func() cli.Flag {
 	config := path.Join(xdg.ConfigHome, pkg.PackageName, "gravl.yaml")
@@ -155,6 +176,7 @@ var gravlCommands = func() []*cli.Command {
 		cyclinganalytics.Command,
 		gnis.Command,
 		gpx.Command,
+		helperCommand,
 		noaa.Command,
 		openweather.Command,
 		rwgps.Command,

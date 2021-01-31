@@ -13,7 +13,7 @@ type api struct {
 }
 
 // Open a source backed by the Strava API client
-func Open(client *strava.Client) store.Source {
+func Open(client *strava.Client) store.Store {
 	return &api{client: client}
 }
 
@@ -30,4 +30,23 @@ func (s *api) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan e
 // Activity returns a fully populated Activity
 func (s *api) Activity(ctx context.Context, activityID int64) (*strava.Activity, error) {
 	return s.client.Activity.Activity(ctx, activityID)
+}
+
+// Exists returns true if the activity exists, false otherwise
+func (s *api) Exists(ctx context.Context, activityID int64) (bool, error) {
+	act, err := s.client.Activity.Activity(ctx, activityID)
+	if err != nil {
+		return false, err
+	}
+	return act != nil, nil
+}
+
+// Save the activities to the source
+func (s *api) Save(ctx context.Context, acts ...*strava.Activity) error {
+	return store.UnsupportedOperation
+}
+
+// Remove the activities from the source
+func (s *api) Remove(ctx context.Context, acts ...*strava.Activity) error {
+	return store.UnsupportedOperation
 }

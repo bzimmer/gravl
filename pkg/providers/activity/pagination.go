@@ -33,12 +33,6 @@ func Paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
 		count = spec.Count
 		total = spec.Total
 	)
-	// log.Debug().
-	// 	Str("prepared", "pre").
-	// 	Int("start", start).
-	// 	Int("count", count).
-	// 	Int("total", total).
-	// 	Msg("paginate")
 	if total < 0 {
 		return errors.New("total less than zero")
 	}
@@ -57,24 +51,12 @@ func Paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
 			count = total
 		}
 	}
-	// log.Debug().
-	// 	Str("prepared", "post").
-	// 	Int("start", start).
-	// 	Int("count", count).
-	// 	Int("total", total).
-	// 	Msg("paginate")
 	return do(ctx, paginator, total, start, count)
 }
 
 func do(ctx context.Context, paginator Paginator, total, start, count int) error {
+	log.Info().Int("n", 0).Int("all", 0).Int("start", 0).Int("count", count).Int("total", total).Msg("do")
 	for {
-		// all := paginator.Count()
-		// log.Debug().
-		// 	Int("all", all).
-		// 	Int("start", start).
-		// 	Int("count", count).
-		// 	Int("total", total).
-		// 	Msg("do")
 		n, err := paginator.Do(ctx, start, count)
 		if err != nil {
 			return err
