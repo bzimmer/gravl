@@ -21,7 +21,7 @@ func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, 
 }
 
 func export(c *cli.Context) error {
-	db, err := Open(c, "input", DefaultLocalStore)
+	db, err := Open(c, "input")
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func export(c *cli.Context) error {
 }
 
 func remove(c *cli.Context) error {
-	db, err := Open(c, "input", DefaultLocalStore)
+	db, err := Open(c, "input")
 	if err != nil {
 		return err
 	}
@@ -75,12 +75,12 @@ func update(c *cli.Context) error {
 	var ok bool
 	var err error
 	var total, n int
-	in, err := Open(c, "input", "strava")
+	in, err := Open(c, "input")
 	if err != nil {
 		return err
 	}
 	defer in.Close()
-	out, err := Open(c, "output", DefaultLocalStore)
+	out, err := Open(c, "output")
 	if err != nil {
 		return err
 	}

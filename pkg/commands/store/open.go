@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"path"
@@ -53,14 +54,10 @@ func parse(q string) (*url.URL, error) {
 	return u, nil
 }
 
-func Open(c *cli.Context, flag, defaultStore string) (store.Store, error) {
-	var q string
-	if c.IsSet(flag) {
-		q = c.String(flag)
-	} else if defaultStore != "" {
-		q = defaultStore
-	} else {
-		return nil, fmt.Errorf("no store or default specified")
+func Open(c *cli.Context, flag string) (store.Store, error) {
+	q := c.String(flag)
+	if q == "" {
+		return nil, errors.New("store not specified")
 	}
 	u, err := parse(q)
 	if err != nil {

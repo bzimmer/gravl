@@ -50,7 +50,7 @@ func group(c *cli.Context, acts []*strava.Activity) (*analysis.Pass, error) {
 }
 
 func analyze(c *cli.Context) error {
-	db, err := storecmd.Open(c, "input", storecmd.DefaultLocalStore)
+	db, err := storecmd.Open(c, "input")
 	if err != nil {
 		return err
 	}
