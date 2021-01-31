@@ -100,36 +100,45 @@ func initLogging(c *cli.Context) error {
 	return nil
 }
 
-var helperCommand = &cli.Command{
-	Name:   "helper",
-	Hidden: true,
-	Usage:  "Print all possible commands",
+var commandsCommand = &cli.Command{
+	Name:  "commands",
+	Usage: "Return all possible commands",
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:    "relative",
+			Aliases: []string{"r"},
+			Usage:   "Specify the command relative to the current working directory",
+		},
+	},
 	Action: func(c *cli.Context) error {
-		var help []string
-		var printer func(string, []*cli.Command)
-		printer = func(prefix string, cmds []*cli.Command) {
+		var commands []string
+		var commander func(string, []*cli.Command)
+		commander = func(prefix string, cmds []*cli.Command) {
 			for i := range cmds {
-				s := fmt.Sprintf("%s %s", prefix, cmds[i].Name)
+				cmd := fmt.Sprintf("%s %s", prefix, cmds[i].Name)
 				if !cmds[i].Hidden && cmds[i].Action != nil {
-					help = append(help, fmt.Sprintf("%s -h", s))
+					commands = append(commands, cmd)
 				}
-				printer(s, cmds[i].Subcommands)
+				commander(cmd, cmds[i].Subcommands)
 			}
 		}
-		cwd, err := os.Getwd()
-		if err != nil {
-			return err
+		cmd := c.App.Name
+		if c.Bool("relative") {
+			cwd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
+			cmd, err = os.Executable()
+			if err != nil {
+				return err
+			}
+			cmd, err = filepath.Rel(cwd, cmd)
+			if err != nil {
+				return err
+			}
 		}
-		cmd, err := os.Executable()
-		if err != nil {
-			return err
-		}
-		cmd, err = filepath.Rel(cwd, cmd)
-		if err != nil {
-			return err
-		}
-		printer(cmd, c.App.Commands)
-		return encoding.Encode(help)
+		commander(cmd, c.App.Commands)
+		return encoding.Encode(commands)
 	},
 }
 
@@ -190,7 +199,7 @@ var gravlCommands = func() []*cli.Command {
 		cyclinganalytics.Command,
 		gnis.Command,
 		gpx.Command,
-		helperCommand,
+		commandsCommand,
 		noaa.Command,
 		openweather.Command,
 		rwgps.Command,
