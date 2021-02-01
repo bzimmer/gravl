@@ -18,8 +18,7 @@ const baseURL = "http://api.openweathermap.org/data/2.5"
 
 // Client .
 type Client struct {
-	config oauth2.Config
-	token  oauth2.Token
+	token  *oauth2.Token
 	client *http.Client
 
 	Forecast *ForecastService

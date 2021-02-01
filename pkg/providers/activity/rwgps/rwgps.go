@@ -25,7 +25,7 @@ const (
 // Client for communicating with RWGPS
 type Client struct {
 	config oauth2.Config
-	token  oauth2.Token
+	token  *oauth2.Token
 	client *http.Client
 
 	Users *UsersService

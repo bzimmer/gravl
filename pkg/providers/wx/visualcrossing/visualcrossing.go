@@ -21,8 +21,7 @@ const baseURL = "https://weather.visualcrossing.com/VisualCrossingWebServices/re
 
 // Client for
 type Client struct {
-	config oauth2.Config
-	token  oauth2.Token
+	token  *oauth2.Token
 	client *http.Client
 
 	Forecast *ForecastService

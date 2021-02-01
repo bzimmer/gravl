@@ -32,9 +32,9 @@ var Endpoint = oauth2.Endpoint{
 
 // Client for communicating with Strava
 type Client struct {
-	client *http.Client
 	config oauth2.Config
-	token  oauth2.Token
+	token  *oauth2.Token
+	client *http.Client
 
 	Auth     *AuthService
 	Route    *RouteService
