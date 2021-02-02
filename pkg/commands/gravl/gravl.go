@@ -71,7 +71,13 @@ func initConfig(c *cli.Context) error {
 }
 
 func initEncoding(c *cli.Context) error {
-	encoder, err := encoding.NewEncoder(c.App.Writer, c.String("encoding"), c.Bool("compact"))
+	encoders := encoding.NewEncoders()
+	encoders.MustUse(encoding.Spew(c.App.Writer))
+	encoders.MustUse(encoding.XML(c.App.Writer, c.Bool("compact")))
+	encoders.MustUse(encoding.GPX(c.App.Writer, c.Bool("compact")))
+	encoders.MustUse(encoding.GeoJSON(c.App.Writer, c.Bool("compact")))
+	encoders.MustUse(encoding.JSON(c.App.Writer, c.Bool("compact")))
+	encoder, err := encoders.For(c.String("encoding"))
 	if err != nil {
 		return err
 	}
@@ -176,8 +182,8 @@ var flags = func() []cli.Flag {
 		&cli.StringFlag{
 			Name:    "encoding",
 			Aliases: []string{"e"},
-			Value:   "native",
-			Usage:   "Encoding to use (native, json, xml, geojson, gpx)",
+			Value:   "json",
+			Usage:   "Output encoding (json, xml, geojson, gpx, spew)",
 		},
 		&cli.BoolFlag{
 			Name:  "http-tracing",

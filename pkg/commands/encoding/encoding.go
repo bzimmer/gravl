@@ -5,103 +5,162 @@ package encoding
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
+	"errors"
 	"io"
-	"os"
-
-	"github.com/davecgh/go-spew/spew"
 
 	"github.com/bzimmer/gravl/pkg/providers/geo"
+	"github.com/davecgh/go-spew/spew"
 )
 
-type Encoding int
+type EncodeFunc func(v interface{}) error
 
-const (
-	EncodingNative  Encoding = iota // native
-	EncodingXML                     // xml
-	EncodingJSON                    // json
-	EncodingGeoJSON                 // geojson
-	EncodingGPX                     // gpx
-	EncodingSpew                    // spew
-)
+var ErrUnknownEncoder = errors.New("unknown encoder")
+var ErrExistingEncoder = errors.New("encoder exists")
 
-var Encode = func(v interface{}) error {
+type Encoder interface {
+	Name() string
+	Encode(v interface{}) error
+}
+
+var Encode EncodeFunc = func(v interface{}) error {
 	return nil
 }
 
-type Xcoder struct {
-	enc             Encoding
-	xml, json, spew func(v interface{}) error
+type Encoders struct {
+	encoders map[string]Encoder
 }
 
-func (x *Xcoder) Encode(v interface{}) error {
-	switch x.enc {
-	case EncodingXML:
-		return x.xml(v)
-	case EncodingGPX:
-		if q, ok := v.(geo.GPX); ok {
-			p, err := q.GPX()
-			if err != nil {
-				return err
-			}
-			v = p
-		}
-		return x.xml(v)
-	case EncodingNative, EncodingJSON:
-		return x.json(v)
-	case EncodingGeoJSON:
-		if q, ok := v.(geo.GeoJSON); ok {
-			p, err := q.GeoJSON()
-			if err != nil {
-				return err
-			}
-			v = p
-		}
-		return x.json(v)
-	case EncodingSpew:
-		return x.spew(v)
+// Use the encoder for the encoding if no prior encoder exists
+func (n *Encoders) Use(encoder Encoder) error {
+	_, ok := n.encoders[encoder.Name()]
+	if ok {
+		return ErrExistingEncoder
 	}
+	n.encoders[encoder.Name()] = encoder
 	return nil
 }
 
-func NewEncoder(writer io.Writer, encoding string, compact bool) (*Xcoder, error) {
-	if writer == nil {
-		writer = os.Stdout
-	}
-	xe := xml.NewEncoder(writer)
-	if !compact {
-		xe.Indent("", " ")
-	}
-	je := json.NewEncoder(writer)
-	if !compact {
-		je.SetIndent("", " ")
-	}
-	je.SetEscapeHTML(false)
+// MustUse the encoder for the encoding
+func (n *Encoders) MustUse(encoder Encoder) {
+	_ = n.Use(encoder)
+}
 
+// For name return an encoder
+func (n *Encoders) For(encoder string) (Encoder, error) {
+	enc, ok := n.encoders[encoder]
+	if !ok {
+		return nil, ErrUnknownEncoder
+	}
+	return enc, nil
+}
+
+func NewEncoders() *Encoders {
+	return &Encoders{encoders: make(map[string]Encoder)}
+}
+
+type spewEncoder struct {
+	cfg    *spew.ConfigState
+	writer io.Writer
+}
+
+func (s *spewEncoder) Encode(v interface{}) error {
+	s.cfg.Fdump(s.writer, v)
+	return nil
+}
+
+func (s *spewEncoder) Name() string {
+	return "spew"
+}
+
+type gpxEncoder struct {
+	enc Encoder
+}
+
+func (g *gpxEncoder) Encode(v interface{}) error {
+	if q, ok := v.(geo.GPX); ok {
+		p, err := q.GPX()
+		if err != nil {
+			return err
+		}
+		v = p
+	}
+	return g.enc.Encode(v)
+}
+
+func (g *gpxEncoder) Name() string {
+	return "gpx"
+}
+
+type geoJSONEncoder struct {
+	enc Encoder
+}
+
+func (g *geoJSONEncoder) Encode(v interface{}) error {
+	if q, ok := v.(geo.GeoJSON); ok {
+		p, err := q.GeoJSON()
+		if err != nil {
+			return err
+		}
+		v = p
+	}
+	return g.enc.Encode(v)
+}
+
+func (g *geoJSONEncoder) Name() string {
+	return "geojson"
+}
+
+type jsonEncoder struct {
+	enc *json.Encoder
+}
+
+func (j *jsonEncoder) Encode(v interface{}) error {
+	return j.enc.Encode(v)
+}
+
+func (j *jsonEncoder) Name() string {
+	return "json"
+}
+
+type xmlEncoder struct {
+	enc *xml.Encoder
+}
+
+func (x *xmlEncoder) Encode(v interface{}) error {
+	return x.enc.Encode(v)
+}
+
+func (x *xmlEncoder) Name() string {
+	return "xml"
+}
+
+func JSON(writer io.Writer, compact bool) Encoder {
+	enc := json.NewEncoder(writer)
+	if !compact {
+		enc.SetIndent("", " ")
+	}
+	enc.SetEscapeHTML(false)
+	return &jsonEncoder{enc: enc}
+}
+
+func XML(writer io.Writer, compact bool) Encoder {
+	enc := xml.NewEncoder(writer)
+	if !compact {
+		enc.Indent("", " ")
+	}
+	return &xmlEncoder{enc: enc}
+}
+
+func GeoJSON(writer io.Writer, compact bool) Encoder {
+	return &geoJSONEncoder{enc: JSON(writer, compact)}
+}
+
+func GPX(writer io.Writer, compact bool) Encoder {
+	return &gpxEncoder{enc: XML(writer, compact)}
+}
+
+func Spew(writer io.Writer) Encoder {
 	cfg := spew.NewDefaultConfig()
 	cfg.SortKeys = true
-	var sw = func(v interface{}) (err error) {
-		cfg.Fdump(writer, v)
-		return
-	}
-
-	var enc Encoding
-	switch encoding {
-	case "native":
-		enc = EncodingNative
-	case "json":
-		enc = EncodingJSON
-	case "geojson":
-		enc = EncodingGeoJSON
-	case "xml":
-		enc = EncodingXML
-	case "gpx":
-		enc = EncodingGPX
-	case "spew", "dump":
-		enc = EncodingSpew
-	default:
-		return nil, fmt.Errorf("unknown encoder: '%s'", encoding)
-	}
-
-	return &Xcoder{enc: enc, xml: xe.Encode, json: je.Encode, spew: sw}, nil
+	return &spewEncoder{cfg: cfg, writer: writer}
 }

@@ -43,10 +43,10 @@ func (s *api) Exists(ctx context.Context, activityID int64) (bool, error) {
 
 // Save the activities to the source
 func (s *api) Save(ctx context.Context, acts ...*strava.Activity) error {
-	return store.UnsupportedOperation
+	return store.ErrUnsupportedOperation
 }
 
 // Remove the activities from the source
 func (s *api) Remove(ctx context.Context, acts ...*strava.Activity) error {
-	return store.UnsupportedOperation
+	return store.ErrUnsupportedOperation
 }

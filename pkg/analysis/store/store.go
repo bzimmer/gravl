@@ -8,7 +8,7 @@ import (
 )
 
 // UnsupportedOperation signals the operation is not supported but this implementation
-var UnsupportedOperation = errors.New("unsupported Operation")
+var ErrUnsupportedOperation = errors.New("unsupported Operation")
 
 type Store interface {
 

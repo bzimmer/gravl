@@ -56,7 +56,7 @@ func (s *file) Close() error {
 	if s.flush && s.dirty {
 		// @todo(bzimmer) flush contents to disk
 		log.Warn().Msg("contents not flushed")
-		return store.UnsupportedOperation
+		return store.ErrUnsupportedOperation
 	}
 	return nil
 }
