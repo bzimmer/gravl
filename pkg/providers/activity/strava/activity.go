@@ -43,8 +43,12 @@ func (p *channelPaginator) Do(ctx context.Context, start, count int) (int, error
 		return 0, err
 	}
 	for _, act := range acts {
-		p.count++
-		p.activities <- act
+		select {
+		case <-ctx.Done():
+			return 0, ctx.Err()
+		case p.activities <- act:
+			p.count++
+		}
 	}
 	return len(acts), nil
 }
