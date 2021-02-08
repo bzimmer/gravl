@@ -2,10 +2,10 @@ package analysis
 
 import (
 	"flag"
-	"fmt"
 	"math"
 
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
+	"github.com/rs/zerolog/log"
 )
 
 type Analyzer struct {
@@ -53,32 +53,21 @@ func (a *Analysis) applyFlags() error {
 		analyzers[y.Name] = y
 	}
 
-	dashes, analyzer := false, ""
+	analyzer := ""
 	flags := make(map[string][]string)
 	for i := 0; i < len(a.Args); i++ {
 		arg := a.Args[i]
 		if arg == "--" {
-			dashes = true
-			continue
-		}
-		if !dashes {
-			continue
-		}
-		if analyzer == "" {
-			// this arg should be an analyzer name
-			_, ok := analyzers[arg]
-			if !ok {
-				return fmt.Errorf("expected analyzer name, found '%s'", arg)
-			}
-			analyzer = arg
 			continue
 		}
 		_, ok := analyzers[arg]
 		if ok {
 			// starts a set of flags for this analyzer
 			analyzer = arg
+			log.Debug().Str("analyzer", analyzer).Msg("adding")
 			continue
 		}
+		log.Debug().Str("analyzer", analyzer).Str("arg", arg).Msg("adding")
 		flags[analyzer] = append(flags[analyzer], arg)
 	}
 

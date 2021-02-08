@@ -7,7 +7,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-// UnsupportedOperation signals the operation is not supported but this implementation
+// ErrUnsupportedOperation signals the operation is not supported but this implementation
 var ErrUnsupportedOperation = errors.New("unsupported Operation")
 
 type Store interface {
