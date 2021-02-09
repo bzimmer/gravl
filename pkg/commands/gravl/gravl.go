@@ -38,8 +38,8 @@ func flatten(cmds []*cli.Command) []*cli.Command {
 	return res
 }
 
-// befores combines multiple `cli.BeforeFunc`s into a single `cli.BeforeFunc`
-func befores(bfs ...cli.BeforeFunc) cli.BeforeFunc {
+// Befores combines multiple `cli.BeforeFunc`s into a single `cli.BeforeFunc`
+func Befores(bfs ...cli.BeforeFunc) cli.BeforeFunc {
 	return func(c *cli.Context) error {
 		for _, fn := range bfs {
 			if fn == nil {
@@ -53,60 +53,71 @@ func befores(bfs ...cli.BeforeFunc) cli.BeforeFunc {
 	}
 }
 
-func initConfig(c *cli.Context) error {
-	cfg := c.String("config")
-	if _, err := os.Stat(cfg); os.IsNotExist(err) {
-		log.Error().
-			Str("path", cfg).
-			Msg("unable to find config file")
-		return errors.New("invalid config file")
+func InitConfig() cli.BeforeFunc {
+	return func(c *cli.Context) error {
+		cfg := c.String("config")
+		if _, err := os.Stat(cfg); os.IsNotExist(err) {
+			log.Error().
+				Str("path", cfg).
+				Msg("unable to find config file")
+			return errors.New("invalid config file")
+		}
+		config := func() (altsrc.InputSourceContext, error) {
+			return altsrc.NewYamlSourceFromFile(cfg)
+		}
+		for _, cmd := range flatten(c.App.Commands) {
+			cmd.Before = Befores(altsrc.InitInputSource(cmd.Flags, config), cmd.Before)
+		}
+		return nil
 	}
-	config := func() (altsrc.InputSourceContext, error) {
-		return altsrc.NewYamlSourceFromFile(cfg)
-	}
-	for _, cmd := range flatten(c.App.Commands) {
-		cmd.Before = befores(altsrc.InitInputSource(cmd.Flags, config), cmd.Before)
-	}
-	return nil
 }
 
-func initEncoding(c *cli.Context) error {
-	encoders := encoding.NewEncoders()
-	encoders.MustUse(encoding.Spew(c.App.Writer))
-	encoders.MustUse(encoding.XML(c.App.Writer, c.Bool("compact")))
-	encoders.MustUse(encoding.GPX(c.App.Writer, c.Bool("compact")))
-	encoders.MustUse(encoding.GeoJSON(c.App.Writer, c.Bool("compact")))
-	encoders.MustUse(encoding.JSON(c.App.Writer, c.Bool("compact")))
-	encoder, err := encoders.For(c.String("encoding"))
-	if err != nil {
-		return err
+type EncoderFunc func(c *cli.Context) encoding.Encoder
+
+func InitEncoding(fns ...EncoderFunc) cli.BeforeFunc {
+	return func(c *cli.Context) error {
+		encoders := encoding.NewEncoders()
+		encoders.MustUse(encoding.Spew(c.App.Writer))
+		encoders.MustUse(encoding.XML(c.App.Writer, c.Bool("compact")))
+		encoders.MustUse(encoding.JSON(c.App.Writer, c.Bool("compact")))
+		for i := 0; i < len(fns); i++ {
+			if err := encoders.Use(fns[i](c)); err != nil {
+				return err
+			}
+		}
+		encoder, err := encoders.For(c.String("encoding"))
+		if err != nil {
+			return err
+		}
+		encoding.Encode = encoder.Encode
+		return nil
 	}
-	encoding.Encode = encoder.Encode
-	return nil
 }
 
-func initLogging(c *cli.Context) error {
-	monochrome := c.Bool("monochrome")
-	level, err := zerolog.ParseLevel(c.String("verbosity"))
-	if err != nil {
-		return err
+func InitLogging() cli.BeforeFunc {
+	return func(c *cli.Context) error {
+		monochrome := c.Bool("monochrome")
+		level, err := zerolog.ParseLevel(c.String("verbosity"))
+		if err != nil {
+			return err
+		}
+		color.NoColor = monochrome
+		zerolog.SetGlobalLevel(level)
+		zerolog.DurationFieldUnit = time.Millisecond
+		zerolog.DurationFieldInteger = false
+		log.Logger = log.Output(
+			zerolog.ConsoleWriter{
+				Out:        c.App.ErrWriter,
+				NoColor:    monochrome,
+				TimeFormat: time.RFC3339,
+			},
+		)
+		stdlog.SetOutput(logger{})
+		return nil
 	}
-	color.NoColor = monochrome
-	zerolog.SetGlobalLevel(level)
-	zerolog.DurationFieldUnit = time.Millisecond
-	zerolog.DurationFieldInteger = false
-	log.Logger = log.Output(
-		zerolog.ConsoleWriter{
-			Out:        c.App.ErrWriter,
-			NoColor:    monochrome,
-			TimeFormat: time.RFC3339,
-		},
-	)
-	stdlog.SetOutput(logger{})
-	return nil
 }
 
-var commandsCommand = &cli.Command{
+var CommandsCommand = &cli.Command{
 	Name:  "commands",
 	Usage: "Return all possible commands",
 	Flags: []cli.Flag{
@@ -148,8 +159,8 @@ var commandsCommand = &cli.Command{
 	},
 }
 
-// configFlag for the default gravl configuration file
-func configFlag(filename string) cli.Flag {
+// ConfigFlag for the default configuration file
+func ConfigFlag(filename string) cli.Flag {
 	config := path.Join(xdg.ConfigHome, pkg.PackageName, filename)
 	return &cli.PathFlag{
 		Name:  "config",
@@ -158,58 +169,40 @@ func configFlag(filename string) cli.Flag {
 	}
 }
 
-var flags = func() []cli.Flag {
-	return []cli.Flag{
-		&cli.StringFlag{
-			Name:    "verbosity",
-			Aliases: []string{"v"},
-			Value:   "info",
-			Usage:   "Log level (trace, debug, info, warn, error, fatal, panic)",
-		},
-		&cli.BoolFlag{
-			Name:    "monochrome",
-			Aliases: []string{"m"},
-			Value:   false,
-			Usage:   "Use monochrome logging, color enabled by default",
-		},
-		&cli.BoolFlag{
-			Name:    "compact",
-			Aliases: []string{"c"},
-			Value:   false,
-			Usage:   "Use compact JSON output",
-		},
-		&cli.StringFlag{
-			Name:    "encoding",
-			Aliases: []string{"e"},
-			Value:   "json",
-			Usage:   "Output encoding (json, xml, geojson, gpx, spew)",
-		},
-		&cli.BoolFlag{
-			Name:  "http-tracing",
-			Value: false,
-			Usage: "Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)",
-		},
-		&cli.DurationFlag{
-			Name:    "timeout",
-			Aliases: []string{"t"},
-			Value:   time.Millisecond * 10000,
-			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
-		},
-	}
-}()
-
-func App(name string, cmds []*cli.Command) *cli.App {
-	return &cli.App{
-		Name:     name,
-		HelpName: name,
-		Flags:    append(flags, configFlag(fmt.Sprintf("%s.yaml", name))),
-		Commands: append(cmds, commandsCommand),
-		Before:   befores(initLogging, initEncoding, initConfig),
-		ExitErrHandler: func(c *cli.Context, err error) {
-			if err == nil {
-				return
-			}
-			log.Error().Err(err).Msg(c.App.Name)
-		},
-	}
+var Flags = []cli.Flag{
+	&cli.StringFlag{
+		Name:    "verbosity",
+		Aliases: []string{"v"},
+		Value:   "info",
+		Usage:   "Log level (trace, debug, info, warn, error, fatal, panic)",
+	},
+	&cli.BoolFlag{
+		Name:    "monochrome",
+		Aliases: []string{"m"},
+		Value:   false,
+		Usage:   "Use monochrome logging, color enabled by default",
+	},
+	&cli.BoolFlag{
+		Name:    "compact",
+		Aliases: []string{"c"},
+		Value:   false,
+		Usage:   "Use compact JSON output",
+	},
+	&cli.StringFlag{
+		Name:    "encoding",
+		Aliases: []string{"e"},
+		Value:   "json",
+		Usage:   "Output encoding (json, xml, geojson, gpx, spew)",
+	},
+	&cli.BoolFlag{
+		Name:  "http-tracing",
+		Value: false,
+		Usage: "Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)",
+	},
+	&cli.DurationFlag{
+		Name:    "timeout",
+		Aliases: []string{"t"},
+		Value:   time.Millisecond * 10000,
+		Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
+	},
 }

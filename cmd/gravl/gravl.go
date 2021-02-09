@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
@@ -11,6 +12,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/activity/wta"
 	"github.com/bzimmer/gravl/pkg/commands/analysis"
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gnis"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gpx"
 	"github.com/bzimmer/gravl/pkg/commands/geo/srtm"
@@ -23,6 +25,14 @@ import (
 )
 
 func main() {
+	initEncoding := gravl.InitEncoding(
+		func(c *cli.Context) encoding.Encoder {
+			return encoding.GPX(c.App.Writer, c.Bool("compact"))
+		},
+		func(c *cli.Context) encoding.Encoder {
+			return encoding.GeoJSON(c.App.Writer, c.Bool("compact"))
+		},
+	)
 	commands := []*cli.Command{
 		analysis.Command,
 		cyclinganalytics.Command,
@@ -38,7 +48,19 @@ func main() {
 		visualcrossing.Command,
 		wta.Command,
 	}
-	app := gravl.App("gravl", commands)
+	app := &cli.App{
+		Name:     "gravl",
+		HelpName: "gravl",
+		Flags:    append(gravl.Flags, gravl.ConfigFlag("gravl.yaml")),
+		Commands: commands,
+		Before:   gravl.Befores(gravl.InitLogging(), initEncoding, gravl.InitConfig()),
+		ExitErrHandler: func(c *cli.Context, err error) {
+			if err == nil {
+				return
+			}
+			log.Error().Err(err).Msg(c.App.Name)
+		},
+	}
 	if err := app.RunContext(context.Background(), os.Args); err != nil {
 		os.Exit(1)
 	}
