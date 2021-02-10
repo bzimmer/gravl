@@ -16,7 +16,7 @@ import (
 )
 
 // Maximum number of times to poll status updates on uploads
-const polls = 5
+const polls = 3
 
 func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 	return cyclinganalytics.NewClient(
@@ -66,8 +66,8 @@ func collect(name string) ([]*cyclinganalytics.File, error) {
 //  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
 func poll(ctx context.Context, client *cyclinganalytics.Client, id int64, follow bool) error {
 	// status: processing, done, or error
-	i := polls
-	for {
+	i, n := 0, polls
+	for ; i < n; i++ {
 		u, err := client.Rides.Status(ctx, cyclinganalytics.Me, id)
 		if err != nil {
 			return err
@@ -78,16 +78,14 @@ func poll(ctx context.Context, client *cyclinganalytics.Client, id int64, follow
 		if !(follow && u.Status == "processing") {
 			break
 		}
-		i--
-		if i == 0 {
-			log.Warn().Int("polls", polls).Msg("exceeded max polls")
-			break
-		}
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-time.After(2 * time.Second):
 		}
+	}
+	if i == n {
+		log.Warn().Int("polls", n).Msg("exceeded max polls")
 	}
 	return nil
 }

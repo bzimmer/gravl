@@ -12,7 +12,7 @@ fi
 
 for arg in "$@"
 do
-gravl strava export -o -T "$arg.fit" -F fit $arg
-gravl ca upload -p "$arg.fit"
-rm -f "$arg.fit"
+    gravl strava export -o -T "$arg.fit" -F fit $arg
+    gravl cyclinganalytics upload -p "$arg.fit"
+    rm -f "$arg.fit"
 done

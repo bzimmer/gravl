@@ -57,14 +57,17 @@ func InitConfig() cli.BeforeFunc {
 	return func(c *cli.Context) error {
 		cfg := c.String("config")
 		if _, err := os.Stat(cfg); os.IsNotExist(err) {
-			log.Error().
-				Str("path", cfg).
-				Msg("unable to find config file")
+			log.Error().Str("path", cfg).Msg("unable to find config file")
 			return errors.New("invalid config file")
 		}
 		config := func() (altsrc.InputSourceContext, error) {
 			return altsrc.NewYamlSourceFromFile(cfg)
 		}
+		// configure the application flags
+		if err := altsrc.InitInputSource(c.App.Flags, config)(c); err != nil {
+			return err
+		}
+		// configure the subcommand flags
 		for _, cmd := range flatten(c.App.Commands) {
 			cmd.Before = Befores(altsrc.InitInputSource(cmd.Flags, config), cmd.Before)
 		}
