@@ -96,28 +96,28 @@ func sync(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		export, err := export(ctx, c, actID)
+		exp, err := export(ctx, c, actID)
 		if err != nil {
 			return err
 		}
-		status, err := upload(ctx, c, export)
+		sts, err := upload(ctx, c, exp)
 		if err != nil {
 			return err
 		}
-		if err = encoding.Encode(status); err != nil {
+		if err = encoding.Encode(sts); err != nil {
 			return err
 		}
 		i, n := 0, polls
-		for ; i < n && status.Status == "processing"; i++ {
+		for ; i < n && sts.Status == "processing"; i++ {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
 			case <-time.After(2 * time.Second):
-				status, err = client.Rides.Status(ctx, status.UserID, status.UploadID)
+				sts, err = client.Rides.Status(ctx, sts.UserID, sts.UploadID)
 				if err != nil {
 					return err
 				}
-				if err = encoding.Encode(status); err != nil {
+				if err = encoding.Encode(sts); err != nil {
 					return err
 				}
 			}
