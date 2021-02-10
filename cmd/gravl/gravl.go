@@ -51,6 +51,7 @@ func main() {
 	app := &cli.App{
 		Name:     "gravl",
 		HelpName: "gravl",
+		Usage:    "Clients for activty-related services and an extensible analysis framework for activities",
 		Flags:    append(gravl.Flags, gravl.ConfigFlag("gravl.yaml")),
 		Commands: commands,
 		Before:   gravl.Befores(gravl.InitLogging(), initEncoding, gravl.InitConfig()),

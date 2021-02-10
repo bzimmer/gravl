@@ -151,6 +151,7 @@ func main() {
 	app := &cli.App{
 		Name:     "zwiftca",
 		HelpName: "zwiftca",
+		Usage:    "Sync VirtualRide activities from Strava to CyclingAnalytics",
 		Flags:    flags,
 		Before:   gravl.Befores(gravl.InitLogging(), gravl.InitEncoding(), gravl.InitConfig()),
 		Commands: []*cli.Command{listCommand, syncCommand},
