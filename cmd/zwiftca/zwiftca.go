@@ -32,7 +32,7 @@ func list(c *cli.Context) error {
 	var act *stravaapi.Activity
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	acts, errs := client.Activity.Activities(ctx, activity.Pagination{Total: 50})
+	acts, errs := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
 	for {
 		select {
 		case <-ctx.Done():
@@ -57,6 +57,15 @@ func list(c *cli.Context) error {
 			}
 		}
 	}
+}
+
+var listCommand = &cli.Command{
+	Name:  "list",
+	Usage: "List VirtualRide activities",
+	Flags: []cli.Flag{
+		&cli.IntFlag{Name: "count", Aliases: []string{"N"}, Value: 100, Usage: "Count"},
+	},
+	Action: list,
 }
 
 func export(ctx context.Context, c *cli.Context, activityID int64) (*stravaweb.Export, error) {
@@ -129,6 +138,12 @@ func sync(c *cli.Context) error {
 	return nil
 }
 
+var syncCommand = &cli.Command{
+	Name:   "sync",
+	Usage:  "Sync the VirtualRide activity in Strava to CyclingAnalytics",
+	Action: sync,
+}
+
 func main() {
 	flags := append(gravl.Flags, gravl.ConfigFlag("gravl.yaml"))
 	flags = append(flags, strava.AuthFlags...)
@@ -138,12 +153,7 @@ func main() {
 		HelpName: "zwiftca",
 		Flags:    flags,
 		Before:   gravl.Befores(gravl.InitLogging(), gravl.InitEncoding(), gravl.InitConfig()),
-		Action: func(c *cli.Context) error {
-			if c.NArg() == 0 {
-				return list(c)
-			}
-			return sync(c)
-		},
+		Commands: []*cli.Command{listCommand, syncCommand},
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return
