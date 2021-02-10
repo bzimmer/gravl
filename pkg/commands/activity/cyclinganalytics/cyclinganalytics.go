@@ -56,11 +56,7 @@ func collect(name string) ([]*cyclinganalytics.File, error) {
 		if err != nil {
 			return err
 		}
-		files = append(files, &cyclinganalytics.File{
-			Name:   base,
-			Reader: file,
-			Size:   info.Size(),
-		})
+		files = append(files, &cyclinganalytics.File{Name: base, Reader: file})
 		return nil
 	})
 	return files, err
@@ -113,7 +109,6 @@ func upload(c *cli.Context) error {
 			defer cancel()
 			log.Info().
 				Str("file", file.Name).
-				Int64("size", file.Size).
 				Msg("uploading")
 			u, err := client.Rides.Upload(ctx, cyclinganalytics.Me, file)
 			if err != nil {

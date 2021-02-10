@@ -48,12 +48,11 @@ func export(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		var file *stravaweb.ExportFile
-		file, err = client.Export.Export(ctx, x, format)
+		reader, err := client.Export.Export(ctx, x, format)
 		if err != nil {
 			return err
 		}
-		fn := file.Name
+		filename := reader.Name
 		if c.IsSet("template") {
 			var t *template.Template
 			t, err = template.New("export").Parse(c.String("template"))
@@ -61,27 +60,27 @@ func export(c *cli.Context) error {
 				return err
 			}
 			var out bytes.Buffer
-			err = t.Execute(&out, file)
+			err = t.Execute(&out, reader)
 			if err != nil {
 				return err
 			}
-			fn = out.String()
+			filename = out.String()
 		}
-		if _, err = os.Stat(fn); err == nil && !c.Bool("overwrite") {
-			log.Error().Str("filename", fn).Msg("file exists and -o flag not specified")
+		if _, err = os.Stat(filename); err == nil && !c.Bool("overwrite") {
+			log.Error().Str("filename", filename).Msg("file exists and -o flag not specified")
 			return os.ErrExist
 		}
-		out, err := os.Create(fn)
+		out, err := os.Create(filename)
 		if err != nil {
 			return err
 		}
 		defer out.Close()
-		_, err = io.Copy(out, file.Reader)
+		_, err = io.Copy(out, reader)
 		if err != nil {
 			return err
 		}
-		file.Name = fn
-		if err = encoding.Encode(file); err != nil {
+		reader.Name = filename
+		if err = encoding.Encode(reader); err != nil {
 			return err
 		}
 	}

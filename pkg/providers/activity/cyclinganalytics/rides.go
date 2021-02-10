@@ -73,9 +73,8 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error
 }
 
 type File struct {
-	Name   string
-	Reader io.Reader
-	Size   int64
+	io.Reader
+	Name string
 }
 
 func (f *File) Close() error {
@@ -107,7 +106,7 @@ func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*
 	if err != nil {
 		return nil, err
 	}
-	if _, err = io.Copy(fw, file.Reader); err != nil {
+	if _, err = io.Copy(fw, file); err != nil {
 		return nil, err
 	}
 	if err = w.Close(); err != nil {

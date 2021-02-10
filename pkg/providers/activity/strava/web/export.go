@@ -32,13 +32,13 @@ func (f *Format) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf(`"%s"`, f.String())), nil
 }
 
-// ExportFile metadata about an exported file
-type ExportFile struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Format    Format    `json:"format"`
-	Extension string    `json:"ext"`
-	Reader    io.Reader `json:"-"`
+// Export the contents and metadata about an activity file
+type Export struct {
+	io.Reader `json:"-"`
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	Format    Format `json:"format"`
+	Extension string `json:"ext"`
 }
 
 // ExportService is the API for export endpoints
@@ -58,16 +58,13 @@ func ToFormat(format string) Format {
 }
 
 // Export requests the data file for the activity
-func (s *ExportService) Export(ctx context.Context, activityID int64, format Format) (*ExportFile, error) {
+func (s *ExportService) Export(ctx context.Context, activityID int64, format Format) (*Export, error) {
 	uri := fmt.Sprintf("activities/%d/export_%s", activityID, format)
 	req, err := s.client.newWebRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
 	}
-	log.Info().
-		Str("format", format.String()).
-		Int64("activityID", activityID).
-		Msg("export")
+	log.Info().Str("format", format.String()).Int64("activityID", activityID).Msg("export")
 	res, err := s.client.client.Do(req)
 	if err != nil {
 		select {
@@ -90,10 +87,10 @@ func (s *ExportService) Export(ctx context.Context, activityID int64, format For
 	}
 	name := params["filename"]
 	ext := strings.TrimPrefix(filepath.Ext(name), ".")
-	return &ExportFile{
+	return &Export{
+		Reader:    out,
 		ID:        activityID,
 		Name:      params["filename"],
-		Reader:    out,
 		Format:    format,
 		Extension: ext,
 	}, nil
