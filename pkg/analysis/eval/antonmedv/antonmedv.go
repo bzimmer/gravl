@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/antonmedv/expr"
+	"github.com/antonmedv/expr/vm"
+	"github.com/martinlindhe/unit"
 
 	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
@@ -38,32 +40,44 @@ func isoweek(t time.Time) ISOWeek {
 	return ISOWeek{year, week}
 }
 
-func newEnv(acts []*strava.Activity) map[string]interface{} {
+func fahrenheit(c float64) float64 {
+	return unit.FromCelsius(c).Fahrenheit()
+}
+
+func env(acts []*strava.Activity) map[string]interface{} {
 	return map[string]interface{}{
 		"Activities": acts,
 		"isoweek":    isoweek,
+		"F":          fahrenheit,
 	}
 }
 
 type evaluator struct {
-	q string
+	program *vm.Program
 }
 
-func Mapper(q string) eval.Mapper {
-	return &evaluator{closure(q)}
-}
-
-func Filterer(q string) eval.Filterer {
-	return &evaluator{closure(q)}
-}
-
-func (x *evaluator) run(q string, acts []*strava.Activity) ([]interface{}, error) {
-	env := newEnv(acts)
-	pgrm, err := expr.Compile(q, expr.Env(env))
+func compile(q string) (*evaluator, error) {
+	pgm, err := expr.Compile(q, expr.Env(env(nil)))
 	if err != nil {
 		return nil, err
 	}
-	out, err := expr.Run(pgrm, env)
+	return &evaluator{pgm}, nil
+}
+
+func Mapper(q string) (eval.Mapper, error) {
+	return compile(fmt.Sprintf("map(Activities, %s)", closure(q)))
+}
+
+func Filterer(q string) (eval.Filterer, error) {
+	return compile(fmt.Sprintf("filter(Activities, %s)", closure(q)))
+}
+
+func Evaluator(q string) (eval.Evaluator, error) {
+	return compile(fmt.Sprintf("map(Activities, %s)", closure(q)))
+}
+
+func (x *evaluator) run(acts []*strava.Activity) ([]interface{}, error) {
+	out, err := expr.Run(x.program, env(acts))
 	if err != nil {
 		return nil, err
 	}
@@ -71,8 +85,7 @@ func (x *evaluator) run(q string, acts []*strava.Activity) ([]interface{}, error
 }
 
 func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
-	code := fmt.Sprintf("filter(Activities, %s)", x.q)
-	res, err := x.run(code, acts)
+	res, err := x.run(acts)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +97,26 @@ func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*str
 }
 
 func (x *evaluator) Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error) {
-	code := fmt.Sprintf("map(Activities, %s)", x.q)
-	return x.run(code, acts)
+	return x.run(acts)
+}
+
+func (x *evaluator) Bool(ctx context.Context, act *strava.Activity) (bool, error) {
+	res, err := x.Eval(ctx, act)
+	if err != nil {
+		return false, err
+	}
+	switch z := res.(type) {
+	case bool:
+		return res.(bool), nil
+	default:
+		return false, fmt.Errorf("expected type `bool` found `%z`", z)
+	}
+}
+
+func (x *evaluator) Eval(ctx context.Context, act *strava.Activity) (interface{}, error) {
+	res, err := x.run([]*strava.Activity{act})
+	if err != nil {
+		return nil, err
+	}
+	return res[0], nil
 }

@@ -52,7 +52,7 @@ func main() {
 		Name:     "gravl",
 		HelpName: "gravl",
 		Usage:    "Clients for activty-related services and an extensible analysis framework for activities",
-		Flags:    append(gravl.Flags, gravl.ConfigFlag("gravl.yaml")),
+		Flags:    gravl.Flags("gravl.yaml"),
 		Commands: commands,
 		Before:   gravl.Befores(gravl.InitLogging(), initEncoding, gravl.InitConfig()),
 		ExitErrHandler: func(c *cli.Context, err error) {

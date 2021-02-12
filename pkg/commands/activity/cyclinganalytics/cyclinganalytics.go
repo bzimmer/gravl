@@ -15,9 +15,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
 
-// Maximum number of times to poll status updates on uploads
-const polls = 3
-
 func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 	return cyclinganalytics.NewClient(
 		cyclinganalytics.WithTokenCredentials(
@@ -62,32 +59,27 @@ func collect(name string) ([]*cyclinganalytics.File, error) {
 	return files, err
 }
 
-// poll the status possibly following until the operation is completedd
-//  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
-func poll(ctx context.Context, client *cyclinganalytics.Client, id int64, follow bool) error {
-	// status: processing, done, or error
-	i, n := 0, polls
-	for ; i < n; i++ {
-		u, err := client.Rides.Status(ctx, cyclinganalytics.Me, id)
-		if err != nil {
-			return err
-		}
-		if err = encoding.Encode(u); err != nil {
-			return err
-		}
-		if !(follow && u.Status == "processing") {
-			break
-		}
+func poll(ctx context.Context, client *cyclinganalytics.Client, uploadID int64, follow bool) error {
+	pc := client.Rides.Poll(ctx, cyclinganalytics.Me, uploadID)
+	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(2 * time.Second):
+		case res, ok := <-pc:
+			if !ok {
+				return nil
+			}
+			if res.Err != nil {
+				return res.Err
+			}
+			if err := encoding.Encode(res.Upload); err != nil {
+				return err
+			}
+		}
+		if !follow {
+			return nil
 		}
 	}
-	if i == n {
-		log.Warn().Int("polls", n).Msg("exceeded max polls")
-	}
-	return nil
 }
 
 func upload(c *cli.Context) error {
@@ -95,9 +87,8 @@ func upload(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	args := c.Args()
-	for i := 0; i < args.Len(); i++ {
-		files, err := collect(args.Get(i))
+	for i := 0; i < c.Args().Len(); i++ {
+		files, err := collect(c.Args().Get(i))
 		if err != nil {
 			return err
 		}
@@ -105,9 +96,7 @@ func upload(c *cli.Context) error {
 			defer file.Close()
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			log.Info().
-				Str("file", file.Name).
-				Msg("uploading")
+			log.Info().Str("file", file.Name).Msg("uploading")
 			u, err := client.Rides.Upload(ctx, cyclinganalytics.Me, file)
 			if err != nil {
 				return err
@@ -115,7 +104,9 @@ func upload(c *cli.Context) error {
 			if !c.Bool("poll") {
 				return encoding.Encode(u)
 			}
-			return poll(ctx, client, u.UploadID, true)
+			if err := poll(ctx, client, u.UploadID, true); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -200,8 +191,7 @@ func activities(c *cli.Context) error {
 		return err
 	}
 	for _, ride := range rides {
-		err := encoding.Encode(ride)
-		if err != nil {
+		if err := encoding.Encode(ride); err != nil {
 			return err
 		}
 	}

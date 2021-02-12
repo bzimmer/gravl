@@ -367,7 +367,7 @@ type Activity struct {
 	AverageSpeed             unit.Speed             `json:"average_speed" units:"mps"`
 	MaxSpeed                 unit.Speed             `json:"max_speed" units:"mps"`
 	AverageCadence           float64                `json:"average_cadence"`
-	AverageTemperature       unit.Temperature       `json:"average_temp" units:"C"`
+	AverageTemperature       float64                `json:"average_temp" units:"C"`
 	AverageWatts             float64                `json:"average_watts"`
 	WeightedAverageWatts     int                    `json:"weighted_average_watts"`
 	Kilojoules               float64                `json:"kilojoules"`

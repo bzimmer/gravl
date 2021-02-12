@@ -89,7 +89,7 @@ func export(c *cli.Context) error {
 
 var exportCommand = &cli.Command{
 	Name:  "export",
-	Usage: "export a Strava activity by id, optionally specifying the format and filename template",
+	Usage: "Export a Strava activity by id, optionally specifying the format and filename template",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "format",

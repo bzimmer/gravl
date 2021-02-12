@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/martinlindhe/unit"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
@@ -26,13 +27,15 @@ func TestFilterer(t *testing.T) {
 
 	a.Equal(6, len(acts))
 
-	q := antonmedv.Filterer(`.Type == "Ride"`)
+	q, err := antonmedv.Filterer(`.Type == "Ride"`)
+	a.NoError(err)
 	vals, err := q.Filter(context.Background(), acts)
 	a.NotNil(vals)
 	a.NoError(err)
 	a.Equal(3, len(vals))
 
-	q = antonmedv.Filterer(`.Type == "Ride" && .StartDateLocal.Year() == 2010`)
+	q, err = antonmedv.Filterer(`.Type == "Ride" && .StartDateLocal.Year() == 2010`)
+	a.NoError(err)
 	vals, err = q.Filter(context.Background(), acts)
 	a.NotNil(vals)
 	a.NoError(err)
@@ -45,11 +48,43 @@ func TestMapper(t *testing.T) {
 
 	a.Equal(6, len(acts))
 
-	q := antonmedv.Mapper(`.Type`)
+	q, err := antonmedv.Mapper(`.Type`)
+	a.NoError(err)
 	vals, err := q.Map(context.Background(), acts)
 	a.NotNil(vals)
 	a.NoError(err)
 	a.Equal(6, len(vals))
 	a.Equal("Hike", vals[0])
 	a.Equal("Ride", vals[4])
+}
+
+func TestEvaluator(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	a.Equal(6, len(acts))
+
+	q, err := antonmedv.Evaluator(`.Type == 'Hike'`)
+	a.NoError(err)
+	val, err := q.Bool(context.Background(), acts[0])
+	a.NoError(err)
+	a.True(val)
+
+	q, err = antonmedv.Evaluator(`.Type`)
+	a.NoError(err)
+	val, err = q.Bool(context.Background(), acts[0])
+	a.Error(err)
+	a.False(val)
+
+	q, err = antonmedv.Evaluator(`.Type`)
+	a.NoError(err)
+	yal, err := q.Eval(context.Background(), acts[0])
+	a.NoError(err)
+	a.Equal("Hike", yal)
+
+	q, err = antonmedv.Evaluator(`[.Type, .Distance]`)
+	a.NoError(err)
+	yal, err = q.Eval(context.Background(), acts[0])
+	a.NoError(err)
+	a.Equal([]interface{}{"Hike", unit.Length(100000)}, yal)
 }

@@ -35,7 +35,7 @@ tasks:
     sources:
       - '**/*.go'
     cmds:
-      - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/gravl/*.go
+      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/gravl/*.go
 
   install:
     desc: Install {{.APP}}

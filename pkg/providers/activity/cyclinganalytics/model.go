@@ -164,3 +164,8 @@ type Upload struct {
 	Error     string   `json:"error"`
 	ErrorCode string   `json:"error_code"`
 }
+
+type UploadResult struct {
+	Upload *Upload `json:"upload"`
+	Err    error   `json:"error"`
+}

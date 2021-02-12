@@ -162,50 +162,48 @@ var CommandsCommand = &cli.Command{
 	},
 }
 
-// ConfigFlag for the default configuration file
-func ConfigFlag(filename string) cli.Flag {
+func Flags(filename string) []cli.Flag {
 	config := path.Join(xdg.ConfigHome, pkg.PackageName, filename)
-	return &cli.PathFlag{
-		Name:  "config",
-		Value: config,
-		Usage: "File containing configuration settings",
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:    "verbosity",
+			Aliases: []string{"v"},
+			Value:   "info",
+			Usage:   "Log level (trace, debug, info, warn, error, fatal, panic)",
+		},
+		&cli.BoolFlag{
+			Name:    "monochrome",
+			Aliases: []string{"m"},
+			Value:   false,
+			Usage:   "Use monochrome logging, color enabled by default",
+		},
+		&cli.BoolFlag{
+			Name:    "compact",
+			Aliases: []string{"c"},
+			Value:   false,
+			Usage:   "Use compact JSON output",
+		},
+		&cli.StringFlag{
+			Name:    "encoding",
+			Aliases: []string{"e"},
+			Value:   "json",
+			Usage:   "Output encoding (json, xml, geojson, gpx, spew)",
+		},
+		&cli.BoolFlag{
+			Name:  "http-tracing",
+			Value: false,
+			Usage: "Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)",
+		},
+		&cli.DurationFlag{
+			Name:    "timeout",
+			Aliases: []string{"t"},
+			Value:   time.Millisecond * 10000,
+			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
+		},
+		&cli.PathFlag{
+			Name:  "config",
+			Value: config,
+			Usage: "File containing configuration settings",
+		},
 	}
-}
-
-var Flags = []cli.Flag{
-	&cli.StringFlag{
-		Name:    "verbosity",
-		Aliases: []string{"v"},
-		Value:   "info",
-		Usage:   "Log level (trace, debug, info, warn, error, fatal, panic)",
-	},
-	&cli.BoolFlag{
-		Name:    "monochrome",
-		Aliases: []string{"m"},
-		Value:   false,
-		Usage:   "Use monochrome logging, color enabled by default",
-	},
-	&cli.BoolFlag{
-		Name:    "compact",
-		Aliases: []string{"c"},
-		Value:   false,
-		Usage:   "Use compact JSON output",
-	},
-	&cli.StringFlag{
-		Name:    "encoding",
-		Aliases: []string{"e"},
-		Value:   "json",
-		Usage:   "Output encoding (json, xml, geojson, gpx, spew)",
-	},
-	&cli.BoolFlag{
-		Name:  "http-tracing",
-		Value: false,
-		Usage: "Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)",
-	},
-	&cli.DurationFlag{
-		Name:    "timeout",
-		Aliases: []string{"t"},
-		Value:   time.Millisecond * 10000,
-		Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
-	},
 }

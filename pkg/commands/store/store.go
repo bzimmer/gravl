@@ -16,7 +16,10 @@ func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, 
 	if !c.IsSet("filter") {
 		return acts, nil
 	}
-	evaluator := commands.Filterer(c.String("filter"))
+	evaluator, err := commands.Filterer(c.String("filter"))
+	if err != nil {
+		return nil, err
+	}
 	return evaluator.Filter(c.Context, acts)
 }
 
@@ -127,15 +130,6 @@ func update(c *cli.Context) error {
 	return encoding.Encode(map[string]int{"total": total, "new": n, "existing": total - n})
 }
 
-func filterFlag(required bool) cli.Flag {
-	return &cli.StringFlag{
-		Name:     "filter",
-		Aliases:  []string{"f"},
-		Required: required,
-		Usage:    "Expression for filtering activities to remove",
-	}
-}
-
 var updateCommand = &cli.Command{
 	Name:   "update",
 	Usage:  "Query and update Strava activities to local storage",
@@ -164,6 +158,15 @@ var exportCommand = &cli.Command{
 	Usage:  "Export activities from local storage",
 	Flags:  []cli.Flag{InputFlag(DefaultLocalStore), filterFlag(false)},
 	Action: export,
+}
+
+func filterFlag(required bool) cli.Flag {
+	return &cli.StringFlag{
+		Name:     "filter",
+		Aliases:  []string{"f"},
+		Required: required,
+		Usage:    "Expression for filtering activities",
+	}
 }
 
 func InputFlag(storeDefault string) cli.Flag {

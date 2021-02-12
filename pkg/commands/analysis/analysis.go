@@ -33,7 +33,10 @@ func filter(c *cli.Context, acts []*strava.Activity) ([]*strava.Activity, error)
 	if !c.IsSet("filter") {
 		return acts, nil
 	}
-	filterer := commands.Filterer(c.String("filter"))
+	filterer, err := commands.Filterer(c.String("filter"))
+	if err != nil {
+		return nil, err
+	}
 	return filterer.Filter(c.Context, acts)
 }
 
@@ -44,7 +47,11 @@ func filter(c *cli.Context, acts []*strava.Activity) ([]*strava.Activity, error)
 func group(c *cli.Context, acts []*strava.Activity) (*analysis.Pass, error) {
 	var mappers []eval.Mapper
 	for _, q := range c.StringSlice("group") {
-		mappers = append(mappers, commands.Mapper(q))
+		mapper, err := commands.Mapper(q)
+		if err != nil {
+			return nil, err
+		}
+		mappers = append(mappers, mapper)
 	}
 	return analysis.Group(c.Context, acts, mappers...)
 }
@@ -116,11 +123,10 @@ var Command = &cli.Command{
 			Aliases: []string{"u"},
 			Usage:   "Units",
 			Value:   &analysis.UnitsFlag{},
-		},
-		&cli.StringFlag{
+		}, &cli.StringFlag{
 			Name:    "filter",
 			Aliases: []string{"f"},
-			Usage:   "Expression for filtering activities",
+			Usage:   "Expression for filtering activities to remove",
 		},
 		&cli.StringSliceFlag{
 			Name:    "group",

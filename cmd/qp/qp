@@ -6,7 +6,7 @@ num="${NUM_ACTIVITIES:-50}"
 # If no activity is provided display the most recent rides
 if [[ $# -eq 0 ]]
 then
-    gravl --timeout 1m strava activities -N $num | jq -s -c '.[] | select(.type == "VirtualRide") | [.id, .name, .start_date_local]'
+    gravl --timeout 1m strava activities -N $num -f ".Type == 'VirtualRide'" -B ".ID, .Name, .StartDateLocal, .Distance.Miles()" | jq -sc ".[]"
     exit 0
 fi
 

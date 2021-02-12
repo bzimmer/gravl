@@ -10,20 +10,32 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
-// RidesService .
+// RidesService manages rides for a user
 type RidesService service
 
+// RideOptions specify additional detail to return for a queried ride
 type RideOptions struct {
+	// Streams is a list of valid data streams
 	Streams []string
-	Curves  struct {
-		AveragePower   bool
+	// Curves specifies the difference curves to return
+	Curves struct {
+		// AveragePower will be returned if true
+		AveragePower bool
+		// EffectivePower will be returned if true
 		EffectivePower bool
 	}
 }
 
-const meupload = "me/upload"
+const (
+	polls           = 5
+	pollingDuration = 2 * time.Second
+	meupload        = "me/upload"
+)
 
 func (r *RideOptions) values() *url.Values {
 	v := &url.Values{}
@@ -39,6 +51,7 @@ func (r *RideOptions) values() *url.Values {
 	return v
 }
 
+// Ride returns a single ride with available options
 func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions) (*Ride, error) {
 	uri := fmt.Sprintf("ride/%d", rideID)
 
@@ -55,6 +68,7 @@ func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions)
 	return ride, nil
 }
 
+// Rides returns a slice of rides for the user
 func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error) {
 	uri := "me/rides"
 	if userID != Me {
@@ -72,6 +86,7 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error
 	return res.Rides, nil
 }
 
+// File for uploading
 type File struct {
 	io.Reader
 	Name string
@@ -87,6 +102,7 @@ func (f *File) Close() error {
 	return nil
 }
 
+// Upload the file for the user
 func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*Upload, error) {
 	if file == nil {
 		return nil, errors.New("missing upload file")
@@ -127,6 +143,7 @@ func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*
 	return res, nil
 }
 
+// Status returns the status of an upload request
 func (s *RidesService) Status(ctx context.Context, userID UserID, uploadID int64) (*Upload, error) {
 	uri := meupload
 	if userID != Me {
@@ -143,6 +160,43 @@ func (s *RidesService) Status(ctx context.Context, userID UserID, uploadID int64
 		return nil, err
 	}
 	return res, nil
+}
+
+// Poll the status of an upload
+//
+// The operation will continue until either it is completed (status != "processing"), the context
+//  is canceled, or the maximum number of iterations have been exceeded.
+//
+// More information can be found at:
+//  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
+func (s *RidesService) Poll(ctx context.Context, userID UserID, uploadID int64) <-chan *UploadResult {
+	res := make(chan *UploadResult)
+	go func() {
+		defer close(res)
+		i := 0
+		for ; i < polls; i++ {
+			upload, err := s.Status(ctx, userID, uploadID)
+			if err != nil {
+				res <- &UploadResult{Err: ctx.Err()}
+				return
+			}
+			res <- &UploadResult{Upload: upload}
+			// status: processing, done, or error
+			if upload.Status != "processing" {
+				return
+			}
+			select {
+			case <-ctx.Done():
+				res <- &UploadResult{Err: ctx.Err()}
+				return
+			case <-time.After(pollingDuration):
+			}
+		}
+		if i == polls {
+			log.Warn().Int("polls", polls).Msg("exceeded max polls")
+		}
+	}()
+	return res
 }
 
 // // ValidStream returns true if the strean name is valid

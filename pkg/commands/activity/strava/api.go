@@ -5,12 +5,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/providers/activity"
-	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
+
+	"github.com/bzimmer/gravl/pkg/analysis/eval"
+	"github.com/bzimmer/gravl/pkg/commands"
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
+	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 type entityFunc func(context.Context, *strava.Client, int64) (interface{}, error)
@@ -66,6 +69,32 @@ var refreshCommand = &cli.Command{
 	Action: refresh,
 }
 
+func filter(c *cli.Context) (func(ctx context.Context, act *strava.Activity) (bool, error), error) {
+	f := func(ctx context.Context, act *strava.Activity) (bool, error) { return true, nil }
+	if c.IsSet("filter") {
+		var evaluator eval.Evaluator
+		evaluator, err := commands.Evaluator(c.String("filter"))
+		if err != nil {
+			return nil, err
+		}
+		f = evaluator.Bool
+	}
+	return f, nil
+}
+
+func attributer(c *cli.Context) (func(ctx context.Context, act *strava.Activity) (interface{}, error), error) {
+	f := func(ctx context.Context, act *strava.Activity) (interface{}, error) { return act, nil }
+	if c.IsSet("attribute") {
+		var evaluator eval.Evaluator
+		evaluator, err := commands.Evaluator(c.String("attribute"))
+		if err != nil {
+			return nil, err
+		}
+		f = evaluator.Eval
+	}
+	return f, nil
+}
+
 func activities(c *cli.Context) error {
 	client, err := NewAPIClient(c)
 	if err != nil {
@@ -73,6 +102,16 @@ func activities(c *cli.Context) error {
 	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
+
+	f, err := filter(c)
+	if err != nil {
+		return err
+	}
+	g, err := attributer(c)
+	if err != nil {
+		return err
+	}
+
 	var ok bool
 	var act *strava.Activity
 	acts, errs := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
@@ -92,7 +131,21 @@ func activities(c *cli.Context) error {
 				// the channel is closed, done
 				return nil
 			}
-			if err = encoding.Encode(act); err != nil {
+			// filter
+			ok, err = f(ctx, act)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				continue
+			}
+			// extract
+			res, err := g(ctx, act)
+			if err != nil {
+				return err
+			}
+			// encode
+			if err = encoding.Encode(res); err != nil {
 				return err
 			}
 		}
@@ -109,6 +162,16 @@ var activitiesCommand = &cli.Command{
 			Aliases: []string{"N"},
 			Value:   0,
 			Usage:   "Count",
+		},
+		&cli.StringFlag{
+			Name:    "filter",
+			Aliases: []string{"f"},
+			Usage:   "Expression for filtering activities to remove",
+		},
+		&cli.StringSliceFlag{
+			Name:    "attribute",
+			Aliases: []string{"B"},
+			Usage:   "Evaluate the expression on an activity and return only those results",
 		},
 	},
 	Action: activities,
