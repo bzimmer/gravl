@@ -18,6 +18,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/geo/gpx"
 	"github.com/bzimmer/gravl/pkg/commands/geo/srtm"
 	"github.com/bzimmer/gravl/pkg/commands/gravl"
+	"github.com/bzimmer/gravl/pkg/commands/manual"
 	"github.com/bzimmer/gravl/pkg/commands/store"
 	"github.com/bzimmer/gravl/pkg/commands/version"
 	"github.com/bzimmer/gravl/pkg/commands/wx/noaa"
@@ -39,7 +40,7 @@ func main() {
 		cyclinganalytics.Command,
 		gnis.Command,
 		gpx.Command,
-		gravl.Commands,
+		manual.Command,
 		noaa.Command,
 		openweather.Command,
 		rwgps.Command,

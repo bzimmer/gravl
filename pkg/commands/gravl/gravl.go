@@ -2,11 +2,9 @@ package gravl
 
 import (
 	"errors"
-	"fmt"
 	stdlog "log"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -115,48 +113,6 @@ func InitLogging() cli.BeforeFunc {
 		stdlog.SetOutput(logger{})
 		return nil
 	}
-}
-
-var Commands = &cli.Command{
-	Name:  "commands",
-	Usage: "Return all possible commands",
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "relative",
-			Aliases: []string{"r"},
-			Usage:   "Specify the command relative to the current working directory",
-		},
-	},
-	Action: func(c *cli.Context) error {
-		var commands []string
-		var commander func(string, []*cli.Command)
-		commander = func(prefix string, cmds []*cli.Command) {
-			for i := range cmds {
-				cmd := fmt.Sprintf("%s %s", prefix, cmds[i].Name)
-				if !cmds[i].Hidden && cmds[i].Action != nil {
-					commands = append(commands, cmd)
-				}
-				commander(cmd, cmds[i].Subcommands)
-			}
-		}
-		cmd := c.App.Name
-		if c.Bool("relative") {
-			cwd, err := os.Getwd()
-			if err != nil {
-				return err
-			}
-			cmd, err = os.Executable()
-			if err != nil {
-				return err
-			}
-			cmd, err = filepath.Rel(cwd, cmd)
-			if err != nil {
-				return err
-			}
-		}
-		commander(cmd, c.App.Commands)
-		return encoding.Encode(commands)
-	},
 }
 
 func Flags(filename string) []cli.Flag {
