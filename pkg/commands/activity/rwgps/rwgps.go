@@ -74,7 +74,15 @@ var activitiesCommand = &cli.Command{
 	Name:    "activities",
 	Aliases: []string{"A"},
 	Usage:   "Query activities for the authenticated athlete",
-	Action:  activities,
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:    "count",
+			Aliases: []string{"N"},
+			Value:   0,
+			Usage:   "Count",
+		},
+	},
+	Action: activities,
 }
 
 func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (interface{}, error)) error {

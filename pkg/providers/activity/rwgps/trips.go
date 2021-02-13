@@ -8,6 +8,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
+// pageSize default for querying bulk entities (eg trips, routes)
+const pageSize = 100
+
 // TripsService provides access to Trips and Routes via the RWGPS API
 type TripsService service
 
@@ -18,7 +21,7 @@ type tripsPaginator struct {
 }
 
 func (p *tripsPaginator) Page() int {
-	return PageSize
+	return pageSize
 }
 
 func (p *tripsPaginator) Count() int {
@@ -28,19 +31,19 @@ func (p *tripsPaginator) Count() int {
 func (p *tripsPaginator) Do(ctx context.Context, start, count int) (int, error) {
 	uri := fmt.Sprintf("users/%d/trips.json", p.userID)
 	params := map[string]string{
-		"offset": fmt.Sprintf("%d", start),
+		// pagination uses the concept of page (based on strava), rwgps uses an offset by row
+		//  since pagination starts with page 1 (again, strava), subtract one from `start`
+		"offset": fmt.Sprintf("%d", (start-1)*p.Page()),
 		"limit":  fmt.Sprintf("%d", count),
 	}
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri, params)
 	if err != nil {
 		return 0, err
 	}
-
 	type TripsResponse struct {
 		Results      []*Trip `json:"results"`
 		ResultsCount int     `json:"results_count"`
 	}
-
 	res := &TripsResponse{}
 	err = p.service.client.do(req, res)
 	if err != nil {

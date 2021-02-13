@@ -71,7 +71,12 @@ func (s *file) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan 
 		s.mutex.RLock()
 		defer s.mutex.RUnlock()
 		for _, act := range s.activities {
-			acts <- act
+			select {
+			case <-ctx.Done():
+				errs <- ctx.Err()
+				return
+			case acts <- act:
+			}
 		}
 	}()
 	return acts, errs

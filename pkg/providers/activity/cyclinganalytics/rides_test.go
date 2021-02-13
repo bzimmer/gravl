@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
 
@@ -16,7 +17,7 @@ func TestRides(t *testing.T) {
 	client, err := newClient(http.StatusOK, "me-rides.json")
 	a.NoError(err)
 	ctx := context.Background()
-	rides, err := client.Rides.Rides(ctx, cyclinganalytics.Me)
+	rides, err := client.Rides.Rides(ctx, cyclinganalytics.Me, activity.Pagination{})
 	a.NoError(err)
 	a.NotNil(rides)
 	a.Equal(2, len(rides))

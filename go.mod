@@ -27,11 +27,13 @@ require (
 	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762
 	github.com/muesli/kmeans v0.2.1
 	github.com/nxadm/tail v1.4.6 // indirect
+	github.com/rendon/testcli v1.0.0
 	github.com/rs/zerolog v1.20.0
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/securego/gosec/v2 v2.6.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/buntdb v1.1.8
+	github.com/tidwall/gjson v1.6.7
 	github.com/tkrajina/go-elevations v0.0.0-20200416152435-2c9e0bec991f
 	github.com/twpayne/go-geom v1.3.6
 	github.com/twpayne/go-gpx v1.2.0

@@ -12,6 +12,7 @@ import (
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
 
@@ -186,7 +187,7 @@ func activities(c *cli.Context) error {
 	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	rides, err := client.Rides.Rides(ctx, cyclinganalytics.Me)
+	rides, err := client.Rides.Rides(ctx, cyclinganalytics.Me, activity.Pagination{Total: c.Int("count")})
 	if err != nil {
 		return err
 	}
@@ -202,10 +203,18 @@ var activitiesCommand = &cli.Command{
 	Name:    "activities",
 	Aliases: []string{"A"},
 	Usage:   "Query activities for the authenticated athlete",
-	Action:  activities,
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:    "count",
+			Aliases: []string{"N"},
+			Value:   0,
+			Usage:   "Count",
+		},
+	},
+	Action: activities,
 }
 
-func activity(c *cli.Context) error {
+func ride(c *cli.Context) error {
 	client, err := NewClient(c)
 	if err != nil {
 		return err
@@ -232,11 +241,11 @@ func activity(c *cli.Context) error {
 	return nil
 }
 
-var activityCommand = &cli.Command{
+var rideCommand = &cli.Command{
 	Name:    "activity",
 	Aliases: []string{"a"},
 	Usage:   "Query an activity for the authenticated athlete",
-	Action:  activity,
+	Action:  ride,
 }
 
 var Command = &cli.Command{
@@ -247,9 +256,9 @@ var Command = &cli.Command{
 	Flags:    AuthFlags,
 	Subcommands: []*cli.Command{
 		activitiesCommand,
-		activityCommand,
 		athleteCommand,
 		oauthCommand,
+		rideCommand,
 		uploadCommand,
 	},
 }

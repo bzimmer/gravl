@@ -97,19 +97,24 @@ func (b *bunt) Activity(ctx context.Context, activityID int64) (*strava.Activity
 func (b *bunt) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan error) {
 	errs := make(chan error)
 	acts := make(chan *strava.Activity)
-
 	go func() {
 		defer close(errs)
 		defer close(acts)
 		_ = b.db.View(func(tx *buntdb.Tx) error {
 			return tx.Ascend("", func(_, val string) bool {
-				act, err := unmarshal(val)
-				if err != nil {
-					errs <- err
+				select {
+				case <-ctx.Done():
+					errs <- ctx.Err()
 					return false
+				default:
+					act, err := unmarshal(val)
+					if err != nil {
+						errs <- err
+						return false
+					}
+					acts <- act
+					return true
 				}
-				acts <- act
-				return true
 			})
 		})
 	}()
@@ -121,7 +126,6 @@ func (b *bunt) Save(ctx context.Context, acts ...*strava.Activity) error {
 	return b.db.Update(func(tx *buntdb.Tx) error {
 		for i := range acts {
 			act := acts[i]
-			// log.Info().Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity")
 			val, err := marshal(act)
 			if err != nil {
 				return err
@@ -138,7 +142,6 @@ func (b *bunt) Save(ctx context.Context, acts ...*strava.Activity) error {
 func (b *bunt) Remove(ctx context.Context, acts ...*strava.Activity) error {
 	return b.db.Update(func(tx *buntdb.Tx) error {
 		for i := range acts {
-			// log.Info().Int64("id", acts[i].ID).Str("name", acts[i].Name).Msg("deleting activity")
 			_, err := tx.Delete(id(acts[i].ID))
 			if err != nil {
 				return err

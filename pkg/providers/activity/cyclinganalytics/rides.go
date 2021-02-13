@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 // RidesService manages rides for a user
@@ -69,7 +71,7 @@ func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions)
 }
 
 // Rides returns a slice of rides for the user
-func (s *RidesService) Rides(ctx context.Context, userID UserID) ([]*Ride, error) {
+func (s *RidesService) Rides(ctx context.Context, userID UserID, spec activity.Pagination) ([]*Ride, error) {
 	uri := "me/rides"
 	if userID != Me {
 		uri = fmt.Sprintf("%d/rides", userID)
@@ -177,7 +179,7 @@ func (s *RidesService) Poll(ctx context.Context, userID UserID, uploadID int64) 
 		for ; i < polls; i++ {
 			upload, err := s.Status(ctx, userID, uploadID)
 			if err != nil {
-				res <- &UploadResult{Err: ctx.Err()}
+				res <- &UploadResult{Err: err}
 				return
 			}
 			res <- &UploadResult{Upload: upload}

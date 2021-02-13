@@ -112,32 +112,41 @@ set -e
 
 num="${NUM_ACTIVITIES:-50}"
 
+function _jq() {
+    if ! command -v jq &> /dev/null
+    then
+        cat "$@"
+        exit
+    fi
+    jq -sc ".[]" "$@"
+}
+
 # If no activity is provided display the most recent rides
 if [[ $# -eq 0 ]]
 then
-    gravl --timeout 1m strava activities -N $num | jq -s -c '.[] | select(.type == "VirtualRide") | [.id, .name, .start_date_local]'
+    gravl -c --timeout 1m strava activities -N $num -f ".Type == 'VirtualRide'" -B ".ID, .Name, .StartDateLocal, .Distance.Miles()" | _jq
     exit 0
 fi
 
 for arg in "$@"
 do
-gravl strava export -o -T "$arg.fit" -F fit $arg
-gravl ca upload -p "$arg.fit"
-rm -f "$arg.fit"
+    gravl strava export -o -T "$arg.fit" -F fit $arg
+    gravl cyclinganalytics upload -p "$arg.fit"
+    rm -f "$arg.fit"
 done
 ```
 
 When executed the command output will look something like this:
 
 ```sh
-~ > zwift2ca.sh
+~ > qp
 2021-01-28T20:39:50-08:00 INF do all=50 count=50 n=50 start=1 total=50
 [4687554641,"Innsbruck","2021-01-26T18:15:29Z"]
 [4612178259,"Innsbruck","2021-01-12T18:40:56Z"]
 [4569050661,"Paris","2021-01-04T19:21:36Z"]
 [4481763454,"Watopia","2020-12-16T19:04:41Z"]
 
-~ > zwift2ca.sh 4334103705
+~ > qp 4334103705
 2021-01-28T20:37:16-08:00 INF export activityID=4334103705 format=original
 {
  "id": 4334103705,

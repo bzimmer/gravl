@@ -74,7 +74,7 @@ func (s *smap) paths(ctx context.Context, g *errgroup.Group, activities <-chan *
 	for i := 0; i < s.workers; i++ {
 		g.Go(func() error {
 			wg.Add(1)
-			defer func() { wg.Done() }()
+			defer wg.Done()
 			for act := range activities {
 				log.Info().Str("name", act.a.Name).Msg("creating staticmap")
 				ictx := sm.NewContext()

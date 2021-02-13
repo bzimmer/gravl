@@ -18,8 +18,6 @@ import (
 const (
 	apiVersion = "2"
 	baseURL    = "https://ridewithgps.com"
-	// PageSize default for querying bulk entities (eg trips, routes)
-	PageSize = 30
 )
 
 // Client for communicating with RWGPS
