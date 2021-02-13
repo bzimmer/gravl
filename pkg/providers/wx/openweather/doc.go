@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/twpayne/go-geom"
+
+	"github.com/bzimmer/gravl/pkg/providers/wx"
 )
 
 func Example() {
@@ -17,8 +19,8 @@ func Example() {
 	}
 	ctx := context.Background()
 	fcst, err := client.Forecast.Forecast(ctx,
-		ForecastOptions{
-			Units: UnitsMetric,
+		wx.ForecastOptions{
+			Units: wx.Metric,
 			Point: geom.NewPointFlat(geom.XY, []float64{-122.2992, 48.82})})
 	if err != nil {
 		log.Fatal(err)

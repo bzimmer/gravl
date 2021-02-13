@@ -2,7 +2,6 @@ package strava_test
 
 import (
 	"context"
-	"math"
 	"net/http"
 	"testing"
 	"time"
@@ -47,11 +46,10 @@ func Test_Routes(t *testing.T) {
 	// test total and start
 	// success: the requested number of routes is exceeded because count/pagesize not specified
 	x := 234
-	n := int(math.Floor(float64(x)/strava.PageSize)*strava.PageSize + strava.PageSize)
 	acts, err = client.Route.Routes(ctx, 26587226, activity.Pagination{Total: x, Start: 0})
 	a.NoError(err)
 	a.NotNil(acts)
-	a.Equal(n, len(acts))
+	a.Equal(x, len(acts))
 
 	// test total and start less than PageSize
 	// success: the requested number of routes because count/pagesize <= strava.PageSize

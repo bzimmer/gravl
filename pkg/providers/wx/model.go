@@ -6,21 +6,29 @@ package wx
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/twpayne/go-geom"
 )
 
-// Units .
+// Units of measure
 type Units int
 
 const (
-	// UnitsMetric .
-	UnitsMetric Units = iota
-	// UnitsUS .
-	UnitsUS
-	// UnitsUK .
-	UnitsUK
+	// Metric measurements
+	Metric Units = iota
+	// Imperial measurements
+	Imperial
 )
 
-// Conditions .
+// ForecastOptions
+type ForecastOptions struct {
+	AggregateHours int
+	Location       string
+	Point          *geom.Point
+	Units          Units
+}
+
+// Conditions of a forecast
 type Conditions struct {
 	ValidFrom                  *time.Time `json:"validFrom,omitempty"`
 	ValidTo                    *time.Time `json:"validTo,omitempty"`

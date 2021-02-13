@@ -1,7 +1,7 @@
 package rwgps
 
 import (
-	"fmt"
+	"strconv"
 
 	"github.com/twpayne/go-geom"
 	"github.com/twpayne/go-geom/encoding/geojson"
@@ -26,7 +26,7 @@ func (t *Trip) GeoJSON() (*geojson.Feature, error) {
 	}
 	// @todo add streams
 	g := &geojson.Feature{
-		ID:       fmt.Sprintf("%d", t.ID),
+		ID:       strconv.FormatInt(t.ID, 10),
 		Geometry: geom.NewLineStringFlat(layout, coords),
 		Properties: map[string]interface{}{
 			"type":   t.Type,
@@ -68,7 +68,7 @@ func (t *Trip) GPX() (*gpx.GPX, error) {
 	x := &gpx.GPX{
 		Creator: pkg.UserAgent,
 		Metadata: &gpx.MetadataType{
-			Name: fmt.Sprintf("%d", t.ID),
+			Name: strconv.FormatInt(t.ID, 10),
 		},
 	}
 	switch layout {

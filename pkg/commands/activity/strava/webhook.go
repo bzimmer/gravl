@@ -2,7 +2,7 @@ package strava
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -50,7 +50,7 @@ func whunsubscribe(c *cli.Context) error {
 	if len(args) == 0 {
 		log.Info().Msg("querying active subscriptions")
 		err := list(c, func(sub *strava.WebhookSubscription) error {
-			args = append(args, fmt.Sprintf("%d", sub.ID))
+			args = append(args, strconv.FormatInt(sub.ID, 10))
 			return nil
 		})
 		if err != nil {

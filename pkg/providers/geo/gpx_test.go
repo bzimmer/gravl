@@ -6,7 +6,7 @@ import (
 
 	"github.com/martinlindhe/unit"
 	"github.com/stretchr/testify/assert"
-	gpx "github.com/twpayne/go-gpx"
+	"github.com/twpayne/go-gpx"
 
 	"github.com/bzimmer/gravl/pkg/providers/geo"
 )

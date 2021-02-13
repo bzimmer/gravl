@@ -5,33 +5,33 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	ggpx "github.com/twpayne/go-gpx"
+	"github.com/twpayne/go-gpx"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/geo"
 )
 
 func info(c *cli.Context) error {
-	n := c.NArg()
-	for i := 0; i < n; i++ {
-		arg := c.Args().Get(i)
+	for _, arg := range c.Args().Slice() {
 		fp, err := os.Open(arg)
 		if err != nil {
 			return err
 		}
 		defer fp.Close()
-		x, err := ggpx.Read(fp)
+		x, err := gpx.Read(fp)
 		if err != nil {
 			return err
 		}
 		s := geo.SummarizeTracks(x)
 		if s.Tracks > 0 {
+			s.Filename = arg
 			if err := encoding.Encode(s); err != nil {
 				return err
 			}
 		}
 		s = geo.SummarizeRoutes(x)
 		if s.Routes > 0 {
+			s.Filename = arg
 			if err := encoding.Encode(s); err != nil {
 				return err
 			}

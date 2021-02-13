@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
-	geom "github.com/twpayne/go-geom"
+	"github.com/twpayne/go-geom"
 
 	"github.com/bzimmer/gravl/pkg"
 )

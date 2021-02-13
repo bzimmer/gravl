@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
@@ -33,8 +34,8 @@ func (p *tripsPaginator) Do(ctx context.Context, start, count int) (int, error) 
 	params := map[string]string{
 		// pagination uses the concept of page (based on strava), rwgps uses an offset by row
 		//  since pagination starts with page 1 (again, strava), subtract one from `start`
-		"offset": fmt.Sprintf("%d", (start-1)*p.Page()),
-		"limit":  fmt.Sprintf("%d", count),
+		"offset": strconv.FormatInt(int64((start-1)*p.Page()), 10),
+		"limit":  strconv.FormatInt(int64(count), 10),
 	}
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri, params)
 	if err != nil {

@@ -1,7 +1,5 @@
 package encoding
 
-//go:generate stringer -type=Encoding -linecomment -output=encoding_string.go
-
 import (
 	"encoding/json"
 	"encoding/xml"
@@ -12,8 +10,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-type EncodeFunc func(v interface{}) error
-
 var ErrUnknownEncoder = errors.New("unknown encoder")
 var ErrExistingEncoder = errors.New("encoder exists")
 
@@ -22,40 +18,31 @@ type Encoder interface {
 	Encode(v interface{}) error
 }
 
-var Encode EncodeFunc = func(v interface{}) error {
-	return nil
-}
+var DefaultEncoder = "json"
+var encoders = make(map[string]Encoder)
 
-type Encoders struct {
-	encoders map[string]Encoder
-}
-
-// Use the encoder for the encoding if no prior encoder exists
-func (n *Encoders) Use(encoder Encoder) error {
-	_, ok := n.encoders[encoder.Name()]
-	if ok {
-		return ErrExistingEncoder
+var Encode = func(v interface{}) error {
+	enc, err := For(DefaultEncoder)
+	if err != nil {
+		return err
 	}
-	n.encoders[encoder.Name()] = encoder
-	return nil
+	return enc.Encode(v)
 }
 
-// MustUse the encoder for the encoding
-func (n *Encoders) MustUse(encoder Encoder) {
-	_ = n.Use(encoder)
+// Add the encoder for the encoding if no prior encoder exists
+//
+// This function is not thread-safe
+func Add(encoder Encoder) {
+	encoders[encoder.Name()] = encoder
 }
 
 // For name return an encoder
-func (n *Encoders) For(encoder string) (Encoder, error) {
-	enc, ok := n.encoders[encoder]
+func For(encoder string) (Encoder, error) {
+	enc, ok := encoders[encoder]
 	if !ok {
 		return nil, ErrUnknownEncoder
 	}
 	return enc, nil
-}
-
-func NewEncoders() *Encoders {
-	return &Encoders{encoders: make(map[string]Encoder)}
 }
 
 type spewEncoder struct {
@@ -77,12 +64,13 @@ type gpxEncoder struct {
 }
 
 func (g *gpxEncoder) Encode(v interface{}) error {
-	if q, ok := v.(geo.GPX); ok {
-		p, err := q.GPX()
-		if err != nil {
-			return err
-		}
-		v = p
+	q, ok := v.(geo.GPX)
+	if !ok {
+		return errors.New("encoding GPX not supported")
+	}
+	v, err := q.GPX()
+	if err != nil {
+		return err
 	}
 	return g.enc.Encode(v)
 }
@@ -96,12 +84,13 @@ type geoJSONEncoder struct {
 }
 
 func (g *geoJSONEncoder) Encode(v interface{}) error {
-	if q, ok := v.(geo.GeoJSON); ok {
-		p, err := q.GeoJSON()
-		if err != nil {
-			return err
-		}
-		v = p
+	q, ok := v.(geo.GeoJSON)
+	if !ok {
+		return errors.New("encoding GeoJSON not supported")
+	}
+	v, err := q.GeoJSON()
+	if err != nil {
+		return err
 	}
 	return g.enc.Encode(v)
 }

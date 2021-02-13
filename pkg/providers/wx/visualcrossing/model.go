@@ -1,6 +1,6 @@
 package visualcrossing
 
-//go:generate stringer -type=AlertLevel,Units -linecomment -output model_string.go
+//go:generate stringer -type=AlertLevel -linecomment -output model_string.go
 
 import (
 	"time"
@@ -12,22 +12,10 @@ import (
 
 // Units of measure
 //  https://www.visualcrossing.com/resources/documentation/weather-api/unit-groups-and-measurement-units/
-type Units int
 
 // AlertLevel of alerts, warnings and other high priority information issued by local weather organizations
 //  https://www.visualcrossing.com/resources/documentation/weather-data/weather-alerts/
 type AlertLevel int
-
-const (
-	// UnitsMetric for temperature in Celsius and wind speed in km/hour
-	UnitsMetric Units = iota // metric
-	// UnitsUS for temperature in Fahrenheit and wind speed in miles/hour
-	UnitsUS // us
-	// UnitsUK for temperature in Celsius and wind speed in miles/hour
-	UnitsUK // uk
-	// UnitsStandard for temperature in Kelvin and wind speed in meter/sec
-	UnitsStandard // standard
-)
 
 const (
 	// None does not retrieve alert information (equivalent of omitting the parameter)
@@ -48,6 +36,17 @@ type Fault struct {
 
 func (f *Fault) Error() string {
 	return f.Message
+}
+
+type EndTime struct {
+	time.Time
+}
+
+const endTimeLayout = `"2006-01-02T15:04:05"`
+
+func (et *EndTime) UnmarshalJSON(b []byte) (err error) {
+	et.Time, err = time.Parse(endTimeLayout, string(b))
+	return
 }
 
 type Column struct {
@@ -91,7 +90,7 @@ type Alert struct {
 	Event       string     `json:"event"`
 	Headline    string     `json:"headline"`
 	Description string     `json:"description"`
-	Ends        *time.Time `json:"ends"`
+	Ends        *EndTime   `json:"ends"`
 	Onset       *time.Time `json:"onset"`
 }
 

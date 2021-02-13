@@ -5,10 +5,11 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
+	"github.com/bzimmer/gravl/pkg/providers/wx"
 	"github.com/bzimmer/gravl/pkg/providers/wx/noaa"
 )
 
-const doc = ``
+const doc = `forecast the weather for an activity`
 
 type Result struct {
 	Activity *analysis.Activity `json:"activity"`
@@ -23,8 +24,10 @@ func (a *forecast) run(ctx *analysis.Context, pass []*strava.Activity) (interfac
 	var res []*Result
 	for _, act := range pass {
 		coords := act.StartLatlng
-		point := geom.NewPointFlat(geom.XY, []float64{coords[1], coords[0]})
-		forecast, err := a.client.Points.Forecast(ctx, point)
+		opts := wx.ForecastOptions{
+			Point: geom.NewPointFlat(geom.XY, []float64{coords[1], coords[0]}),
+		}
+		forecast, err := a.client.Points.Forecast(ctx, opts)
 		if err != nil {
 			return nil, err
 		}

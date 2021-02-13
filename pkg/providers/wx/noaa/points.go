@@ -2,10 +2,12 @@ package noaa
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/bzimmer/gravl/pkg/providers/wx"
 	"github.com/twpayne/go-geom"
 )
 
@@ -34,14 +36,22 @@ func (s *PointsService) GridPoint(ctx context.Context, point *geom.Point) (*Grid
 	return gpt, err
 }
 
-// Forecast .
-func (s *PointsService) Forecast(ctx context.Context, point *geom.Point) (*Forecast, error) {
+// Forecast weather conditions
+func (s *PointsService) Forecast(ctx context.Context, opts wx.ForecastOptions) (*Forecast, error) {
+	point := opts.Point
+	if point == nil {
+		return nil, errors.New("point not specified")
+	}
 	uri := fmt.Sprintf("points/%s,%s/forecast", float64ToString(point.Y()), float64ToString(point.X()))
 	return s.forecast(ctx, uri)
 }
 
-// ForecastHourly .
-func (s *PointsService) ForecastHourly(ctx context.Context, point *geom.Point) (*Forecast, error) {
+// ForecastHourly weather conditions
+func (s *PointsService) ForecastHourly(ctx context.Context, opts wx.ForecastOptions) (*Forecast, error) {
+	point := opts.Point
+	if point == nil {
+		return nil, errors.New("point not specified")
+	}
 	uri := fmt.Sprintf("points/%s,%s/forecast/hourly", float64ToString(point.Y()), float64ToString(point.X()))
 	return s.forecast(ctx, uri)
 }

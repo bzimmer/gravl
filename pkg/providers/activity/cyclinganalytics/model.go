@@ -148,10 +148,6 @@ type Ride struct {
 	UTCDatetime   Datetime `json:"utc_datetime"`
 }
 
-type RidesResponse struct {
-	Rides []*Ride `json:"rides"`
-}
-
 type Upload struct {
 	Status    string   `json:"status"`
 	RideID    int64    `json:"ride_id"`

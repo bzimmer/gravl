@@ -19,6 +19,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/flopp/go-staticmaps v0.0.0-20210125201214-4aa39a44ead6
 	github.com/fogleman/gg v1.3.0
+	github.com/go-cmd/cmd v1.3.0
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang/geo v0.0.0-20210108004804-a63082ebfb66
 	github.com/golang/protobuf v1.4.3 // indirect
@@ -27,7 +28,6 @@ require (
 	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762
 	github.com/muesli/kmeans v0.2.1
 	github.com/nxadm/tail v1.4.6 // indirect
-	github.com/rendon/testcli v1.0.0
 	github.com/rs/zerolog v1.20.0
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/securego/gosec/v2 v2.6.1
@@ -39,7 +39,6 @@ require (
 	github.com/twpayne/go-gpx v1.2.0
 	github.com/twpayne/go-polyline v1.0.1
 	github.com/urfave/cli/v2 v2.3.0
-	github.com/valyala/fastjson v1.6.3
 	golang.org/x/exp v0.0.0-20210126221216-84987778548c // indirect
 	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5
 	golang.org/x/mod v0.4.1 // indirect

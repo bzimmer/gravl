@@ -1,50 +1,70 @@
 package strava_test
 
 import (
+	"math/rand"
+	"strconv"
 	"testing"
 
-	"github.com/rendon/testcli"
 	"github.com/stretchr/testify/assert"
 	"github.com/tidwall/gjson"
-	"github.com/valyala/fastjson"
 
 	"github.com/bzimmer/gravl/pkg/commands/internal"
 )
 
-func TestStravaAthleteIntegration(t *testing.T) {
+const N = 122
+
+// @todo(bzimmer) enable geojson support for strava
+const geojson = false
+
+func TestAthleteIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 	a := assert.New(t)
 
-	c := testcli.Command(internal.PackageGravl(), "-c", "strava", "athlete")
-	c.Run()
+	c := internal.Gravl("-c", "strava", "athlete")
+	<-c.Start()
 	a.True(c.Success())
 }
-func TestStravaActivityIntegration(t *testing.T) {
+
+func TestActivityIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 	a := assert.New(t)
 
-	c := testcli.Command(internal.PackageGravl(), "-c", "strava", "activities", "-N", "25")
-	c.Run()
+	c := internal.Gravl("-c", "strava", "activities", "-N", strconv.FormatInt(N, 10))
+	<-c.Start()
 	a.True(c.Success())
-
-	var sc fastjson.Scanner
-	sc.InitBytes([]byte(c.Stdout()))
 
 	var i int
-	var line string
-	for ; sc.Next(); i++ {
-		line = sc.Value().String()
-	}
-
-	a.Equal(25, i)
-	res := gjson.Get(line, "id")
-	a.Greater(res.Int(), int64(0))
-
-	c = testcli.Command(internal.PackageGravl(), "-c", "strava", "activity", res.String())
-	c.Run()
-	a.True(c.Success())
+	var randomID = rand.Intn(N - 1) // nolint
+	gjson.ForEachLine(c.Stdout(), func(res gjson.Result) bool {
+		id := gjson.Get(res.String(), "id").Int()
+		a.Greater(id, int64(0))
+		if i == randomID {
+			idS := strconv.FormatInt(id, 10)
+			c = internal.Gravl("-c", "strava", "activity", idS)
+			<-c.Start()
+			a.True(c.Success())
+			c = internal.Gravl("-e", "gpx", "strava", "activity", idS)
+			<-c.Start()
+			a.True(c.Success())
+			if geojson {
+				c = internal.Gravl("-e", "geojson", "strava", "activity", idS)
+				<-c.Start()
+				a.True(c.Success())
+				res = gjson.Parse(c.Stdout())
+				a.NotNil(res)
+			}
+			c = internal.Gravl("-c", "strava", "activity", idS)
+			<-c.Start()
+			a.True(c.Success())
+		}
+		i++
+		return true
+	})
+	a.Equal(N, i)
 }

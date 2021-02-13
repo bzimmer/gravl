@@ -2,15 +2,13 @@ package visualcrossing
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 	"time"
 
-	"github.com/twpayne/go-geom"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	wxcmd "github.com/bzimmer/gravl/pkg/commands/wx"
 	"github.com/bzimmer/gravl/pkg/providers/wx/visualcrossing"
 )
 
@@ -21,36 +19,17 @@ func NewClient(c *cli.Context) (*visualcrossing.Client, error) {
 }
 
 func forecast(c *cli.Context) error {
-	opt := visualcrossing.ForecastOptions{
-		Astronomy:      true,
-		AggregateHours: c.Int("interval"),
-		Units:          visualcrossing.UnitsMetric,
-		AlertLevel:     visualcrossing.AlertLevelDetail,
+	opts, err := wxcmd.Options(c)
+	if err != nil {
+		return err
 	}
-	switch c.Args().Len() {
-	case 1:
-		opt.Location = c.Args().Get(0)
-	case 2:
-		lng, err := strconv.ParseFloat(c.Args().Get(1), 64)
-		if err != nil {
-			return err
-		}
-		lat, err := strconv.ParseFloat(c.Args().Get(0), 64)
-		if err != nil {
-			return err
-		}
-		opt.Point = geom.NewPointFlat(geom.XY, []float64{lng, lat})
-	default:
-		return fmt.Errorf("only 1 or 2 arguments allowed [%v]", c.Args())
-	}
-
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
 	client, err := NewClient(c)
 	if err != nil {
 		return err
 	}
-	fcst, err := client.Forecast.Forecast(ctx, opt)
+	fcst, err := client.Forecast.Forecast(ctx, opts)
 	if err != nil {
 		return err
 	}
@@ -71,14 +50,12 @@ var forecastCommand = &cli.Command{
 }
 
 var Command = &cli.Command{
-	Name:     "visualcrossing",
-	Aliases:  []string{"vc"},
-	Category: "wx",
-	Usage:    "Query VisualCrossing for forecasts",
-	Flags:    AuthFlags,
-	Subcommands: []*cli.Command{
-		forecastCommand,
-	},
+	Name:        "visualcrossing",
+	Aliases:     []string{"vc"},
+	Category:    "wx",
+	Usage:       "Query VisualCrossing for forecasts",
+	Flags:       AuthFlags,
+	Subcommands: []*cli.Command{forecastCommand},
 }
 
 var AuthFlags = []cli.Flag{

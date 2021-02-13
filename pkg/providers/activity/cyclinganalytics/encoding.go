@@ -2,13 +2,17 @@ package cyclinganalytics
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg"
 	"github.com/twpayne/go-geom"
 	"github.com/twpayne/go-gpx"
+
+	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/providers/geo"
 )
+
+var _ geo.GPX = &Ride{}
 
 func (r *Ride) GPX() (*gpx.GPX, error) {
 	var layout geom.Layout
@@ -57,7 +61,7 @@ func (r *Ride) GPX() (*gpx.GPX, error) {
 	return &gpx.GPX{
 		Creator: pkg.UserAgent,
 		Metadata: &gpx.MetadataType{
-			Name: fmt.Sprintf("%d", r.ID),
+			Name: strconv.FormatInt(r.ID, 10),
 		},
 		Trk: []*gpx.TrkType{trk},
 	}, nil

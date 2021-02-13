@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/go-cmd/cmd"
 )
 
 func packageRoot() (string, error) {
@@ -40,4 +42,24 @@ func PackageGravl() string {
 		panic(err)
 	}
 	return filepath.Join(root, "dist", "gravl")
+}
+
+// GravlCmd executes `gravl` commands
+type GravlCmd struct {
+	*cmd.Cmd
+}
+
+// Gravl creates a new instance of `Gravl`
+func Gravl(args ...string) *GravlCmd {
+	return &GravlCmd{Cmd: cmd.NewCmd(PackageGravl(), args...)}
+}
+
+// Success returns `true` if the `gravl` exit status is 0
+func (c *GravlCmd) Success() bool {
+	return c.Status().Exit == 0
+}
+
+// Stdout returns all the contents of stdout
+func (c *GravlCmd) Stdout() string {
+	return strings.Join(c.Status().Stdout, "\n")
 }

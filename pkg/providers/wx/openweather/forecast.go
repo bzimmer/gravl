@@ -6,25 +6,25 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/twpayne/go-geom"
+	"github.com/bzimmer/gravl/pkg/providers/wx"
 )
 
 // ForecastService provides forecast
 type ForecastService service
 
-type ForecastOptions struct {
-	Units Units
-	Point *geom.Point
-}
-
-func (r *ForecastOptions) values() (*url.Values, error) {
+func values(opts wx.ForecastOptions) (*url.Values, error) {
 	v := &url.Values{}
-	if r.Point == nil {
+	if opts.Point == nil {
 		return nil, &Fault{Message: "no coordinates specified"}
 	}
-	v.Set("lat", fmt.Sprintf("%0.4f", r.Point.Y()))
-	v.Set("lon", fmt.Sprintf("%0.4f", r.Point.X()))
-	v.Set("units", r.Units.String())
+	v.Set("lat", fmt.Sprintf("%0.4f", opts.Point.Y()))
+	v.Set("lon", fmt.Sprintf("%0.4f", opts.Point.X()))
+	switch opts.Units {
+	case wx.Metric:
+		v.Set("units", "metric")
+	case wx.Imperial:
+		v.Set("units", "imperial")
+	}
 	return v, nil
 }
 
@@ -32,8 +32,8 @@ func (r *ForecastOptions) values() (*url.Values, error) {
 type ForecastOption func(*url.Values) error
 
 // Forecast returns a forecast
-func (s *ForecastService) Forecast(ctx context.Context, opt ForecastOptions) (*Forecast, error) {
-	values, err := opt.values()
+func (s *ForecastService) Forecast(ctx context.Context, opts wx.ForecastOptions) (*Forecast, error) {
+	values, err := values(opts)
 	if err != nil {
 		return nil, err
 	}

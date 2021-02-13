@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -56,7 +57,6 @@ func (r *RideOptions) values() *url.Values {
 // Ride returns a single ride with available options
 func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions) (*Ride, error) {
 	uri := fmt.Sprintf("ride/%d", rideID)
-
 	params := opts.values()
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, params, nil)
 	if err != nil {
@@ -80,10 +80,17 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID, spec activity.P
 	if err != nil {
 		return nil, err
 	}
-	res := &RidesResponse{}
+	type rides struct {
+		Rides []*Ride `json:"rides"`
+	}
+	res := &rides{}
 	err = s.client.do(req, res)
 	if err != nil {
 		return nil, err
+	}
+	if spec.Total > 0 {
+		n := math.Min(float64(len(res.Rides)), float64(spec.Total))
+		res.Rides = res.Rides[:int(n)]
 	}
 	return res.Rides, nil
 }

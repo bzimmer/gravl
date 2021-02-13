@@ -79,16 +79,13 @@ type EncoderFunc func(c *cli.Context) encoding.Encoder
 
 func InitEncoding(fns ...EncoderFunc) cli.BeforeFunc {
 	return func(c *cli.Context) error {
-		encoders := encoding.NewEncoders()
-		encoders.MustUse(encoding.Spew(c.App.Writer))
-		encoders.MustUse(encoding.XML(c.App.Writer, c.Bool("compact")))
-		encoders.MustUse(encoding.JSON(c.App.Writer, c.Bool("compact")))
+		encoding.Add(encoding.Spew(c.App.Writer))
+		encoding.Add(encoding.XML(c.App.Writer, c.Bool("compact")))
+		encoding.Add(encoding.JSON(c.App.Writer, c.Bool("compact")))
 		for i := 0; i < len(fns); i++ {
-			if err := encoders.Use(fns[i](c)); err != nil {
-				return err
-			}
+			encoding.Add(fns[i](c))
 		}
-		encoder, err := encoders.For(c.String("encoding"))
+		encoder, err := encoding.For(c.String("encoding"))
 		if err != nil {
 			return err
 		}
@@ -120,7 +117,7 @@ func InitLogging() cli.BeforeFunc {
 	}
 }
 
-var CommandsCommand = &cli.Command{
+var Commands = &cli.Command{
 	Name:  "commands",
 	Usage: "Return all possible commands",
 	Flags: []cli.Flag{

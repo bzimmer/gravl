@@ -7,13 +7,14 @@ import (
 
 	"github.com/golang/geo/s2"
 	"github.com/martinlindhe/unit"
-	"github.com/rs/zerolog/log"
-	geom "github.com/twpayne/go-geom"
-	gpx "github.com/twpayne/go-gpx"
+	"github.com/twpayne/go-geom"
+	"github.com/twpayne/go-gpx"
 )
 
-const earthRadiusM = 6367000.0
-const movingTimeThreshold = 0.1
+const (
+	earthRadiusM        = 6367000.0
+	movingTimeThreshold = 0.1
+)
 
 // GPX instances can return a gpx instance
 type GPX interface {
@@ -28,10 +29,12 @@ type Elevator interface {
 }
 
 type Summary struct {
+	Filename    string        `json:"filename,omitempty"`
 	Tracks      int           `json:"tracks,omitempty"`
 	Routes      int           `json:"routes,omitempty"`
 	Segments    int           `json:"segments,omitempty"`
 	Points      int           `json:"points,omitempty"`
+	Waypoints   int           `json:"waypoints,omitempty"`
 	Distance2D  unit.Length   `json:"distance2d,omitempty"`
 	Distance3D  unit.Length   `json:"distance3d,omitempty"`
 	Ascent      unit.Length   `json:"ascent,omitempty"`
@@ -52,11 +55,6 @@ func distance(p, q *gpx.WptType) unit.Length {
 }
 
 func CorrectElevations(ctx context.Context, gpx *gpx.GPX, elevator Elevator) error {
-	defer func(start time.Time) {
-		log.Info().
-			Dur("elapsed", time.Since(start)).
-			Msg("elevation corrections")
-	}(time.Now())
 	for _, track := range gpx.Trk {
 		for _, segment := range track.TrkSeg {
 			for _, point := range segment.TrkPt {
@@ -116,7 +114,7 @@ func FlattenRoutes(gpx *gpx.GPX, layout geom.Layout) *geom.LineString {
 }
 
 func SummarizeTracks(gpx *gpx.GPX) *Summary {
-	s := &Summary{}
+	s := &Summary{Waypoints: len(gpx.Wpt)}
 	for _, track := range gpx.Trk {
 		s.Tracks++
 		for _, segment := range track.TrkSeg {
@@ -159,7 +157,7 @@ func SummarizeTracks(gpx *gpx.GPX) *Summary {
 }
 
 func SummarizeRoutes(gpx *gpx.GPX) *Summary {
-	s := &Summary{}
+	s := &Summary{Waypoints: len(gpx.Wpt)}
 	for _, rte := range gpx.Rte {
 		s.Routes++
 		n := len(rte.RtePt)

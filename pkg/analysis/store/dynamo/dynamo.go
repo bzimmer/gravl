@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -112,7 +113,7 @@ func (b *ddb) Save(ctx context.Context, acts ...*strava.Activity) error {
 		if err != nil {
 			return err
 		}
-		input.Item[attributeID] = &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", act.ID)}
+		input.Item[attributeID] = &types.AttributeValueMemberN{Value: strconv.FormatInt(act.ID, 10)}
 		input.Item[attributeActivity] = &types.AttributeValueMemberB{Value: data}
 		_, err = b.svc.PutItem(ctx, input)
 		if err != nil {
@@ -129,7 +130,7 @@ func (b *ddb) Remove(ctx context.Context, acts ...*strava.Activity) error {
 		Key:       make(map[string]types.AttributeValue),
 	}
 	for _, act := range acts {
-		input.Key[attributeID] = &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", act.ID)}
+		input.Key[attributeID] = &types.AttributeValueMemberN{Value: strconv.FormatInt(act.ID, 10)}
 		_, err := b.svc.DeleteItem(ctx, input)
 		if err != nil {
 			return err
@@ -143,7 +144,7 @@ func (b *ddb) get(ctx context.Context, activityID int64) (*dynamodb.GetItemOutpu
 		&dynamodb.GetItemInput{
 			TableName: aws.String(tableName),
 			Key: map[string]types.AttributeValue{
-				attributeID: &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", activityID)},
+				attributeID: &types.AttributeValueMemberN{Value: strconv.FormatInt(activityID, 10)},
 			},
 		},
 	)

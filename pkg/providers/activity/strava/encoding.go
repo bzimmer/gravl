@@ -2,7 +2,7 @@ package strava
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/twpayne/go-geom"
@@ -69,7 +69,7 @@ func (a *Activity) GPX() (x *gpx.GPX, err error) {
 		}
 	}
 	x.Metadata = &gpx.MetadataType{
-		Name: fmt.Sprintf("%d", a.ID),
+		Name: strconv.FormatInt(a.ID, 10),
 		Desc: a.Description,
 		Time: a.StartDate,
 	}
@@ -87,7 +87,7 @@ func (r *Route) GPX() (*gpx.GPX, error) {
 	return &gpx.GPX{
 		Creator: pkg.UserAgent,
 		Metadata: &gpx.MetadataType{
-			Name: fmt.Sprintf("%d", r.ID),
+			Name: strconv.FormatInt(int64(r.ID), 10),
 			Desc: r.Description,
 		},
 		Rte: []*gpx.RteType{rte},
@@ -156,7 +156,7 @@ func toGPXFromStreams(s *Streams, start time.Time) (*gpx.GPX, error) {
 	return &gpx.GPX{
 		Creator: pkg.UserAgent,
 		Metadata: &gpx.MetadataType{
-			Name: fmt.Sprintf("%d", s.ActivityID),
+			Name: strconv.FormatInt(s.ActivityID, 10),
 		},
 		Trk: []*gpx.TrkType{trk},
 	}, nil

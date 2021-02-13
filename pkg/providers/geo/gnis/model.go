@@ -1,7 +1,7 @@
 package gnis
 
 import (
-	geom "github.com/twpayne/go-geom"
+	"github.com/twpayne/go-geom"
 	"github.com/twpayne/go-geom/encoding/geojson"
 
 	"github.com/bzimmer/gravl/pkg/providers/geo"

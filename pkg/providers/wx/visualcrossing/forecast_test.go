@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/bzimmer/gravl/pkg/providers/wx"
 	"github.com/bzimmer/gravl/pkg/providers/wx/visualcrossing"
 )
 
@@ -14,25 +15,32 @@ func Test_ForecastSuccess(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	c, err := newClient(http.StatusOK, "forecast.json")
-	a.NoError(err)
-	a.NotNil(c)
+	type f struct {
+		filename  string
+		windchill float64
+	}
+	forecasts := []f{{"forecast.json", 32.1}, {"forecast-with-alerts.json", -7.2}}
+	for i := range forecasts {
+		c, err := newClient(http.StatusOK, forecasts[i].filename)
+		a.NoError(err)
+		a.NotNil(c)
 
-	ctx := context.Background()
-	fcst, err := c.Forecast.Forecast(ctx, visualcrossing.ForecastOptions{Location: "Foobar"})
-	a.NoError(err)
-	a.NotNil(fcst)
+		ctx := context.Background()
+		fcst, err := c.Forecast.Forecast(ctx, wx.ForecastOptions{Location: "Foobar"})
+		a.NoError(err)
+		a.NotNil(fcst)
 
-	loc := fcst.Locations[0]
-	a.Equal(16, len(loc.ForecastConditions))
+		loc := fcst.Locations[0]
+		a.Equal(16, len(loc.ForecastConditions))
 
-	conditions := loc.ForecastConditions
-	cond := conditions[len(conditions)-1]
-	a.Equal(32.1, cond.WindChill)
+		conditions := loc.ForecastConditions
+		cond := conditions[len(conditions)-1]
+		a.Equal(forecasts[i].windchill, cond.WindChill)
 
-	f, err := fcst.Forecast()
-	a.NoError(err)
-	a.NotNil(f)
+		f, err := fcst.Forecast()
+		a.NoError(err)
+		a.NotNil(f)
+	}
 }
 
 func Test_ForecastError(t *testing.T) {
@@ -44,7 +52,7 @@ func Test_ForecastError(t *testing.T) {
 	a.NotNil(c)
 
 	ctx := context.Background()
-	fcst, err := c.Forecast.Forecast(ctx, visualcrossing.ForecastOptions{Location: "Seattle,WA"})
+	fcst, err := c.Forecast.Forecast(ctx, wx.ForecastOptions{Location: "Seattle,WA"})
 	a.Error(err)
 	a.Nil(fcst)
 

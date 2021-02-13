@@ -5,51 +5,48 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
-	"github.com/twpayne/go-geom"
+	"github.com/bzimmer/gravl/pkg/providers/wx"
 )
 
 // ForecastService provides forecasts
 type ForecastService service
 
-type ForecastOptions struct {
-	AggregateHours int
-	Location       string
-	Point          *geom.Point
-	AlertLevel     AlertLevel
-	Astronomy      bool
-	Units          Units
-}
-
-func (r *ForecastOptions) values() (*url.Values, error) {
+func values(opts wx.ForecastOptions) (*url.Values, error) {
 	v := &url.Values{}
-	switch r.AggregateHours {
+	switch opts.AggregateHours {
 	case 0:
 		// do nothing
 	case 1, 12, 24:
-		v.Set("aggregateHours", fmt.Sprintf("%d", r.AggregateHours))
+		v.Set("aggregateHours", strconv.FormatInt(int64(opts.AggregateHours), 10))
 	default:
 		return nil, &Fault{
-			Message: fmt.Sprintf("unknown aggregate hours {%d}", r.AggregateHours)}
+			Message: fmt.Sprintf("unknown aggregate hours {%d}", opts.AggregateHours)}
 	}
 	switch {
-	case r.Location != "":
-		v.Set("locations", r.Location)
-	case r.Point != nil:
-		loc := fmt.Sprintf("%0.4f,%0.4f", r.Point.Y(), r.Point.X())
+	case opts.Location != "":
+		v.Set("locations", opts.Location)
+	case opts.Point != nil:
+		loc := fmt.Sprintf("%0.4f,%0.4f", opts.Point.Y(), opts.Point.X())
 		v.Set("locations", loc)
 	default:
 		return nil, &Fault{Message: "no location or coordinates specified"}
 	}
-	v.Set("includeAstronomy", fmt.Sprintf("%t", r.Astronomy))
-	v.Set("alertLevel", r.AlertLevel.String())
-	v.Set("unitGroup", r.Units.String())
+	v.Set("includeAstronomy", fmt.Sprintf("%t", true))
+	v.Set("alertLevel", "detail")
+	switch opts.Units {
+	case wx.Metric:
+		v.Set("unitGroup", "metric")
+	case wx.Imperial:
+		v.Set("unitGroup", "us")
+	}
 	return v, nil
 }
 
-// Forecast .
-func (s *ForecastService) Forecast(ctx context.Context, opt ForecastOptions) (*Forecast, error) {
-	values, err := opt.values()
+// Forecast weather conditions for a point
+func (s *ForecastService) Forecast(ctx context.Context, opts wx.ForecastOptions) (*Forecast, error) {
+	values, err := values(opts)
 	if err != nil {
 		return nil, err
 	}

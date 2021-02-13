@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog/log"
-	"github.com/valyala/fastjson"
+	"github.com/tidwall/gjson"
 
 	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
@@ -132,25 +132,24 @@ func (s *file) Remove(ctx context.Context, acts ...*strava.Activity) error {
 func read(path string) (map[int64]*strava.Activity, error) {
 	var b []byte
 	var err error
-	var sc fastjson.Scanner
 	var activities = make(map[int64]*strava.Activity)
-	log.Debug().Str("path", path).Msg("reading")
+	log.Info().Str("path", path).Msg("reading")
 	b, err = ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	sc.InitBytes(b)
-	for sc.Next() {
-		if err = sc.Error(); err != nil {
-			return nil, err
-		}
-		val := sc.Value()
+	err = nil
+	gjson.ForEachLine(string(b), func(res gjson.Result) bool {
 		act := &strava.Activity{}
-		err = json.Unmarshal(val.MarshalTo(nil), act)
+		err = json.Unmarshal([]byte(res.Raw), act)
 		if err != nil {
-			return nil, err
+			return false
 		}
 		activities[act.ID] = act
+		return true
+	})
+	if err != nil {
+		return nil, err
 	}
 	return activities, nil
 }

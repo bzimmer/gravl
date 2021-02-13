@@ -3,7 +3,6 @@ package gravl_test
 import (
 	"testing"
 
-	"github.com/rendon/testcli"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/commands/internal"
@@ -39,7 +38,11 @@ func TestGravlIntegration(t *testing.T) {
 	}
 	a := assert.New(t)
 
-	c := testcli.Command(internal.PackageGravl())
-	c.Run()
-	a.True(c.Success())
+	c := internal.Gravl()
+	s := <-c.Start()
+	a.Equal(0, s.Exit)
+
+	c = internal.Gravl("foo", "bar", "baz")
+	s = <-c.Start()
+	a.Equal(1, s.Exit)
 }

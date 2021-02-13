@@ -1,4 +1,4 @@
-package rwgps_test
+package cyclinganalytics_test
 
 import (
 	"math/rand"
@@ -11,9 +11,10 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/internal"
 )
 
-const N = 34
+const N = 22
 
-const geojson = true
+// @todo(bzimmer) enable geojson support for cyclinganalytics
+const geojson = false
 
 func TestAthleteIntegration(t *testing.T) {
 	if testing.Short() {
@@ -22,7 +23,7 @@ func TestAthleteIntegration(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	c := internal.Gravl("-c", "rwgps", "athlete")
+	c := internal.Gravl("-c", "cyclinganalytics", "athlete")
 	<-c.Start()
 	a.True(c.Success())
 }
@@ -34,7 +35,7 @@ func TestActivityIntegration(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	c := internal.Gravl("-c", "rwgps", "activities", "-N", strconv.FormatInt(N, 10))
+	c := internal.Gravl("-c", "cyclinganalytics", "activities", "-N", strconv.FormatInt(N, 10))
 	<-c.Start()
 	a.True(c.Success())
 
@@ -45,20 +46,20 @@ func TestActivityIntegration(t *testing.T) {
 		a.Greater(id, int64(0))
 		if i == randomID {
 			idS := strconv.FormatInt(id, 10)
-			c = internal.Gravl("-c", "rwgps", "activity", idS)
+			c = internal.Gravl("-c", "cyclinganalytics", "activity", idS)
 			<-c.Start()
 			a.True(c.Success())
-			c = internal.Gravl("-e", "gpx", "rwgps", "activity", idS)
+			c = internal.Gravl("-e", "gpx", "cyclinganalytics", "activity", idS)
 			<-c.Start()
 			a.True(c.Success())
 			if geojson {
-				c = internal.Gravl("-e", "geojson", "rwgps", "activity", idS)
+				c = internal.Gravl("-e", "geojson", "cyclinganalytics", "activity", idS)
 				<-c.Start()
 				a.True(c.Success())
 				res = gjson.Parse(c.Stdout())
 				a.NotNil(res)
 			}
-			c = internal.Gravl("-c", "rwgps", "activity", idS)
+			c = internal.Gravl("-c", "cyclinganalytics", "activity", idS)
 			<-c.Start()
 			a.True(c.Success())
 		}

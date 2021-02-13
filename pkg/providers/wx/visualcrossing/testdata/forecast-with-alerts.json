@@ -672,7 +672,7 @@
                     "event": "Child Abduction Emergency",
                     "headline": "Child Abduction Emergency issued November 17 at 2:46AM MST by NWS Great Falls MT",
                     "description": "THE FOLLOWING MESSAGE IS TRANSMITTED AT THE REQUEST OF THE\nMONTANA DEPARTMENT OF JUSTICE.\n\nTHE AMBER ALERT FOR ADRIANNA RAY MARIE CARREIA HAS BEEN\nCANCELLED. ADRIANNA HAS BEEN FOUND AND IS SAFE. THANK YOU FOR YOUR\nHELP.",
-                    "ends": null,
+                    "ends": "2021-02-13T21:00:00",
                     "onset": "2020-11-17T02:46:00-07:00"
                 }
             ]

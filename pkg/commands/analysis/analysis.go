@@ -14,6 +14,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
+// read activities from the store
 func read(c *cli.Context, db store.Store) ([]*strava.Activity, error) {
 	ca, ce := db.Activities(c.Context)
 	acts, err := strava.Activities(c.Context, ca, ce)

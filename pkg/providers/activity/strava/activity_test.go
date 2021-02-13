@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"testing"
 	"time"
@@ -97,12 +96,11 @@ func TestActivitiesMany(t *testing.T) {
 	// test total and start
 	// success: the requested number of activities is exceeded because count/pagesize not specified
 	x := 234
-	n := int(math.Floor(float64(x)/strava.PageSize)*strava.PageSize + strava.PageSize)
 	ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0})
 	acts, err = strava.Activities(ctx, ca, ce)
 	a.NoError(err)
 	a.NotNil(acts)
-	a.Equal(n, len(acts))
+	a.Equal(x, len(acts))
 
 	// test total and start less than PageSize
 	// success: the requested number of activities because count/pagesize <= strava.PageSize
@@ -120,12 +118,7 @@ func TestActivitiesMany(t *testing.T) {
 		acts, err = strava.Activities(ctx, ca, ce)
 		a.NoError(err)
 		a.NotNil(acts)
-
-		n = x
-		if x > strava.PageSize {
-			n = int(math.Floor(float64(x)/strava.PageSize)*strava.PageSize + strava.PageSize)
-		}
-		a.Equal(n, len(acts))
+		a.Equal(x, len(acts))
 	}
 
 	// negative test

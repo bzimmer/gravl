@@ -1,7 +1,5 @@
 package openweather
 
-//go:generate stringer -type=Units -linecomment -output=model_string.go
-
 import (
 	"errors"
 
@@ -10,18 +8,8 @@ import (
 
 // Units of measure
 //  https://openweathermap.org/api/one-call-api#data
-type Units int
 
-const (
-	// UnitsMetric fo temperature in Celsius and wind speed in meter/sec
-	UnitsMetric Units = iota // metric
-	// UnitsImperial for temperature in Fahrenheit and wind speed in miles/hour
-	UnitsImperial // imperial
-	// UnitsStandard for temperature in Kelvin and wind speed in meter/sec
-	UnitsStandard // standard
-)
-
-// Fault .
+// Fault represents an error
 type Fault struct {
 	ErrorCode int    `json:"cod"`
 	Message   string `json:"message"`

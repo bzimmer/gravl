@@ -38,6 +38,7 @@ func main() {
 		cyclinganalytics.Command,
 		gnis.Command,
 		gpx.Command,
+		gravl.Commands,
 		noaa.Command,
 		openweather.Command,
 		rwgps.Command,

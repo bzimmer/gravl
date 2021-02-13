@@ -24,11 +24,11 @@ var Command = &cli.Command{
 		var longitude, latitude float64
 		switch c.Args().Len() {
 		case 2:
-			longitude, err = strconv.ParseFloat(c.Args().Get(0), 64)
+			longitude, err = strconv.ParseFloat(c.Args().Get(1), 64)
 			if err != nil {
 				return err
 			}
-			latitude, err = strconv.ParseFloat(c.Args().Get(1), 64)
+			latitude, err = strconv.ParseFloat(c.Args().Get(0), 64)
 			if err != nil {
 				return err
 			}

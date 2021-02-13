@@ -3,15 +3,16 @@ package activity
 import (
 	"context"
 	"errors"
+	"math"
 
 	"github.com/rs/zerolog/log"
 )
 
 // Pagination provides guidance on how to paginate through resources
 type Pagination struct {
-	// Total of resources to query
+	// Total number of resources to query
 	Total int
-	// Start at this page
+	// Start querying at this page
 	Start int
 	// Count of the number of resources to query per page
 	Count int
@@ -62,16 +63,14 @@ func do(ctx context.Context, paginator Paginator, total, start, count int) error
 			return err
 		}
 		all := paginator.Count()
-		log.Info().
-			Int("n", n).
-			Int("all", all).
-			Int("start", start).
-			Int("count", count).
-			Int("total", total).
-			Msg("do")
-		// Strava documentation says receiving fewer than requested results is a
-		// possible scenario so break only if 0 results were returned or we have
-		// enough to fulfill the request
+		// if `total` == 0 all results should be queried so no need to fetch fewer than page size (`count`)
+		//  but if `total` > 0 then we can optimize
+		if total > 0 {
+			count = int(math.Min(float64(count), float64(total-all)))
+		}
+		log.Info().Int("n", n).Int("all", all).Int("start", start).Int("count", count).Int("total", total).Msg("do")
+		// fewer than requested results is a possible scenario so break only if
+		//  0 results were returned or we have enough to fulfill the request
 		if n == 0 {
 			break
 		}
