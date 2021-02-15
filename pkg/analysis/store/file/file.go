@@ -61,25 +61,23 @@ func (s *file) Close() error {
 	return nil
 }
 
-// Activities returns a slice of (potentially incomplete) Activity instances
-func (s *file) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan error) {
-	errs := make(chan error)
-	acts := make(chan *strava.Activity)
+// Activities returns a channel of activities and errors for an athlete
+func (s *file) Activities(ctx context.Context) <-chan *strava.ActivityResult {
+	acts := make(chan *strava.ActivityResult)
 	go func() {
 		defer close(acts)
-		defer close(errs)
 		s.mutex.RLock()
 		defer s.mutex.RUnlock()
 		for _, act := range s.activities {
 			select {
 			case <-ctx.Done():
-				errs <- ctx.Err()
+				acts <- &strava.ActivityResult{Err: ctx.Err()}
 				return
-			case acts <- act:
+			case acts <- &strava.ActivityResult{Activity: act}:
 			}
 		}
 	}()
-	return acts, errs
+	return acts
 }
 
 // Activity returns a fully populated Activity
@@ -151,5 +149,6 @@ func read(path string) (map[int64]*strava.Activity, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Info().Str("path", path).Int("activities", len(activities)).Msg("reading")
 	return activities, nil
 }

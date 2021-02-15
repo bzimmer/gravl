@@ -11,7 +11,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/internal"
 )
 
-const N = 34
+const N = 134
 
 const geojson = true
 

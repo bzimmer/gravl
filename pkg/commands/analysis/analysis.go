@@ -7,7 +7,6 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/eval"
-	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	storecmd "github.com/bzimmer/gravl/pkg/commands/store"
@@ -15,13 +14,25 @@ import (
 )
 
 // read activities from the store
-func read(c *cli.Context, db store.Store) ([]*strava.Activity, error) {
-	ca, ce := db.Activities(c.Context)
-	acts, err := strava.Activities(c.Context, ca, ce)
-	if err != nil {
-		return nil, err
+func read(ctx context.Context, acts <-chan *strava.ActivityResult) ([]*strava.Activity, error) {
+	var activities []*strava.Activity
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case res, ok := <-acts:
+			if !ok {
+				return activities, nil
+			}
+			if res.Err != nil {
+				return nil, res.Err
+			}
+			if res.Activity == nil {
+				continue
+			}
+			activities = append(activities, res.Activity)
+		}
 	}
-	return acts, nil
 }
 
 // filter the activities
@@ -58,11 +69,13 @@ func group(c *cli.Context, acts []*strava.Activity) (*analysis.Pass, error) {
 }
 
 func analyze(c *cli.Context) error {
+	ctx, cancel := context.WithCancel(c.Context)
+	defer cancel()
 	db, err := storecmd.Open(c, "input")
 	if err != nil {
 		return err
 	}
-	acts, err := read(c, db)
+	acts, err := read(ctx, db.Activities(ctx))
 	if err != nil {
 		return err
 	}
@@ -82,11 +95,9 @@ func analyze(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	ctx := c.Context
 	if c.IsSet("timeout") {
-		x, cancel := context.WithTimeout(ctx, c.Duration("timeout"))
+		ctx, cancel = context.WithTimeout(ctx, c.Duration("timeout"))
 		defer cancel()
-		ctx = x
 	}
 	uf := c.Generic("units").(*analysis.UnitsFlag)
 	x := analysis.WithContext(ctx, uf.Units)

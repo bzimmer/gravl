@@ -93,32 +93,33 @@ func (b *bunt) Activity(ctx context.Context, activityID int64) (*strava.Activity
 	return act, nil
 }
 
-// Activities returns channels for activities and errors for an athlete
-func (b *bunt) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan error) {
-	errs := make(chan error)
-	acts := make(chan *strava.Activity)
+// Activities returns a channel of activities and errors for an athlete
+func (b *bunt) Activities(ctx context.Context) <-chan *strava.ActivityResult {
+	acts := make(chan *strava.ActivityResult)
 	go func() {
-		defer close(errs)
 		defer close(acts)
-		_ = b.db.View(func(tx *buntdb.Tx) error {
+		err := b.db.View(func(tx *buntdb.Tx) error {
 			return tx.Ascend("", func(_, val string) bool {
 				select {
 				case <-ctx.Done():
-					errs <- ctx.Err()
+					acts <- &strava.ActivityResult{Err: ctx.Err()}
 					return false
 				default:
 					act, err := unmarshal(val)
 					if err != nil {
-						errs <- err
-						return false
+						acts <- &strava.ActivityResult{Err: err}
+						return true
 					}
-					acts <- act
+					acts <- &strava.ActivityResult{Activity: act}
 					return true
 				}
 			})
 		})
+		if err != nil {
+			acts <- &strava.ActivityResult{Err: err}
+		}
 	}()
-	return acts, errs
+	return acts
 }
 
 // Save the activities to the source

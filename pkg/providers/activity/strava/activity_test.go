@@ -15,6 +15,25 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
+func readall(ctx context.Context, acts <-chan *strava.ActivityResult) ([]*strava.Activity, error) {
+	var activities []*strava.Activity
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case res, ok := <-acts:
+			if !ok {
+				// the channel is closed, return the activities
+				return activities, nil
+			}
+			if res.Err != nil {
+				return nil, res.Err
+			}
+			activities = append(activities, res.Activity)
+		}
+	}
+}
+
 func TestActivity(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
@@ -40,8 +59,7 @@ func TestActivities(t *testing.T) {
 		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}))
 	a.NoError(err)
 
-	ca, ce := client.Activity.Activities(ctx, activity.Pagination{})
-	acts, err := strava.Activities(ctx, ca, ce)
+	acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{}))
 	a.NoError(err)
 	a.Equal(2, len(acts))
 }
@@ -67,8 +85,7 @@ func TestActivitiesRequestedGTAvailable(t *testing.T) {
 	client, err := newClienter(http.StatusOK, "activities.json", nil, (&F{}).X)
 	a.NoError(err)
 	ctx := context.Background()
-	ca, ce := client.Activity.Activities(ctx, activity.Pagination{Total: 325})
-	acts, err := strava.Activities(ctx, ca, ce)
+	acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: 325}))
 	a.NoError(err)
 	a.Equal(2, len(acts))
 }
@@ -87,8 +104,7 @@ func TestActivitiesMany(t *testing.T) {
 
 	// test total, start, and count
 	// success: the requested number of activities because count/pagesize == 1
-	ca, ce := client.Activity.Activities(ctx, activity.Pagination{Total: 127, Start: 0, Count: 1})
-	acts, err := strava.Activities(ctx, ca, ce)
+	acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: 127, Start: 0, Count: 1}))
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(127, len(acts))
@@ -96,8 +112,7 @@ func TestActivitiesMany(t *testing.T) {
 	// test total and start
 	// success: the requested number of activities is exceeded because count/pagesize not specified
 	x := 234
-	ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0})
-	acts, err = strava.Activities(ctx, ca, ce)
+	acts, err = readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0}))
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(x, len(acts))
@@ -105,8 +120,7 @@ func TestActivitiesMany(t *testing.T) {
 	// test total and start less than PageSize
 	// success: the requested number of activities because count/pagesize <= strava.PageSize
 	a.True(27 < strava.PageSize)
-	ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: 27, Start: 0})
-	acts, err = strava.Activities(ctx, ca, ce)
+	acts, err = readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: 27, Start: 0}))
 	a.NoError(err)
 	a.NotNil(acts)
 	a.Equal(27, len(acts))
@@ -114,16 +128,14 @@ func TestActivitiesMany(t *testing.T) {
 	// test different Count values
 	count := strava.PageSize + 100
 	for _, x = range []int{27, 350, strava.PageSize} {
-		ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0, Count: count})
-		acts, err = strava.Activities(ctx, ca, ce)
+		acts, err = readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0, Count: count}))
 		a.NoError(err)
 		a.NotNil(acts)
 		a.Equal(x, len(acts))
 	}
 
 	// negative test
-	ca, ce = client.Activity.Activities(ctx, activity.Pagination{Total: -1})
-	acts, err = strava.Activities(ctx, ca, ce)
+	acts, err = readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: -1}))
 	a.Error(err)
 	a.Nil(acts)
 }

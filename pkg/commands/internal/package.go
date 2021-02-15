@@ -18,9 +18,7 @@ func packageRoot() (string, error) {
 		return "", err
 	}
 
-	// splitting the path drops the leading slash
-	paths := make([]string, 1)
-	paths[0] = "/"
+	paths := []string{string(os.PathSeparator)}
 	paths = append(paths, strings.Split(path, string(os.PathSeparator))...)
 
 	for len(paths) > 0 {

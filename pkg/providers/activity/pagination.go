@@ -3,12 +3,11 @@ package activity
 import (
 	"context"
 	"errors"
-	"math"
 
 	"github.com/rs/zerolog/log"
 )
 
-// Pagination provides guidance on how to paginate through resources
+// Pagination specifies how to paginate through resources
 type Pagination struct {
 	// Total number of resources to query
 	Total int
@@ -20,12 +19,13 @@ type Pagination struct {
 
 // Paginator paginates through results
 type Paginator interface {
-	// Page returns the default page size
-	Page() int
-	// Count of the number of resources queried
+	// PageSize returns the number of resources to query per request
+	PageSize() int
+	// Count of the aggregate total of resources queried
 	Count() int
-	// Do the querying
-	Do(ctx context.Context, start, count int) (int, error)
+	// Do executes the query using the pagination specification returning
+	// the number of resources returned in this request or an error
+	Do(ctx context.Context, spec Pagination) (int, error)
 }
 
 func Paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
@@ -41,43 +41,52 @@ func Paginate(ctx context.Context, paginator Paginator, spec Pagination) error {
 		start = 1
 	}
 	if count <= 0 {
-		count = paginator.Page()
+		count = paginator.PageSize()
 	}
 	if total > 0 {
 		if total <= count {
 			count = total
 		}
 		// if requesting only one page of data then optimize
-		if start <= 1 && total < paginator.Page() {
+		if start <= 1 && total < paginator.PageSize() {
 			count = total
 		}
 	}
-	return do(ctx, paginator, total, start, count)
+	return do(ctx, paginator, Pagination{Total: total, Start: start, Count: count})
 }
 
-func do(ctx context.Context, paginator Paginator, total, start, count int) error {
-	log.Info().Int("n", 0).Int("all", 0).Int("start", 0).Int("count", count).Int("total", total).Msg("do")
+func do(ctx context.Context, paginator Paginator, spec Pagination) error {
+	log.Info().
+		Int("n", 0).
+		Int("all", 0).
+		Int("start", 0).
+		Int("count", spec.Count).
+		Int("total", spec.Total).
+		Msg("do")
 	for {
-		n, err := paginator.Do(ctx, start, count)
+		n, err := paginator.Do(ctx, spec)
 		if err != nil {
 			return err
 		}
 		all := paginator.Count()
-		// if `total` == 0 all results should be queried so no need to fetch fewer than page size (`count`)
-		//  but if `total` > 0 then we can optimize
-		if total > 0 {
-			count = int(math.Min(float64(count), float64(total-all)))
-		}
-		log.Info().Int("n", n).Int("all", all).Int("start", start).Int("count", count).Int("total", total).Msg("do")
+		// @warning(bzimmer)
+		// do not change the `spec.Count` during the pagination of strava will duplicate results
+		log.Info().
+			Int("n", n).
+			Int("all", all).
+			Int("start", spec.Start).
+			Int("count", spec.Count).
+			Int("total", spec.Total).
+			Msg("do")
 		// fewer than requested results is a possible scenario so break only if
 		//  0 results were returned or we have enough to fulfill the request
 		if n == 0 {
 			break
 		}
-		if total > 0 && all >= total {
+		if spec.Total > 0 && all >= spec.Total {
 			break
 		}
-		start++
+		spec.Start++
 	}
 	return nil
 }

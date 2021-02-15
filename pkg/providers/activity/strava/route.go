@@ -17,7 +17,7 @@ type routePaginator struct {
 	service   RouteService
 }
 
-func (p *routePaginator) Page() int {
+func (p *routePaginator) PageSize() int {
 	return PageSize
 }
 
@@ -25,19 +25,22 @@ func (p *routePaginator) Count() int {
 	return len(p.routes)
 }
 
-func (p *routePaginator) Do(ctx context.Context, start, count int) (int, error) {
-	uri := fmt.Sprintf("athletes/%d/routes?page=%d&per_page=%d", p.athleteID, start, count)
+func (p *routePaginator) Do(ctx context.Context, spec activity.Pagination) (int, error) {
+	uri := fmt.Sprintf("athletes/%d/routes?page=%d&per_page=%d", p.athleteID, spec.Start, spec.Count)
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
 	}
-	var rtes []*Route
-	err = p.service.client.do(req, &rtes)
+	var rts []*Route
+	err = p.service.client.do(req, &rts)
 	if err != nil {
 		return 0, err
 	}
-	p.routes = append(p.routes, rtes...)
-	return len(rtes), nil
+	if len(p.routes)+len(rts) > spec.Total {
+		rts = rts[:spec.Total-len(p.routes)]
+	}
+	p.routes = append(p.routes, rts...)
+	return len(rts), nil
 }
 
 // Routes returns a page of routes for an athlete

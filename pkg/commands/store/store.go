@@ -6,76 +6,134 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	stravaapi "github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-func filter(c *cli.Context, acts []*stravaapi.Activity) ([]*stravaapi.Activity, error) {
+func evaluator(c *cli.Context) (eval.Evaluator, error) {
 	if !c.IsSet("filter") {
-		return acts, nil
+		return nil, nil
 	}
-	evaluator, err := commands.Filterer(c.String("filter"))
-	if err != nil {
-		return nil, err
-	}
-	return evaluator.Filter(c.Context, acts)
+	return commands.Evaluator(c.String("filter"))
+}
+
+func filter(ctx context.Context, filterer eval.Evaluator, acts <-chan *stravaapi.ActivityResult) <-chan *stravaapi.ActivityResult {
+	res := make(chan *stravaapi.ActivityResult, 1)
+	go func() {
+		defer close(res)
+		for {
+			select {
+			case <-ctx.Done():
+				res <- &stravaapi.ActivityResult{Err: ctx.Err()}
+				return
+			case x, ok := <-acts:
+				if !ok {
+					return
+				}
+				if x.Err != nil {
+					res <- &stravaapi.ActivityResult{Err: x.Err}
+					continue
+				}
+				if filterer == nil {
+					res <- &stravaapi.ActivityResult{Activity: x.Activity}
+					continue
+				}
+				b, err := filterer.Bool(ctx, x.Activity)
+				if err != nil {
+					res <- &stravaapi.ActivityResult{Err: x.Err}
+				} else if b {
+					res <- &stravaapi.ActivityResult{Activity: x.Activity}
+				}
+			}
+		}
+	}()
+	return res
 }
 
 func export(c *cli.Context) error {
+	evaluator, err := evaluator(c)
+	if err != nil {
+		return err
+	}
 	db, err := Open(c, "input")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	ca, ce := db.Activities(c.Context)
-	acts, err := stravaapi.Activities(c.Context, ca, ce)
+	ctx, cancel := context.WithCancel(c.Context)
+	defer cancel()
+	acts := db.Activities(ctx)
+	acts = filter(ctx, evaluator, acts)
 	if err != nil {
 		return err
 	}
-	acts, err = filter(c, acts)
-	if err != nil {
-		return err
-	}
-	for _, act := range acts {
-		if err := encoding.Encode(act); err != nil {
-			return err
+	var i int
+	defer func() {
+		log.Info().Int("activities", i).Msg("export")
+	}()
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case x, ok := <-acts:
+			if !ok {
+				return nil
+			}
+			if x.Err != nil {
+				return x.Err
+			}
+			if err := encoding.Encode(x.Activity); err != nil {
+				return err
+			}
+			i++
 		}
 	}
-	return nil
 }
 
 func remove(c *cli.Context) error {
+	evaluator, err := evaluator(c)
+	if err != nil {
+		return err
+	}
 	db, err := Open(c, "input")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	ca, ce := db.Activities(c.Context)
-	acts, err := stravaapi.Activities(c.Context, ca, ce)
+	ctx, cancel := context.WithCancel(c.Context)
+	defer cancel()
+	acts := db.Activities(ctx)
+	acts = filter(ctx, evaluator, acts)
 	if err != nil {
 		return err
 	}
-	acts, err = filter(c, acts)
-	if err != nil {
-		return err
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case x, ok := <-acts:
+			if !ok {
+				return nil
+			}
+			if x.Err != nil {
+				return x.Err
+			}
+			if err := encoding.Encode(x.Activity.ID); err != nil {
+				return err
+			}
+			if !c.Bool("dryrun") {
+				if err := db.Remove(c.Context, x.Activity); err != nil {
+					return err
+				}
+			}
+		}
 	}
-	ids := make([]int64, len(acts))
-	for i, act := range acts {
-		ids[i] = act.ID
-	}
-	if c.Bool("dryrun") {
-		return encoding.Encode(ids)
-	}
-	if err := db.Remove(c.Context, acts...); err != nil {
-		return err
-	}
-	return encoding.Encode(ids)
 }
 
 func update(c *cli.Context) error {
-	var ok bool
 	var err error
 	var total, n int
 	in, err := Open(c, "input")
@@ -90,33 +148,30 @@ func update(c *cli.Context) error {
 	defer out.Close()
 	ctx, cancel := context.WithCancel(c.Context)
 	defer cancel()
-	acts, errs := in.Activities(ctx)
+	acts := in.Activities(ctx)
 	for active := true; active; {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case err, ok = <-errs:
-			// if the channel is not closed, return the error
-			// if the channel is closed, do nothing to ensure all activities are consumed
-			if ok {
-				return err
-			}
-		case act, ok := <-acts:
+		case res, ok := <-acts:
 			if !ok {
 				// break the loop to return the processing results
 				active = false
 				break
 			}
+			if res.Err != nil {
+				return res.Err
+			}
 			total++
-			ok, err = out.Exists(ctx, act.ID)
+			ok, err = out.Exists(ctx, res.Activity.ID)
 			if err != nil {
 				return err
 			}
 			if ok {
 				break
 			}
-			log.Info().Int64("ID", act.ID).Msg("querying activity details")
-			act, err = in.Activity(ctx, act.ID)
+			log.Info().Int64("ID", res.Activity.ID).Msg("querying activity details")
+			act, err := in.Activity(ctx, res.Activity.ID)
 			if err != nil {
 				return err
 			}

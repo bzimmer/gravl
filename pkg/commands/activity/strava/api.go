@@ -113,26 +113,21 @@ func activities(c *cli.Context) error {
 	}
 
 	var ok bool
-	var act *strava.Activity
-	acts, errs := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
+	var res *strava.ActivityResult
+	acts := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case err, ok = <-errs:
-			// if the channel was not closed an error occurred so return it
-			// if the channel is closed do nothing to ensure the activity channel can run to
-			//  completion and return the full slice of activities
-			if ok {
-				return err
-			}
-		case act, ok = <-acts:
+		case res, ok = <-acts:
 			if !ok {
-				// the channel is closed, done
 				return nil
 			}
+			if res.Err != nil {
+				return res.Err
+			}
 			// filter
-			ok, err = f(ctx, act)
+			ok, err = f(ctx, res.Activity)
 			if err != nil {
 				return err
 			}
@@ -140,7 +135,7 @@ func activities(c *cli.Context) error {
 				continue
 			}
 			// extract
-			res, err := g(ctx, act)
+			res, err := g(ctx, res.Activity)
 			if err != nil {
 				return err
 			}

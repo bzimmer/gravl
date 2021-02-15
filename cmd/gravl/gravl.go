@@ -63,7 +63,9 @@ func main() {
 			log.Error().Err(err).Msg(c.App.Name)
 		},
 	}
-	if err := app.RunContext(context.Background(), os.Args); err != nil {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	if err := app.RunContext(ctx, os.Args); err != nil {
 		os.Exit(1)
 	}
 	os.Exit(0)

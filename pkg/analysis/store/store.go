@@ -12,17 +12,12 @@ var ErrUnsupportedOperation = errors.New("unsupported Operation")
 
 type Store interface {
 
-	// Activities returns channels for iteratring through activities
+	// Activities returns a channel of activities and errors for an athlete
 	//
-	// The activity returned on the activity channel might not be fully populated per
-	//  the implementation details of the specific store. To ensure a fully populated
-	//  activity call Activity() with the ID
-	//
-	// Errors will be sent to the error channel
-	//
-	// Both channels will be closed on the occurrence of the first error or all activities
-	//  have been iterated
-	Activities(ctx context.Context) (<-chan *strava.Activity, <-chan error)
+	// The activity returned on the channel might not be fully populated per the
+	//  implementation details of the specific store. To ensure a fully populated
+	//  activity call `Activity()` with the ID
+	Activities(ctx context.Context) <-chan *strava.ActivityResult
 
 	// Activity returns a fully populated Activity
 	Activity(ctx context.Context, activityID int64) (*strava.Activity, error)
@@ -30,12 +25,12 @@ type Store interface {
 	// Exists returns true if the activity exists, false otherwise
 	Exists(ctx context.Context, activityID int64) (bool, error)
 
-	// Save the activities to the source
+	// Save the activities to the store
 	Save(ctx context.Context, acts ...*strava.Activity) error
 
-	// Remove the activities from the source
+	// Remove the activities from the store
 	Remove(ctx context.Context, acts ...*strava.Activity) error
 
-	// Close the source
+	// Close the store
 	Close() error
 }

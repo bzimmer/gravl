@@ -36,19 +36,17 @@ func (b *ddb) Close() error {
 	return nil
 }
 
-// Activities channels for activities and errors
-func (b *ddb) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan error) {
-	errs := make(chan error)
-	acts := make(chan *strava.Activity)
+// Activities returns a channel of activities and errors for an athlete
+func (b *ddb) Activities(ctx context.Context) <-chan *strava.ActivityResult {
+	acts := make(chan *strava.ActivityResult)
 	go func() {
-		defer close(errs)
 		defer close(acts)
 		var n float64
 		input := &dynamodb.ScanInput{TableName: aws.String(tableName)}
 		for {
 			output, err := b.svc.Scan(ctx, input)
 			if err != nil {
-				errs <- err
+				acts <- &strava.ActivityResult{Err: err}
 				return
 			}
 			if len(output.LastEvaluatedKey) == 0 {
@@ -63,16 +61,16 @@ func (b *ddb) Activities(ctx context.Context) (<-chan *strava.Activity, <-chan e
 				case *types.AttributeValueMemberB:
 					var act *strava.Activity
 					if err := json.Unmarshal(x.Value, &act); err != nil {
-						errs <- err
+						acts <- &strava.ActivityResult{Err: err}
 						return
 					}
-					acts <- act
+					acts <- &strava.ActivityResult{Activity: act}
 				}
 				n++
 			}
 		}
 	}()
-	return acts, errs
+	return acts
 }
 
 // Activity returns a fully populated Activity

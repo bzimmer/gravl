@@ -14,16 +14,13 @@ import (
 // ActivityService is the API for activity endpoints
 type ActivityService service
 
-var _ activity.Paginator = &slicePaginator{}
-var _ activity.Paginator = &channelPaginator{}
-
 type channelPaginator struct {
 	service    ActivityService
 	count      int
-	activities chan *Activity
+	activities chan *ActivityResult
 }
 
-func (p *channelPaginator) Page() int {
+func (p *channelPaginator) PageSize() int {
 	return PageSize
 }
 
@@ -31,8 +28,8 @@ func (p *channelPaginator) Count() int {
 	return p.count
 }
 
-func (p *channelPaginator) Do(ctx context.Context, start, count int) (int, error) {
-	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
+func (p *channelPaginator) Do(ctx context.Context, spec activity.Pagination) (int, error) {
+	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", spec.Start, spec.Count)
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
@@ -46,38 +43,13 @@ func (p *channelPaginator) Do(ctx context.Context, start, count int) (int, error
 		select {
 		case <-ctx.Done():
 			return 0, ctx.Err()
-		case p.activities <- act:
+		case p.activities <- &ActivityResult{Activity: act}:
 			p.count++
 		}
+		if p.count == spec.Total {
+			break
+		}
 	}
-	return len(acts), nil
-}
-
-type slicePaginator struct {
-	service    ActivityService
-	activities []*Activity
-}
-
-func (p *slicePaginator) Page() int {
-	return PageSize
-}
-
-func (p *slicePaginator) Count() int {
-	return len(p.activities)
-}
-
-func (p *slicePaginator) Do(ctx context.Context, start, count int) (int, error) {
-	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", start, count)
-	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
-	if err != nil {
-		return 0, err
-	}
-	var acts []*Activity
-	err = p.service.client.do(req, &acts)
-	if err != nil {
-		return 0, err
-	}
-	p.activities = append(p.activities, acts...)
 	return len(acts), nil
 }
 
@@ -123,48 +95,26 @@ func (s *ActivityService) Activity(ctx context.Context, activityID int64, stream
 	return act, err
 }
 
-// Activities returns channels for activities and errors for an athlete
+// ActivityResult is the result of querying for a stream of activities
+type ActivityResult struct {
+	Activity *Activity
+	Err      error
+}
+
+// Activities returns a channel for activities and errors for an athlete
 //
-// Either the first error or last activity will close the channels
-func (s *ActivityService) Activities(ctx context.Context, spec activity.Pagination) (<-chan *Activity, <-chan error) {
-	errs := make(chan error)
-	acts := make(chan *Activity)
+// Either the first error or last activity will close the channel
+func (s *ActivityService) Activities(ctx context.Context, spec activity.Pagination) <-chan *ActivityResult {
+	acts := make(chan *ActivityResult, PageSize)
 	go func() {
 		defer close(acts)
-		defer close(errs)
 		p := &channelPaginator{service: *s, activities: acts}
 		err := activity.Paginate(ctx, p, spec)
 		if err != nil {
-			errs <- err
+			acts <- &ActivityResult{Err: err}
 		}
 	}()
-	return acts, errs
-}
-
-// Activities returns a slice of activities from the channels returned by `ActivityService.Activities`
-//
-// This is a convenience function for those operations which require the full activity slice.
-func Activities(ctx context.Context, acts <-chan *Activity, errs <-chan error) ([]*Activity, error) {
-	var activities []*Activity
-	for {
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		case err, ok := <-errs:
-			// if the channel was not closed an error occurred so return it
-			// if the channel is closed do nothing to ensure the activity channel can run to
-			//  completion and return the full slice of activities
-			if ok {
-				return nil, err
-			}
-		case act, ok := <-acts:
-			if !ok {
-				// the channel is closed, return the activities
-				return activities, nil
-			}
-			activities = append(activities, act)
-		}
-	}
+	return acts
 }
 
 // // ValidStream returns true if the strean name is valid

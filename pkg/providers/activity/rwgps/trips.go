@@ -21,7 +21,7 @@ type tripsPaginator struct {
 	trips   []*Trip
 }
 
-func (p *tripsPaginator) Page() int {
+func (p *tripsPaginator) PageSize() int {
 	return pageSize
 }
 
@@ -29,13 +29,13 @@ func (p *tripsPaginator) Count() int {
 	return len(p.trips)
 }
 
-func (p *tripsPaginator) Do(ctx context.Context, start, count int) (int, error) {
+func (p *tripsPaginator) Do(ctx context.Context, spec activity.Pagination) (int, error) {
 	uri := fmt.Sprintf("users/%d/trips.json", p.userID)
 	params := map[string]string{
 		// pagination uses the concept of page (based on strava), rwgps uses an offset by row
 		//  since pagination starts with page 1 (again, strava), subtract one from `start`
-		"offset": strconv.FormatInt(int64((start-1)*p.Page()), 10),
-		"limit":  strconv.FormatInt(int64(count), 10),
+		"offset": strconv.FormatInt(int64((spec.Start-1)*p.PageSize()), 10),
+		"limit":  strconv.FormatInt(int64(spec.Count), 10),
 	}
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri, params)
 	if err != nil {
@@ -49,6 +49,9 @@ func (p *tripsPaginator) Do(ctx context.Context, start, count int) (int, error) 
 	err = p.service.client.do(req, res)
 	if err != nil {
 		return 0, err
+	}
+	if len(p.trips)+len(res.Results) > spec.Total {
+		res.Results = res.Results[:spec.Total-len(p.trips)]
 	}
 	p.trips = append(p.trips, res.Results...)
 	return len(res.Results), nil
