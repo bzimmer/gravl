@@ -10,13 +10,13 @@ import (
 	"github.com/antonmedv/expr/vm"
 	"github.com/martinlindhe/unit"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval"
+	"github.com/bzimmer/gravl/pkg/eval"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 func closure(f string) string {
 	if f == "" {
-		return f
+		return ""
 	}
 	if !strings.HasPrefix(f, "{") {
 		f = "{" + f

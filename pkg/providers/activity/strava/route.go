@@ -36,7 +36,7 @@ func (p *routePaginator) Do(ctx context.Context, spec activity.Pagination) (int,
 	if err != nil {
 		return 0, err
 	}
-	if len(p.routes)+len(rts) > spec.Total {
+	if spec.Total > 0 && len(p.routes)+len(rts) > spec.Total {
 		rts = rts[:spec.Total-len(p.routes)]
 	}
 	p.routes = append(p.routes, rts...)

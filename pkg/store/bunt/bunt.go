@@ -10,8 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/tidwall/buntdb"
 
-	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
+	"github.com/bzimmer/gravl/pkg/store"
 )
 
 func id(activityID int64) string {
@@ -83,6 +83,9 @@ func (b *bunt) Activity(ctx context.Context, activityID int64) (*strava.Activity
 		return err
 	})
 	if err != nil {
+		if err == buntdb.ErrNotFound {
+			return nil, store.ErrNotFound
+		}
 		return nil, err
 	}
 	var act *strava.Activity

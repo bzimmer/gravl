@@ -2,6 +2,7 @@ package rwgps
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -46,7 +47,7 @@ var athleteCommand = &cli.Command{
 	Action:  athlete,
 }
 
-func activities(c *cli.Context) error {
+func trips(c *cli.Context, kind string) error {
 	client, err := NewClient(c)
 	if err != nil {
 		return err
@@ -57,7 +58,15 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	trips, err := client.Trips.Trips(ctx, user.ID, activity.Pagination{Total: c.Int("count")})
+	var trips []*rwgps.Trip
+	switch kind {
+	case "trips":
+		trips, err = client.Trips.Trips(ctx, user.ID, activity.Pagination{Total: c.Int("count")})
+	case "routes":
+		trips, err = client.Trips.Routes(ctx, user.ID, activity.Pagination{Total: c.Int("count")})
+	default:
+		return fmt.Errorf("unknown kind '%s'", kind)
+	}
 	if err != nil {
 		return err
 	}
@@ -82,7 +91,7 @@ var activitiesCommand = &cli.Command{
 			Usage:   "Count",
 		},
 	},
-	Action: activities,
+	Action: func(c *cli.Context) error { return trips(c, "trips") },
 }
 
 func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (interface{}, error)) error {
@@ -111,7 +120,7 @@ func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (inter
 var activityCommand = &cli.Command{
 	Name:    "activity",
 	Aliases: []string{"a"},
-	Usage:   "Query an activity from RwGPS",
+	Usage:   "Query an activity from RideWithGPS",
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *rwgps.Client, id int64) (interface{}, error) {
 			return client.Trips.Trip(ctx, id)
@@ -122,12 +131,27 @@ var activityCommand = &cli.Command{
 var routeCommand = &cli.Command{
 	Name:    "route",
 	Aliases: []string{"r"},
-	Usage:   "Query a route from RwGPS",
+	Usage:   "Query a route from RideWithGPS",
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *rwgps.Client, id int64) (interface{}, error) {
 			return client.Trips.Route(ctx, id)
 		})
 	},
+}
+
+var routesCommand = &cli.Command{
+	Name:    "routes",
+	Usage:   "Query routes for an athlete from RideWithGPS",
+	Aliases: []string{"R"},
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:    "count",
+			Aliases: []string{"N"},
+			Value:   0,
+			Usage:   "Count",
+		},
+	},
+	Action: func(c *cli.Context) error { return trips(c, "routes") },
 }
 
 var Command = &cli.Command{
@@ -140,6 +164,7 @@ var Command = &cli.Command{
 		activityCommand,
 		athleteCommand,
 		routeCommand,
+		routesCommand,
 	},
 }
 
@@ -147,11 +172,11 @@ var AuthFlags = []cli.Flag{
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "rwgps.client-id",
 		Value: "",
-		Usage: "Client ID for RWGPS API",
+		Usage: "Client ID for RideWithGPS API",
 	}),
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "rwgps.access-token",
 		Value: "",
-		Usage: "Access token for RWGPS API",
+		Usage: "Access token for RideWithGPS API",
 	}),
 }

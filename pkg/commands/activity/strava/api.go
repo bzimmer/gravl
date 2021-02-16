@@ -5,13 +5,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/eval"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
@@ -179,11 +178,6 @@ func routes(c *cli.Context) error {
 	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	defer func(start time.Time) {
-		log.Debug().
-			Dur("elapsed", time.Since(start)).
-			Msg("activities")
-	}(time.Now())
 	athlete, err := client.Athlete.Athlete(ctx)
 	if err != nil {
 		return err

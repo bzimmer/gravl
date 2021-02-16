@@ -61,3 +61,8 @@ func (c *GravlCmd) Success() bool {
 func (c *GravlCmd) Stdout() string {
 	return strings.Join(c.Status().Stdout, "\n")
 }
+
+// Stderr returns all the contents of stderr
+func (c *GravlCmd) Stderr() string {
+	return strings.Join(c.Status().Stderr, "\n")
+}

@@ -8,7 +8,7 @@ import (
 	"github.com/martinlindhe/unit"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
+	"github.com/bzimmer/gravl/pkg/eval/antonmedv"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
@@ -19,6 +19,46 @@ var acts = []*strava.Activity{
 	{ID: 4, Type: "Hike", Distance: 400000, ElevationGain: 120, StartDateLocal: time.Date(2010, time.March, 10, 8, 0, 0, 0, time.UTC)},
 	{ID: 5, Type: "Ride", Distance: 500000, ElevationGain: 150, StartDateLocal: time.Date(2009, time.April, 10, 8, 0, 0, 0, time.UTC)},
 	{ID: 6, Type: "Run", Distance: 600000, ElevationGain: 180, StartDateLocal: time.Date(2011, time.May, 10, 8, 0, 0, 0, time.UTC)},
+}
+
+func TestInvalidExpression(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	for _, expr := range []string{".Typ == 'Hike'", ""} {
+		f, err := antonmedv.Filterer(expr)
+		a.Nil(f)
+		a.Error(err)
+		m, err := antonmedv.Mapper(expr)
+		a.Nil(m)
+		a.Error(err)
+		e, err := antonmedv.Evaluator(expr)
+		a.Nil(e)
+		a.Error(err)
+	}
+}
+
+func TestUserFunctions(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	a.Equal(6, len(acts))
+
+	q, err := antonmedv.Mapper("isoweek(.StartDateLocal)")
+	a.NoError(err)
+	vals, err := q.Map(context.Background(), acts)
+	a.NotNil(vals)
+	a.NoError(err)
+	a.Equal(6, len(vals))
+	a.Equal(antonmedv.ISOWeek{Year: 2009, Week: 2}, vals[2])
+	a.Equal("[2009 02]", antonmedv.ISOWeek{Year: 2009, Week: 2}.String())
+
+	act := &strava.Activity{ID: 100, Type: "Hike", AverageTemperature: 1.3}
+	v, err := antonmedv.Evaluator("F(.AverageTemperature)")
+	a.NoError(err)
+	u, err := v.Eval(context.Background(), act)
+	a.NotNil(u)
+	a.NoError(err)
+	a.InEpsilon(unit.FromCelsius(1.3).Fahrenheit(), u, 0.1)
 }
 
 func TestFilterer(t *testing.T) {
@@ -48,7 +88,7 @@ func TestMapper(t *testing.T) {
 
 	a.Equal(6, len(acts))
 
-	q, err := antonmedv.Mapper(`.Type`)
+	q, err := antonmedv.Mapper(".Type")
 	a.NoError(err)
 	vals, err := q.Map(context.Background(), acts)
 	a.NotNil(vals)

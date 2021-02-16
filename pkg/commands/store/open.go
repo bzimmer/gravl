@@ -3,55 +3,29 @@ package store
 import (
 	"errors"
 	"fmt"
-	"net/url"
 	"path"
-	"path/filepath"
 
 	"github.com/adrg/xdg"
-	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg"
-	"github.com/bzimmer/gravl/pkg/analysis/store"
-	"github.com/bzimmer/gravl/pkg/analysis/store/bunt"
-	"github.com/bzimmer/gravl/pkg/analysis/store/dynamo"
-	"github.com/bzimmer/gravl/pkg/analysis/store/file"
-	"github.com/bzimmer/gravl/pkg/analysis/store/strava"
 	stravacmd "github.com/bzimmer/gravl/pkg/commands/activity/strava"
+	"github.com/bzimmer/gravl/pkg/options"
+	"github.com/bzimmer/gravl/pkg/store"
+	"github.com/bzimmer/gravl/pkg/store/bunt"
+	"github.com/bzimmer/gravl/pkg/store/file"
+	"github.com/bzimmer/gravl/pkg/store/strava"
 )
 
 const DefaultLocalStore = "bunt"
 
-type opener func(*cli.Context, *url.URL) (store.Store, error)
+type opener func(*cli.Context, *options.Option) (store.Store, error)
 
 var openers = map[string]opener{
 	"file":   openfile,
 	"bunt":   openbunt,
-	"dynamo": opendynamo,
 	"strava": openstrava,
-}
-
-func localfile(u *url.URL) string {
-	if u.Host != "" {
-		return filepath.Join(u.Host, u.Path)
-	}
-	return u.Path
-}
-
-func parse(q string) (*url.URL, error) {
-	u, err := url.Parse(q)
-	if err != nil {
-		return nil, err
-	}
-	if u.Scheme == "" {
-		// url.Parse requires `://` so add if missing
-		q = fmt.Sprintf("%s://", q)
-		u, err = url.Parse(q)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return u, nil
 }
 
 func Open(c *cli.Context, flag string) (store.Store, error) {
@@ -59,53 +33,27 @@ func Open(c *cli.Context, flag string) (store.Store, error) {
 	if q == "" {
 		return nil, errors.New("store not specified")
 	}
-	u, err := parse(q)
+	u, err := options.Parse(q)
 	if err != nil {
 		return nil, err
 	}
-	opener, ok := openers[u.Scheme]
+	opener, ok := openers[u.Name]
 	if !ok {
-		return nil, fmt.Errorf("unknown scheme {%s}", u.Scheme)
+		return nil, fmt.Errorf("unknown scheme {%s}", u.Name)
 	}
 	return opener(c, u)
 }
 
-func opendynamo(c *cli.Context, u *url.URL) (store.Store, error) {
-	// @todo(bzimmer) use cli flags for credentials
-	// https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/
-	values, err := url.ParseQuery(u.RawQuery)
-	if err != nil {
-		return nil, err
+func openfile(c *cli.Context, u *options.Option) (store.Store, error) {
+	db, ok := u.Options["path"]
+	if !ok {
+		return nil, errors.New("missing filename")
 	}
-	var opts []func(o *config.LoadOptions) error
-	for key, vals := range values {
-		switch key {
-		case "region":
-			opts = append(opts, config.WithRegion(vals[0]))
-		default:
-			return nil, fmt.Errorf("unknown configuration value {%s}", key)
-		}
-	}
-	cfg, err := config.LoadDefaultConfig(c.Context, opts...)
-	if err != nil {
-		return nil, err
-	}
-	// @todo(bzimmer) more sensible defaults
-	if cfg.Region == "" {
-		cfg.Region = "us-west-2"
-	}
-	return dynamo.Open(c.Context, cfg)
-}
-
-func openfile(c *cli.Context, u *url.URL) (store.Store, error) {
-	db := localfile(u)
-	if db == "" {
-		db = c.Args().First()
-	}
+	log.Info().Str("path", db).Msg("file db")
 	return file.Open(db, file.Flush(false))
 }
 
-func openstrava(c *cli.Context, u *url.URL) (store.Store, error) {
+func openstrava(c *cli.Context, u *options.Option) (store.Store, error) {
 	client, err := stravacmd.NewAPIClient(c)
 	if err != nil {
 		return nil, err
@@ -113,10 +61,34 @@ func openstrava(c *cli.Context, u *url.URL) (store.Store, error) {
 	return strava.Open(client), nil
 }
 
-func openbunt(c *cli.Context, u *url.URL) (store.Store, error) {
-	db := localfile(u)
-	if db == "" {
+func openbunt(c *cli.Context, u *options.Option) (store.Store, error) {
+	db, ok := u.Options["path"]
+	if !ok {
 		db = path.Join(xdg.DataHome, pkg.PackageName, "gravl.db")
 	}
+	log.Info().Str("path", db).Msg("bunt db")
 	return bunt.Open(db)
 }
+
+// func opendynamo(c *cli.Context, u *options.Option) (store.Store, error) {
+// 	// @todo(bzimmer) use cli flags for credentials
+// 	// https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/
+// 	var opts []func(o *config.LoadOptions) error
+// 	for key, vals := range u.Options {
+// 		switch key {
+// 		case "region":
+// 			opts = append(opts, config.WithRegion(vals))
+// 		default:
+// 			return nil, fmt.Errorf("unknown configuration value {%s}", key)
+// 		}
+// 	}
+// 	cfg, err := config.LoadDefaultConfig(c.Context, opts...)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	// @todo(bzimmer) more sensible defaults
+// 	if cfg.Region == "" {
+// 		cfg.Region = "us-west-2"
+// 	}
+// 	return dynamo.Open(c.Context, cfg)
+// }

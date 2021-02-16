@@ -4,8 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/bzimmer/gravl/pkg/analysis/eval"
-	"github.com/bzimmer/gravl/pkg/analysis/eval/antonmedv"
+	"github.com/bzimmer/gravl/pkg/eval"
+	"github.com/bzimmer/gravl/pkg/eval/antonmedv"
 )
 
 // Filterer returns a filterer for the expression

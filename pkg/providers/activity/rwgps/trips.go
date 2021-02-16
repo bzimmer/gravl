@@ -19,6 +19,7 @@ type tripsPaginator struct {
 	service TripsService
 	userID  UserID
 	trips   []*Trip
+	kind    string
 }
 
 func (p *tripsPaginator) PageSize() int {
@@ -30,7 +31,7 @@ func (p *tripsPaginator) Count() int {
 }
 
 func (p *tripsPaginator) Do(ctx context.Context, spec activity.Pagination) (int, error) {
-	uri := fmt.Sprintf("users/%d/trips.json", p.userID)
+	uri := fmt.Sprintf("users/%d/%s.json", p.userID, p.kind)
 	params := map[string]string{
 		// pagination uses the concept of page (based on strava), rwgps uses an offset by row
 		//  since pagination starts with page 1 (again, strava), subtract one from `start`
@@ -50,16 +51,26 @@ func (p *tripsPaginator) Do(ctx context.Context, spec activity.Pagination) (int,
 	if err != nil {
 		return 0, err
 	}
-	if len(p.trips)+len(res.Results) > spec.Total {
+	if spec.Total > 0 && len(p.trips)+len(res.Results) > spec.Total {
 		res.Results = res.Results[:spec.Total-len(p.trips)]
 	}
 	p.trips = append(p.trips, res.Results...)
 	return len(res.Results), nil
 }
 
-// Trips returns a slice of Trips
+// Trips returns a slice of trips
 func (s *TripsService) Trips(ctx context.Context, userID UserID, spec activity.Pagination) ([]*Trip, error) {
-	p := &tripsPaginator{service: *s, userID: userID, trips: make([]*Trip, 0)}
+	p := &tripsPaginator{service: *s, userID: userID, kind: "trips", trips: make([]*Trip, 0)}
+	err := activity.Paginate(ctx, p, spec)
+	if err != nil {
+		return nil, err
+	}
+	return p.trips, nil
+}
+
+// Routes returns a slice of routes
+func (s *TripsService) Routes(ctx context.Context, userID UserID, spec activity.Pagination) ([]*Trip, error) {
+	p := &tripsPaginator{service: *s, userID: userID, kind: "routes", trips: make([]*Trip, 0)}
 	err := activity.Paginate(ctx, p, spec)
 	if err != nil {
 		return nil, err

@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
-	"github.com/rs/zerolog/log"
 )
 
 type Analyzer struct {
@@ -24,61 +23,12 @@ type results struct {
 }
 
 type Analysis struct {
-	Args      []string
 	Analyzers []*Analyzer
 	results   []*results
 }
 
-func NewAnalysis(analyzers []*Analyzer, args []string) (*Analysis, error) {
-	a := &Analysis{
-		Args:      args,
-		Analyzers: analyzers,
-	}
-	if err := a.applyFlags(); err != nil {
-		return nil, err
-	}
-	return a, nil
-}
-
-func (a *Analysis) applyFlags() error {
-	if len(a.Args) == 0 {
-		return nil
-	}
-
-	analyzers := make(map[string]*Analyzer)
-	for _, y := range a.Analyzers {
-		if y.Flags == nil {
-			continue
-		}
-		analyzers[y.Name] = y
-	}
-
-	analyzer := ""
-	flags := make(map[string][]string)
-	for i := 0; i < len(a.Args); i++ {
-		arg := a.Args[i]
-		if arg == "--" {
-			continue
-		}
-		_, ok := analyzers[arg]
-		if ok {
-			// starts a set of flags for this analyzer
-			analyzer = arg
-			log.Debug().Str("analyzer", analyzer).Msg("adding")
-			continue
-		}
-		log.Debug().Str("analyzer", analyzer).Str("arg", arg).Msg("adding")
-		flags[analyzer] = append(flags[analyzer], arg)
-	}
-
-	// apply the flags to the analyzer
-	for key, values := range flags {
-		if err := analyzers[key].Flags.Parse(values); err != nil {
-			return err
-		}
-	}
-
-	return nil
+func NewAnalysis(analyzers []*Analyzer) *Analysis {
+	return &Analysis{Analyzers: analyzers}
 }
 
 func (a *Analysis) Run(ctx *Context, pass *Pass) (map[string]interface{}, error) {

@@ -42,7 +42,7 @@ func TestStoreIntegration(t *testing.T) {
 	err = f.Close()
 	a.NoError(err)
 
-	activityfile := fmt.Sprintf("file://%s", f.Name())
+	activityfile := fmt.Sprintf("file,path=%s", f.Name())
 	c = internal.Gravl("-c", "store", "export", "-i", activityfile)
 	<-c.Start()
 	a.True(c.Success())
@@ -58,7 +58,7 @@ func TestStoreIntegration(t *testing.T) {
 	a.Equal(n, p)
 
 	f = tempfile(t, "bunt_input")
-	buntfile := fmt.Sprintf("bunt://%s", f.Name())
+	buntfile := fmt.Sprintf("bunt,path=%s", f.Name())
 	c = internal.Gravl("store", "update", "-i", activityfile, "-o", buntfile)
 	<-c.Start()
 	a.True(c.Success())

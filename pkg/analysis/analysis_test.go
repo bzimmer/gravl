@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
+	"github.com/bzimmer/gravl/pkg/options"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
@@ -44,11 +45,8 @@ func TestAnalyze(t *testing.T) {
 		Run:   f.run,
 		Flags: fs,
 	}
-	y := analysis.Analysis{
-		Args:      []string{},
-		Analyzers: []*analysis.Analyzer{x},
-	}
 
+	y := analysis.NewAnalysis([]*analysis.Analyzer{x})
 	ctx := analysis.WithContext(context.Background(), analysis.Imperial)
 	res, err := y.Run(ctx, p)
 	a.NoError(err)
@@ -56,10 +54,13 @@ func TestAnalyze(t *testing.T) {
 	u := res[""].(map[string]interface{})
 	a.Equal(3, u[x.Name])
 
-	any, err := analysis.NewAnalysis([]*analysis.Analyzer{x}, []string{"--", "foo", "--double"})
+	opt, err := options.Parse("foo,double=true")
+	a.NoError(err)
+	a.NoError(opt.ApplyFlags(x.Flags))
+
 	a.NoError(err)
 	a.NotNil(res)
-	res, err = any.Run(ctx, p)
+	res, err = y.Run(ctx, p)
 	a.NoError(err)
 	a.NotNil(res)
 	u = res[""].(map[string]interface{})

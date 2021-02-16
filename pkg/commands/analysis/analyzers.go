@@ -1,7 +1,9 @@
 package analysis
 
 import (
-	"errors"
+	"fmt"
+
+	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/ageride"
@@ -18,8 +20,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
-	"github.com/rs/zerolog/log"
-	"github.com/urfave/cli/v2"
+	"github.com/bzimmer/gravl/pkg/options"
 )
 
 type analyzer struct {
@@ -27,7 +28,7 @@ type analyzer struct {
 	standard bool
 }
 
-var _analyzers = func() map[string]analyzer {
+var available = func() map[string]analyzer {
 	res := make(map[string]analyzer)
 	for an, standard := range map[*analysis.Analyzer]bool{
 		ageride.New():     false,
@@ -52,25 +53,30 @@ var _analyzers = func() map[string]analyzer {
 
 func analyzers(c *cli.Context) ([]*analysis.Analyzer, error) {
 	var ans []*analysis.Analyzer
-	if c.IsSet("analyzer") {
-		names := c.StringSlice("analyzer")
-		for i := 0; i < len(names); i++ {
-			an, ok := _analyzers[names[i]]
-			if !ok {
-				log.Warn().Str("name", names[i]).Msg("missing analyzer")
-				continue
-			}
-			ans = append(ans, an.analyzer)
-		}
-	} else {
-		for _, an := range _analyzers {
+	names := c.StringSlice("analyzer")
+	if len(names) == 0 {
+		for _, an := range available {
 			if an.standard {
 				ans = append(ans, an.analyzer)
 			}
 		}
+		return ans, nil
 	}
-	if len(ans) == 0 {
-		return nil, errors.New("no analyzers found")
+	for i := 0; i < len(names); i++ {
+		opt, err := options.Parse(names[i])
+		if err != nil {
+			return nil, err
+		}
+		an, ok := available[opt.Name]
+		if !ok {
+			return nil, fmt.Errorf("unknown analyzer '%s'", opt.Name)
+		}
+		if an.analyzer.Flags != nil {
+			if err := opt.ApplyFlags(an.analyzer.Flags); err != nil {
+				return nil, err
+			}
+		}
+		ans = append(ans, an.analyzer)
 	}
 	return ans, nil
 }

@@ -3,17 +3,18 @@ package file
 // The file implementation of a Store expects of a JSON lines of activities
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"os"
 	"sync"
 
 	"github.com/rs/zerolog/log"
 	"github.com/tidwall/gjson"
 
-	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
+	"github.com/bzimmer/gravl/pkg/store"
 )
 
 type Option func(*file) error
@@ -54,9 +55,31 @@ func (s *file) Close() error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	if s.flush && s.dirty {
-		// @todo(bzimmer) flush contents to disk
-		log.Warn().Msg("contents not flushed")
-		return store.ErrUnsupportedOperation
+		fo, err := ioutil.TempFile("", "")
+		if err != nil {
+			return err
+		}
+		defer os.Remove(fo.Name())
+		writer := bufio.NewWriter(fo)
+		enc := json.NewEncoder(writer)
+		enc.SetIndent("", " ")
+		enc.SetEscapeHTML(false)
+		for i := range s.activities {
+			if err := enc.Encode(s.activities[i]); err != nil {
+				return err
+			}
+		}
+		if err := writer.Flush(); err != nil {
+			return err
+		}
+		if err := fo.Close(); err != nil {
+			return err
+		}
+		if err := os.Rename(fo.Name(), s.path); err != nil {
+			return err
+		}
+		s.dirty = false
+		return nil
 	}
 	return nil
 }
@@ -86,7 +109,7 @@ func (s *file) Activity(ctx context.Context, activityID int64) (*strava.Activity
 	defer s.mutex.RUnlock()
 	act, ok := s.activities[activityID]
 	if !ok {
-		return nil, fmt.Errorf("id not found {%d}", activityID)
+		return nil, store.ErrNotFound
 	}
 	return act, nil
 }

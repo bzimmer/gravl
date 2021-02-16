@@ -6,10 +6,10 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/analysis"
-	"github.com/bzimmer/gravl/pkg/analysis/eval"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	storecmd "github.com/bzimmer/gravl/pkg/commands/store"
+	"github.com/bzimmer/gravl/pkg/commands/store"
+	"github.com/bzimmer/gravl/pkg/eval"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
@@ -71,7 +71,7 @@ func group(c *cli.Context, acts []*strava.Activity) (*analysis.Pass, error) {
 func analyze(c *cli.Context) error {
 	ctx, cancel := context.WithCancel(c.Context)
 	defer cancel()
-	db, err := storecmd.Open(c, "input")
+	db, err := store.Open(c, "input")
 	if err != nil {
 		return err
 	}
@@ -91,16 +91,14 @@ func analyze(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	any, err := analysis.NewAnalysis(ans, c.Args().Slice())
-	if err != nil {
-		return err
-	}
 	if c.IsSet("timeout") {
 		ctx, cancel = context.WithTimeout(ctx, c.Duration("timeout"))
 		defer cancel()
 	}
 	uf := c.Generic("units").(*analysis.UnitsFlag)
 	x := analysis.WithContext(ctx, uf.Units)
+
+	any := analysis.NewAnalysis(ans)
 	results, err := any.Run(x, pass)
 	if err != nil {
 		return err
@@ -114,7 +112,7 @@ var listCommand = &cli.Command{
 	Usage:   "Return the list of available analyzers",
 	Action: func(c *cli.Context) error {
 		res := make(map[string]map[string]interface{})
-		for nm, an := range _analyzers {
+		for nm, an := range available {
 			res[nm] = make(map[string]interface{})
 			res[nm]["doc"] = an.analyzer.Doc
 			res[nm]["base"] = an.standard
@@ -150,7 +148,7 @@ var Command = &cli.Command{
 			Aliases: []string{"a"},
 			Usage:   "Analyzers to include (if none specified, default set is used)",
 		},
-		storecmd.InputFlag(storecmd.DefaultLocalStore),
+		store.InputFlag(store.DefaultLocalStore),
 	},
 	Subcommands: []*cli.Command{listCommand},
 	Action:      analyze,

@@ -3,9 +3,9 @@ package strava
 import (
 	"context"
 
-	"github.com/bzimmer/gravl/pkg/analysis/store"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
+	"github.com/bzimmer/gravl/pkg/store"
 )
 
 type api struct {
