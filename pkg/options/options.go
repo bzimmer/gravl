@@ -33,11 +33,16 @@ func Parse(option string) (*Option, error) {
 	}
 	t := &Option{Name: opts[0], Options: make(map[string]string)}
 	for i := 1; i < len(opts); i++ {
-		x := strings.SplitN(opts[i], "=", 2)
-		if len(x) != 2 {
+		reader = csv.NewReader(strings.NewReader(opts[i]))
+		reader.Comma = '='
+		params, err := reader.Read()
+		if err != nil {
+			return nil, err
+		}
+		if len(params) != 2 {
 			return nil, errors.New("missing '=' separating key from value (eg x=y)")
 		}
-		t.Options[x[0]] = x[1]
+		t.Options[params[0]] = params[1]
 	}
 	return t, nil
 }

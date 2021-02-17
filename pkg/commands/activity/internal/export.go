@@ -34,6 +34,6 @@ func Write(c *cli.Context, exp *activity.Export) error {
 		return err
 	}
 	defer fp.Close()
-	_, err = io.Copy(fp, exp.Reader)
+	_, err = io.Copy(fp, exp)
 	return err
 }
