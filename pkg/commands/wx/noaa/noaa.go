@@ -6,7 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	wxcmd "github.com/bzimmer/gravl/pkg/commands/wx"
+	"github.com/bzimmer/gravl/pkg/commands/wx"
 	"github.com/bzimmer/gravl/pkg/providers/wx/noaa"
 )
 
@@ -15,7 +15,7 @@ func NewClient(c *cli.Context) (*noaa.Client, error) {
 }
 
 func forecast(c *cli.Context) error {
-	opts, err := wxcmd.Options(c)
+	opts, err := wx.Options(c)
 	if err != nil {
 		return err
 	}

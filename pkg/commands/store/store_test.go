@@ -11,6 +11,8 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/internal"
 )
 
+const N = 1122
+
 func tempfile(t *testing.T, pattern string) *os.File {
 	f, err := ioutil.TempFile("", pattern)
 	if err != nil {
@@ -29,14 +31,15 @@ func TestStoreIntegration(t *testing.T) {
 	a := assert.New(t)
 
 	var err error
-	c := internal.Gravl("-c", "strava", "activities", "-N", "173")
+	c := internal.Gravl("-c", "store", "export", "-i", fmt.Sprintf("fake,n=%d", N))
 	<-c.Start()
 	a.True(c.Success())
 
-	f := tempfile(t, "strava_input")
+	f := tempfile(t, "fake_input")
 	defer os.Remove(f.Name())
 
 	n := len(c.Status().Stdout)
+	a.Equal(N, n)
 	_, err = f.WriteString(c.Stdout())
 	a.NoError(err)
 	err = f.Close()
@@ -72,4 +75,5 @@ func TestStoreIntegration(t *testing.T) {
 	a.True(c.Success())
 	p = len(c.Status().Stdout)
 	a.Equal(n, p)
+	a.Equal(N, p)
 }

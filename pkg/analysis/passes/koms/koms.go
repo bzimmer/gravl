@@ -5,7 +5,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-const doc = `koms returns all KOMs for the activities.`
+const doc = `koms returns all KOMs for the activities`
 
 func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var efforts []*strava.SegmentEffort

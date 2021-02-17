@@ -7,7 +7,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-const doc = `totals returns the number of centuries (100 mi or 100 km).`
+const doc = `totals returns the number of centuries (100 mi or 100 km)`
 
 type Centuries struct {
 	Metric   int `json:"metric"`

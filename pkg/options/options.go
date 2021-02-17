@@ -14,7 +14,7 @@ import (
 //
 //  $ gravl pass -a cluster,clusters=5
 //
-// would be reprented by the Name 'cluster' and Options 'clusters=5'
+// would be represented by the Name 'cluster' and Options `clusters=5`
 type Option struct {
 	// Name is the flag name
 	Name string
@@ -36,7 +36,7 @@ func Parse(option string) (*Option, error) {
 	for i := 1; i < len(opts); i++ {
 		x := strings.SplitN(opts[i], "=", 2)
 		if len(x) != 2 {
-			return nil, errors.New("missing '='")
+			return nil, errors.New("missing '=' separating key from value (eg x=y)")
 		}
 		t.Options[x[0]] = x[1]
 	}

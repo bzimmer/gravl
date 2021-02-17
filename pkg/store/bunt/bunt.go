@@ -40,6 +40,7 @@ type bunt struct {
 
 // Open a bolt database; the file will be created if it does not exist
 func Open(path string) (store.Store, error) {
+	log.Info().Str("path", path).Msg("bunt db")
 	directory := filepath.Dir(path)
 	if _, err := os.Stat(directory); os.IsNotExist(err) {
 		log.Info().Str("directory", directory).Msg("creating")

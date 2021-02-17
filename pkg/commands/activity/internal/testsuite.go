@@ -63,7 +63,7 @@ func (s *ActivityTestSuite) TestRoute() {
 func (s *ActivityTestSuite) TestActivity() {
 	a := s.Assert()
 
-	c := internal.Gravl("-c", s.Name, "activities", "-N", strconv.FormatInt(N, 10))
+	c := internal.Gravl("--timeout", "30s", "-c", s.Name, "activities", "-N", strconv.FormatInt(N, 10))
 	<-c.Start()
 	a.True(c.Success())
 

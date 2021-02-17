@@ -17,7 +17,8 @@ const id = int64(823722321)
 // FileBasedTestSuite for file based stores
 type FileBasedTestSuite struct {
 	suite.Suite
-	Opener func(path string) (store.Store, error)
+	Persistent bool
+	Opener     func(path string) (store.Store, error)
 }
 
 // tempfile creates new tempfiles
@@ -27,14 +28,13 @@ func (s *FileBasedTestSuite) tempfile() (*os.File, func()) {
 	if err != nil {
 		s.T().FailNow()
 	}
-	var remove = func() {
-		if !s.T().Failed() {
-			_ = os.Remove(f.Name())
+	return f, func() {
+		if s.T().Failed() {
+			s.T().Logf("test failed; not removing temp file: %s", f.Name())
 			return
 		}
-		s.T().Logf("test failed; not removing temp file: %s", f.Name())
+		_ = os.Remove(f.Name())
 	}
-	return f, remove
 }
 
 // TestRetrieveMissingActivity tests retrieving an activity which does not exist
@@ -51,6 +51,7 @@ func (s *FileBasedTestSuite) TestRetrieveMissingActivity() {
 	act, err := db.Activity(ctx, 299289299288234)
 	a.Equal(store.ErrNotFound, err)
 	a.Nil(act)
+	a.NoError(db.Close())
 }
 
 // TestCancel tests reading from the `Done` channel of a context
@@ -66,14 +67,18 @@ func (s *FileBasedTestSuite) TestCancel() {
 
 	err = db.Save(ctx, &strava.Activity{ID: id, Name: "foobar"})
 	a.NoError(err)
+	defer db.Close()
 
 	ctx, cancel := context.WithTimeout(ctx, time.Millisecond)
 	cancel() // force the store to deal with the cancel
 
+	acts := db.Activities(ctx)
 	for {
-		acts := db.Activities(ctx)
 		select {
-		case res := <-acts:
+		case res, ok := <-acts:
+			if !ok {
+				return
+			}
 			// ensure the cancel was handled; activities might have
 			// been produced in the meantime (`select` is random) but
 			// ignore them and wait for the canceled context error
@@ -102,12 +107,22 @@ func (s *FileBasedTestSuite) TestAddRemove() {
 	a.NoError(err)
 	act, err := db.Activity(ctx, id)
 	a.NoError(err)
-	a.NotNil(db)
+	ok, err := db.Exists(ctx, id)
+	a.NoError(err)
+	a.True(ok)
 	err = db.Remove(ctx, act)
 	a.NoError(err)
+	ok, err = db.Exists(ctx, id)
+	a.NoError(err)
+	a.False(ok)
+	a.NoError(db.Close())
 }
 
 func (s *FileBasedTestSuite) TestLifecycle() {
+	if !s.Persistent {
+		s.T().Skip("skipping lifecycle because store is not persistent")
+		return
+	}
 	a := s.Assert()
 	ctx := context.Background()
 
@@ -141,4 +156,5 @@ func (s *FileBasedTestSuite) TestLifecycle() {
 	ok, err = db.Exists(ctx, 99887766)
 	a.NoError(err)
 	a.False(ok)
+	a.NoError(db.Close())
 }

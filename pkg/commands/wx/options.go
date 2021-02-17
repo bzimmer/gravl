@@ -30,9 +30,6 @@ func Options(c *cli.Context) (wx.ForecastOptions, error) {
 		}
 		opts.Point = geom.NewPointFlat(geom.XY, []float64{lng, lat})
 	default:
-		for _, arg := range c.Args().Slice() {
-			fmt.Printf("'%s'\n", arg)
-		}
 		return wx.ForecastOptions{}, fmt.Errorf("expected 1 or 2 arguments, found [%d]", c.NArg())
 	}
 	return opts, nil

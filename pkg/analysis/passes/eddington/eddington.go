@@ -8,7 +8,7 @@ import (
 const doc = `eddington returns the Eddington number for all activities
 
 The Eddington is the largest integer E, where you have cycled at least
-E miles (or kilometers) on at least E days.`
+E miles (or kilometers) on at least E days`
 
 func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	var dst float64

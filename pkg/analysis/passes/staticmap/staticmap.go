@@ -22,7 +22,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-const doc = `staticmap generates a staticmap for every activity.`
+const doc = `staticmap generates a staticmap for every activity`
 
 type smap struct {
 	output  string

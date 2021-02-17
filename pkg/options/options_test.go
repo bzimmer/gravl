@@ -12,44 +12,50 @@ func TestOptions(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	var x int
-	var y string
-	var z bool
+	tests := []struct {
+		x      int
+		y      string
+		z      bool
+		num    int
+		name   string
+		option string
+		err    bool
+	}{
+		{option: "", err: true},
+		{option: "database,X=10,Z", err: true},
+		{option: "X=10", err: false, name: "X=10"},
+		{option: "database,X=3", name: "database", x: 3, num: 1},
+		{option: "database,X=10,Y=hello", name: "database", x: 10, y: "hello", num: 2},
+		{option: "database,Z=true,X=10", name: "database", x: 10, num: 2, z: true},
+		{option: "database,Z=true,X=10", name: "database", x: 10, num: 2, z: true},
+	}
 
-	opt, err := options.Parse("database,X=3")
-	a.NoError(err)
+	for _, tt := range tests {
+		v := tt
+		t.Run(tt.option, func(t *testing.T) {
+			var x int
+			var y string
+			var z bool
+			fs := flag.NewFlagSet("test", flag.ExitOnError)
+			fs.IntVar(&x, "X", x, "number of Xs")
+			fs.StringVar(&y, "Y", y, "Ys")
+			fs.BoolVar(&z, "Z", z, "use z?")
 
-	a.Equal("database", opt.Name)
-	a.Equal(1, len(opt.Options))
-	a.Equal("3", opt.Options["X"])
+			opt, err := options.Parse(v.option)
+			if v.err {
+				a.Error(err)
+				return
+			}
+			a.NoError(err)
+			a.Equal(v.name, opt.Name)
+			a.Equal(v.num, len(opt.Options))
 
-	fs := flag.NewFlagSet("test", flag.ExitOnError)
-	fs.IntVar(&x, "X", x, "number of Xs")
-	fs.StringVar(&y, "Y", y, "Ys")
-	fs.BoolVar(&z, "Z", z, "use z?")
-
-	a.NoError(opt.ApplyFlags(fs))
-	a.Equal(3, x)
-
-	opt, err = options.Parse("database,X=10,Z")
-	a.Error(err)
-	a.Nil(opt)
-
-	x, y, z = 0, "", false
-	opt, err = options.Parse("database,X=10,Y=hello")
-	a.NoError(err)
-	a.NotNil(opt)
-	a.NoError(opt.ApplyFlags(fs))
-	a.Equal(10, x)
-	a.Equal("hello", y)
-
-	x, y, z = 0, "", false
-	opt, err = options.Parse("database,Z=true,X=10")
-	a.NoError(err)
-	a.NotNil(opt)
-	a.NoError(opt.ApplyFlags(fs))
-	a.Equal(10, x)
-	a.True(z)
+			a.NoError(opt.ApplyFlags(fs))
+			a.Equal(v.x, x)
+			a.Equal(v.y, y)
+			a.Equal(v.z, z)
+		})
+	}
 }
 
 func TestOptionsNoEquals(t *testing.T) {

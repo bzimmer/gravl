@@ -72,20 +72,20 @@ tasks:
     desc: Run all integration tests
     deps: [build]
     cmds:
-      - go test -run Integration {{catLines .GO_PACKAGES}}
+      - go test -count=1 -run Integration {{catLines .GO_PACKAGES}}
 
   test:
     desc: Run all unit tests
     deps: []
     cmds:
       - mkdir -p {{.DIST}}
-      - go test -short -covermode count -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
+      - go test -count=1 -short -covermode count -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
 
   test-all:
     desc: Run all unit & integration tests
     deps: [build]
     cmds:
-      - go test {{catLines .GO_PACKAGES}}
+      - go test -count=1 {{catLines .GO_PACKAGES}}
 
   cover:
     desc: Visualize test coverage

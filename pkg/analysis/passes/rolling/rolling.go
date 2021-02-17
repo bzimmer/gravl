@@ -12,7 +12,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
-const debug = false
 const doc = "rolling returns the `window` of activities with the highest accumulated distance."
 
 type Result struct {
@@ -58,18 +57,8 @@ func (r *rollingWindow) run(ctx *analysis.Context, pass []*strava.Activity) (int
 	var num = len(dsts) - r.Window
 	for i := 0; i <= num; i++ {
 		v := floats.Sum(dsts[i : i+r.Window])
-		if debug {
-			if i == 0 {
-				fmt.Println()
-			}
-			fmt.Printf("%04d,%04d,%04d,%0.3f,%04d,%04d,%0.3f,%0.3f\n",
-				len(dsts), num, idx, val, i, i+r.Window, dsts[i], v)
-		}
 		if v > val {
 			idx, val = i, v
-			if debug {
-				fmt.Printf(" %04d,%03f\n", idx, v)
-			}
 		}
 	}
 	res := r.activities(acts, idx, ctx.Units)

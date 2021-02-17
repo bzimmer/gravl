@@ -317,9 +317,9 @@ type HighlightedKudosers struct {
 // Photos .
 type Photos struct {
 	Primary struct {
-		ID       interface{} `json:"id"`
-		UniqueID string      `json:"unique_id"`
-		Urls     struct {
+		ID       int64  `json:"id"`
+		UniqueID string `json:"unique_id"`
+		URLs     struct {
 			Num100 string `json:"100"`
 			Num600 string `json:"600"`
 		} `json:"urls"`
@@ -387,7 +387,6 @@ type Activity struct {
 	SplitsMetric             []*SplitsMetric        `json:"splits_metric,omitempty"`
 	Laps                     []*Lap                 `json:"laps,omitempty"`
 	Gear                     *Gear                  `json:"gear,omitempty"`
-	PartnerBrandTag          interface{}            `json:"partner_brand_tag"`
 	Photos                   *Photos                `json:"photos,omitempty"`
 	HighlightedKudosers      []*HighlightedKudosers `json:"highlighted_kudosers,omitempty"`
 	DeviceName               string                 `json:"device_name"`

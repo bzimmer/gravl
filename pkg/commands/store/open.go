@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"strconv"
 
 	"github.com/adrg/xdg"
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg"
@@ -14,6 +14,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/options"
 	"github.com/bzimmer/gravl/pkg/store"
 	"github.com/bzimmer/gravl/pkg/store/bunt"
+	"github.com/bzimmer/gravl/pkg/store/fake"
 	"github.com/bzimmer/gravl/pkg/store/file"
 	"github.com/bzimmer/gravl/pkg/store/strava"
 )
@@ -26,6 +27,7 @@ var openers = map[string]opener{
 	"file":   openfile,
 	"bunt":   openbunt,
 	"strava": openstrava,
+	"fake":   openfake,
 }
 
 func Open(c *cli.Context, flag string) (store.Store, error) {
@@ -49,7 +51,6 @@ func openfile(c *cli.Context, u *options.Option) (store.Store, error) {
 	if !ok {
 		return nil, errors.New("missing filename")
 	}
-	log.Info().Str("path", db).Msg("file db")
 	return file.Open(db, file.Flush(false))
 }
 
@@ -66,29 +67,27 @@ func openbunt(c *cli.Context, u *options.Option) (store.Store, error) {
 	if !ok {
 		db = path.Join(xdg.DataHome, pkg.PackageName, "gravl.db")
 	}
-	log.Info().Str("path", db).Msg("bunt db")
 	return bunt.Open(db)
 }
 
-// func opendynamo(c *cli.Context, u *options.Option) (store.Store, error) {
-// 	// @todo(bzimmer) use cli flags for credentials
-// 	// https://aws.github.io/aws-sdk-go-v2/docs/configuring-sdk/
-// 	var opts []func(o *config.LoadOptions) error
-// 	for key, vals := range u.Options {
-// 		switch key {
-// 		case "region":
-// 			opts = append(opts, config.WithRegion(vals))
-// 		default:
-// 			return nil, fmt.Errorf("unknown configuration value {%s}", key)
-// 		}
-// 	}
-// 	cfg, err := config.LoadDefaultConfig(c.Context, opts...)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	// @todo(bzimmer) more sensible defaults
-// 	if cfg.Region == "" {
-// 		cfg.Region = "us-west-2"
-// 	}
-// 	return dynamo.Open(c.Context, cfg)
-// }
+func openfake(c *cli.Context, u *options.Option) (store.Store, error) {
+	n := 100
+	x, ok := u.Options["n"]
+	if ok {
+		y, err := strconv.ParseInt(x, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		n = int(y)
+	}
+	fuzz := false
+	x, ok = u.Options["fuzz"]
+	if ok {
+		y, err := strconv.ParseBool(x)
+		if err != nil {
+			return nil, err
+		}
+		fuzz = y
+	}
+	return fake.Open(n, fuzz)
+}
