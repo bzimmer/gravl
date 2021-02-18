@@ -124,6 +124,7 @@ var activitiesCommand = &cli.Command{
 
 func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activity) error) error {
 	if c.NArg() == 0 {
+		log.Warn().Msg("no args specified; exiting")
 		return nil
 	}
 	client, err := NewClient(c)
@@ -141,7 +142,7 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activi
 		if err != nil {
 			return err
 		}
-		log.Info().Int64("id", x).Msg("query activity")
+		log.Info().Int64("id", x).Msg("querying activity")
 		act, err := client.Activity.Activity(ctx, profile.ID, x)
 		if err != nil {
 			return err

@@ -51,7 +51,6 @@ func (s *ActivityTestSuite) BeforeTest(suiteName, testName string) {
 
 func (s *ActivityTestSuite) TestAthlete() {
 	a := s.Assert()
-
 	c := internal.Gravl("-c", s.Name, "athlete")
 	<-c.Start()
 	a.True(c.Success())
@@ -59,10 +58,9 @@ func (s *ActivityTestSuite) TestAthlete() {
 
 func (s *ActivityTestSuite) TestRoute() {
 	if s.SkipRoutes {
-		s.T().Skip("skipping routes test")
+		s.T().Skip("skipping routes test for " + s.Name)
 	}
 	a := s.Assert()
-
 	c := internal.Gravl("-c", s.Name, "routes", "-N", strconv.FormatInt(s.N(), 10))
 	<-c.Start()
 	a.True(c.Success())
@@ -71,13 +69,17 @@ func (s *ActivityTestSuite) TestRoute() {
 func (s *ActivityTestSuite) TestActivity() {
 	a := s.Assert()
 
-	c := internal.Gravl("--timeout", "30s", "-c", s.Name, "activities", "-N", strconv.FormatInt(s.N(), 10))
+	n := s.N()
+	c := internal.Gravl("--timeout", "30s", "-c", s.Name, "activities", "-N", strconv.FormatInt(n, 10))
 	<-c.Start()
 	a.True(c.Success())
 
-	var i int
-	var randomID = random(len(c.Status().Stdout))
-	gjson.ForEachLine(c.Stdout(), func(res gjson.Result) bool {
+	lines := c.Status().Stdout
+	a.Equal(n, int64(len(lines)))
+
+	randomID := random(len(c.Status().Stdout))
+	for i := 0; i < len(lines); i++ {
+		res := gjson.Parse(lines[i])
 		id := gjson.Get(res.String(), "id").Int()
 		a.Greater(id, int64(0))
 		if i == randomID {
@@ -85,19 +87,16 @@ func (s *ActivityTestSuite) TestActivity() {
 			c = internal.Gravl("-c", s.Name, "activity", idS)
 			<-c.Start()
 			a.True(c.Success())
-			for i := range s.Encodings {
-				c = internal.Gravl("-e", s.Encodings[i], s.Name, "activity", idS)
+			for j := range s.Encodings {
+				c = internal.Gravl("-e", s.Encodings[j], s.Name, "activity", idS)
 				<-c.Start()
 				if !c.Success() {
-					a.FailNowf("failed encoding", s.Encodings[i])
+					a.FailNowf("failed encoding", s.Encodings[j])
 				}
 			}
 			c = internal.Gravl("-c", s.Name, "activity", idS)
 			<-c.Start()
 			a.True(c.Success())
 		}
-		i++
-		return true
-	})
-	a.Equal(s.N(), int64(i))
+	}
 }
