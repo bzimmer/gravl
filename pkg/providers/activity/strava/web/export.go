@@ -1,7 +1,5 @@
 package web
 
-//go:generate stringer -type=Format -linecomment -output=export_string.go
-
 import (
 	"bytes"
 	"context"
@@ -9,56 +7,17 @@ import (
 	"io"
 	"mime"
 	"net/http"
-	"path/filepath"
-	"strings"
 
 	"github.com/rs/zerolog/log"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
-
-// Format of the exported file
-type Format int
-
-const (
-	// Original format uploaded to strava
-	Original Format = iota // original
-	// GPX format from an uploaded activity to strava
-	GPX // gpx
-	// TCX format from an uploaded activity to strava
-	TCX // tcx
-)
-
-// MarshalJSON converts a Format enum to a string representation
-func (f *Format) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, f.String())), nil
-}
-
-// Export the contents and metadata about an activity file
-type Export struct {
-	io.Reader `json:"-"`
-	ID        int64  `json:"id"`
-	Name      string `json:"name"`
-	Format    Format `json:"format"`
-	Extension string `json:"ext"`
-}
 
 // ExportService is the API for export endpoints
 type ExportService service
 
-// ToFormat converts a Format enum to a string for Strava
-func ToFormat(format string) Format {
-	format = strings.ToLower(format)
-	switch format {
-	case "gpx":
-		return GPX
-	case "tcx":
-		return TCX
-	default:
-		return Original
-	}
-}
-
 // Export requests the data file for the activity
-func (s *ExportService) Export(ctx context.Context, activityID int64, format Format) (*Export, error) {
+func (s *ExportService) Export(ctx context.Context, activityID int64, format activity.Format) (*activity.Export, error) {
 	uri := fmt.Sprintf("activities/%d/export_%s", activityID, format)
 	req, err := s.client.newWebRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -85,13 +44,10 @@ func (s *ExportService) Export(ctx context.Context, activityID int64, format For
 	if err != nil {
 		return nil, err
 	}
-	name := params["filename"]
-	ext := strings.TrimPrefix(filepath.Ext(name), ".")
-	return &Export{
-		Reader:    out,
-		ID:        activityID,
-		Name:      params["filename"],
-		Format:    format,
-		Extension: ext,
+	return &activity.Export{
+		Reader: out,
+		ID:     activityID,
+		Name:   params["filename"],
+		Format: format,
 	}, nil
 }

@@ -20,11 +20,11 @@ func TestFakeStore(t *testing.T) {
 		{name: "fuzzing disabled", acts: 108, fuzz: false},
 	}
 	for _, tt := range tests {
-		w := tt
+		v := tt
 		suite.Run(t, &internal.FileBasedTestSuite{
 			Persistent: false,
 			Opener: func(path string) (store.Store, error) {
-				return fake.Open(w.acts, w.fuzz)
+				return fake.Open(v.acts, v.fuzz)
 			},
 		})
 	}

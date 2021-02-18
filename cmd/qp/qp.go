@@ -14,20 +14,20 @@ import (
 	stcmd "github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/gravl"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
-	strava "github.com/bzimmer/gravl/pkg/providers/activity/strava/web"
 )
 
-func export(ctx context.Context, c *cli.Context, activityID int64) (*strava.Export, error) {
+func export(ctx context.Context, c *cli.Context, activityID int64) (*activity.Export, error) {
 	client, err := stcmd.NewWebClient(c)
 	if err != nil {
 		return nil, err
 	}
 	log.Info().Int64("activityID", activityID).Msg("exporting")
-	return client.Export.Export(ctx, activityID, strava.Original)
+	return client.Export.Export(ctx, activityID, activity.Original)
 }
 
-func upload(c *cli.Context, export *strava.Export) error {
+func upload(c *cli.Context, export *activity.Export) error {
 	out := new(bytes.Buffer)
 	_, err := io.Copy(out, export)
 	if err != nil {

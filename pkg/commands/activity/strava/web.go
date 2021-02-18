@@ -1,19 +1,16 @@
 package strava
 
 import (
-	"bytes"
 	"context"
-	"html/template"
-	"io"
-	"os"
 	"strconv"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
+	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 	stravaweb "github.com/bzimmer/gravl/pkg/providers/activity/strava/web"
 )
 
@@ -41,46 +38,21 @@ func export(c *cli.Context) error {
 	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	format := stravaweb.ToFormat(c.String("format"))
+	format := activity.ToFormat(c.String("format"))
 	args := c.Args().Slice()
 	for i := 0; i < len(args); i++ {
 		x, err := strconv.ParseInt(args[i], 0, 64)
 		if err != nil {
 			return err
 		}
-		reader, err := client.Export.Export(ctx, x, format)
+		exp, err := client.Export.Export(ctx, x, format)
 		if err != nil {
 			return err
 		}
-		filename := reader.Name
-		if c.IsSet("template") {
-			var t *template.Template
-			t, err = template.New("export").Parse(c.String("template"))
-			if err != nil {
-				return err
-			}
-			var out bytes.Buffer
-			err = t.Execute(&out, reader)
-			if err != nil {
-				return err
-			}
-			filename = out.String()
-		}
-		if _, err = os.Stat(filename); err == nil && !c.Bool("overwrite") {
-			log.Error().Str("filename", filename).Msg("file exists and -o flag not specified")
-			return os.ErrExist
-		}
-		out, err := os.Create(filename)
-		if err != nil {
+		if err = internal.Write(c, exp); err != nil {
 			return err
 		}
-		defer out.Close()
-		_, err = io.Copy(out, reader)
-		if err != nil {
-			return err
-		}
-		reader.Name = filename
-		if err = encoding.Encode(reader); err != nil {
+		if err = encoding.Encode(exp); err != nil {
 			return err
 		}
 	}
@@ -89,24 +61,25 @@ func export(c *cli.Context) error {
 
 var exportCommand = &cli.Command{
 	Name:  "export",
-	Usage: "Export a Strava activity by id, optionally specifying the format and filename template",
+	Usage: "Export a Strava activity by id",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "format",
 			Aliases: []string{"F"},
-			Value:   stravaweb.Original.String(),
+			Value:   activity.Original.String(),
 			Usage:   "Export data file in the specified format",
-		},
-		&cli.StringFlag{
-			Name:    "template",
-			Aliases: []string{"T"},
-			Usage:   "Export data filename template; fields: ID, Name, Format, Extension",
 		},
 		&cli.BoolFlag{
 			Name:    "overwrite",
 			Aliases: []string{"o"},
 			Value:   false,
 			Usage:   "Overwrite the file if it exists; fail otherwise",
+		},
+		&cli.StringFlag{
+			Name:    "output",
+			Aliases: []string{"O"},
+			Value:   "",
+			Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to Stdout",
 		},
 	},
 	Action: export,

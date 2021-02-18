@@ -12,14 +12,15 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/internal"
 )
 
-const N = 102
+const numberOfActivities = 102
 
 // ActivityTestSuite for testing activity services
 type ActivityTestSuite struct {
 	suite.Suite
-	Name       string
-	Encodings  []string
-	SkipRoutes bool
+	Name          string
+	Encodings     []string
+	SkipRoutes    bool
+	MaxActivities int64
 }
 
 func random(n int) int {
@@ -28,6 +29,13 @@ func random(n int) int {
 		panic(err)
 	}
 	return int(b.Int64())
+}
+
+func (s *ActivityTestSuite) N() int64 {
+	if s.MaxActivities > 0 && s.MaxActivities < numberOfActivities {
+		return s.MaxActivities
+	}
+	return numberOfActivities
 }
 
 func (s *ActivityTestSuite) SetupSuite() {
@@ -55,7 +63,7 @@ func (s *ActivityTestSuite) TestRoute() {
 	}
 	a := s.Assert()
 
-	c := internal.Gravl("-c", s.Name, "routes", "-N", strconv.FormatInt(N, 10))
+	c := internal.Gravl("-c", s.Name, "routes", "-N", strconv.FormatInt(s.N(), 10))
 	<-c.Start()
 	a.True(c.Success())
 }
@@ -63,7 +71,7 @@ func (s *ActivityTestSuite) TestRoute() {
 func (s *ActivityTestSuite) TestActivity() {
 	a := s.Assert()
 
-	c := internal.Gravl("--timeout", "30s", "-c", s.Name, "activities", "-N", strconv.FormatInt(N, 10))
+	c := internal.Gravl("--timeout", "30s", "-c", s.Name, "activities", "-N", strconv.FormatInt(s.N(), 10))
 	<-c.Start()
 	a.True(c.Success())
 
@@ -91,5 +99,5 @@ func (s *ActivityTestSuite) TestActivity() {
 		i++
 		return true
 	})
-	a.Equal(N, i)
+	a.Equal(s.N(), int64(i))
 }

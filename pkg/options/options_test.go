@@ -32,7 +32,7 @@ func TestOptions(t *testing.T) {
 
 	for _, tt := range tests {
 		v := tt
-		t.Run(tt.option, func(t *testing.T) {
+		t.Run(v.option, func(t *testing.T) {
 			var x int
 			var y string
 			var z bool

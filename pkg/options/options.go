@@ -1,7 +1,6 @@
 package options
 
 import (
-	"bytes"
 	"encoding/csv"
 	"errors"
 	"flag"
@@ -24,7 +23,7 @@ type Option struct {
 
 // Parse the option string into an Option instance
 func Parse(option string) (*Option, error) {
-	reader := csv.NewReader(bytes.NewReader([]byte(option)))
+	reader := csv.NewReader(strings.NewReader(option))
 	opts, err := reader.Read()
 	if err != nil {
 		if err == io.EOF {

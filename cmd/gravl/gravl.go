@@ -11,6 +11,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/activity/wta"
+	"github.com/bzimmer/gravl/pkg/commands/activity/zwift"
 	"github.com/bzimmer/gravl/pkg/commands/analysis"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gnis"
@@ -48,6 +49,7 @@ func main() {
 		version.Command,
 		visualcrossing.Command,
 		wta.Command,
+		zwift.Command,
 	}
 	app := &cli.App{
 		Name:     "gravl",
