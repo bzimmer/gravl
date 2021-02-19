@@ -95,24 +95,8 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID, spec activity.P
 	return res.Rides, nil
 }
 
-// File for uploading
-type File struct {
-	io.Reader
-	Name string
-}
-
-func (f *File) Close() error {
-	if f.Reader == nil {
-		return nil
-	}
-	if x, ok := f.Reader.(io.Closer); ok {
-		return x.Close()
-	}
-	return nil
-}
-
 // Upload the file for the user
-func (s *RidesService) Upload(ctx context.Context, userID UserID, file *File) (*Upload, error) {
+func (s *RidesService) Upload(ctx context.Context, userID UserID, file *activity.File) (*Upload, error) {
 	if file == nil {
 		return nil, errors.New("missing upload file")
 	}

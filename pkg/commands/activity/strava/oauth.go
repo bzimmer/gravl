@@ -27,7 +27,7 @@ func newRouter(c *cli.Context) (*http.ServeMux, error) {
 	config := &oauth2.Config{
 		ClientID:     c.String("strava.client-id"),
 		ClientSecret: c.String("strava.client-secret"),
-		Scopes:       []string{"read_all,profile:read_all,activity:read_all"},
+		Scopes:       []string{"read_all,profile:read_all,activity:read_all,activity:write"},
 		RedirectURL:  fmt.Sprintf("%s/strava/auth/callback", address),
 		Endpoint:     st.Endpoint}
 	handle := web.NewLogHandler(log.Logger)

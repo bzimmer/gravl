@@ -108,7 +108,6 @@ func (s *ActivityService) Export(ctx context.Context, act *Activity) (*activity.
 	if err != nil {
 		return nil, err
 	}
-	disposition := res.Header.Get("Content-Disposition")
 	/*
 		The parse fails with "expected slash after first token" without the "attachment"
 		prefix added. The HTTP headers below are captured from a query.
@@ -123,6 +122,7 @@ func (s *ActivityService) Export(ctx context.Context, act *Activity) (*activity.
 		Last-Modified: Tue, 24 Nov 2020 16:14:06 GMT
 		Server: AmazonS3
 	*/
+	disposition := res.Header.Get("Content-Disposition")
 	_, params, err := mime.ParseMediaType("attachment; " + disposition)
 	if err != nil {
 		return nil, err

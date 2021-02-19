@@ -11,10 +11,13 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
+	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
+
+const zwiftFileSize = 584
 
 func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 	return cyclinganalytics.NewClient(
@@ -26,38 +29,25 @@ func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 
 // collect returns a slice of files for uploading
 // Primary use case has been uploading fit files from Zwift so this function
-//  filters small files (less then 1K) and files of the name "inProgressActivity.fit"
-func collect(name string) ([]*cyclinganalytics.File, error) {
-	var files []*cyclinganalytics.File
-	err := filepath.Walk(name, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
+//  filters small files (less then 1K) and files named "inProgressActivity.fit"
+func collect(name string) ([]*activity.File, error) {
+	return internal.Collect(name, func(path string, info os.FileInfo) bool {
 		base := filepath.Base(path)
 		if base == "inProgressActivity.fit" {
 			log.Warn().
 				Str("name", path).
 				Msg("skipping, not a completed activity")
-			return nil
+			return false
 		}
-		if info.Size() < 1024 {
+		if info.Size() == zwiftFileSize {
 			log.Warn().
 				Int64("size", info.Size()).
 				Str("name", path).
 				Msg("skipping, too small")
-			return nil
+			return false
 		}
-		file, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		files = append(files, &cyclinganalytics.File{Name: base, Reader: file})
-		return nil
+		return true
 	})
-	return files, err
 }
 
 func poll(ctx context.Context, client *cyclinganalytics.Client, uploadID int64, follow bool) error {
@@ -88,16 +78,27 @@ func upload(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	dryrun := c.Bool("dryrun")
+	if dryrun {
+		log.Info().Msg("dryrun, not uploading")
+	}
 	for i := 0; i < c.Args().Len(); i++ {
 		files, err := collect(c.Args().Get(i))
 		if err != nil {
 			return err
 		}
+		if len(files) == 0 {
+			log.Warn().Msg("no files specified")
+			return nil
+		}
 		for _, file := range files {
 			defer file.Close()
+			log.Info().Str("file", file.Name).Msg("uploading")
+			if dryrun {
+				continue
+			}
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			log.Info().Str("file", file.Name).Msg("uploading")
 			u, err := client.Rides.Upload(ctx, cyclinganalytics.Me, file)
 			if err != nil {
 				return err
@@ -105,7 +106,7 @@ func upload(c *cli.Context) error {
 			if !c.Bool("poll") {
 				return encoding.Encode(u)
 			}
-			if err := poll(ctx, client, u.UploadID, true); err != nil {
+			if err := poll(ctx, client, u.ID, true); err != nil {
 				return err
 			}
 		}
@@ -149,6 +150,12 @@ var uploadCommand = &cli.Command{
 			Aliases: []string{"p"},
 			Value:   false,
 			Usage:   "Continually check the status of the request until it is completed",
+		},
+		&cli.BoolFlag{
+			Name:    "dryrun",
+			Aliases: []string{"n"},
+			Value:   false,
+			Usage:   "Show the files which would be uploaded but do not upload them",
 		},
 	},
 	Action: func(c *cli.Context) error {

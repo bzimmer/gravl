@@ -27,7 +27,7 @@ func (p *routePaginator) Count() int {
 
 func (p *routePaginator) Do(ctx context.Context, spec activity.Pagination) (int, error) {
 	uri := fmt.Sprintf("athletes/%d/routes?page=%d&per_page=%d", p.athleteID, spec.Start, spec.Count)
-	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
+	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -56,7 +56,7 @@ func (s *RouteService) Routes(ctx context.Context, athleteID int, spec activity.
 // Route returns a route
 func (s *RouteService) Route(ctx context.Context, routeID int64) (*Route, error) {
 	uri := fmt.Sprintf("routes/%d", routeID)
-	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
 	}

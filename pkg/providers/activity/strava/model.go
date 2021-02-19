@@ -7,14 +7,14 @@ import (
 	"github.com/twpayne/go-geom"
 )
 
-// Error .
+// Error is an error from the Strava API
 type Error struct {
 	Resource string `json:"resource"`
 	Field    string `json:"field"`
 	Code     string `json:"code"`
 }
 
-// Fault .
+// Fault contains errors
 type Fault struct {
 	Message string   `json:"message"`
 	Errors  []*Error `json:"errors"`
@@ -398,7 +398,7 @@ type Activity struct {
 	Streams                  *Streams               `json:"streams,omitempty"`
 }
 
-// Route .
+// Route is a planned activity
 type Route struct {
 	Private             bool          `json:"private"`
 	Distance            unit.Length   `json:"distance" units:"m"`
@@ -443,4 +443,26 @@ type TrainingLoad struct {
 	TrainingDate   *TrainingDate      `json:"date"`
 	FitnessProfile *FitnessProfile    `json:"fitness_profile"`
 	Activities     []*ActivityProfile `json:"activities"`
+}
+
+// ActivityResult is the result of querying for a stream of activities
+type ActivityResult struct {
+	Activity *Activity
+	Err      error
+}
+
+// Upload is the state representation of an uploaded activity
+type Upload struct {
+	ID         int64  `json:"id"`
+	IDString   string `json:"id_str"`
+	ExternalID string `json:"external_id"`
+	Error      string `json:"error"`
+	Status     string `json:"status"`
+	ActivityID int64  `json:"activity_id"`
+}
+
+// UploadResult is the result of polling for upload status
+type UploadResult struct {
+	Upload *Upload `json:"upload"`
+	Err    error   `json:"error"`
 }

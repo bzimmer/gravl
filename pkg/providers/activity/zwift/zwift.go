@@ -54,6 +54,7 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("User-Agent", userAgent)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", c.token.AccessToken))
 	return req, nil

@@ -197,7 +197,7 @@ func Flags(filename string) []cli.Flag {
 			Value:   time.Millisecond * 10000,
 			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
 		},
-		&cli.PathFlag{
+		&cli.StringFlag{
 			Name:  "config",
 			Value: config,
 			Usage: "File containing configuration settings",

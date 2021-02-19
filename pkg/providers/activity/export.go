@@ -35,15 +35,15 @@ func (f *Format) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf(`"%s"`, f.String())), nil
 }
 
-// ToFormat converts a Format enum to a string for Strava
+// ToFormat converts a string to a Format enum
 func ToFormat(format string) Format {
 	format = strings.ToLower(format)
 	switch format {
-	case "gpx":
+	case ".gpx", "gpx":
 		return GPX
-	case "tcx":
+	case ".tcx", "tcx":
 		return TCX
-	case "fit":
+	case ".fit", "fit":
 		return FIT
 	default:
 		return Original

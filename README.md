@@ -17,6 +17,7 @@ The `commands` package contains all the commands for the cli.
 * [Cycling Analytics](https://www.cyclinganalytics.com/)
 * [Ride with GPS](https://ridewithgps.com)
 * [WTA](https://wta.org)
+* [Zwift](https://zwift.com)
 
 ## Geo
 * [GNIS](https://geonames.usgs.gov)

@@ -157,7 +157,7 @@ func (h *webhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		webhookEventHandler(h.sub)(w, r)
 	default:
 		log.Error().Str("method", r.Method).Msg("unhandled http method")
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 

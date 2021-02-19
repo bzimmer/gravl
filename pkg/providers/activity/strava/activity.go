@@ -1,10 +1,15 @@
 package strava
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -13,6 +18,11 @@ import (
 
 // ActivityService is the API for activity endpoints
 type ActivityService service
+
+const (
+	polls           = 5
+	pollingDuration = 2 * time.Second
+)
 
 type channelPaginator struct {
 	service    ActivityService
@@ -30,7 +40,7 @@ func (p *channelPaginator) Count() int {
 
 func (p *channelPaginator) Do(ctx context.Context, spec activity.Pagination) (int, error) {
 	uri := fmt.Sprintf("athlete/activities?page=%d&per_page=%d", spec.Start, spec.Count)
-	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
+	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -57,7 +67,7 @@ func (p *channelPaginator) Do(ctx context.Context, spec activity.Pagination) (in
 func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams ...string) (*Streams, error) {
 	keys := strings.Join(streams, ",")
 	uri := fmt.Sprintf("activities/%d/streams/%s?key_by_type=true", activityID, keys)
-	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +83,7 @@ func (s *ActivityService) Streams(ctx context.Context, activityID int64, streams
 // Activity returns the activity specified by id
 func (s *ActivityService) Activity(ctx context.Context, activityID int64, streams ...string) (*Activity, error) {
 	uri := fmt.Sprintf("activities/%d", activityID)
-	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +105,6 @@ func (s *ActivityService) Activity(ctx context.Context, activityID int64, stream
 	return act, err
 }
 
-// ActivityResult is the result of querying for a stream of activities
-type ActivityResult struct {
-	Activity *Activity
-	Err      error
-}
-
 // Activities returns a channel for activities and errors for an athlete
 //
 // Either the first error or last activity will close the channel
@@ -117,7 +121,104 @@ func (s *ActivityService) Activities(ctx context.Context, spec activity.Paginati
 	return acts
 }
 
-// // ValidStream returns true if the strean name is valid
+// Upload the file for the user
+//
+// More information can be found at https://developers.strava.com/docs/uploads/
+func (s *ActivityService) Upload(ctx context.Context, file *activity.File) (*Upload, error) {
+	if file == nil || file.Name == "" || file.Format == activity.Original {
+		return nil, errors.New("missing upload file, name, or format")
+	}
+
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	if err := w.WriteField("filename", file.Name); err != nil {
+		return nil, err
+	}
+	if err := w.WriteField("data_type", file.Format.String()); err != nil {
+		return nil, err
+	}
+	fw, err := w.CreateFormFile("file", file.Name)
+	if err != nil {
+		return nil, err
+	}
+	if _, err = io.Copy(fw, file); err != nil {
+		return nil, err
+	}
+	if err = w.Close(); err != nil {
+		return nil, err
+	}
+
+	req, err := s.client.newAPIRequest(ctx, http.MethodPost, "uploads", &b)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	res := &Upload{}
+	err = s.client.do(req, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// Status returns the status of an upload request
+//
+// More information can be found at https://developers.strava.com/docs/uploads/
+func (s *ActivityService) Status(ctx context.Context, uploadID int64) (*Upload, error) {
+	uri := fmt.Sprintf("uploads/%d", uploadID)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, err
+	}
+	res := &Upload{}
+	err = s.client.do(req, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// Poll the status of an upload
+//
+// The operation will continue until either it is completed (status != "processing"), the context
+//  is canceled, or the maximum number of iterations have been exceeded.
+//
+// More information can be found at:
+//   https://developers.strava.com/docs/uploads/
+//   A successful upload will return a response with an upload ID. You may use this ID to poll the
+//   status of your upload. Strava recommends polling no more than once a second. The mean processing
+//   time is around 8 seconds.
+func (s *ActivityService) Poll(ctx context.Context, uploadID int64) <-chan *UploadResult {
+	res := make(chan *UploadResult)
+	go func() {
+		defer close(res)
+		i := 0
+		for ; i < polls; i++ {
+			upload, err := s.Status(ctx, uploadID)
+			if err != nil {
+				res <- &UploadResult{Err: err}
+				return
+			}
+			res <- &UploadResult{Upload: upload}
+			if upload.ActivityID > 0 || upload.Error != "" {
+				return
+			}
+			select {
+			case <-ctx.Done():
+				res <- &UploadResult{Err: ctx.Err()}
+				return
+			case <-time.After(pollingDuration):
+			}
+		}
+		if i == polls {
+			log.Warn().Int("polls", polls).Msg("exceeded max polls")
+		}
+	}()
+	return res
+}
+
+// // ValidStream returns true if the stream name is valid
 // func ValidStream(stream string) bool {
 // 	// https://developers.strava.com/docs/reference/#api-models-StreamSet
 // 	switch stream {

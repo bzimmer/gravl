@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"path/filepath"
 
 	"github.com/rs/zerolog/log"
 
@@ -43,6 +44,10 @@ func (s *ExportService) Export(ctx context.Context, activityID int64, format act
 	_, params, err := mime.ParseMediaType(disposition)
 	if err != nil {
 		return nil, err
+	}
+	if format == activity.Original {
+		ext := filepath.Ext(params["filename"])
+		format = activity.ToFormat(ext)
 	}
 	return &activity.Export{
 		Reader: out,

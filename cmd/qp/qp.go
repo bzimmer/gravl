@@ -33,7 +33,7 @@ func upload(c *cli.Context, export *activity.Export) error {
 	if err != nil {
 		return err
 	}
-	file := &cyclinganalytics.File{Reader: out, Name: export.Name}
+	file := &activity.File{Reader: out, Format: export.Format, Name: export.Name}
 	defer file.Close()
 	client, err := cacmd.NewClient(c)
 	if err != nil {
@@ -45,7 +45,7 @@ func upload(c *cli.Context, export *activity.Export) error {
 	if err != nil {
 		return err
 	}
-	pc := client.Rides.Poll(ctx, upload.UserID, upload.UploadID)
+	pc := client.Rides.Poll(ctx, upload.UserID, upload.ID)
 	for {
 		select {
 		case <-ctx.Done():

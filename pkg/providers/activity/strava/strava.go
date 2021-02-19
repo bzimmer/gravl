@@ -54,7 +54,7 @@ func withServices() Option {
 	}
 }
 
-func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.Request, error) { // nolint:unparam
+func (c *Client) newAPIRequest(ctx context.Context, method, uri string, body io.Reader) (*http.Request, error) {
 	if c.token.AccessToken == "" {
 		return nil, errors.New("accessToken required")
 	}
@@ -62,7 +62,7 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string) (*http.R
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}
