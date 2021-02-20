@@ -4,9 +4,19 @@
 
 **gravl** package provides clients for activty-related services and an extensible analysis framework for activities.
 
-The purpose of the package is to provide easy access to activity, weather, and geo services useful for either planning or analyzing activities. The package is split into a few top level compenents: `providers`, `analysis`, and `commands`. The `providers` package is responsible for communicating with services and aims to use a consistent approach to APIs and models. The `analysis` package is responsible for running analyzers on Strava data. The `commands` package contains all the commands for the cli.
+The purpose of the package is to provide easy access to activity, weather, and geo services useful for either planning or analyzing activities. The package is split into a few top level compenents:
+* `providers`
+  * a library for communicating with services and aims to use a consistent approach to APIs and models
+* `analysis`
+  * a library for running analyzers on Strava activities
+* `store`
+  * a library for storing Strava activity data, generally locally through `buntdb` or a file but also capable of interacting with Strava directly
+* `eval`
+  * a flexible evaluation library useful for dynamic filtering, grouping, and evaluating of Strava activities
+* `commands`
+  * the commands used by the cli
 
-Many examples and more documentation can be found in the [manual](docs/manual.md).
+More documentation and numerous examples can be found in the [manual](docs/manual.md).
 
 ## Activity clients
 * [Strava](https://strava.com)
@@ -15,14 +25,14 @@ Many examples and more documentation can be found in the [manual](docs/manual.md
 * [WTA](https://wta.org)
 * [Zwift](https://zwift.com)
 
-## Geo
-* [GNIS](https://geonames.usgs.gov)
-* [SRTM](https://github.com/sakisds/go-srtm)
-
 ## Weather
 * [NOAA](https://weather.gov)
 * [OpenWeather API](https://openweathermap.org/api)
 * [VisualCrossing](https://visualcrossing.com)
+
+## Geo
+* [GNIS](https://geonames.usgs.gov)
+* [SRTM](https://github.com/sakisds/go-srtm)
 
 # Documentation
 

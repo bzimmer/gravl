@@ -51,45 +51,7 @@ $ gravl pass -a totals -f ".StartDate.Year() == 2021" -g ".Type"
    }
   }
  },
- "Run": {
-  "totals": {
-   "count": 1,
-   "distance": 6.367501292452079,
-   "elevation": 741.469816272966,
-   "calories": 306,
-   "movingtime": 3940,
-   "centuries": {
-    "metric": 0,
-    "imperial": 0
-   }
-  }
- },
- "Snowshoe": {
-  "totals": {
-   "count": 1,
-   "distance": 1.4278488626421697,
-   "elevation": 79.3963254593176,
-   "calories": 176,
-   "movingtime": 1748,
-   "centuries": {
-    "metric": 0,
-    "imperial": 0
-   }
-  }
- },
- "VirtualRide": {
-  "totals": {
-   "count": 6,
-   "distance": 82.22194881889764,
-   "elevation": 5813.648293963255,
-   "calories": 3570,
-   "movingtime": 15503,
-   "centuries": {
-    "metric": 0,
-    "imperial": 0
-   }
-  }
- },
+ ...,
  "Walk": {
   "totals": {
    "count": 19,
