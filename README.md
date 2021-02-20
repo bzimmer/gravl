@@ -4,13 +4,9 @@
 
 **gravl** package provides clients for activty-related services and an extensible analysis framework for activities.
 
-The purpose of the package is to provide easy access to activity, weather, and geo services useful for either planning or analyzing activities. The package is split into a few top level compenents: `providers`, `analysis`, and `commands`.
+The purpose of the package is to provide easy access to activity, weather, and geo services useful for either planning or analyzing activities. The package is split into a few top level compenents: `providers`, `analysis`, and `commands`. The `providers` package is responsible for communicating with services and aims to use a consistent approach to APIs and models. The `analysis` package is responsible for running analyzers on Strava data. The `commands` package contains all the commands for the cli.
 
-The `providers` package is responsible for communicating with services and aims to use a consistent approach to APIs and models.
-
-The `analysis` package is responsible for running analyzers on Strava data.
-
-The `commands` package contains all the commands for the cli.
+Many examples and more documentation can be found in the [manual](docs/manual.md).
 
 ## Activity clients
 * [Strava](https://strava.com)

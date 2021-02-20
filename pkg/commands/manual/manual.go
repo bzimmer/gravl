@@ -2,7 +2,6 @@ package manual
 
 import (
 	"fmt"
-	"html/template"
 	"os"
 	"path/filepath"
 
@@ -11,68 +10,76 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 )
 
-var manualTemplate = `
-# NAME
+/*
+### Create an exchange
 
-{{ .App.Name }}{{ if .App.Usage }} - {{ .App.Usage }}{{ end }}
+**Syntax:**
 
-# SYNOPSIS
+```
+$ buneary create exchange <ADDRESS> <NAME> <TYPE> [flags]
+```
 
-{{ .App.Name }}
-`
+**Arguments:**
 
-// {{ if .SynopsisArgs }}
-// ` + "```" + `
-// {{ range $v := .SynopsisArgs }}{{ $v }}{{ end }}` + "```" + `
-// {{ end }}{{ if .App.UsageText }}
-// # DESCRIPTION
+|Argument|Description|
+|-|-|
+|`ADDRESS`|The RabbitMQ HTTP API address. If no port is specified, `15672` is used.|
+|`NAME`|The desired name of the new exchange.|
+|`TYPE`|The exchange type. Has to be one of `direct`, `headers`, `fanout` and `topic`.|
 
-// {{ .App.UsageText }}
-// {{ end }}
-// **Usage**:
+**Flags:**
 
-// ` + "```" + `
-// {{ .App.Name }} [GLOBAL OPTIONS] command [COMMAND OPTIONS] [ARGUMENTS...]
-// ` + "```" + `
-// {{ if .GlobalArgs }}
-// # GLOBAL OPTIONS
-// {{ range $v := .GlobalArgs }}
-// {{ $v }}{{ end }}
-// {{ end }}{{ if .Commands }}
-// # COMMANDS
-// {{ range $v := .Commands }}
-// {{ $v }}{{ end }}{{ end }}`
+|Flag|Short|Description|
+|-|-|-|
+|`--user`|`-u`|The username to connect with. If not specified, you will be asked for it.|
+|`--password`|`-p`|The password to authenticate with. If not specified, you will be asked for it.|
+|`--auto-delete`||Automatically delete the exchange once there are no bindings left.|
+|`--durable`||Make the exchange persistent, surviving server restarts.|
+|`--internal`||Make the exchange internal.|
 
-type templateEnv struct {
-	App        *cli.App
-	Commands   []*cli.Command
-	GlobalArgs []cli.Flag
-}
+**Example:**
 
-func manual(c *cli.Context) error {
-	const name = "manual"
-	t, err := template.New(name).Parse(manualTemplate)
-	if err != nil {
-		return err
+Create a direct exchange called `my-exchange` on a RabbitMQ server running on the local machine.
+
+```
+$ buneary create exchange localhost my-exchange direct
+```
+*/
+
+func manual(cmds []*cli.Command, lineage []*cli.Command) {
+	for i := range cmds {
+		fmt.Printf("\n### %s\n\n**Syntax:**\n\n", cmds[i].Usage)
+		fmt.Printf("```sh\n$ gravl ")
+		for j := range lineage {
+			fmt.Printf("%s ", lineage[j].Name)
+		}
+		fmt.Printf("%s\n```", cmds[i].Name)
+		fmt.Println()
+		if cmds[i].Action != nil && cmds[i].UsageText != "" {
+			fmt.Println("\n**Example:**")
+			fmt.Println(cmds[i].UsageText)
+		}
+		manual(cmds[i].Subcommands, append(lineage, cmds[i]))
 	}
-	app := c.App
-	return t.ExecuteTemplate(app.Writer, name, &templateEnv{
-		App:        app,
-		Commands:   app.Commands,
-		GlobalArgs: app.VisibleFlags(),
-	})
 }
 
-var markdownCommand = &cli.Command{
-	Name:    "markdown",
-	Usage:   "Generate the manual in Markdown",
+var Manual = &cli.Command{
+	Name:    "manual",
+	Usage:   "Generate the 'gravl' manual",
 	Aliases: []string{"md"},
-	Action:  manual,
+	Hidden:  true,
+	Action: func(c *cli.Context) error {
+		fmt.Printf("# %s - %s\n", c.App.Name, c.App.Usage)
+		manual(c.App.Commands, nil)
+		fmt.Println()
+		return nil
+	},
 }
 
-var commandsCommand = &cli.Command{
-	Name:  "commands",
-	Usage: "Return all possible commands",
+var Commands = &cli.Command{
+	Name:   "commands",
+	Usage:  "Return all possible commands",
+	Hidden: true,
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "relative",
@@ -81,7 +88,6 @@ var commandsCommand = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		fmt.Printf("%v\n", c.App.Commands)
 		var commander func(string, []*cli.Command) []string
 		commander = func(prefix string, cmds []*cli.Command) []string {
 			var commands []string
@@ -111,15 +117,5 @@ var commandsCommand = &cli.Command{
 		}
 		commands := commander(cmd, c.App.Commands)
 		return encoding.Encode(commands)
-	},
-}
-
-var Command = &cli.Command{
-	Name:     "manual",
-	Category: "manual",
-	Usage:    "Generate a manual for the cli",
-	Subcommands: []*cli.Command{
-		commandsCommand,
-		markdownCommand,
 	},
 }

@@ -232,11 +232,12 @@ var rideCommand = &cli.Command{
 }
 
 var Command = &cli.Command{
-	Name:     "cyclinganalytics",
-	Aliases:  []string{"ca"},
-	Category: "activity",
-	Usage:    "Query CyclingAnalytics",
-	Flags:    AuthFlags,
+	Name:        "cyclinganalytics",
+	Aliases:     []string{"ca"},
+	Category:    "activity",
+	Usage:       "Query CyclingAnalytics",
+	Description: "Operations supported by the Cycling Analytics website",
+	Flags:       AuthFlags,
 	Subcommands: []*cli.Command{
 		activitiesCommand,
 		athleteCommand,
