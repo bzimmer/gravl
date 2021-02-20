@@ -54,12 +54,13 @@ func main() {
 		zwift.Command,
 	}
 	app := &cli.App{
-		Name:     "gravl",
-		HelpName: "gravl",
-		Usage:    "Clients for activty-related services and an extensible analysis framework for activities",
-		Flags:    gravl.Flags("gravl.yaml"),
-		Commands: commands,
-		Before:   gravl.Befores(gravl.InitLogging(), initEncoding, gravl.InitConfig()),
+		Name:        "gravl",
+		HelpName:    "gravl",
+		Usage:       "CLI for activity related analysis, exploration, & planning",
+		Description: "Activity related analysis, exploration, & planning",
+		Flags:       gravl.Flags("gravl.yaml"),
+		Commands:    commands,
+		Before:      gravl.Befores(gravl.InitLogging(), initEncoding, gravl.InitConfig()),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return

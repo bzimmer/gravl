@@ -1,11 +1,14 @@
 package manual
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -49,40 +52,89 @@ $ buneary create exchange localhost my-exchange direct
 ```
 */
 
-func usage(cmd *cli.Command, lineage []*cli.Command) string {
-	var names []string
-	for i := range lineage {
-		names = append(names, lineage[i].Name)
-	}
-	names = append(names, cmd.Name)
-	s := usages[strings.Join(names, "-")]
-	usage, err := hex.DecodeString(s)
-	if err != nil {
-		log.Warn().Err(err).Msg("hex decode")
-		return ""
-	}
-	return strings.TrimSpace(string(usage))
+type command struct {
+	Cmd     *cli.Command
+	Lineage []*cli.Command
 }
 
-func manual(cmds []*cli.Command, lineage []*cli.Command) {
-	for i := range cmds {
-		fmt.Printf("\n### %s\n\n**Syntax:**\n\n", cmds[i].Usage)
-		fmt.Printf("```sh\n$ gravl ")
-		for j := range lineage {
-			fmt.Printf("%s ", lineage[j].Name)
-		}
-		fmt.Printf("%s\n```", cmds[i].Name)
-		fmt.Println()
-
-		if cmds[i].Action != nil {
-			s := usage(cmds[i], lineage)
-			if s != "" {
-				fmt.Printf("\n**Example:**\n\n")
-				fmt.Println(s)
+var tmpl = template.Must(template.New("").
+	Funcs(map[string]interface{}{
+		"usage": func(c *command) string {
+			var names []string
+			for i := range c.Lineage {
+				names = append(names, c.Lineage[i].Name)
 			}
+			names = append(names, c.Cmd.Name)
+			s := usages[strings.Join(names, "-")]
+			usage, err := hex.DecodeString(s)
+			if err != nil {
+				log.Warn().Err(err).Msg("hex decode")
+				return ""
+			}
+			return strings.TrimSpace(string(usage))
+		},
+		"names": func(f cli.Flag) string {
+			// the first name is always the long name so skip it
+			if len(f.Names()) <= 1 {
+				return ""
+			}
+			return fmt.Sprintf("```%s```", strings.Join(f.Names()[1:], ", "))
+		},
+		"description": func(f cli.Flag) string {
+			if x, ok := f.(cli.DocGenerationFlag); ok {
+				return x.GetUsage()
+			}
+			return ""
+		},
+		"lineage": func(c *command) string {
+			var s []string
+			for j := range c.Lineage {
+				s = append(s, c.Lineage[j].Name)
+			}
+			s = append(s, c.Cmd.Name)
+			return strings.Join(s, " ")
+		},
+		"ticks": func() string { return "```" },
+	}).
+	Parse(`
+{{- if .Cmd.Action }}
+### *{{ lineage . }}* - {{ .Cmd.Usage }}
+
+**Syntax:**
+
+{{ ticks }}sh
+$ gravl {{ lineage . }}
+{{ ticks }}
+
+{{- if .Cmd.Flags }}
+**Flags:**
+
+|Flag|Short|Description|
+|-|-|-|
+{{- range $f := .Cmd.Flags }}
+|{{ticks}}{{ $f.Name }}{{ticks}}|{{ names $f }}|{{ description $f }}|
+{{- end }}
+{{- end }}
+
+{{- with $x := usage . }}
+**Example:**
+
+{{ . }}
+{{- end }}
+{{- end }}
+`))
+
+func manual(buffer io.Writer, cmds []*cli.Command, lineage []*cli.Command) error {
+	for i := range cmds {
+		c := &command{Cmd: cmds[i], Lineage: lineage}
+		if err := tmpl.Execute(buffer, c); err != nil {
+			return err
 		}
-		manual(cmds[i].Subcommands, append(lineage, cmds[i]))
+		if err := manual(buffer, cmds[i].Subcommands, append(lineage, cmds[i])); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 var Manual = &cli.Command{
@@ -91,9 +143,12 @@ var Manual = &cli.Command{
 	Aliases: []string{"md"},
 	Hidden:  true,
 	Action: func(c *cli.Context) error {
-		fmt.Printf("# %s - %s\n", c.App.Name, c.App.Usage)
-		manual(c.App.Commands, nil)
-		fmt.Println()
+		buffer := &bytes.Buffer{}
+		fmt.Fprintf(buffer, "# %s - %s\n", c.App.Name, c.App.Description)
+		if err := manual(buffer, c.App.Commands, nil); err != nil {
+			return err
+		}
+		fmt.Fprintln(c.App.Writer, buffer.String())
 		return nil
 	},
 }

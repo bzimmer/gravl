@@ -79,7 +79,7 @@ var exportCommand = &cli.Command{
 			Name:    "output",
 			Aliases: []string{"O"},
 			Value:   "",
-			Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to Stdout",
+			Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
 		},
 	},
 	Action: export,
