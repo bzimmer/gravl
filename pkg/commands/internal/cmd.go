@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,27 +31,6 @@ func root() (string, error) {
 		}
 	}
 	return "", os.ErrNotExist
-}
-
-// Usage returns the contents of a usage file
-func Usage(path string) string {
-	var err error
-	x, err := root()
-	if err != nil {
-		log.Error().Err(err).Str("path", path).Msg("missing root")
-		return path
-	}
-	path = filepath.Join(x, path)
-	if _, err = os.Stat(path); os.IsNotExist(err) {
-		log.Error().Err(err).Str("path", path).Msg("file does not exist")
-		return path
-	}
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		log.Error().Err(err).Str("path", path).Msg("failed to read file")
-		return path
-	}
-	return strings.TrimSpace(string(b))
 }
 
 // GravlCmd executes `gravl` commands

@@ -12,7 +12,6 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	usage "github.com/bzimmer/gravl/pkg/commands/internal"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/zwift"
 )
@@ -83,10 +82,9 @@ func refresh(c *cli.Context) error {
 }
 
 var refreshCommand = &cli.Command{
-	Name:      "refresh",
-	Usage:     "Acquire a new refresh token",
-	UsageText: usage.Usage("pkg/commands/activity/zwift/usage/refresh.md"),
-	Action:    refresh,
+	Name:   "refresh",
+	Usage:  "Acquire a new refresh token",
+	Action: refresh,
 }
 
 func activities(c *cli.Context) error {
@@ -259,10 +257,9 @@ func files(c *cli.Context) error {
 }
 
 var filesCommand = &cli.Command{
-	Name:      "files",
-	Usage:     "List all local Zwift files; filters small files (584 bytes) and files named 'inProgressActivity.fit'",
-	UsageText: usage.Usage("pkg/commands/activity/zwift/usage/files.md"),
-	Action:    files,
+	Name:   "files",
+	Usage:  "List all local Zwift files",
+	Action: files,
 }
 
 var Command = &cli.Command{

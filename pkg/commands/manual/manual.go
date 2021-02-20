@@ -1,10 +1,13 @@
 package manual
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
@@ -46,6 +49,21 @@ $ buneary create exchange localhost my-exchange direct
 ```
 */
 
+func usage(cmd *cli.Command, lineage []*cli.Command) string {
+	var names []string
+	for i := range lineage {
+		names = append(names, lineage[i].Name)
+	}
+	names = append(names, cmd.Name)
+	s := usages[strings.Join(names, "-")]
+	usage, err := hex.DecodeString(s)
+	if err != nil {
+		log.Warn().Err(err).Msg("hex decode")
+		return ""
+	}
+	return strings.TrimSpace(string(usage))
+}
+
 func manual(cmds []*cli.Command, lineage []*cli.Command) {
 	for i := range cmds {
 		fmt.Printf("\n### %s\n\n**Syntax:**\n\n", cmds[i].Usage)
@@ -55,9 +73,13 @@ func manual(cmds []*cli.Command, lineage []*cli.Command) {
 		}
 		fmt.Printf("%s\n```", cmds[i].Name)
 		fmt.Println()
-		if cmds[i].Action != nil && cmds[i].UsageText != "" {
-			fmt.Printf("\n**Example:**\n\n")
-			fmt.Println(cmds[i].UsageText)
+
+		if cmds[i].Action != nil {
+			s := usage(cmds[i], lineage)
+			if s != "" {
+				fmt.Printf("\n**Example:**\n\n")
+				fmt.Println(s)
+			}
 		}
 		manual(cmds[i].Subcommands, append(lineage, cmds[i]))
 	}

@@ -1,4 +1,4 @@
-List all local files from the Zwift app's directory. Any files less than 1K in size or named 'inProgressActivity.fit' will be ignored.
+List all local files from the Zwift app's directory. Any files less than 1K in size or named `inProgressActivity.fit` will be ignored.
 
 ```sh
 $ gravl zwift files
