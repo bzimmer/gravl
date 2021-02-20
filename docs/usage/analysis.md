@@ -19,7 +19,8 @@ $ gravl pass -a totals -f ".StartDate.Year() == 2021"
 }
 ```
 
-It's possible to use a filter with grouping.
+In addition to filtering, it's often useful to group activities and perform analysis on sub-groups.
+In this example the year is filtered and then totals are computed per type.
 
 ```sh
 $ gravl pass -a totals -f ".StartDate.Year() == 2021" -g ".Type"

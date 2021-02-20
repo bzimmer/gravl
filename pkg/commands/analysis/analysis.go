@@ -8,7 +8,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis"
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/commands/internal"
 	"github.com/bzimmer/gravl/pkg/commands/store"
 	"github.com/bzimmer/gravl/pkg/eval"
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
@@ -108,10 +107,9 @@ func analyze(c *cli.Context) error {
 }
 
 var listCommand = &cli.Command{
-	Name:      "list",
-	Aliases:   []string{""},
-	Usage:     "Return the list of available analyzers",
-	UsageText: internal.Usage("pkg/commands/analysis/usage/list.md"),
+	Name:    "list",
+	Aliases: []string{""},
+	Usage:   "Return the list of available analyzers",
 	Action: func(c *cli.Context) error {
 		res := make(map[string]map[string]interface{})
 		for nm, an := range available {
@@ -153,6 +151,5 @@ var Command = &cli.Command{
 		store.InputFlag(store.DefaultLocalStore),
 	},
 	Subcommands: []*cli.Command{listCommand},
-	UsageText:   internal.Usage("pkg/commands/analysis/usage/pass.md"),
 	Action:      analyze,
 }

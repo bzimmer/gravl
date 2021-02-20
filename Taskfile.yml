@@ -127,3 +127,10 @@ tasks:
     desc: Display all struct fields with units
     cmds:
       - go run {{.CWD}}/cmd/genunits/* {{.CWD}}/pkg | jq .
+
+  manual:
+    desc: Generate usage documentation
+    cmds:
+      - go run cmd/genusage/* docs/usage > pkg/commands/manual/usage.go
+      - task: build
+      - dist/gravl manual > docs/manual.md
