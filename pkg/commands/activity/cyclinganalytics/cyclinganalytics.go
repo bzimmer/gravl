@@ -2,8 +2,6 @@ package cyclinganalytics
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -17,8 +15,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
 
-const zwiftFileSize = 584
-
 func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 	return cyclinganalytics.NewClient(
 		cyclinganalytics.WithTokenCredentials(
@@ -28,26 +24,8 @@ func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 }
 
 // collect returns a slice of files for uploading
-// Primary use case has been uploading fit files from Zwift so this function
-//  filters small files (less then 1K) and files named "inProgressActivity.fit"
 func collect(name string) ([]*activity.File, error) {
-	return internal.Collect(name, func(path string, info os.FileInfo) bool {
-		base := filepath.Base(path)
-		if base == "inProgressActivity.fit" {
-			log.Warn().
-				Str("name", path).
-				Msg("skipping, not a completed activity")
-			return false
-		}
-		if info.Size() == zwiftFileSize {
-			log.Warn().
-				Int64("size", info.Size()).
-				Str("name", path).
-				Msg("skipping, too small")
-			return false
-		}
-		return true
-	})
+	return internal.Collect(name, nil)
 }
 
 func poll(ctx context.Context, client *cyclinganalytics.Client, uploadID int64, follow bool) error {
@@ -79,9 +57,6 @@ func upload(c *cli.Context) error {
 		return err
 	}
 	dryrun := c.Bool("dryrun")
-	if dryrun {
-		log.Info().Msg("dryrun, not uploading")
-	}
 	for i := 0; i < c.Args().Len(); i++ {
 		files, err := collect(c.Args().Get(i))
 		if err != nil {
@@ -93,10 +68,11 @@ func upload(c *cli.Context) error {
 		}
 		for _, file := range files {
 			defer file.Close()
-			log.Info().Str("file", file.Name).Msg("uploading")
 			if dryrun {
+				log.Info().Str("file", file.Name).Bool("dryrun", dryrun).Msg("uploading")
 				continue
 			}
+			log.Info().Str("file", file.Name).Msg("uploading")
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
 			u, err := client.Rides.Upload(ctx, cyclinganalytics.Me, file)

@@ -16,11 +16,11 @@ type Export struct {
 	Format    Format `json:"format"`
 }
 
-// Format of the exported file
+// Format of the file used in exporting and uploading
 type Format int
 
 const (
-	// Original format
+	// Original format (essentially a wildcard)
 	Original Format = iota // original
 	// GPX format
 	GPX // gpx
@@ -35,7 +35,8 @@ func (f *Format) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf(`"%s"`, f.String())), nil
 }
 
-// ToFormat converts a string to a Format enum
+// ToFormat converts a file extension (with or without the ".") to a Format
+// If no predefined extension exists the Format Original is returned
 func ToFormat(format string) Format {
 	format = strings.ToLower(format)
 	switch format {

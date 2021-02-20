@@ -19,8 +19,9 @@ type ActivityTestSuite struct {
 	suite.Suite
 	Name          string
 	Encodings     []string
-	SkipRoutes    bool
 	MaxActivities int64
+	Routes        bool
+	Upload        bool
 }
 
 func random(n int) int {
@@ -56,12 +57,26 @@ func (s *ActivityTestSuite) TestAthlete() {
 	a.True(c.Success())
 }
 
-func (s *ActivityTestSuite) TestRoute() {
-	if s.SkipRoutes {
-		s.T().Skip("skipping routes test for " + s.Name)
+func (s *ActivityTestSuite) TestRoutes() {
+	// @todo(bzimmer)
+	// This test needs to be improved, it currently only confirms the subcommand exists
+	if !s.Routes {
+		s.T().Logf("skipping routes for %s", s.Name)
+		return
 	}
 	a := s.Assert()
 	c := internal.Gravl("-c", s.Name, "routes", "-N", strconv.FormatInt(s.N(), 10))
+	<-c.Start()
+	a.True(c.Success())
+}
+
+func (s *ActivityTestSuite) TestUpload() {
+	if !s.Upload {
+		s.T().Logf("skipping upload for %s", s.Name)
+		return
+	}
+	a := s.Assert()
+	c := internal.Gravl("--timeout", "30s", "-c", s.Name, "upload", "-n")
 	<-c.Start()
 	a.True(c.Success())
 }

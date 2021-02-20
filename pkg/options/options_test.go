@@ -14,8 +14,7 @@ func TestOptions(t *testing.T) {
 	tests := []struct {
 		x, num          int
 		y, name, option string
-		z               bool
-		err             bool
+		z, err          bool
 	}{
 		{option: "", err: true},
 		{option: "database", name: "database"},

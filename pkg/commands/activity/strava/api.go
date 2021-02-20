@@ -316,9 +316,6 @@ func upload(c *cli.Context) error {
 		return err
 	}
 	dryrun := c.Bool("dryrun")
-	if dryrun {
-		log.Info().Msg("dryrun, not uploading")
-	}
 	for i := 0; i < c.Args().Len(); i++ {
 		files, err := collect(c.Args().Get(i))
 		if err != nil {
@@ -330,10 +327,11 @@ func upload(c *cli.Context) error {
 		}
 		for _, file := range files {
 			defer file.Close()
-			log.Info().Str("file", file.Name).Msg("uploading")
 			if dryrun {
+				log.Info().Str("file", file.Name).Bool("dryrun", dryrun).Msg("uploading")
 				continue
 			}
+			log.Info().Str("file", file.Name).Msg("uploading")
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
 			u, err := client.Activity.Upload(ctx, file)

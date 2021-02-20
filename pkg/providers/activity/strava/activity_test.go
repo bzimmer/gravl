@@ -102,83 +102,75 @@ func TestActivitiesMany(t *testing.T) {
 		strava.WithTokenCredentials("fooKey", "barToken", time.Time{}))
 	a.NoError(err)
 
-	// test total, start, and count
-	// success: the requested number of activities because count/pagesize == 1
-	acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: 127, Start: 0, Count: 1}))
-	a.NoError(err)
-	a.NotNil(acts)
-	a.Equal(127, len(acts))
+	t.Run("total, start, and count", func(t *testing.T) {
+		// success: the requested number of activities because count/pagesize == 1
+		acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: 127, Start: 0, Count: 1}))
+		a.NoError(err)
+		a.NotNil(acts)
+		a.Equal(127, len(acts))
+	})
 
-	// test total and start
-	// success: the requested number of activities is exceeded because count/pagesize not specified
-	x := 234
-	acts, err = readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0}))
-	a.NoError(err)
-	a.NotNil(acts)
-	a.Equal(x, len(acts))
-
-	// test total and start less than PageSize
-	// success: the requested number of activities because count/pagesize <= strava.PageSize
-	a.True(27 < strava.PageSize)
-	acts, err = readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: 27, Start: 0}))
-	a.NoError(err)
-	a.NotNil(acts)
-	a.Equal(27, len(acts))
-
-	// test different Count values
-	count := strava.PageSize + 100
-	for _, x = range []int{27, 350, strava.PageSize} {
-		acts, err = readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0, Count: count}))
+	t.Run("total and start", func(t *testing.T) {
+		// success: the requested number of activities is exceeded because count/pagesize not specified
+		x := 234
+		acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0}))
 		a.NoError(err)
 		a.NotNil(acts)
 		a.Equal(x, len(acts))
-	}
+	})
 
-	// negative test
-	acts, err = readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: -1}))
-	a.Error(err)
-	a.Nil(acts)
+	t.Run("total and start less than PageSize", func(t *testing.T) {
+		// success: the requested number of activities because count/pagesize <= strava.PageSize
+		a.True(27 < strava.PageSize)
+		acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: 27, Start: 0}))
+		a.NoError(err)
+		a.NotNil(acts)
+		a.Equal(27, len(acts))
+	})
+
+	t.Run("different Count values", func(t *testing.T) {
+		count := strava.PageSize + 100
+		for _, x := range []int{27, 350, strava.PageSize} {
+			acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: x, Start: 0, Count: count}))
+			a.NoError(err)
+			a.NotNil(acts)
+			a.Equal(x, len(acts))
+		}
+	})
+
+	t.Run("negative total", func(t *testing.T) {
+		acts, err := readall(ctx, client.Activity.Activities(ctx, activity.Pagination{Total: -1}))
+		a.Error(err)
+		a.Nil(acts)
+	})
 }
 
 func TestStreams(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	ctx := context.Background()
-	client, err := newClient(http.StatusOK, "streams_four.json")
-	a.NoError(err)
+	t.Run("four", func(t *testing.T) {
+		ctx := context.Background()
+		client, err := newClient(http.StatusOK, "streams_four.json")
+		a.NoError(err)
+		sms, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude", "distance")
+		a.NoError(err)
+		a.NotNil(sms)
+		a.NotNil(sms.LatLng)
+		a.NotNil(sms.Elevation)
+		a.NotNil(sms.Distance)
+	})
 
-	sms, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude", "distance")
-	a.NoError(err)
-	a.NotNil(sms)
-	a.NotNil(sms.LatLng)
-	a.NotNil(sms.Elevation)
-	a.NotNil(sms.Distance)
-
-	client, err = newClient(http.StatusOK, "streams_two.json")
-	a.NoError(err)
-	sms, err = client.Activity.Streams(ctx, 154504250376, "latlng", "altitude")
-	a.NoError(err)
-	a.NotNil(sms)
-	a.NotNil(sms.LatLng)
-	a.NotNil(sms.Elevation)
-}
-
-func TestRouteFromStreams(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
-
-	ctx := context.Background()
-	client, err := newClient(http.StatusOK, "streams_four.json")
-	a.NoError(err)
-
-	sms, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude")
-	a.NoError(err)
-	a.NotNil(sms)
-	a.NotNil(sms.LatLng)
-	a.NotNil(sms.Elevation)
-	a.Equal(int64(154504250376), sms.ActivityID)
-	a.Equal(2712, len(sms.LatLng.Data))
+	t.Run("two", func(t *testing.T) {
+		ctx := context.Background()
+		client, err := newClient(http.StatusOK, "streams_two.json")
+		a.NoError(err)
+		sms, err := client.Activity.Streams(ctx, 154504250376, "latlng", "altitude")
+		a.NoError(err)
+		a.NotNil(sms)
+		a.NotNil(sms.LatLng)
+		a.NotNil(sms.Elevation)
+	})
 }
 
 func TestTimeout(t *testing.T) {
@@ -197,22 +189,22 @@ func TestTimeout(t *testing.T) {
 	a.NoError(err)
 	a.NotNil(client)
 
-	// timeout lt sleep => failure
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*15)
-	defer cancel()
+	t.Run("timeout lt sleep => failure", func(t *testing.T) {
+		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(ctx, time.Millisecond*15)
+		defer cancel()
+		act, err := client.Activity.Activity(ctx, 154504250376823)
+		a.Error(err)
+		a.Nil(act)
+	})
 
-	act, err := client.Activity.Activity(ctx, 154504250376823)
-	a.Error(err)
-	a.Nil(act)
-
-	// timeout gt sleep => success
-	ctx = context.Background()
-	ctx, cancel = context.WithTimeout(ctx, time.Millisecond*120)
-	defer cancel()
-
-	act, err = client.Activity.Activity(ctx, 154504250376823)
-	a.NoError(err)
-	a.NotNil(act)
-	a.Equal(int64(154504250376823), act.ID)
+	t.Run("timeout gt sleep => success", func(t *testing.T) {
+		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(ctx, time.Millisecond*120)
+		defer cancel()
+		act, err := client.Activity.Activity(ctx, 154504250376823)
+		a.NoError(err)
+		a.NotNil(act)
+		a.Equal(int64(154504250376823), act.ID)
+	})
 }

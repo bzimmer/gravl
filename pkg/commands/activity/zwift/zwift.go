@@ -2,6 +2,8 @@ package zwift
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/rs/zerolog/log"
@@ -13,6 +15,8 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/zwift"
 )
+
+const tooSmall = 1024
 
 func NewClient(c *cli.Context) (*zwift.Client, error) {
 	client, err := zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
@@ -190,7 +194,7 @@ var exportCommand = &cli.Command{
 			Name:    "output",
 			Aliases: []string{"O"},
 			Value:   "",
-			Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to Stdout",
+			Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -198,6 +202,64 @@ var exportCommand = &cli.Command{
 			return export(ctx, c, client, act)
 		})
 	},
+}
+
+// Primary use case has been uploading fit files from a local Zwift directory
+// Filters small files (584 bytes) and files named "inProgressActivity.fit"
+// If no arguments are specified will try to default to the Zwift Activities directory
+func files(c *cli.Context) error {
+	args := c.Args().Slice()
+	paths := make([]string, 0)
+	if len(args) == 0 {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			// log but error silently since this is optional behavior
+			log.Warn().Err(err).Msg("homedir not found")
+			return nil
+		}
+		// @todo(bzimmer) add windows support when it can be tested
+		args = []string{
+			filepath.Join(home, "Documents/Zwift/Activities"),
+		}
+	}
+	for _, arg := range args {
+		err := filepath.Walk(arg, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				// log and continue
+				log.Warn().Err(err).Str("file", path).Msg("path does not exist")
+				return nil
+			}
+			if info.IsDir() {
+				return nil
+			}
+			base := filepath.Base(path)
+			if base == "inProgressActivity.fit" {
+				log.Warn().Str("file", path).Msg("skipping, activity in progress")
+				return nil
+			}
+			if info.Size() <= tooSmall {
+				log.Warn().Int64("size", info.Size()).Str("file", path).Msg("skipping, too small")
+				return nil
+			}
+			format := activity.ToFormat(filepath.Ext(path))
+			if format != activity.FIT {
+				log.Info().Str("file", path).Msg("skipping, not a FIT file")
+				return nil
+			}
+			paths = append(paths, path)
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return encoding.Encode(paths)
+}
+
+var filesCommand = &cli.Command{
+	Name:   "files",
+	Usage:  "List all local Zwift files; filters small files (584 bytes) and files named 'inProgressActivity.fit'",
+	Action: files,
 }
 
 var Command = &cli.Command{
@@ -219,6 +281,7 @@ var Command = &cli.Command{
 		activityCommand,
 		athleteCommand,
 		exportCommand,
+		filesCommand,
 		refreshCommand,
 	},
 }

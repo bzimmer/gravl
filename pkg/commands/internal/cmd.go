@@ -6,9 +6,11 @@ import (
 	"strings"
 
 	"github.com/go-cmd/cmd"
+	"github.com/rs/zerolog/log"
 )
 
-func packageRoot() (string, error) {
+// root finds the root of the source tree by recursively ascending until 'go.mod' is located
+func root() (string, error) {
 	path, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -17,10 +19,8 @@ func packageRoot() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	paths := []string{string(os.PathSeparator)}
 	paths = append(paths, strings.Split(path, string(os.PathSeparator))...)
-
 	for len(paths) > 0 {
 		x := filepath.Join(paths...)
 		root := filepath.Join(x, "go.mod")
@@ -33,15 +33,6 @@ func packageRoot() (string, error) {
 	return "", os.ErrNotExist
 }
 
-// PackageGravl is primarily used for integration testing
-func PackageGravl() string {
-	root, err := packageRoot()
-	if err != nil {
-		panic(err)
-	}
-	return filepath.Join(root, "dist", "gravl")
-}
-
 // GravlCmd executes `gravl` commands
 type GravlCmd struct {
 	*cmd.Cmd
@@ -49,7 +40,13 @@ type GravlCmd struct {
 
 // Gravl creates a new instance of `Gravl`
 func Gravl(args ...string) *GravlCmd {
-	return &GravlCmd{Cmd: cmd.NewCmd(PackageGravl(), args...)}
+	root, err := root()
+	if err != nil {
+		panic(err)
+	}
+	g := filepath.Join(root, "dist", "gravl")
+	log.Info().Strs("args", args).Msg("cmd")
+	return &GravlCmd{Cmd: cmd.NewCmd(g, args...)}
 }
 
 // Success returns `true` if the `gravl` exit status is 0

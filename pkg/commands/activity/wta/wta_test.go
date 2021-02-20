@@ -7,7 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReports(t *testing.T) {
+func TestReportsIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test suite")
+		return
+	}
 	t.Parallel()
 	a := assert.New(t)
 

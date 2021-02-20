@@ -26,7 +26,7 @@ type FileBasedTestSuite struct {
 func (s *FileBasedTestSuite) tempfile() (*os.File, func()) {
 	f, err := ioutil.TempFile("", "FileBasedTestSuite")
 	if err != nil {
-		s.T().FailNow()
+		s.Fail("tempfile creation failed")
 	}
 	return f, func() {
 		if s.T().Failed() {

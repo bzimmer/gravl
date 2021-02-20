@@ -65,7 +65,6 @@ func Test_Route(t *testing.T) {
 	summary := geo.SummarizeRoutes(gpx)
 	a.Equal(1154, summary.Points)
 
-	// keep the linter quiet by using a function to return nil
 	rte, err = c.Trips.Route(contextNil(), 141014)
 	a.Error(err)
 	a.Nil(rte)

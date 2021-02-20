@@ -13,9 +13,12 @@ import (
 
 // Write the contents of the export to a file if `output` is specified, else stdout
 func Write(c *cli.Context, exp *activity.Export) error {
+	if exp == nil || exp.Reader == nil {
+		return nil
+	}
 	// if neither overwrite or output is set use stdout
 	if !c.IsSet("overwrite") && !c.IsSet("output") {
-		_, err := io.Copy(c.App.Writer, exp.Reader)
+		_, err := io.Copy(c.App.Writer, exp)
 		return err
 	}
 	var err error
@@ -56,6 +59,7 @@ func Collect(name string, f CollectFunc) ([]*activity.File, error) {
 		format := activity.ToFormat(filepath.Ext(path))
 		switch format {
 		case activity.FIT, activity.GPX, activity.TCX:
+			// no processing necessary
 		case activity.Original:
 			log.Info().Str("file", path).Msg("skipping")
 			return nil
