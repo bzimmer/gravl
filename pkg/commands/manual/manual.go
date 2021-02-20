@@ -56,7 +56,7 @@ func manual(cmds []*cli.Command, lineage []*cli.Command) {
 		fmt.Printf("%s\n```", cmds[i].Name)
 		fmt.Println()
 		if cmds[i].Action != nil && cmds[i].UsageText != "" {
-			fmt.Println("\n**Example:**")
+			fmt.Printf("\n**Example:**\n\n")
 			fmt.Println(cmds[i].UsageText)
 		}
 		manual(cmds[i].Subcommands, append(lineage, cmds[i]))
