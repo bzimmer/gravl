@@ -1,11 +1,15 @@
 # gravl - Clients for activty-related services and an extensible analysis framework for activities
 
 ### Produce statistics and other interesting artifacts from Strava activities
+
 **Syntax:**
+
 ```sh
 $ gravl analysis
 ```
+
 **Example:**
+
 Run the analysis on the Strava activities
 
 ```sh
@@ -113,13 +117,16 @@ $ gravl pass -a totals -f ".StartDate.Year() == 2021" -g ".Type"
 }
 ```
 
-
 ### Return the list of available analyzers
+
 **Syntax:**
+
 ```sh
 $ gravl analysis list
 ```
+
 **Example:**
+
 List all the available analyzers.
 
 ```sh
@@ -195,322 +202,427 @@ $ gravl pass list
 	 "doc": "totals returns the number of centuries (100 mi or 100 km)",
 	 "flags": false
 	}
-   }
+}
 ```
 
-
 ### Query CyclingAnalytics
+
 **Syntax:**
+
 ```sh
 $ gravl cyclinganalytics
 ```
 
 ### Query activities for the authenticated athlete
+
 **Syntax:**
+
 ```sh
 $ gravl cyclinganalytics activities
 ```
 
 ### Query for the authenticated athlete
+
 **Syntax:**
+
 ```sh
 $ gravl cyclinganalytics athlete
 ```
 
 ### Authentication endpoints for access and refresh tokens
+
 **Syntax:**
+
 ```sh
 $ gravl cyclinganalytics oauth
 ```
 
 ### Query an activity for the authenticated athlete
+
 **Syntax:**
+
 ```sh
 $ gravl cyclinganalytics activity
 ```
 
 ### Upload an activity file
+
 **Syntax:**
+
 ```sh
 $ gravl cyclinganalytics upload
 ```
 
 ### Query the GNIS database
+
 **Syntax:**
+
 ```sh
 $ gravl gnis
 ```
 
 ### gpx
+
 **Syntax:**
+
 ```sh
 $ gravl gpx
 ```
 
 ### Return basic statistics about a GPX file
+
 **Syntax:**
+
 ```sh
 $ gravl gpx info
 ```
 
 ### Return all possible commands
+
 **Syntax:**
+
 ```sh
 $ gravl commands
 ```
 
 ### Generate the 'gravl' manual
+
 **Syntax:**
+
 ```sh
 $ gravl manual
 ```
 
 ### Query NOAA for forecasts
+
 **Syntax:**
+
 ```sh
 $ gravl noaa
 ```
 
 ### 
+
 **Syntax:**
+
 ```sh
 $ gravl noaa forecast
 ```
 
 ### Query OpenWeather for forecasts
+
 **Syntax:**
+
 ```sh
 $ gravl openweather
 ```
 
 ### 
+
 **Syntax:**
+
 ```sh
 $ gravl openweather forecast
 ```
 
 ### Query RideWithGPS for rides and routes
+
 **Syntax:**
+
 ```sh
 $ gravl rwgps
 ```
 
 ### Query activities for the authenticated athlete
+
 **Syntax:**
+
 ```sh
 $ gravl rwgps activities
 ```
 
 ### Query an activity from RideWithGPS
+
 **Syntax:**
+
 ```sh
 $ gravl rwgps activity
 ```
 
 ### Query for the authenticated athlete
+
 **Syntax:**
+
 ```sh
 $ gravl rwgps athlete
 ```
 
 ### Query a route from RideWithGPS
+
 **Syntax:**
+
 ```sh
 $ gravl rwgps route
 ```
 
 ### Query routes for an athlete from RideWithGPS
+
 **Syntax:**
+
 ```sh
 $ gravl rwgps routes
 ```
 
 ### Query the SRTM database for elevation data
+
 **Syntax:**
+
 ```sh
 $ gravl srtm
 ```
 
 ### Manage a local store of Strava activities
+
 **Syntax:**
+
 ```sh
 $ gravl store
 ```
 
 ### Export activities from local storage
+
 **Syntax:**
+
 ```sh
 $ gravl store export
 ```
 
 ### Remove activities from local storage
+
 **Syntax:**
+
 ```sh
 $ gravl store remove
 ```
 
 ### Query and update Strava activities to local storage
+
 **Syntax:**
+
 ```sh
 $ gravl store update
 ```
 
 ### Query Strava for rides and routes
+
 **Syntax:**
+
 ```sh
 $ gravl strava
 ```
 
 ### Query activities for an athlete from Strava
+
 **Syntax:**
+
 ```sh
 $ gravl strava activities
 ```
 
 ### Query an activity from Strava
+
 **Syntax:**
+
 ```sh
 $ gravl strava activity
 ```
 
 ### Query an athlete from Strava
+
 **Syntax:**
+
 ```sh
 $ gravl strava athlete
 ```
 
 ### Export a Strava activity by id
+
 **Syntax:**
+
 ```sh
 $ gravl strava export
 ```
 
 ### Query Strava for training load data
+
 **Syntax:**
+
 ```sh
 $ gravl strava fitness
 ```
 
 ### Authentication endpoints for access and refresh tokens
+
 **Syntax:**
+
 ```sh
 $ gravl strava oauth
 ```
 
 ### Acquire a new refresh token
+
 **Syntax:**
+
 ```sh
 $ gravl strava refresh
 ```
 
 ### Query a route from Strava
+
 **Syntax:**
+
 ```sh
 $ gravl strava route
 ```
 
 ### Query routes for an athlete from Strava
+
 **Syntax:**
+
 ```sh
 $ gravl strava routes
 ```
 
 ### Query streams for an activity from Strava
+
 **Syntax:**
+
 ```sh
 $ gravl strava stream
 ```
 
 ### Upload an activity file
+
 **Syntax:**
+
 ```sh
 $ gravl strava upload
 ```
 
 ### Manage webhook subscriptions
+
 **Syntax:**
+
 ```sh
 $ gravl strava webhook
 ```
 
 ### List all active webhook subscriptions
+
 **Syntax:**
+
 ```sh
 $ gravl strava webhook list
 ```
 
 ### Subscribe for webhook notications
+
 **Syntax:**
+
 ```sh
 $ gravl strava webhook subscribe
 ```
 
 ### Unsubscribe an active webhook subscription (or all if specified)
+
 **Syntax:**
+
 ```sh
 $ gravl strava webhook unsubscribe
 ```
 
 ### Version
+
 **Syntax:**
+
 ```sh
 $ gravl version
 ```
 
 ### Query VisualCrossing for forecasts
+
 **Syntax:**
+
 ```sh
 $ gravl visualcrossing
 ```
 
 ### 
+
 **Syntax:**
+
 ```sh
 $ gravl visualcrossing forecast
 ```
 
 ### Query the WTA site for trip reports
+
 **Syntax:**
+
 ```sh
 $ gravl wta
 ```
 
 ### Query Zwift for activities
+
 **Syntax:**
+
 ```sh
 $ gravl zwift
 ```
 
 ### Query activities for an athlete from Strava
+
 **Syntax:**
+
 ```sh
 $ gravl zwift activities
 ```
 
 ### Query an activity from Zwift
+
 **Syntax:**
+
 ```sh
 $ gravl zwift activity
 ```
 
 ### Query the athlete profile from Zwift
+
 **Syntax:**
+
 ```sh
 $ gravl zwift athlete
 ```
 
 ### Export a Zwift activity by id
+
 **Syntax:**
+
 ```sh
 $ gravl zwift export
 ```
 
 ### List all local Zwift files; filters small files (584 bytes) and files named 'inProgressActivity.fit'
+
 **Syntax:**
+
 ```sh
 $ gravl zwift files
 ```
+
 **Example:**
+
 List all local files from the Zwift app's directory. Any files less than 1K in size or named 'inProgressActivity.fit' will be ignored.
 
 ```sh
@@ -537,13 +649,16 @@ $ gravl zwift files | jq -r ".[]" | xargs gravl strava upload -n
 2021-02-19T19:41:50-08:00 INF uploading dryrun=true file=2021-01-26-18-15-16.fit
 ```
 
-
 ### Acquire a new refresh token
+
 **Syntax:**
+
 ```sh
 $ gravl zwift refresh
 ```
+
 **Example:**
+
 Query for a new refresh token from Zwift.
 
 ```sh
@@ -556,9 +671,10 @@ $ gravl zwift refresh
 }
 ```
 
-
 ### Shows a list of commands or help for one command
+
 **Syntax:**
+
 ```sh
 $ gravl help
 ```
