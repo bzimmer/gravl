@@ -16,6 +16,7 @@ $ gravl analysis
 |```group```|```g```|Expressions for grouping activities|
 |```analyzer```|```a```|Analyzers to include (if none specified, default set is used)|
 |```input```|```i```|Input data store|
+
 **Example:**
 
 Run the analysis on the Strava activities
@@ -146,6 +147,7 @@ $ gravl cyclinganalytics activities
 |-|-|-|
 |```count```|```N```|Count|
 
+
 ### *cyclinganalytics athlete* - Query for the authenticated athlete
 
 **Syntax:**
@@ -167,6 +169,7 @@ $ gravl cyclinganalytics oauth
 |-|-|-|
 |```origin```||Callback origin|
 |```port```||Port on which to listen|
+
 
 ### *cyclinganalytics activity* - Query an activity for the authenticated athlete
 
@@ -190,6 +193,7 @@ $ gravl cyclinganalytics upload
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
 |```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
+
 
 ### *gnis* - Query the GNIS database
 
@@ -221,6 +225,7 @@ $ gravl commands
 |-|-|-|
 |```relative```|```r```|Specify the command relative to the current working directory|
 
+
 ### *manual* - Generate the 'gravl' manual
 
 **Syntax:**
@@ -233,6 +238,7 @@ $ gravl manual
 |Flag|Short|Description|
 |-|-|-|
 |```help```|```h```|show help|
+
 
 
 ### *noaa forecast* - 
@@ -303,6 +309,7 @@ $ gravl rwgps activities
 |Flag|Short|Description|
 |-|-|-|
 |```count```|```N```|Count|
+
 **Example:**
 
 Query RideWithGPS activities with an optional count. The order of the activities is not guaranteed but generally they are returned most recent first.
@@ -391,6 +398,7 @@ $ gravl rwgps routes
 |-|-|-|
 |```count```|```N```|Count|
 
+
 ### *srtm* - Query the SRTM database for elevation data
 
 **Syntax:**
@@ -414,6 +422,7 @@ $ gravl store export
 |```input```|```i```|Input data store|
 |```filter```|```f```|Expression for filtering activities|
 
+
 ### *store remove* - Remove activities from local storage
 
 **Syntax:**
@@ -428,6 +437,7 @@ $ gravl store remove
 |```input```|```i```|Input data store|
 |```filter```|```f```|Expression for filtering activities|
 |```dryrun```|```n```|Don't actually remove anything, just show what would be done|
+
 
 ### *store update* - Query and update Strava activities to local storage
 
@@ -450,6 +460,7 @@ $ gravl store update
 |```strava.password```||Password for the Strava website|
 
 
+
 ### *strava activities* - Query activities for an athlete from Strava
 
 **Syntax:**
@@ -464,6 +475,7 @@ $ gravl strava activities
 |```count```|```N```|Count|
 |```filter```|```f```|Expression for filtering activities to remove|
 |```attribute```|```B```|Evaluate the expression on an activity and return only those results|
+
 **Example:**
 
 List all `VirtualRides` in the last 20 activities and display their `ID`, `Name`, `StartDate`, and their `Distance` in miles
@@ -490,6 +502,7 @@ $ gravl strava activity
 |-|-|-|
 |```stream```|```s```|Streams to include in the activity|
 
+
 ### *strava athlete* - Query an athlete from Strava
 
 **Syntax:**
@@ -512,6 +525,7 @@ $ gravl strava export
 |```format```|```F```|Export data file in the specified format|
 |```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
 |```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
+
 **Example:**
 
 Strava export uses the website and therefore requires a username and password instead of the usual oauth credentials.
@@ -564,6 +578,7 @@ $ gravl strava oauth
 |```origin```||Callback origin|
 |```port```||Port on which to listen|
 
+
 ### *strava refresh* - Acquire a new refresh token
 
 **Syntax:**
@@ -593,6 +608,7 @@ $ gravl strava routes
 |-|-|-|
 |```count```|```N```|Count|
 
+
 ### *strava stream* - Query streams for an activity from Strava
 
 **Syntax:**
@@ -605,6 +621,7 @@ $ gravl strava stream
 |Flag|Short|Description|
 |-|-|-|
 |```stream```|```s```|Streams to include in the activity|
+
 
 ### *strava upload* - Upload an activity file
 
@@ -620,6 +637,7 @@ $ gravl strava upload
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
 |```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
+
 
 
 ### *strava webhook list* - List all active webhook subscriptions
@@ -643,6 +661,7 @@ $ gravl strava webhook subscribe
 |-|-|-|
 |```url```||Address where webhook events will be sent (max length 255 characters|
 |```verify```||String chosen by the application owner for client security|
+
 
 ### *strava webhook unsubscribe* - Unsubscribe an active webhook subscription (or all if specified)
 
@@ -674,6 +693,7 @@ $ gravl visualcrossing forecast
 |-|-|-|
 |```interval```|```i```|Forecast interval (eg 1, 12, 24)|
 
+
 ### *wta* - Query the WTA site for trip reports
 
 **Syntax:**
@@ -695,6 +715,7 @@ $ gravl zwift activities
 |Flag|Short|Description|
 |-|-|-|
 |```count```|```N```|Count|
+
 
 ### *zwift activity* - Query an activity from Zwift
 
@@ -725,6 +746,7 @@ $ gravl zwift export
 |-|-|-|
 |```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
 |```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
+
 
 ### *zwift files* - List all local Zwift files
 

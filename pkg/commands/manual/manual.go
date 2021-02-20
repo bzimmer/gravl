@@ -114,7 +114,7 @@ $ gravl {{ lineage . }}
 {{- range $f := .Cmd.Flags }}
 |{{ticks}}{{ $f.Name }}{{ticks}}|{{ names $f }}|{{ description $f }}|
 {{- end }}
-{{- end }}
+{{ end }}
 
 {{- with $x := usage . }}
 **Example:**
