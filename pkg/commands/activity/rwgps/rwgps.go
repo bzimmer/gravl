@@ -65,7 +65,7 @@ func trips(c *cli.Context, kind string) error {
 	case "routes":
 		trips, err = client.Trips.Routes(ctx, user.ID, activity.Pagination{Total: c.Int("count")})
 	default:
-		return fmt.Errorf("unknown kind '%s'", kind)
+		return fmt.Errorf("unknown type '%s'", kind)
 	}
 	if err != nil {
 		return err
@@ -88,10 +88,25 @@ var activitiesCommand = &cli.Command{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "The number of activities to query from RWGPS (the number returned will be <= N)",
+			Usage:   "The number of activities to query from RideWithGPS (the number returned will be <= N)",
 		},
 	},
 	Action: func(c *cli.Context) error { return trips(c, "trips") },
+}
+
+var routesCommand = &cli.Command{
+	Name:    "routes",
+	Usage:   "Query routes for an athlete from RideWithGPS",
+	Aliases: []string{"R"},
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:    "count",
+			Aliases: []string{"N"},
+			Value:   0,
+			Usage:   "The number of routes to query from RideWithGPS (the number returned will be <= N)",
+		},
+	},
+	Action: func(c *cli.Context) error { return trips(c, "routes") },
 }
 
 func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (interface{}, error)) error {
@@ -99,10 +114,11 @@ func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (inter
 	if err != nil {
 		return err
 	}
-	for i := 0; i < c.Args().Len(); i++ {
+	args := c.Args()
+	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
-		x, err := strconv.ParseInt(c.Args().Get(i), 0, 0)
+		x, err := strconv.ParseInt(args.Get(i), 0, 0)
 		if err != nil {
 			return err
 		}
@@ -137,21 +153,6 @@ var routeCommand = &cli.Command{
 			return client.Trips.Route(ctx, id)
 		})
 	},
-}
-
-var routesCommand = &cli.Command{
-	Name:    "routes",
-	Usage:   "Query routes for an athlete from RideWithGPS",
-	Aliases: []string{"R"},
-	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:    "count",
-			Aliases: []string{"N"},
-			Value:   0,
-			Usage:   "The number of routes to query from RWGPS (the number returned will be <= N)",
-		},
-	},
-	Action: func(c *cli.Context) error { return trips(c, "routes") },
 }
 
 var Command = &cli.Command{

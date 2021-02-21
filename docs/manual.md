@@ -444,7 +444,7 @@ $ gravl rwgps activities
 
 |Flag|Short|Description|
 |-|-|-|
-|```count```|```N```|The number of activities to query from RWGPS (the number returned will be <= N)|
+|```count```|```N```|The number of activities to query from RideWithGPS (the number returned will be <= N)|
 
 **Example:**
 
@@ -548,7 +548,7 @@ $ gravl rwgps routes
 
 |Flag|Short|Description|
 |-|-|-|
-|```count```|```N```|The number of routes to query from RWGPS (the number returned will be <= N)|
+|```count```|```N```|The number of routes to query from RideWithGPS (the number returned will be <= N)|
 
 
 ## *srtm*

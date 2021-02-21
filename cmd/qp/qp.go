@@ -65,10 +65,11 @@ func upload(c *cli.Context, export *activity.Export) error {
 }
 
 func qp(c *cli.Context) error {
-	for _, arg := range c.Args().Slice() {
+	args := c.Args()
+	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
-		actID, err := strconv.ParseInt(arg, 10, 64)
+		actID, err := strconv.ParseInt(args.Get(i), 10, 64)
 		if err != nil {
 			return err
 		}

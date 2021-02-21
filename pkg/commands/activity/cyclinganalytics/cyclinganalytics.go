@@ -23,11 +23,6 @@ func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 		cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")))
 }
 
-// collect returns a slice of files for uploading
-func collect(name string) ([]*activity.File, error) {
-	return internal.Collect(name, nil)
-}
-
 func poll(ctx context.Context, client *cyclinganalytics.Client, uploadID int64, follow bool) error {
 	pc := client.Rides.Poll(ctx, cyclinganalytics.Me, uploadID)
 	for {
@@ -56,9 +51,10 @@ func upload(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	args := c.Args()
 	dryrun := c.Bool("dryrun")
-	for i := 0; i < c.Args().Len(); i++ {
-		files, err := collect(c.Args().Get(i))
+	for i := 0; i < args.Len(); i++ {
+		files, err := internal.Collect(args.Get(i), nil)
 		if err != nil {
 			return err
 		}
@@ -202,10 +198,10 @@ func ride(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	args := c.Args()
 	opts := cyclinganalytics.RideOptions{
 		Streams: []string{"latitude", "longitude", "elevation"},
 	}
+	args := c.Args()
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
