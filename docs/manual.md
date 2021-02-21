@@ -1026,7 +1026,7 @@ $ gravl zwift activities
 
 |Flag|Short|Description|
 |-|-|-|
-|```count```|```N```|Count|
+|```count```|```N```|The number of activities to query from Zwift (the number returned will be <= N)|
 
 
 ## *zwift activity*
