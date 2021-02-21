@@ -98,7 +98,10 @@ var tmpl = template.Must(template.New("").
 	}).
 	Parse(`
 {{- if .Cmd.Action }}
-## *{{ lineage . }}* - {{ .Cmd.Usage }}
+## *{{ lineage . }}*
+
+**Description**
+{{ if .Cmd.Description }}{{ .Cmd.Description }}{{ else }}{{ .Cmd.Usage }}{{ end }}
 
 **Syntax:**
 
@@ -139,7 +142,7 @@ func manual(buffer io.Writer, cmds []*cli.Command, lineage []*cli.Command) error
 
 var Manual = &cli.Command{
 	Name:    "manual",
-	Usage:   "Generate the 'gravl' manual",
+	Usage:   "Generate the `gravl` manual",
 	Aliases: []string{"md"},
 	Hidden:  true,
 	Action: func(c *cli.Context) error {
@@ -147,10 +150,6 @@ var Manual = &cli.Command{
 		t := template.Must(template.New("").
 			Parse(`
 # {{ .Name }} - {{ .Description }}
-{: .no_toc }
-
-- TOC
-{:toc}
 `))
 		if err := t.Execute(buffer, c.App); err != nil {
 			return err
