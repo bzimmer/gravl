@@ -2,24 +2,30 @@ package manual
 
 import (
 	"bytes"
-	"encoding/hex"
+	"errors"
+	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"text/template"
 
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/gravl/pkg/commands/analysis"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	"github.com/bzimmer/gravl/pkg/commands/internal"
 )
 
 type command struct {
 	Cmd     *cli.Command
 	Lineage []*cli.Command
 }
+
+func ticks() string { return "```" }
 
 func (c *command) fullname(sep string) string {
 	var names []string
@@ -30,36 +36,86 @@ func (c *command) fullname(sep string) string {
 	return strings.Join(names, sep)
 }
 
-var tmpl = template.Must(template.New("command").
-	Funcs(map[string]interface{}{
-		"usage": func(c *command) string {
-			s := usages[c.fullname("-")]
-			usage, err := hex.DecodeString(s)
-			if err != nil {
-				log.Warn().Err(err).Msg("hex decode")
+func analysisTemplate(root string) (*template.Template, error) {
+	if root == "" {
+		return nil, nil
+	}
+	return template.New("analysis").
+		Funcs(map[string]interface{}{
+			"flags": func(s *flag.FlagSet) []*flag.Flag {
+				var v []*flag.Flag
+				if s != nil {
+					s.VisitAll(func(f *flag.Flag) {
+						v = append(v, f)
+					})
+				}
+				sort.SliceStable(v, func(i, j int) bool {
+					return v[i].Name < v[j].Name
+				})
+				return v
+			},
+			"ticks": ticks,
+		}).
+		Parse(`
+## *{{ .Name }}*
+
+**Description**
+
+{{ .Doc }}
+
+{{- with .Flags }}
+
+**Flags**
+
+|Flag|Default|Description|
+|-|-|-|
+{{- range flags . }}
+|{{ticks}}{{.Name}}{{ticks}}|{{ticks}}{{.DefValue}}{{ticks}}|{{.Usage}}|
+{{- end }}
+{{- end }}
+`)
+}
+
+func commandTemplate(root string) (*template.Template, error) {
+	return template.New("command").
+		Funcs(map[string]interface{}{
+			"usage": func(c *command) (string, error) {
+				var err error
+				fn := filepath.Join(root, "docs", "usage", c.fullname("-")+".md")
+				if _, err = os.Stat(fn); os.IsNotExist(err) {
+					// ok to skip any commands without usage documentation
+					return "", nil
+				}
+				file, err := os.Open(fn)
+				if err != nil {
+					return "", err
+				}
+				var usage []byte
+				usage, err = ioutil.ReadAll(file)
+				if err != nil {
+					return "", err
+				}
+				return strings.TrimSpace(string(usage)), nil
+			},
+			"names": func(f cli.Flag) string {
+				// the first name is always the long name so skip it
+				if len(f.Names()) <= 1 {
+					return ""
+				}
+				return fmt.Sprintf("```%s```", strings.Join(f.Names()[1:], ", "))
+			},
+			"description": func(f cli.Flag) string {
+				if x, ok := f.(cli.DocGenerationFlag); ok {
+					return x.GetUsage()
+				}
 				return ""
-			}
-			return strings.TrimSpace(string(usage))
-		},
-		"names": func(f cli.Flag) string {
-			// the first name is always the long name so skip it
-			if len(f.Names()) <= 1 {
-				return ""
-			}
-			return fmt.Sprintf("```%s```", strings.Join(f.Names()[1:], ", "))
-		},
-		"description": func(f cli.Flag) string {
-			if x, ok := f.(cli.DocGenerationFlag); ok {
-				return x.GetUsage()
-			}
-			return ""
-		},
-		"lineage": func(c *command) string {
-			return c.fullname(" ")
-		},
-		"ticks": func() string { return "```" },
-	}).
-	Parse(`
+			},
+			"lineage": func(c *command) string {
+				return c.fullname(" ")
+			},
+			"ticks": ticks,
+		}).
+		Parse(`
 {{- if .Cmd.Action }}
 ## *{{ lineage . }}*
 
@@ -89,15 +145,29 @@ $ gravl {{ lineage . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{ . }}
 {{- end }}
 {{- end }}
-`))
+`)
+}
 
-func manual(buffer io.Writer, cmds []*cli.Command, lineage []*cli.Command) error {
+func manual(t *template.Template, buffer io.Writer, cmds []*cli.Command, lineage []*cli.Command) error {
 	for i := range cmds {
 		c := &command{Cmd: cmds[i], Lineage: lineage}
-		if err := tmpl.Execute(buffer, c); err != nil {
+		if err := t.Execute(buffer, c); err != nil {
 			return err
 		}
-		if err := manual(buffer, cmds[i].Subcommands, append(lineage, cmds[i])); err != nil {
+		if err := manual(t, buffer, cmds[i].Subcommands, append(lineage, cmds[i])); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func analyzer(t *template.Template, buffer io.Writer) error {
+	a := analysis.All()
+	sort.SliceStable(a, func(i, j int) bool {
+		return a[i].Name < a[j].Name
+	})
+	for i := range a {
+		if err := t.Execute(buffer, a[i]); err != nil {
 			return err
 		}
 	}
@@ -109,19 +179,67 @@ var Manual = &cli.Command{
 	Usage:   "Generate the `gravl` manual",
 	Aliases: []string{"md"},
 	Hidden:  true,
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "manual",
+			Value: false,
+		},
+		&cli.BoolFlag{
+			Name:  "analyzer",
+			Value: false,
+		},
+	},
+	Before: func(c *cli.Context) error {
+		switch {
+		case c.Bool("manual") && (c.Bool("manual") == c.Bool("analyzer")):
+			return errors.New("only one of `manual` or `analyzer` may be enabled at a time")
+		case !c.Bool("manual") && (c.Bool("manual") == c.Bool("analyzer")):
+			return errors.New("one of `manual` or `analyzer` must be enabled")
+		}
+		return nil
+	},
 	Action: func(c *cli.Context) error {
-		buffer := &bytes.Buffer{}
-		t := template.Must(template.New("manual").
-			Parse(`
+		root, err := internal.Root()
+		if err != nil {
+			if os.IsNotExist(err) {
+				return errors.New("manual creation can only happen from within the source tree")
+			}
+			return err
+		}
+		switch {
+		case c.Bool("manual"):
+			// generate the main manual
+			buffer := &bytes.Buffer{}
+			t, err := template.New("manual").
+				Parse(`
 # {{ .Name }} - {{ .Description }}
-`))
-		if err := t.Execute(buffer, c.App); err != nil {
-			return err
+`)
+			if err != nil {
+				return err
+			}
+			if err = t.Execute(buffer, c.App); err != nil {
+				return err
+			}
+			t, err = commandTemplate(root)
+			if err != nil {
+				return err
+			}
+			if err = manual(t, buffer, c.App.Commands, nil); err != nil {
+				return err
+			}
+			fmt.Fprint(c.App.Writer, buffer.String())
+		case c.Bool("analyzer"):
+			// generate the analyzer manual
+			buffer := &bytes.Buffer{}
+			t, err := analysisTemplate(root)
+			if err != nil {
+				return err
+			}
+			if err = analyzer(t, buffer); err != nil {
+				return nil
+			}
+			fmt.Fprint(c.App.Writer, buffer.String())
 		}
-		if err := manual(buffer, c.App.Commands, nil); err != nil {
-			return err
-		}
-		fmt.Fprintln(c.App.Writer, buffer.String())
 		return nil
 	},
 }

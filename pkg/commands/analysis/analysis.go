@@ -2,7 +2,6 @@ package analysis
 
 import (
 	"context"
-	"sort"
 
 	"github.com/urfave/cli/v2"
 
@@ -123,26 +122,6 @@ var listCommand = &cli.Command{
 	},
 }
 
-var manualCommand = &cli.Command{
-	Name:  "manual",
-	Usage: "Print the manual for the available analyzers",
-	Action: func(c *cli.Context) error {
-		var a []*analysis.Analyzer
-		for k := range available {
-			a = append(a, available[k].analyzer)
-		}
-		sort.SliceStable(a, func(i, j int) bool {
-			return a[i].Name < a[j].Name
-		})
-		for i := range a {
-			if err := a[i].Markdown(c.App.Writer); err != nil {
-				return err
-			}
-		}
-		return nil
-	},
-}
-
 var Command = &cli.Command{
 	Name:     "analysis",
 	Aliases:  []string{"pass"},
@@ -171,6 +150,6 @@ var Command = &cli.Command{
 		},
 		store.InputFlag(store.DefaultLocalStore),
 	},
-	Subcommands: []*cli.Command{listCommand, manualCommand},
+	Subcommands: []*cli.Command{listCommand},
 	Action:      analyze,
 }

@@ -24,7 +24,7 @@ $ gravl analysis
 
 **Example:**
 
-Run the analysis on the Strava activities
+Run the analysis on the Strava activities. Learn more about analyzers [here](analyzer.md).
 
 ```sh
 $ gravl pass -a totals -f ".StartDate.Year() == 2021"
@@ -140,18 +140,6 @@ $ gravl pass list
 		"flags": false
 	}
 }
-```
-
-## *analysis manual*
-
-**Description**
-
-Print the manual for the available analyzers
-
-**Syntax:**
-
-```sh
-$ gravl analysis manual
 ```
 
 
@@ -323,6 +311,8 @@ $ gravl manual
 
 |Flag|Short|Description|
 |-|-|-|
+|```manual```|||
+|```analyzer```|||
 |```help```|```h```|show help|
 
 
@@ -1109,4 +1099,3 @@ Shows a list of commands or help for one command
 ```sh
 $ gravl help [command]
 ```
-
