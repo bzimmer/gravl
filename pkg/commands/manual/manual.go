@@ -98,12 +98,12 @@ var tmpl = template.Must(template.New("").
 	}).
 	Parse(`
 {{- if .Cmd.Action }}
-### *{{ lineage . }}* - {{ .Cmd.Usage }}
+## *{{ lineage . }}* - {{ .Cmd.Usage }}
 
 **Syntax:**
 
 {{ ticks }}sh
-$ gravl {{ lineage . }}
+$ gravl {{ lineage . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{ ticks }}
 
 {{- if .Cmd.Flags }}
@@ -144,7 +144,17 @@ var Manual = &cli.Command{
 	Hidden:  true,
 	Action: func(c *cli.Context) error {
 		buffer := &bytes.Buffer{}
-		fmt.Fprintf(buffer, "# %s - %s\n", c.App.Name, c.App.Description)
+		t := template.Must(template.New("").
+			Parse(`
+# {{ .Name }} - {{ .Description }}
+{: .no_toc }
+
+- TOC
+{:toc}
+`))
+		if err := t.Execute(buffer, c.App); err != nil {
+			return err
+		}
 		if err := manual(buffer, c.App.Commands, nil); err != nil {
 			return err
 		}

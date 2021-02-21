@@ -37,6 +37,11 @@ var Command = &cli.Command{
 	Category: "wx",
 	Usage:    "Query NOAA for forecasts",
 	Subcommands: []*cli.Command{
-		{Name: "forecast", Action: forecast},
+		{
+			Name:      "forecast",
+			Usage:     "Query NOAA for a forecast",
+			ArgsUsage: "[--] <LATITUDE> <LONGITUDE>",
+			Action:    forecast,
+		},
 	},
 }

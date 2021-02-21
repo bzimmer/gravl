@@ -1,6 +1,11 @@
-# gravl - Activity related analysis, exploration, & planning
 
-### *analysis* - Produce statistics and other interesting artifacts from Strava activities
+# gravl - Activity related analysis, exploration, & planning
+{: .no_toc }
+
+- TOC
+{:toc}
+
+## *analysis* - Produce statistics and other interesting artifacts from Strava activities
 
 **Syntax:**
 
@@ -89,7 +94,7 @@ $ gravl pass -a totals -f ".StartDate.Year() == 2021" -g ".Type"
 }
 ```
 
-### *analysis list* - Return the list of available analyzers
+## *analysis list* - Return the list of available analyzers
 
 **Syntax:**
 
@@ -134,7 +139,7 @@ $ gravl pass list
 ```
 
 
-### *cyclinganalytics activities* - Query activities for the authenticated athlete
+## *cyclinganalytics activities* - Query activities for the authenticated athlete
 
 **Syntax:**
 
@@ -148,7 +153,7 @@ $ gravl cyclinganalytics activities
 |```count```|```N```|Count|
 
 
-### *cyclinganalytics athlete* - Query for the authenticated athlete
+## *cyclinganalytics athlete* - Query for the authenticated athlete
 
 **Syntax:**
 
@@ -156,7 +161,7 @@ $ gravl cyclinganalytics activities
 $ gravl cyclinganalytics athlete
 ```
 
-### *cyclinganalytics oauth* - Authentication endpoints for access and refresh tokens
+## *cyclinganalytics oauth* - Authentication endpoints for access and refresh tokens
 
 **Syntax:**
 
@@ -171,7 +176,7 @@ $ gravl cyclinganalytics oauth
 |```port```||Port on which to listen|
 
 
-### *cyclinganalytics activity* - Query an activity for the authenticated athlete
+## *cyclinganalytics activity* - Query an activity for the authenticated athlete
 
 **Syntax:**
 
@@ -179,7 +184,7 @@ $ gravl cyclinganalytics oauth
 $ gravl cyclinganalytics activity
 ```
 
-### *cyclinganalytics upload* - Upload an activity file
+## *cyclinganalytics upload* - Upload an activity file
 
 **Syntax:**
 
@@ -195,16 +200,16 @@ $ gravl cyclinganalytics upload
 |```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
 
 
-### *gnis* - Query the GNIS database
+## *gnis* - Query the GNIS database
 
 **Syntax:**
 
 ```sh
-$ gravl gnis
+$ gravl gnis <US STATE ABBREVIATION>
 ```
 
 
-### *gpx info* - Return basic statistics about a GPX file
+## *gpx info* - Return basic statistics about a GPX file
 
 **Syntax:**
 
@@ -212,7 +217,7 @@ $ gravl gnis
 $ gravl gpx info
 ```
 
-### *commands* - Return all possible commands
+## *commands* - Return all possible commands
 
 **Syntax:**
 
@@ -226,7 +231,7 @@ $ gravl commands
 |```relative```|```r```|Specify the command relative to the current working directory|
 
 
-### *manual* - Generate the 'gravl' manual
+## *manual* - Generate the 'gravl' manual
 
 **Syntax:**
 
@@ -241,21 +246,21 @@ $ gravl manual
 
 
 
-### *noaa forecast* - 
+## *noaa forecast* - Query NOAA for a forecast
 
 **Syntax:**
 
 ```sh
-$ gravl noaa forecast
+$ gravl noaa forecast [--] <LATITUDE> <LONGITUDE>
 ```
 
 
-### *openweather forecast* - Query OpenWeather for a forecast
+## *openweather forecast* - Query OpenWeather for a forecast
 
 **Syntax:**
 
 ```sh
-$ gravl openweather forecast
+$ gravl openweather forecast [--] <LATITUDE> <LONGITUDE>
 ```
 **Example:**
 
@@ -297,7 +302,7 @@ $ gravl openweather forecast -- 48.8 -128.0
 ```
 
 
-### *rwgps activities* - Query activities for the authenticated athlete
+## *rwgps activities* - Query activities for the authenticated athlete
 
 **Syntax:**
 
@@ -361,7 +366,7 @@ $ gravl rwgps activities -N 10
 }
 ```
 
-### *rwgps activity* - Query an activity from RideWithGPS
+## *rwgps activity* - Query an activity from RideWithGPS
 
 **Syntax:**
 
@@ -369,7 +374,7 @@ $ gravl rwgps activities -N 10
 $ gravl rwgps activity
 ```
 
-### *rwgps athlete* - Query for the authenticated athlete
+## *rwgps athlete* - Query for the authenticated athlete
 
 **Syntax:**
 
@@ -377,7 +382,7 @@ $ gravl rwgps activity
 $ gravl rwgps athlete
 ```
 
-### *rwgps route* - Query a route from RideWithGPS
+## *rwgps route* - Query a route from RideWithGPS
 
 **Syntax:**
 
@@ -385,7 +390,7 @@ $ gravl rwgps athlete
 $ gravl rwgps route
 ```
 
-### *rwgps routes* - Query routes for an athlete from RideWithGPS
+## *rwgps routes* - Query routes for an athlete from RideWithGPS
 
 **Syntax:**
 
@@ -399,7 +404,7 @@ $ gravl rwgps routes
 |```count```|```N```|Count|
 
 
-### *srtm* - Query the SRTM database for elevation data
+## *srtm* - Query the SRTM database for elevation data
 
 **Syntax:**
 
@@ -408,7 +413,7 @@ $ gravl srtm
 ```
 
 
-### *store export* - Export activities from local storage
+## *store export* - Export activities from local storage
 
 **Syntax:**
 
@@ -423,7 +428,7 @@ $ gravl store export
 |```filter```|```f```|Expression for filtering activities|
 
 
-### *store remove* - Remove activities from local storage
+## *store remove* - Remove activities from local storage
 
 **Syntax:**
 
@@ -439,7 +444,7 @@ $ gravl store remove
 |```dryrun```|```n```|Don't actually remove anything, just show what would be done|
 
 
-### *store update* - Query and update Strava activities to local storage
+## *store update* - Query and update Strava activities to local storage
 
 **Syntax:**
 
@@ -459,9 +464,49 @@ $ gravl store update
 |```strava.username```||Username for the Strava website|
 |```strava.password```||Password for the Strava website|
 
+**Example:**
+
+In order to have a more performant experience when running analyzers all Strava activities
+are stored locally in a `Store` implementation. The default `Store` is an implementation
+using `buntdb` as it allows very simple, fast, and durable local storage though other
+implementations exist.
+
+Updates from Strava are incremental and should be run periodically to get the latest activities.
+
+*Note: if the activity already exists locally `gravl` will not update it, it will need to be removed and updated*
+
+```sh
+$ gravl store update
+2021-02-20T15:59:25-08:00 INF bunt db path="/Users/bzimmer/Library/Application Support/com.github.bzimmer.gravl/gravl.db"
+2021-02-20T15:59:26-08:00 INF do all=0 count=100 n=0 start=0 total=0
+2021-02-20T15:59:29-08:00 INF do all=100 count=100 n=100 start=1 total=0
+2021-02-20T15:59:29-08:00 INF querying activity details ID=4819XXX7284
+2021-02-20T15:59:30-08:00 INF saving activity details ID=4819XXX284 n=1 name="Morning Ride"
+2021-02-20T15:59:30-08:00 INF querying activity details ID=4814XXX574
+2021-02-20T15:59:30-08:00 INF saving activity details ID=4814XXX574 n=2 name="Afternoon Ride"
+2021-02-20T15:59:31-08:00 INF do all=200 count=100 n=100 start=2 total=0
+2021-02-20T15:59:34-08:00 INF do all=300 count=100 n=100 start=3 total=0
+2021-02-20T15:59:36-08:00 INF do all=400 count=100 n=100 start=4 total=0
+2021-02-20T15:59:39-08:00 INF do all=500 count=100 n=100 start=5 total=0
+2021-02-20T15:59:41-08:00 INF do all=600 count=100 n=100 start=6 total=0
+2021-02-20T15:59:43-08:00 INF do all=700 count=100 n=100 start=7 total=0
+2021-02-20T15:59:48-08:00 INF do all=800 count=100 n=100 start=8 total=0
+2021-02-20T15:59:51-08:00 INF do all=900 count=100 n=100 start=9 total=0
+2021-02-20T15:59:54-08:00 INF do all=1000 count=100 n=100 start=10 total=0
+2021-02-20T15:59:56-08:00 INF do all=1100 count=100 n=100 start=11 total=0
+2021-02-20T15:59:58-08:00 INF do all=1200 count=100 n=100 start=12 total=0
+2021-02-20T15:59:59-08:00 INF do all=1200 count=100 n=0 start=13 total=0
+{
+ "existing": 1198,
+ "new": 2,
+ "total": 1200
+}
+```
+
+The results of the command show the number of new, existing, and total activities stored locally.
 
 
-### *strava activities* - Query activities for an athlete from Strava
+## *strava activities* - Query activities for an athlete from Strava
 
 **Syntax:**
 
@@ -489,7 +534,7 @@ $ gravl -c --timeout 1m strava activities -N 20 -f ".Type == 'VirtualRide'" -B "
 [4741552384,"2004","2021-02-05T18:15:27Z",17.51514902966675]
 ```
 
-### *strava activity* - Query an activity from Strava
+## *strava activity* - Query an activity from Strava
 
 **Syntax:**
 
@@ -503,7 +548,7 @@ $ gravl strava activity
 |```stream```|```s```|Streams to include in the activity|
 
 
-### *strava athlete* - Query an athlete from Strava
+## *strava athlete* - Query an athlete from Strava
 
 **Syntax:**
 
@@ -511,7 +556,7 @@ $ gravl strava activity
 $ gravl strava athlete
 ```
 
-### *strava export* - Export a Strava activity by id
+## *strava export* - Export a Strava activity by id
 
 **Syntax:**
 
@@ -556,7 +601,7 @@ $ gravl strava export -O Friday.fit 4814540547
 2021-02-20T09:24:45-08:00 ERR gravl strava error="file already exists"
 ```
 
-### *strava fitness* - Query Strava for training load data
+## *strava fitness* - Query Strava for training load data
 
 **Syntax:**
 
@@ -564,7 +609,7 @@ $ gravl strava export -O Friday.fit 4814540547
 $ gravl strava fitness
 ```
 
-### *strava oauth* - Authentication endpoints for access and refresh tokens
+## *strava oauth* - Authentication endpoints for access and refresh tokens
 
 **Syntax:**
 
@@ -579,7 +624,7 @@ $ gravl strava oauth
 |```port```||Port on which to listen|
 
 
-### *strava refresh* - Acquire a new refresh token
+## *strava refresh* - Acquire a new refresh token
 
 **Syntax:**
 
@@ -587,7 +632,7 @@ $ gravl strava oauth
 $ gravl strava refresh
 ```
 
-### *strava route* - Query a route from Strava
+## *strava route* - Query a route from Strava
 
 **Syntax:**
 
@@ -595,7 +640,7 @@ $ gravl strava refresh
 $ gravl strava route
 ```
 
-### *strava routes* - Query routes for an athlete from Strava
+## *strava routes* - Query routes for an athlete from Strava
 
 **Syntax:**
 
@@ -609,7 +654,7 @@ $ gravl strava routes
 |```count```|```N```|Count|
 
 
-### *strava stream* - Query streams for an activity from Strava
+## *strava stream* - Query streams for an activity from Strava
 
 **Syntax:**
 
@@ -623,12 +668,12 @@ $ gravl strava stream
 |```stream```|```s```|Streams to include in the activity|
 
 
-### *strava upload* - Upload an activity file
+## *strava upload* - Upload an activity file
 
 **Syntax:**
 
 ```sh
-$ gravl strava upload
+$ gravl strava upload <FILE or DIRECTORY> | <UPLOAD ID>
 ```
 **Flags:**
 
@@ -640,7 +685,7 @@ $ gravl strava upload
 
 
 
-### *strava webhook list* - List all active webhook subscriptions
+## *strava webhook list* - List all active webhook subscriptions
 
 **Syntax:**
 
@@ -648,7 +693,7 @@ $ gravl strava upload
 $ gravl strava webhook list
 ```
 
-### *strava webhook subscribe* - Subscribe for webhook notications
+## *strava webhook subscribe* - Subscribe for webhook notications
 
 **Syntax:**
 
@@ -663,7 +708,7 @@ $ gravl strava webhook subscribe
 |```verify```||String chosen by the application owner for client security|
 
 
-### *strava webhook unsubscribe* - Unsubscribe an active webhook subscription (or all if specified)
+## *strava webhook unsubscribe* - Unsubscribe an active webhook subscription (or all if specified)
 
 **Syntax:**
 
@@ -671,7 +716,7 @@ $ gravl strava webhook subscribe
 $ gravl strava webhook unsubscribe
 ```
 
-### *version* - Version
+## *version* - Version
 
 **Syntax:**
 
@@ -680,12 +725,12 @@ $ gravl version
 ```
 
 
-### *visualcrossing forecast* - 
+## *visualcrossing forecast* - Query VisualCrossing for a forecast
 
 **Syntax:**
 
 ```sh
-$ gravl visualcrossing forecast
+$ gravl visualcrossing forecast [--] <LATITUDE> <LONGITUDE>
 ```
 **Flags:**
 
@@ -694,7 +739,7 @@ $ gravl visualcrossing forecast
 |```interval```|```i```|Forecast interval (eg 1, 12, 24)|
 
 
-### *wta* - Query the WTA site for trip reports
+## *wta* - Query the WTA site for trip reports
 
 **Syntax:**
 
@@ -703,7 +748,7 @@ $ gravl wta
 ```
 
 
-### *zwift activities* - Query activities for an athlete from Strava
+## *zwift activities* - Query activities for an athlete from Strava
 
 **Syntax:**
 
@@ -717,7 +762,7 @@ $ gravl zwift activities
 |```count```|```N```|Count|
 
 
-### *zwift activity* - Query an activity from Zwift
+## *zwift activity* - Query an activity from Zwift
 
 **Syntax:**
 
@@ -725,7 +770,7 @@ $ gravl zwift activities
 $ gravl zwift activity
 ```
 
-### *zwift athlete* - Query the athlete profile from Zwift
+## *zwift athlete* - Query the athlete profile from Zwift
 
 **Syntax:**
 
@@ -733,7 +778,7 @@ $ gravl zwift activity
 $ gravl zwift athlete
 ```
 
-### *zwift export* - Export a Zwift activity by id
+## *zwift export* - Export a Zwift activity by id
 
 **Syntax:**
 
@@ -748,7 +793,7 @@ $ gravl zwift export
 |```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
 
 
-### *zwift files* - List all local Zwift files
+## *zwift files* - List all local Zwift files
 
 **Syntax:**
 
@@ -783,7 +828,7 @@ $ gravl zwift files | jq -r ".[]" | xargs gravl strava upload -n
 2021-02-19T19:41:50-08:00 INF uploading dryrun=true file=2021-01-26-18-15-16.fit
 ```
 
-### *zwift refresh* - Acquire a new refresh token
+## *zwift refresh* - Acquire a new refresh token
 
 **Syntax:**
 
@@ -804,11 +849,11 @@ $ gravl zwift refresh
 }
 ```
 
-### *help* - Shows a list of commands or help for one command
+## *help* - Shows a list of commands or help for one command
 
 **Syntax:**
 
 ```sh
-$ gravl help
+$ gravl help [command]
 ```
 

@@ -370,9 +370,10 @@ func status(c *cli.Context) error {
 }
 
 var uploadCommand = &cli.Command{
-	Name:    "upload",
-	Aliases: []string{"u"},
-	Usage:   "Upload an activity file",
+	Name:      "upload",
+	Aliases:   []string{"u"},
+	Usage:     "Upload an activity file",
+	ArgsUsage: "<FILE or DIRECTORY> | <UPLOAD ID>",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "status",
