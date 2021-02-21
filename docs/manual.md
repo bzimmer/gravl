@@ -1,5 +1,61 @@
-
 # gravl - Activity related analysis, exploration, & planning
+
+## Table of Contents
+* [analysis](#analysis)
+* [analysis list](#analysis-list)
+* [commands](#commands)
+* [cyclinganalytics](#cyclinganalytics)
+* [cyclinganalytics activities](#cyclinganalytics-activities)
+* [cyclinganalytics activity](#cyclinganalytics-activity)
+* [cyclinganalytics athlete](#cyclinganalytics-athlete)
+* [cyclinganalytics oauth](#cyclinganalytics-oauth)
+* [cyclinganalytics upload](#cyclinganalytics-upload)
+* [gnis](#gnis)
+* [gpx](#gpx)
+* [gpx info](#gpx-info)
+* [help](#help)
+* [noaa](#noaa)
+* [noaa forecast](#noaa-forecast)
+* [openweather](#openweather)
+* [openweather forecast](#openweather-forecast)
+* [rwgps](#rwgps)
+* [rwgps activities](#rwgps-activities)
+* [rwgps activity](#rwgps-activity)
+* [rwgps athlete](#rwgps-athlete)
+* [rwgps route](#rwgps-route)
+* [rwgps routes](#rwgps-routes)
+* [srtm](#srtm)
+* [store](#store)
+* [store export](#store-export)
+* [store remove](#store-remove)
+* [store update](#store-update)
+* [strava](#strava)
+* [strava activities](#strava-activities)
+* [strava activity](#strava-activity)
+* [strava athlete](#strava-athlete)
+* [strava export](#strava-export)
+* [strava fitness](#strava-fitness)
+* [strava oauth](#strava-oauth)
+* [strava refresh](#strava-refresh)
+* [strava route](#strava-route)
+* [strava routes](#strava-routes)
+* [strava stream](#strava-stream)
+* [strava upload](#strava-upload)
+* [strava webhook](#strava-webhook)
+* [strava webhook list](#strava-webhook-list)
+* [strava webhook subscribe](#strava-webhook-subscribe)
+* [strava webhook unsubscribe](#strava-webhook-unsubscribe)
+* [version](#version)
+* [visualcrossing](#visualcrossing)
+* [visualcrossing forecast](#visualcrossing-forecast)
+* [wta](#wta)
+* [zwift](#zwift)
+* [zwift activities](#zwift-activities)
+* [zwift activity](#zwift-activity)
+* [zwift athlete](#zwift-athlete)
+* [zwift export](#zwift-export)
+* [zwift files](#zwift-files)
+* [zwift refresh](#zwift-refresh)
 
 ## *analysis*
 
@@ -142,6 +198,24 @@ $ gravl pass list
 }
 ```
 
+## *commands*
+
+**Description**
+
+Return all possible commands
+
+**Syntax:**
+
+```sh
+$ gravl commands
+```
+**Flags:**
+
+|Flag|Short|Description|
+|-|-|-|
+|```relative```|```r```|Specify the command relative to the current working directory|
+
+
 
 ## *cyclinganalytics activities*
 
@@ -160,6 +234,18 @@ $ gravl cyclinganalytics activities
 |-|-|-|
 |```count```|```N```|Count|
 
+
+## *cyclinganalytics activity*
+
+**Description**
+
+Query an activity for the authenticated athlete
+
+**Syntax:**
+
+```sh
+$ gravl cyclinganalytics activity
+```
 
 ## *cyclinganalytics athlete*
 
@@ -191,18 +277,6 @@ $ gravl cyclinganalytics oauth
 |```origin```||Callback origin|
 |```port```||Port on which to listen|
 
-
-## *cyclinganalytics activity*
-
-**Description**
-
-Query an activity for the authenticated athlete
-
-**Syntax:**
-
-```sh
-$ gravl cyclinganalytics activity
-```
 
 ## *cyclinganalytics upload*
 
@@ -278,43 +352,17 @@ Return basic statistics about a GPX file
 $ gravl gpx info
 ```
 
-## *commands*
+## *help*
 
 **Description**
 
-Return all possible commands
+Shows a list of commands or help for one command
 
 **Syntax:**
 
 ```sh
-$ gravl commands
+$ gravl help [command]
 ```
-**Flags:**
-
-|Flag|Short|Description|
-|-|-|-|
-|```relative```|```r```|Specify the command relative to the current working directory|
-
-
-## *manual*
-
-**Description**
-
-Generate the `gravl` manual
-
-**Syntax:**
-
-```sh
-$ gravl manual
-```
-**Flags:**
-
-|Flag|Short|Description|
-|-|-|-|
-|```manual```|||
-|```analyzer```|||
-|```help```|```h```|show help|
-
 
 
 ## *noaa forecast*
@@ -1086,16 +1134,4 @@ $ gravl zwift refresh
 	"refresh_token": "67890",
 	"expiry": "2021-02-20T01:29:05.964572-08:00"
 }
-```
-
-## *help*
-
-**Description**
-
-Shows a list of commands or help for one command
-
-**Syntax:**
-
-```sh
-$ gravl help [command]
 ```

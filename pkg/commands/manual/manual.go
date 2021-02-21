@@ -25,7 +25,9 @@ type command struct {
 	Lineage []*cli.Command
 }
 
-func ticks() string { return "```" }
+func (c *command) String() string {
+	return c.fullname(" ")
+}
 
 func (c *command) fullname(sep string) string {
 	var names []string
@@ -36,10 +38,9 @@ func (c *command) fullname(sep string) string {
 	return strings.Join(names, sep)
 }
 
-func analysisTemplate(root string) (*template.Template, error) {
-	if root == "" {
-		return nil, nil
-	}
+func ticks() string { return "```" }
+
+func analysisTemplate() (*template.Template, error) {
 	return template.New("analysis").
 		Funcs(map[string]interface{}{
 			"flags": func(s *flag.FlagSet) []*flag.Flag {
@@ -72,6 +73,23 @@ func analysisTemplate(root string) (*template.Template, error) {
 {{- range flags . }}
 |{{ticks}}{{.Name}}{{ticks}}|{{ticks}}{{.DefValue}}{{ticks}}|{{.Usage}}|
 {{- end }}
+{{- end }}
+`)
+}
+
+func manualTemplate() (*template.Template, error) {
+	return template.New("toc").
+		Funcs(map[string]interface{}{
+			"fullname": func(c *command, sep string) string {
+				return c.fullname(sep)
+			},
+		}).
+		Parse(`# {{ .Name }} - {{ .Description }}
+
+## Table of Contents
+
+{{- range .Commands }}
+* [{{ fullname . " " }}](#{{ fullname . "-" }})
 {{- end }}
 `)
 }
@@ -110,14 +128,14 @@ func commandTemplate(root string) (*template.Template, error) {
 				}
 				return ""
 			},
-			"lineage": func(c *command) string {
+			"fullname": func(c *command) string {
 				return c.fullname(" ")
 			},
 			"ticks": ticks,
 		}).
 		Parse(`
 {{- if .Cmd.Action }}
-## *{{ lineage . }}*
+## *{{ fullname . }}*
 
 **Description**
 
@@ -126,7 +144,7 @@ func commandTemplate(root string) (*template.Template, error) {
 **Syntax:**
 
 {{ ticks }}sh
-$ gravl {{ lineage . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
+$ gravl {{ fullname . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{ ticks }}
 
 {{- with .Cmd.Flags }}
@@ -148,13 +166,24 @@ $ gravl {{ lineage . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 `)
 }
 
-func manual(t *template.Template, buffer io.Writer, cmds []*cli.Command, lineage []*cli.Command) error {
+func lineate(cmds []*cli.Command, lineage []*cli.Command) []*command {
+	var commands []*command
 	for i := range cmds {
-		c := &command{Cmd: cmds[i], Lineage: lineage}
-		if err := t.Execute(buffer, c); err != nil {
-			return err
+		if cmds[i].Hidden {
+			continue
 		}
-		if err := manual(t, buffer, cmds[i].Subcommands, append(lineage, cmds[i])); err != nil {
+		commands = append(commands, &command{Cmd: cmds[i], Lineage: lineage})
+		commands = append(commands, lineate(cmds[i].Subcommands, append(lineage, cmds[i]))...)
+	}
+	sort.SliceStable(commands, func(i, j int) bool {
+		return commands[i].fullname("") < commands[j].fullname("")
+	})
+	return commands
+}
+
+func manual(t *template.Template, buffer io.Writer, commands []*command) error {
+	for i := range commands {
+		if err := t.Execute(buffer, commands[i]); err != nil {
 			return err
 		}
 	}
@@ -190,11 +219,13 @@ var Manual = &cli.Command{
 		},
 	},
 	Before: func(c *cli.Context) error {
-		switch {
-		case c.Bool("manual") && (c.Bool("manual") == c.Bool("analyzer")):
-			return errors.New("only one of `manual` or `analyzer` may be enabled at a time")
-		case !c.Bool("manual") && (c.Bool("manual") == c.Bool("analyzer")):
-			return errors.New("one of `manual` or `analyzer` must be enabled")
+		if c.Bool("manual") == c.Bool("analyzer") {
+			switch {
+			case c.Bool("manual"):
+				return errors.New("only one of `manual` or `analyzer` may be enabled at a time")
+			case !c.Bool("manual"):
+				return errors.New("one of `manual` or `analyzer` must be enabled")
+			}
 		}
 		return nil
 	},
@@ -210,31 +241,24 @@ var Manual = &cli.Command{
 		case c.Bool("manual"):
 			// generate the main manual
 			buffer := &bytes.Buffer{}
-			t, err := template.New("manual").
-				Parse(`
-# {{ .Name }} - {{ .Description }}
-`)
-			if err != nil {
+			commands := lineate(c.App.Commands, nil)
+			t := template.Must(manualTemplate())
+			if err = t.Execute(buffer, map[string]interface{}{
+				"Name":        c.App.Name,
+				"Description": c.App.Description,
+				"Commands":    commands,
+			}); err != nil {
 				return err
 			}
-			if err = t.Execute(buffer, c.App); err != nil {
-				return err
-			}
-			t, err = commandTemplate(root)
-			if err != nil {
-				return err
-			}
-			if err = manual(t, buffer, c.App.Commands, nil); err != nil {
+			t = template.Must(commandTemplate(root))
+			if err = manual(t, buffer, commands); err != nil {
 				return err
 			}
 			fmt.Fprint(c.App.Writer, buffer.String())
 		case c.Bool("analyzer"):
 			// generate the analyzer manual
 			buffer := &bytes.Buffer{}
-			t, err := analysisTemplate(root)
-			if err != nil {
-				return err
-			}
+			t := template.Must(analysisTemplate())
 			if err = analyzer(t, buffer); err != nil {
 				return nil
 			}
@@ -245,9 +269,8 @@ var Manual = &cli.Command{
 }
 
 var Commands = &cli.Command{
-	Name:   "commands",
-	Usage:  "Return all possible commands",
-	Hidden: true,
+	Name:  "commands",
+	Usage: "Return all possible commands",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "relative",
@@ -256,18 +279,6 @@ var Commands = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		var commander func(string, []*cli.Command) []string
-		commander = func(prefix string, cmds []*cli.Command) []string {
-			var commands []string
-			for i := range cmds {
-				cmd := fmt.Sprintf("%s %s", prefix, cmds[i].Name)
-				if !cmds[i].Hidden && cmds[i].Action != nil {
-					commands = append(commands, cmd)
-				}
-				commands = append(commands, commander(cmd, cmds[i].Subcommands)...)
-			}
-			return commands
-		}
 		cmd := c.App.Name
 		if c.Bool("relative") {
 			cwd, err := os.Getwd()
@@ -283,7 +294,10 @@ var Commands = &cli.Command{
 				return err
 			}
 		}
-		commands := commander(cmd, c.App.Commands)
-		return encoding.Encode(commands)
+		var s []string
+		for _, c := range lineate(c.App.Commands, nil) {
+			s = append(s, cmd+" "+c.fullname(" "))
+		}
+		return encoding.Encode(s)
 	},
 }
