@@ -73,12 +73,12 @@ var tmpl = template.Must(template.New("command").
 $ gravl {{ lineage . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{ ticks }}
 
-{{- if .Cmd.Flags }}
+{{- with .Cmd.Flags }}
 **Flags:**
 
 |Flag|Short|Description|
 |-|-|-|
-{{- range $f := .Cmd.Flags }}
+{{- range $f := . }}
 |{{ticks}}{{ $f.Name }}{{ticks}}|{{ names $f }}|{{ description $f }}|
 {{- end }}
 {{ end }}
