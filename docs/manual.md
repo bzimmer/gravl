@@ -142,6 +142,18 @@ $ gravl pass list
 }
 ```
 
+## *analysis manual*
+
+**Description**
+
+Print the manual for the available analyzers
+
+**Syntax:**
+
+```sh
+$ gravl analysis manual
+```
+
 
 ## *cyclinganalytics activities*
 
@@ -593,10 +605,10 @@ $ gravl store update
 2021-02-20T15:59:25-08:00 INF bunt db path="/Users/bzimmer/Library/Application Support/com.github.bzimmer.gravl/gravl.db"
 2021-02-20T15:59:26-08:00 INF do all=0 count=100 n=0 start=0 total=0
 2021-02-20T15:59:29-08:00 INF do all=100 count=100 n=100 start=1 total=0
-2021-02-20T15:59:29-08:00 INF querying activity details ID=4819XXX7284
-2021-02-20T15:59:30-08:00 INF saving activity details ID=4819XXX284 n=1 name="Morning Ride"
-2021-02-20T15:59:30-08:00 INF querying activity details ID=4814XXX574
-2021-02-20T15:59:30-08:00 INF saving activity details ID=4814XXX574 n=2 name="Afternoon Ride"
+2021-02-20T15:59:29-08:00 INF querying activity details ID=4819927284
+2021-02-20T15:59:30-08:00 INF saving activity details ID=4819927284 n=1 name="Morning Ride"
+2021-02-20T15:59:30-08:00 INF querying activity details ID=4814540574
+2021-02-20T15:59:30-08:00 INF saving activity details ID=4814540574 n=2 name="Afternoon Ride"
 2021-02-20T15:59:31-08:00 INF do all=200 count=100 n=100 start=2 total=0
 2021-02-20T15:59:34-08:00 INF do all=300 count=100 n=100 start=3 total=0
 2021-02-20T15:59:36-08:00 INF do all=400 count=100 n=100 start=4 total=0

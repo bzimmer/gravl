@@ -2,10 +2,49 @@ package analysis
 
 import (
 	"flag"
+	"io"
 	"math"
+	"os"
+	"sort"
+	"text/template"
 
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
+
+var tmpl = template.Must(template.New("analysis").
+	Funcs(map[string]interface{}{
+		"flags": func(s *flag.FlagSet) []*flag.Flag {
+			var v []*flag.Flag
+			if s != nil {
+				s.VisitAll(func(f *flag.Flag) {
+					v = append(v, f)
+				})
+			}
+			sort.SliceStable(v, func(i, j int) bool {
+				return v[i].Name < v[j].Name
+			})
+			return v
+		},
+		"ticks": func() string { return "```" },
+	}).
+	Parse(`
+## *{{ .Name }}*
+
+**Description**
+
+{{ .Doc }}
+
+{{- with .Flags }}
+
+**Flags**
+
+|Flag|Default|Description|
+|-|-|-|
+{{- range flags . }}
+|{{ticks}}{{.Name}}{{ticks}}|{{ticks}}{{.DefValue}}{{ticks}}|{{.Usage}}|
+{{- end }}
+{{- end }}
+`))
 
 type Analyzer struct {
 	Name  string
@@ -15,6 +54,14 @@ type Analyzer struct {
 }
 
 func (a *Analyzer) String() string { return a.Name }
+
+// Markdown generates a manual entry in Markdown format
+func (a *Analyzer) Markdown(out io.Writer) error {
+	if out == nil {
+		out = os.Stdout
+	}
+	return tmpl.Execute(out, a)
+}
 
 type results struct {
 	Key     string

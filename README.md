@@ -8,7 +8,7 @@ The purpose of the package is to provide easy access to activity, weather, and g
 * `providers`
   * a library for communicating with services and aims to use a consistent approach to APIs and models
 * `analysis`
-  * a library for running analyzers on Strava activities
+  * a library for running [analyzers](docs/analyzers.md) on Strava activities
 * `store`
   * a library for storing Strava activity data, generally locally through `buntdb` or a file but also capable of interacting with Strava directly
 * `eval`
@@ -91,7 +91,8 @@ Open a browser to http://localhost:9001 and you will be redirected to, in this c
 
 ## Analysis
 
-The analysis command supports flexible filtering and grouping of activities using the [expr](https://github.com/antonmedv/expr) package to evaluate the Strava [Activity](https://github.com/bzimmer/gravl/blob/master/pkg/providers/activity/strava/model.go#L333) model.
+The analysis command supports flexible filtering and grouping of activities using the [expr](https://github.com/antonmedv/expr) package to evaluate the Strava Activity model.
+
 
 * Filters
 

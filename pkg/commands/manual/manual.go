@@ -16,48 +16,12 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 )
 
-/*
-### Create an exchange
-
-**Syntax:**
-
-```
-$ buneary create exchange <ADDRESS> <NAME> <TYPE> [flags]
-```
-
-**Arguments:**
-
-|Argument|Description|
-|-|-|
-|`ADDRESS`|The RabbitMQ HTTP API address. If no port is specified, `15672` is used.|
-|`NAME`|The desired name of the new exchange.|
-|`TYPE`|The exchange type. Has to be one of `direct`, `headers`, `fanout` and `topic`.|
-
-**Flags:**
-
-|Flag|Short|Description|
-|-|-|-|
-|`--user`|`-u`|The username to connect with. If not specified, you will be asked for it.|
-|`--password`|`-p`|The password to authenticate with. If not specified, you will be asked for it.|
-|`--auto-delete`||Automatically delete the exchange once there are no bindings left.|
-|`--durable`||Make the exchange persistent, surviving server restarts.|
-|`--internal`||Make the exchange internal.|
-
-**Example:**
-
-Create a direct exchange called `my-exchange` on a RabbitMQ server running on the local machine.
-
-```
-$ buneary create exchange localhost my-exchange direct
-```
-*/
-
 type command struct {
 	Cmd     *cli.Command
 	Lineage []*cli.Command
 }
 
-var tmpl = template.Must(template.New("").
+var tmpl = template.Must(template.New("command").
 	Funcs(map[string]interface{}{
 		"usage": func(c *command) string {
 			var names []string
@@ -148,7 +112,7 @@ var Manual = &cli.Command{
 	Hidden:  true,
 	Action: func(c *cli.Context) error {
 		buffer := &bytes.Buffer{}
-		t := template.Must(template.New("").
+		t := template.Must(template.New("manual").
 			Parse(`
 # {{ .Name }} - {{ .Description }}
 `))
