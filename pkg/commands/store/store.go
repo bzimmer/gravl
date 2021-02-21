@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -53,6 +54,19 @@ func filter(ctx context.Context, filterer eval.Evaluator, acts <-chan *stravaapi
 	return res
 }
 
+func attributer(c *cli.Context) (func(ctx context.Context, act *stravaapi.Activity) (interface{}, error), error) {
+	f := func(ctx context.Context, act *stravaapi.Activity) (interface{}, error) { return act, nil }
+	if c.IsSet("attribute") {
+		var evaluator eval.Evaluator
+		evaluator, err := commands.Evaluator(c.String("attribute"))
+		if err != nil {
+			return nil, err
+		}
+		f = evaluator.Eval
+	}
+	return f, nil
+}
+
 func export(c *cli.Context) error {
 	evaluator, err := evaluator(c)
 	if err != nil {
@@ -66,14 +80,18 @@ func export(c *cli.Context) error {
 	ctx, cancel := context.WithCancel(c.Context)
 	defer cancel()
 	acts := db.Activities(ctx)
+	attr, err := attributer(c)
+	if err != nil {
+		return err
+	}
 	acts = filter(ctx, evaluator, acts)
 	if err != nil {
 		return err
 	}
 	var i int
-	defer func() {
-		log.Info().Int("activities", i).Msg("export")
-	}()
+	defer func(t time.Time) {
+		log.Info().Int("activities", i).Dur("elapsed", time.Since(t)).Msg("export")
+	}(time.Now())
 	for {
 		select {
 		case <-ctx.Done():
@@ -85,7 +103,11 @@ func export(c *cli.Context) error {
 			if x.Err != nil {
 				return x.Err
 			}
-			if err := encoding.Encode(x.Activity); err != nil {
+			y, err := attr(ctx, x.Activity)
+			if err != nil {
+				return err
+			}
+			if err := encoding.Encode(y); err != nil {
 				return err
 			}
 			i++
@@ -209,9 +231,17 @@ var removeCommand = &cli.Command{
 }
 
 var exportCommand = &cli.Command{
-	Name:   "export",
-	Usage:  "Export activities from local storage",
-	Flags:  []cli.Flag{InputFlag(DefaultLocalStore), filterFlag(false)},
+	Name:  "export",
+	Usage: "Export activities from local storage",
+	Flags: []cli.Flag{
+		InputFlag(DefaultLocalStore),
+		filterFlag(false),
+		&cli.StringSliceFlag{
+			Name:    "attribute",
+			Aliases: []string{"B"},
+			Usage:   "Evaluate the expression on an activity and return only those results",
+		},
+	},
 	Action: export,
 }
 
