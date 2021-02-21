@@ -21,15 +21,19 @@ type command struct {
 	Lineage []*cli.Command
 }
 
+func (c *command) fullname(sep string) string {
+	var names []string
+	for i := range c.Lineage {
+		names = append(names, c.Lineage[i].Name)
+	}
+	names = append(names, c.Cmd.Name)
+	return strings.Join(names, sep)
+}
+
 var tmpl = template.Must(template.New("command").
 	Funcs(map[string]interface{}{
 		"usage": func(c *command) string {
-			var names []string
-			for i := range c.Lineage {
-				names = append(names, c.Lineage[i].Name)
-			}
-			names = append(names, c.Cmd.Name)
-			s := usages[strings.Join(names, "-")]
+			s := usages[c.fullname("-")]
 			usage, err := hex.DecodeString(s)
 			if err != nil {
 				log.Warn().Err(err).Msg("hex decode")
@@ -51,12 +55,7 @@ var tmpl = template.Must(template.New("command").
 			return ""
 		},
 		"lineage": func(c *command) string {
-			var s []string
-			for j := range c.Lineage {
-				s = append(s, c.Lineage[j].Name)
-			}
-			s = append(s, c.Cmd.Name)
-			return strings.Join(s, " ")
+			return c.fullname(" ")
 		},
 		"ticks": func() string { return "```" },
 	}).

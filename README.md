@@ -74,7 +74,7 @@ cyclinganalytics:
 The package has functionality to generate access and refresh tokens for both `cyclinganalytics` and `strava` by using the `oauth` command for each after acquiring the client id from the respective sites.
 
 ```sh
-~ > gravl strava oauth
+$ gravl strava oauth
 2021-01-20T18:38:15-08:00 INF serving address=0.0.0.0:9001
 ```
 
@@ -99,7 +99,7 @@ The analysis command supports flexible filtering and grouping of activities usin
 As an example, to filter only start dates for 2021:
 
 ```sh
-~ > gravl pass -a totals -f ".StartDate.Year() == 2021"
+$ gravl pass -a totals -f ".StartDate.Year() == 2021"
 ```
 
 * Groups
@@ -107,7 +107,7 @@ As an example, to filter only start dates for 2021:
 Each of the group expressions will result in a new level in the output of the analysis:
 
 ```sh
-~ > gravl pass -a totals -f ".StartDate.Year() == 2021" -g "isoweek(.StartDate)" -g ".Type"
+$ gravl pass -a totals -f ".StartDate.Year() == 2021" -g "isoweek(.StartDate)" -g ".Type"
 ```
 
 ## Examples
@@ -147,14 +147,14 @@ done
 When executed the command output will look something like this:
 
 ```sh
-~ > qp
+$ qp
 2021-01-28T20:39:50-08:00 INF do all=50 count=50 n=50 start=1 total=50
 [4687554641,"Innsbruck","2021-01-26T18:15:29Z"]
 [4612178259,"Innsbruck","2021-01-12T18:40:56Z"]
 [4569050661,"Paris","2021-01-04T19:21:36Z"]
 [4481763454,"Watopia","2020-12-16T19:04:41Z"]
 
-~ > qp 4334103705
+$ qp 4334103705
 2021-01-28T20:37:16-08:00 INF export activityID=4334103705 format=original
 {
  "id": 4334103705,
@@ -192,7 +192,7 @@ When executed the command output will look something like this:
 Run the `totals` analyzer for the year 2021 by specifying a filter.
 
 ```sh
-~ > gravl pass -a totals -f ".StartDate.Year() == 2021"
+$ gravl pass -a totals -f ".StartDate.Year() == 2021"
 {
  "": {
   "totals": {
