@@ -25,7 +25,6 @@ $ gravl strava export -O Friday.fit 4814540547
 2021-02-20T09:24:45-08:00 ERR file exists and -o flag not specified filename=Friday.fit
 2021-02-20T09:24:45-08:00 ERR gravl strava error="file already exists"
 ```
-<<<<<<< HEAD
 
 It's also possible to use the attribute functionality by specifying one or more attributes using the `-B` flag. In this
 example we export only those activities of type `Ride`, extract their distance in miles, and use standard unix tools to
@@ -46,5 +45,3 @@ $ gravl -c store export -f ".Type == 'Ride'" -B ".Distance.Miles()" | jq ".[]" |
 79.88223773164718
 76.653593016782
 ```
-=======
->>>>>>> 499e8e7fe6e6e96d00a6c2f3efffbfe2089a0839
