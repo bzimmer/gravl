@@ -4,6 +4,7 @@
 ## *analysis*
 
 **Description**
+
 Produce statistics and other interesting artifacts from Strava activities
 
 **Syntax:**
@@ -96,6 +97,7 @@ $ gravl pass -a totals -f ".StartDate.Year() == 2021" -g ".Type"
 ## *analysis list*
 
 **Description**
+
 Return the list of available analyzers
 
 **Syntax:**
@@ -144,6 +146,7 @@ $ gravl pass list
 ## *cyclinganalytics activities*
 
 **Description**
+
 Query activities for the authenticated athlete
 
 **Syntax:**
@@ -161,6 +164,7 @@ $ gravl cyclinganalytics activities
 ## *cyclinganalytics athlete*
 
 **Description**
+
 Query for the authenticated athlete
 
 **Syntax:**
@@ -172,6 +176,7 @@ $ gravl cyclinganalytics athlete
 ## *cyclinganalytics oauth*
 
 **Description**
+
 Authentication endpoints for access and refresh tokens
 
 **Syntax:**
@@ -190,6 +195,7 @@ $ gravl cyclinganalytics oauth
 ## *cyclinganalytics activity*
 
 **Description**
+
 Query an activity for the authenticated athlete
 
 **Syntax:**
@@ -201,6 +207,7 @@ $ gravl cyclinganalytics activity
 ## *cyclinganalytics upload*
 
 **Description**
+
 Upload an activity file
 
 **Syntax:**
@@ -220,6 +227,7 @@ $ gravl cyclinganalytics upload
 ## *gnis*
 
 **Description**
+
 Query the GNIS database
 
 **Syntax:**
@@ -227,11 +235,41 @@ Query the GNIS database
 ```sh
 $ gravl gnis <US STATE ABBREVIATION>
 ```
+**Example:**
+
+Query the [GNIS](https://www.usgs.gov/core-science-systems/national-geospatial-program/geographic-names) database for US States.
+
+This functionality was added mainly to get pseudo-accurate coordinates for use in querying weather forecasts.
+
+```sh
+$ gravl -c gnis NH | wc -l
+   14770
+$ gravl -c gnis NH | head -5
+{"type":"Feature","id":"205110","geometry":{"type":"Point","coordinates":[-77.0775473,40.3221113,200]},"properties":{"class":"Trail","locale":"PA","name":"North Country National Scenic Trail","source":"https://geonames.usgs.gov"}}
+{"type":"Feature","id":"206425","geometry":{"type":"Point","coordinates":[-72.3331382,41.2723203,0]},"properties":{"class":"Stream","locale":"CT","name":"Connecticut River","source":"https://geonames.usgs.gov"}}
+{"type":"Feature","id":"561049","geometry":{"type":"Point","coordinates":[-71.0306287,44.9383838,384]},"properties":{"class":"Stream","locale":"ME","name":"Abbott Brook","source":"https://geonames.usgs.gov"}}
+{"type":"Feature","id":"561428","geometry":{"type":"Point","coordinates":[-70.7517197,43.0823107,9]},"properties":{"class":"Island","locale":"ME","name":"Badgers Island","source":"https://geonames.usgs.gov"}}
+{"type":"Feature","id":"561491","geometry":{"type":"Point","coordinates":[-70.9716939,43.6157566,168]},"properties":{"class":"Reservoir","locale":"ME","name":"Balch Pond","source":"https://geonames.usgs.gov"}}
+```
+
+I might typically use it like this:
+
+```sh
+$ gravl -c gnis WA | grep "Barlow Pass"
+{"type":"Feature","id":"1516141","geometry":{"type":"Point","coordinates":[-121.4440005,48.0264959,721]},"properties":{"class":"Gap","locale":"WA","name":"Barlow Pass","source":"https://geonames.usgs.gov"}}
+$ gravl -c gnis WA | grep "Barlow Pass" | jq ".geometry | .coordinates"
+[
+  -121.4440005,
+  48.0264959,
+  721
+]
+```
 
 
 ## *gpx info*
 
 **Description**
+
 Return basic statistics about a GPX file
 
 **Syntax:**
@@ -243,6 +281,7 @@ $ gravl gpx info
 ## *commands*
 
 **Description**
+
 Return all possible commands
 
 **Syntax:**
@@ -260,6 +299,7 @@ $ gravl commands
 ## *manual*
 
 **Description**
+
 Generate the `gravl` manual
 
 **Syntax:**
@@ -278,6 +318,7 @@ $ gravl manual
 ## *noaa forecast*
 
 **Description**
+
 Query NOAA for a forecast
 
 **Syntax:**
@@ -290,6 +331,7 @@ $ gravl noaa forecast [--] <LATITUDE> <LONGITUDE>
 ## *openweather forecast*
 
 **Description**
+
 Query OpenWeather for a forecast
 
 **Syntax:**
@@ -340,6 +382,7 @@ $ gravl openweather forecast -- 48.8 -128.0
 ## *rwgps activities*
 
 **Description**
+
 Query activities for the authenticated athlete
 
 **Syntax:**
@@ -407,6 +450,7 @@ $ gravl rwgps activities -N 10
 ## *rwgps activity*
 
 **Description**
+
 Query an activity from RideWithGPS
 
 **Syntax:**
@@ -418,6 +462,7 @@ $ gravl rwgps activity
 ## *rwgps athlete*
 
 **Description**
+
 Query for the authenticated athlete
 
 **Syntax:**
@@ -429,6 +474,7 @@ $ gravl rwgps athlete
 ## *rwgps route*
 
 **Description**
+
 Query a route from RideWithGPS
 
 **Syntax:**
@@ -440,6 +486,7 @@ $ gravl rwgps route
 ## *rwgps routes*
 
 **Description**
+
 Query routes for an athlete from RideWithGPS
 
 **Syntax:**
@@ -457,6 +504,7 @@ $ gravl rwgps routes
 ## *srtm*
 
 **Description**
+
 Query the SRTM database for elevation data
 
 **Syntax:**
@@ -469,6 +517,7 @@ $ gravl srtm
 ## *store export*
 
 **Description**
+
 Export activities from local storage
 
 **Syntax:**
@@ -487,6 +536,7 @@ $ gravl store export
 ## *store remove*
 
 **Description**
+
 Remove activities from local storage
 
 **Syntax:**
@@ -506,6 +556,7 @@ $ gravl store remove
 ## *store update*
 
 **Description**
+
 Query and update Strava activities to local storage
 
 **Syntax:**
@@ -571,6 +622,7 @@ The results of the command show the number of new, existing, and total activitie
 ## *strava activities*
 
 **Description**
+
 Query activities for an athlete from Strava
 
 **Syntax:**
@@ -602,6 +654,7 @@ $ gravl -c --timeout 1m strava activities -N 20 -f ".Type == 'VirtualRide'" -B "
 ## *strava activity*
 
 **Description**
+
 Query an activity from Strava
 
 **Syntax:**
@@ -619,6 +672,7 @@ $ gravl strava activity
 ## *strava athlete*
 
 **Description**
+
 Query an athlete from Strava
 
 **Syntax:**
@@ -630,6 +684,7 @@ $ gravl strava athlete
 ## *strava export*
 
 **Description**
+
 Export a Strava activity by id
 
 **Syntax:**
@@ -678,6 +733,7 @@ $ gravl strava export -O Friday.fit 4814540547
 ## *strava fitness*
 
 **Description**
+
 Query Strava for training load data
 
 **Syntax:**
@@ -689,6 +745,7 @@ $ gravl strava fitness
 ## *strava oauth*
 
 **Description**
+
 Authentication endpoints for access and refresh tokens
 
 **Syntax:**
@@ -707,6 +764,7 @@ $ gravl strava oauth
 ## *strava refresh*
 
 **Description**
+
 Acquire a new refresh token
 
 **Syntax:**
@@ -718,6 +776,7 @@ $ gravl strava refresh
 ## *strava route*
 
 **Description**
+
 Query a route from Strava
 
 **Syntax:**
@@ -729,6 +788,7 @@ $ gravl strava route
 ## *strava routes*
 
 **Description**
+
 Query routes for an athlete from Strava
 
 **Syntax:**
@@ -746,6 +806,7 @@ $ gravl strava routes
 ## *strava stream*
 
 **Description**
+
 Query streams for an activity from Strava
 
 **Syntax:**
@@ -763,6 +824,7 @@ $ gravl strava stream
 ## *strava upload*
 
 **Description**
+
 Upload an activity file
 
 **Syntax:**
@@ -783,6 +845,7 @@ $ gravl strava upload <FILE or DIRECTORY> | <UPLOAD ID>
 ## *strava webhook list*
 
 **Description**
+
 List all active webhook subscriptions
 
 **Syntax:**
@@ -794,6 +857,7 @@ $ gravl strava webhook list
 ## *strava webhook subscribe*
 
 **Description**
+
 Subscribe for webhook notications
 
 **Syntax:**
@@ -812,6 +876,7 @@ $ gravl strava webhook subscribe
 ## *strava webhook unsubscribe*
 
 **Description**
+
 Unsubscribe an active webhook subscription (or all if specified)
 
 **Syntax:**
@@ -823,6 +888,7 @@ $ gravl strava webhook unsubscribe
 ## *version*
 
 **Description**
+
 Version
 
 **Syntax:**
@@ -835,6 +901,7 @@ $ gravl version
 ## *visualcrossing forecast*
 
 **Description**
+
 Query VisualCrossing for a forecast
 
 **Syntax:**
@@ -852,6 +919,7 @@ $ gravl visualcrossing forecast [--] <LATITUDE> <LONGITUDE>
 ## *wta*
 
 **Description**
+
 Query the WTA site for trip reports
 
 **Syntax:**
@@ -864,6 +932,7 @@ $ gravl wta
 ## *zwift activities*
 
 **Description**
+
 Query activities for an athlete from Strava
 
 **Syntax:**
@@ -881,6 +950,7 @@ $ gravl zwift activities
 ## *zwift activity*
 
 **Description**
+
 Query an activity from Zwift
 
 **Syntax:**
@@ -892,6 +962,7 @@ $ gravl zwift activity
 ## *zwift athlete*
 
 **Description**
+
 Query the athlete profile from Zwift
 
 **Syntax:**
@@ -903,6 +974,7 @@ $ gravl zwift athlete
 ## *zwift export*
 
 **Description**
+
 Export a Zwift activity by id
 
 **Syntax:**
@@ -921,6 +993,7 @@ $ gravl zwift export
 ## *zwift files*
 
 **Description**
+
 List all local Zwift files
 
 **Syntax:**
@@ -959,6 +1032,7 @@ $ gravl zwift files | jq -r ".[]" | xargs gravl strava upload -n
 ## *zwift refresh*
 
 **Description**
+
 Acquire a new refresh token
 
 **Syntax:**
@@ -983,6 +1057,7 @@ $ gravl zwift refresh
 ## *help*
 
 **Description**
+
 Shows a list of commands or help for one command
 
 **Syntax:**

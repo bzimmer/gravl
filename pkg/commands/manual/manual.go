@@ -101,6 +101,7 @@ var tmpl = template.Must(template.New("").
 ## *{{ lineage . }}*
 
 **Description**
+
 {{ if .Cmd.Description }}{{ .Cmd.Description }}{{ else }}{{ .Cmd.Usage }}{{ end }}
 
 **Syntax:**
