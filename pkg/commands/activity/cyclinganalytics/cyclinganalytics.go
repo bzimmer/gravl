@@ -191,7 +191,7 @@ var activitiesCommand = &cli.Command{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "Count",
+			Usage:   "The number of activities to query from CA (the number returned will be <= N)",
 		},
 	},
 	Action: activities,

@@ -157,7 +157,7 @@ var activitiesCommand = &cli.Command{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "Count",
+			Usage:   "The number of activities to query from Strava (the number returned will be <= N)",
 		},
 		&cli.StringFlag{
 			Name:    "filter",
@@ -206,7 +206,7 @@ var routesCommand = &cli.Command{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "Count",
+			Usage:   "The number of routes to query from Strava (the number returned will be <= N)",
 		},
 	},
 	Action: routes,

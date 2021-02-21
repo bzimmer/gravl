@@ -232,7 +232,7 @@ $ gravl cyclinganalytics activities
 
 |Flag|Short|Description|
 |-|-|-|
-|```count```|```N```|Count|
+|```count```|```N```|The number of activities to query from CA (the number returned will be <= N)|
 
 
 ## *cyclinganalytics activity*
@@ -444,7 +444,7 @@ $ gravl rwgps activities
 
 |Flag|Short|Description|
 |-|-|-|
-|```count```|```N```|Count|
+|```count```|```N```|The number of activities to query from RWGPS (the number returned will be <= N)|
 
 **Example:**
 
@@ -548,7 +548,7 @@ $ gravl rwgps routes
 
 |Flag|Short|Description|
 |-|-|-|
-|```count```|```N```|Count|
+|```count```|```N```|The number of routes to query from RWGPS (the number returned will be <= N)|
 
 
 ## *srtm*
@@ -716,7 +716,7 @@ $ gravl strava activities
 
 |Flag|Short|Description|
 |-|-|-|
-|```count```|```N```|Count|
+|```count```|```N```|The number of activities to query from Strava (the number returned will be <= N)|
 |```filter```|```f```|Expression for filtering activities to remove|
 |```attribute```|```B```|Evaluate the expression on an activity and return only those results|
 
@@ -882,7 +882,7 @@ $ gravl strava routes
 
 |Flag|Short|Description|
 |-|-|-|
-|```count```|```N```|Count|
+|```count```|```N```|The number of routes to query from Strava (the number returned will be <= N)|
 
 
 ## *strava stream*
@@ -1015,7 +1015,7 @@ $ gravl wta
 
 **Description**
 
-Query activities for an athlete from Strava
+Query activities for an athlete from Zwift
 
 **Syntax:**
 

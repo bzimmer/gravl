@@ -113,14 +113,14 @@ func activities(c *cli.Context) error {
 
 var activitiesCommand = &cli.Command{
 	Name:    "activities",
-	Usage:   "Query activities for an athlete from Strava",
+	Usage:   "Query activities for an athlete from Zwift",
 	Aliases: []string{"A"},
 	Flags: []cli.Flag{
 		&cli.IntFlag{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "Count",
+			Usage:   "The number of activities to query from Zwift (the number returned will be <= N)",
 		},
 	},
 	Action: activities,
