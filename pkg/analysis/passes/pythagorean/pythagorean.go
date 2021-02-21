@@ -14,8 +14,7 @@ type Result struct {
 	Number   int                `json:"number"`
 }
 
-const doc = `pythagorean determines the activity with the highest pythagorean value
-defined as the sqrt(distance^2 + elevation^2) in meters`
+const doc = `pythagorean determines the activity with the highest pythagorean value defined as the sqrt(distance^2 + elevation^2) in meters`
 
 func run(ctx *analysis.Context, pass []*strava.Activity) (interface{}, error) {
 	if len(pass) == 0 {

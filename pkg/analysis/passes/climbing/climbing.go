@@ -10,7 +10,7 @@ import (
 const (
 	doc = `climbing returns all activities exceeding the Golden Ratio
 
-	https://blog.wahoofitness.com/by-the-numbers-distance-and-elevation/`
+https://blog.wahoofitness.com/by-the-numbers-distance-and-elevation/`
 
 	// GoldenRatioMetric in metric units
 	GoldenRatioMetric = 20

@@ -134,3 +134,4 @@ tasks:
       - go run cmd/genusage/* docs/usage > pkg/commands/manual/usage.go
       - task: build
       - dist/gravl manual > docs/manual.md
+      - dist/gravl pass manual > docs/analyzers.md
