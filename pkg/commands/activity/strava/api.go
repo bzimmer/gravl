@@ -259,8 +259,24 @@ var activityCommand = &cli.Command{
 	},
 }
 
+var streamsetsCommand = &cli.Command{
+	Name:    "streamsets",
+	Aliases: []string{""},
+	Usage:   "Return the set of available streams for query",
+	Action: func(c *cli.Context) error {
+		client, err := NewAPIClient(c)
+		if err != nil {
+			return err
+		}
+		if err := encoding.Encode(client.Activity.StreamSets()); err != nil {
+			return err
+		}
+		return nil
+	},
+}
+
 var streamsCommand = &cli.Command{
-	Name:      "stream",
+	Name:      "streams",
 	Aliases:   []string{"s"},
 	Usage:     "Query streams for an activity from Strava",
 	ArgsUsage: "ACTIVITY_ID (...)",

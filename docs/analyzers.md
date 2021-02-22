@@ -9,7 +9,7 @@ ageride returns all activities whose distance is greater than the athlete's age 
 
 |Flag|Default|Description|
 |-|-|-|
-|```birthday```|```"0001-01-01"```|the athlete's birthday|
+|```birthday```|```"0001-01-01"```|the athlete's birthday in `YYYY-MM-DD` format|
 
 ## *benford*
 
@@ -52,7 +52,9 @@ The Eddington is the largest integer E, where you have cycled at least E miles (
 
 festive500 returns the activities and distance ridden during the annual #festive500 challenge
 
-Only the activity types 'Ride', 'VirtualRide', and 'Handcycle' are considered. Thanks Rapha! https://www.rapha.cc/us/en_US/stories/festive-500
+Only the activity types 'Ride', 'VirtualRide', and 'Handcycle' are considered.
+
+Thanks Rapha! https://www.rapha.cc/us/en_US/stories/festive-500
 
 ## *forecast*
 

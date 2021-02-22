@@ -133,4 +133,4 @@ tasks:
     cmds:
       - task: build
       - dist/gravl manual --manual > docs/manual.md
-      - dist/gravl manual --analyzer > docs/analyzer.md
+      - dist/gravl manual --analyzer > docs/analyzers.md

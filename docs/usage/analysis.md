@@ -1,4 +1,4 @@
-Run the analysis on the Strava activities. Learn more about analyzers [here](analyzer.md).
+Run the analysis on the Strava activities. Learn more about analyzers [here](analyzers.md).
 
 ```sh
 $ gravl pass -a totals -f ".StartDate.Year() == 2021"

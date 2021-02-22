@@ -72,7 +72,7 @@ func (a *ageRide) run(ctx *analysis.Context, pass []*strava.Activity) (interface
 func New() *analysis.Analyzer {
 	r := &ageRide{birthday: &analysis.TimeFlag{Time: time.Time{}}}
 	fs := flag.NewFlagSet("ageride", flag.ExitOnError)
-	fs.Var(r.birthday, "birthday", "the athlete's birthday")
+	fs.Var(r.birthday, "birthday", "the athlete's birthday in `YYYY-MM-DD` format")
 	return &analysis.Analyzer{
 		Name:  fs.Name(),
 		Doc:   doc,
