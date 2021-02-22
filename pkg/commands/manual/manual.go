@@ -134,21 +134,22 @@ func commandTemplate(root string) (*template.Template, error) {
 			"ticks": ticks,
 		}).
 		Parse(`
-{{- if .Cmd.Action }}
 ## *{{ fullname . }}*
 
 **Description**
 
 {{ if .Cmd.Description }}{{ .Cmd.Description }}{{ else }}{{ .Cmd.Usage }}{{ end }}
 
-**Syntax:**
+{{ if .Cmd.Action }}
+**Syntax**
 
 {{ ticks }}sh
 $ gravl {{ fullname . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{ ticks }}
+{{ end }}
 
 {{- with .Cmd.Flags }}
-**Flags:**
+**Flags**
 
 |Flag|Short|Description|
 |-|-|-|
@@ -157,11 +158,11 @@ $ gravl {{ fullname . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{- end }}
 {{ end }}
 
-{{- with $x := usage . }}
-**Example:**
+{{- $x := usage . }}
+{{- if $x }}
+{{ if .Cmd.Action }}**Example**{{ else }}**Overview**{{ end }}
 
-{{ . }}
-{{- end }}
+{{ $x }}
 {{- end }}
 `)
 }

@@ -46,7 +46,7 @@ var Command = &cli.Command{
 		{
 			Name:      "forecast",
 			Usage:     "Query OpenWeather for a forecast",
-			ArgsUsage: "[--] <LATITUDE> <LONGITUDE>",
+			ArgsUsage: "[--] [latitude] [longitude]",
 			Action:    forecast,
 		},
 	},

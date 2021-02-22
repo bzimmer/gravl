@@ -10,9 +10,10 @@ import (
 )
 
 var Command = &cli.Command{
-	Name:     "wta",
-	Category: "activity",
-	Usage:    "Query the WTA site for trip reports",
+	Name:      "wta",
+	Category:  "activity",
+	Usage:     "Query the WTA site for trip reports, if no reporter is specified the most recent reports are returned",
+	ArgsUsage: "[username ...]",
 	Action: func(c *cli.Context) error {
 		args := c.Args().Slice()
 		if len(args) == 0 {
