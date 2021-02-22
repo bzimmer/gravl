@@ -427,7 +427,7 @@ Query NOAA for a forecast
 **Syntax**
 
 ```sh
-$ gravl noaa forecast [--] LATITUTE LONGITUDE
+$ gravl noaa forecast [--] LATITUDE LONGITUDE
 ```
 
 
@@ -455,7 +455,7 @@ Query OpenWeather for a forecast
 **Syntax**
 
 ```sh
-$ gravl openweather forecast [--] LATITUTE LONGITUDE
+$ gravl openweather forecast [--] LATITUDE LONGITUDE
 ```
 
 **Example**
@@ -1321,7 +1321,7 @@ Query VisualCrossing for a forecast
 **Syntax**
 
 ```sh
-$ gravl visualcrossing forecast [--] LATITUTE LONGITUDE
+$ gravl visualcrossing forecast [--] LATITUDE LONGITUDE
 ```
 
 **Flags**

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/commands/analysis"
@@ -84,12 +85,14 @@ func manualTemplate(root string) (*template.Template, error) {
 		Funcs(map[string]interface{}{
 			"usage": func(c *command) (string, error) {
 				var err error
-				fn := filepath.Join(root, "docs", "usage", c.fullname("-")+".md")
-				if _, err = os.Stat(fn); os.IsNotExist(err) {
+				fn := c.fullname("-")
+				path := filepath.Join(root, "docs", "usage", fn+".md")
+				if _, err = os.Stat(path); os.IsNotExist(err) {
 					// ok to skip any commands without usage documentation
+					log.Warn().Str("path", path).Str("command", fn).Msg("missing")
 					return "", nil
 				}
-				file, err := os.Open(fn)
+				file, err := os.Open(path)
 				if err != nil {
 					return "", err
 				}
@@ -98,6 +101,7 @@ func manualTemplate(root string) (*template.Template, error) {
 				if err != nil {
 					return "", err
 				}
+				log.Info().Str("path", path).Str("command", fn).Msg("reading")
 				return strings.TrimSpace(string(usage)), nil
 			},
 			"fullname": func(c *command, sep string) string {

@@ -16,6 +16,8 @@ type an struct {
 
 var available = make(map[string]an)
 
+// Add an analyzer; if standard is `true` it will be included in the standard run
+// This function is not thread-safe; use it only on application startup
 func Add(analyzer *analysis.Analyzer, standard bool) {
 	if analyzer == nil {
 		return
@@ -23,6 +25,7 @@ func Add(analyzer *analysis.Analyzer, standard bool) {
 	available[analyzer.Name] = an{analyzer: analyzer, standard: standard}
 }
 
+// All returns a copy of all the available analyzers
 func All() []*analysis.Analyzer {
 	var a []*analysis.Analyzer
 	for _, val := range available {
