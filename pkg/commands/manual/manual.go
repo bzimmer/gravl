@@ -83,9 +83,8 @@ func analysisTemplate() (*template.Template, error) {
 func manualTemplate(root string) (*template.Template, error) {
 	return template.New("command").
 		Funcs(map[string]interface{}{
-			"usage": func(c *command) (string, error) {
+			"usage": func(fn string) (string, error) {
 				var err error
-				fn := c.fullname("-")
 				path := filepath.Join(root, "docs", "usage", fn+".md")
 				if _, err = os.Stat(path); os.IsNotExist(err) {
 					// ok to skip any commands without usage documentation
@@ -124,7 +123,9 @@ func manualTemplate(root string) (*template.Template, error) {
 		}).
 		Parse(`# {{ .Name }} - {{ .Description }}
 
-## Table of Contents
+{{ usage "gravl" }}
+
+## Commands
 
 {{- range .Commands }}
 * [{{ fullname . " " }}](#{{ fullname . "-" }})
@@ -156,7 +157,8 @@ $ gravl {{ fullname . " " }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{- end }}
 {{ end }}
 
-{{- $x := usage . }}
+{{- $fn := fullname . "-" }}
+{{- $x := usage $fn }}
 {{- if $x }}
 {{ if .Cmd.Action }}**Example**{{ else }}**Overview**{{ end }}
 
