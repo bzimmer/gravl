@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,7 +52,12 @@ func Gravl(args ...string) *GravlCmd {
 
 // Success returns `true` if the `gravl` exit status is 0
 func (c *GravlCmd) Success() bool {
-	return c.Status().Exit == 0
+	b := c.Status().Exit == 0
+	if !b {
+		fmt.Fprint(os.Stderr, c.Stderr())
+		fmt.Fprint(os.Stderr, c.Stdout())
+	}
+	return b
 }
 
 // Stdout returns all the contents of stdout

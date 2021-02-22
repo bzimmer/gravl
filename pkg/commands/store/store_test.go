@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tidwall/gjson"
 
 	"github.com/bzimmer/gravl/pkg/commands/internal"
 )
@@ -65,15 +66,42 @@ func TestStoreIntegration(t *testing.T) {
 	c = internal.Gravl("store", "update", "-i", activityfile, "-o", buntfile)
 	<-c.Start()
 	a.True(c.Success())
-	t.Logf("%s %v", c.Name, c.Args)
 
 	err = f.Close()
 	a.NoError(err)
 
-	c = internal.Gravl("-c", "store", "export", "-i", buntfile)
-	<-c.Start()
-	a.True(c.Success())
-	p = len(c.Status().Stdout)
-	a.Equal(n, p)
-	a.Equal(N, p)
+	tests := []struct {
+		n          int
+		err, array bool
+		name       string
+		args       []string
+	}{
+		{name: "export all activities", n: N, args: []string{"-c", "store", "export", "-i", buntfile}},
+		{name: "remove requires a filter", err: true, args: []string{"-c", "store", "remove", "-i", buntfile}},
+		{name: "delete all", n: N, array: true, args: []string{"-c", "store", "remove", "-f", "true", "-i", buntfile}},
+		{name: "delete but nothing exists", n: 0, array: true, args: []string{"-c", "store", "remove", "-f", "true", "-i", buntfile}},
+		{name: "export all activities", n: 0, args: []string{"-c", "store", "export", "-i", buntfile}},
+	}
+	for _, tt := range tests {
+		tt := tt
+		c = internal.Gravl(tt.args...)
+		<-c.Start()
+		switch tt.err {
+		case true:
+			a.False(c.Success())
+		case false:
+			a.True(c.Success())
+			var x int
+			gjson.ForEachLine(c.Stdout(), func(res gjson.Result) bool {
+				if tt.array {
+					a.True(res.IsArray())
+					x += len(res.Array())
+				} else {
+					x++
+				}
+				return true
+			})
+			a.Equal(tt.n, x)
+		}
+	}
 }
