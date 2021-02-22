@@ -14,9 +14,7 @@ The purpose of the package is to provide easy access to activity, weather, and g
 * `eval`
   * a flexible evaluation library useful for dynamic filtering, grouping, and evaluating of Strava activities
 * `commands`
-  * the commands used by the cli
-
-More documentation and numerous examples can be found in the [manual](docs/manual.md).
+  * the commands used by the cli (see the [manual](docs/commands.md) for many more examples)
 
 ## Activity clients
 * [Strava](https://strava.com)

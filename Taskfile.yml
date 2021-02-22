@@ -132,5 +132,5 @@ tasks:
     desc: Generate usage documentation
     cmds:
       - task: build
-      - dist/gravl manual --manual > docs/manual.md
-      - dist/gravl manual --analyzer > docs/analyzers.md
+      - dist/gravl manual --commands > docs/commands.md
+      - dist/gravl manual --analyzers > docs/analyzers.md

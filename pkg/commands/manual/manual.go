@@ -5,7 +5,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -58,6 +57,8 @@ func analysisTemplate() (*template.Template, error) {
 			"ticks": ticks,
 		}).
 		Parse(`
+{{- range .Analyzers }}
+
 ## *{{ .Name }}*
 
 **Description**
@@ -74,27 +75,11 @@ func analysisTemplate() (*template.Template, error) {
 |{{ticks}}{{.Name}}{{ticks}}|{{ticks}}{{.DefValue}}{{ticks}}|{{.Usage}}|
 {{- end }}
 {{- end }}
-`)
-}
-
-func manualTemplate() (*template.Template, error) {
-	return template.New("toc").
-		Funcs(map[string]interface{}{
-			"fullname": func(c *command, sep string) string {
-				return c.fullname(sep)
-			},
-		}).
-		Parse(`# {{ .Name }} - {{ .Description }}
-
-## Table of Contents
-
-{{- range .Commands }}
-* [{{ fullname . " " }}](#{{ fullname . "-" }})
 {{- end }}
 `)
 }
 
-func commandTemplate(root string) (*template.Template, error) {
+func manualTemplate(root string) (*template.Template, error) {
 	return template.New("command").
 		Funcs(map[string]interface{}{
 			"usage": func(c *command) (string, error) {
@@ -115,6 +100,9 @@ func commandTemplate(root string) (*template.Template, error) {
 				}
 				return strings.TrimSpace(string(usage)), nil
 			},
+			"fullname": func(c *command, sep string) string {
+				return c.fullname(sep)
+			},
 			"names": func(f cli.Flag) string {
 				// the first name is always the long name so skip it
 				if len(f.Names()) <= 1 {
@@ -128,13 +116,19 @@ func commandTemplate(root string) (*template.Template, error) {
 				}
 				return ""
 			},
-			"fullname": func(c *command) string {
-				return c.fullname(" ")
-			},
 			"ticks": ticks,
 		}).
-		Parse(`
-## *{{ fullname . }}*
+		Parse(`# {{ .Name }} - {{ .Description }}
+
+## Table of Contents
+
+{{- range .Commands }}
+* [{{ fullname . " " }}](#{{ fullname . "-" }})
+{{- end }}
+
+{{- range .Commands }}
+
+## *{{ fullname . " " }}*
 
 **Description**
 
@@ -144,7 +138,7 @@ func commandTemplate(root string) (*template.Template, error) {
 **Syntax**
 
 {{ ticks }}sh
-$ gravl {{ fullname . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
+$ gravl {{ fullname . " " }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{ ticks }}
 {{ end }}
 
@@ -164,6 +158,7 @@ $ gravl {{ fullname . }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 
 {{ $x }}
 {{- end }}
+{{- end }}
 `)
 }
 
@@ -182,28 +177,6 @@ func lineate(cmds []*cli.Command, lineage []*cli.Command) []*command {
 	return commands
 }
 
-func manual(t *template.Template, buffer io.Writer, commands []*command) error {
-	for i := range commands {
-		if err := t.Execute(buffer, commands[i]); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func analyzer(t *template.Template, buffer io.Writer) error {
-	a := analysis.All()
-	sort.SliceStable(a, func(i, j int) bool {
-		return a[i].Name < a[j].Name
-	})
-	for i := range a {
-		if err := t.Execute(buffer, a[i]); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 var Manual = &cli.Command{
 	Name:    "manual",
 	Usage:   "Generate the `gravl` manual",
@@ -211,21 +184,21 @@ var Manual = &cli.Command{
 	Hidden:  true,
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
-			Name:  "manual",
+			Name:  "commands",
 			Value: false,
 		},
 		&cli.BoolFlag{
-			Name:  "analyzer",
+			Name:  "analyzers",
 			Value: false,
 		},
 	},
 	Before: func(c *cli.Context) error {
-		if c.Bool("manual") == c.Bool("analyzer") {
+		if c.Bool("commands") == c.Bool("analyzers") {
 			switch {
-			case c.Bool("manual"):
-				return errors.New("only one of `manual` or `analyzer` may be enabled at a time")
-			case !c.Bool("manual"):
-				return errors.New("one of `manual` or `analyzer` must be enabled")
+			case c.Bool("commands"):
+				return errors.New("only one of `commands` or `analyzers` may be enabled at a time")
+			case !c.Bool("commands"):
+				return errors.New("one of `commands` or `analyzers` must be enabled")
 			}
 		}
 		return nil
@@ -238,12 +211,12 @@ var Manual = &cli.Command{
 			}
 			return err
 		}
+		buffer := &bytes.Buffer{}
 		switch {
-		case c.Bool("manual"):
-			// generate the main manual
-			buffer := &bytes.Buffer{}
+		case c.Bool("commands"):
+			// generate the command manual
 			commands := lineate(c.App.Commands, nil)
-			t := template.Must(manualTemplate())
+			t := template.Must(manualTemplate(root))
 			if err = t.Execute(buffer, map[string]interface{}{
 				"Name":        c.App.Name,
 				"Description": c.App.Description,
@@ -251,20 +224,20 @@ var Manual = &cli.Command{
 			}); err != nil {
 				return err
 			}
-			t = template.Must(commandTemplate(root))
-			if err = manual(t, buffer, commands); err != nil {
+		case c.Bool("analyzers"):
+			// generate the analyzer manual
+			a := analysis.All()
+			sort.SliceStable(a, func(i, j int) bool {
+				return a[i].Name < a[j].Name
+			})
+			t := template.Must(analysisTemplate())
+			if err = t.Execute(buffer, map[string]interface{}{
+				"Analyzers": a,
+			}); err != nil {
 				return err
 			}
-			fmt.Fprint(c.App.Writer, buffer.String())
-		case c.Bool("analyzer"):
-			// generate the analyzer manual
-			buffer := &bytes.Buffer{}
-			t := template.Must(analysisTemplate())
-			if err = analyzer(t, buffer); err != nil {
-				return nil
-			}
-			fmt.Fprint(c.App.Writer, buffer.String())
 		}
+		fmt.Fprint(c.App.Writer, buffer.String())
 		return nil
 	},
 }
