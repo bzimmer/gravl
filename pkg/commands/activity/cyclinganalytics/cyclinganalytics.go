@@ -110,7 +110,7 @@ var uploadCommand = &cli.Command{
 	Name:      "upload",
 	Aliases:   []string{"u"},
 	Usage:     "Upload an activity file",
-	ArgsUsage: "[file-or-directory-name ...]",
+	ArgsUsage: "{FILE | DIRECTORY}",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "status",

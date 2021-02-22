@@ -317,7 +317,7 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl cyclinganalytics upload [file-or-directory-name ...]
+$ gravl cyclinganalytics upload {FILE | DIRECTORY}
 ```
 
 **Flags**
@@ -339,7 +339,7 @@ Query the GNIS database
 **Syntax**
 
 ```sh
-$ gravl gnis <US STATE ABBREVIATION>
+$ gravl gnis US-STATE-TWO-LETTER-ABBREVIATION
 ```
 
 **Example**
@@ -426,7 +426,7 @@ Query NOAA for a forecast
 **Syntax**
 
 ```sh
-$ gravl noaa forecast [--] [latitude] [longitude]
+$ gravl noaa forecast [--] LATITUTE LONGITUDE
 ```
 
 
@@ -454,7 +454,7 @@ Query OpenWeather for a forecast
 **Syntax**
 
 ```sh
-$ gravl openweather forecast [--] [latitude] [longitude]
+$ gravl openweather forecast [--] LATITUTE LONGITUDE
 ```
 
 **Example**
@@ -835,7 +835,7 @@ Additionally, there's full support for implementing `webhooks` but only only web
 available via the commandline (eg [`strava webhook list`](#strava-webhook-list),
 [`strava webhook subscribe`](#strava-webhook-subscribe), and [`strava webhook unsubscribe`](#strava-webhook-unsubscribe)).
 
-The entire [`analysis`](#strava-analysis) package is built around Strava activities.
+The entire [`analysis`](#analysis) package is built around Strava activities.
 
 ## *strava activities*
 
@@ -881,7 +881,7 @@ Query an activity from Strava
 **Syntax**
 
 ```sh
-$ gravl strava activity [activity-id ...]
+$ gravl strava activity ACTIVITY_ID (...)
 ```
 
 **Flags**
@@ -1015,7 +1015,7 @@ Query a route from Strava
 **Syntax**
 
 ```sh
-$ gravl strava route [route-id ...]
+$ gravl strava route ROUTE_ID (...)
 ```
 
 
@@ -1049,7 +1049,7 @@ Query streams for an activity from Strava
 **Syntax**
 
 ```sh
-$ gravl strava stream [activity-id ...]
+$ gravl strava stream ACTIVITY_ID (...)
 ```
 
 **Flags**
@@ -1069,7 +1069,7 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl strava upload <FILE or DIRECTORY> | <UPLOAD ID>
+$ gravl strava upload {{FILE | DIRECTORY} | UPLOAD_ID (...)}
 ```
 
 **Flags**
@@ -1176,7 +1176,7 @@ Query VisualCrossing for a forecast
 **Syntax**
 
 ```sh
-$ gravl visualcrossing forecast [--] [latitude] [longitude]
+$ gravl visualcrossing forecast [--] LATITUTE LONGITUDE
 ```
 
 **Flags**
@@ -1196,7 +1196,7 @@ Query the WTA site for trip reports, if no reporter is specified the most recent
 **Syntax**
 
 ```sh
-$ gravl wta [username ...]
+$ gravl wta [REPORTER_NAME ...]
 ```
 
 **Example**

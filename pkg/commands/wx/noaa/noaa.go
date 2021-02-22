@@ -40,7 +40,7 @@ var Command = &cli.Command{
 		{
 			Name:      "forecast",
 			Usage:     "Query NOAA for a forecast",
-			ArgsUsage: "[--] [latitude] [longitude]",
+			ArgsUsage: "[--] LATITUTE LONGITUDE",
 			Action:    forecast,
 		},
 	},

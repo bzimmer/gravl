@@ -250,7 +250,7 @@ var activityCommand = &cli.Command{
 	Name:      "activity",
 	Aliases:   []string{"a"},
 	Usage:     "Query an activity from Strava",
-	ArgsUsage: "[activity-id ...]",
+	ArgsUsage: "ACTIVITY_ID (...)",
 	Flags:     []cli.Flag{streamFlag},
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
@@ -263,7 +263,7 @@ var streamsCommand = &cli.Command{
 	Name:      "stream",
 	Aliases:   []string{"s"},
 	Usage:     "Query streams for an activity from Strava",
-	ArgsUsage: "[activity-id ...]",
+	ArgsUsage: "ACTIVITY_ID (...)",
 	Flags:     []cli.Flag{streamFlag},
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
@@ -277,7 +277,7 @@ var routeCommand = &cli.Command{
 	Name:      "route",
 	Aliases:   []string{"r"},
 	Usage:     "Query a route from Strava",
-	ArgsUsage: "[route-id ...]",
+	ArgsUsage: "ROUTE_ID (...)",
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
 			return client.Route.Route(ctx, id)
@@ -376,7 +376,7 @@ var uploadCommand = &cli.Command{
 	Name:      "upload",
 	Aliases:   []string{"u"},
 	Usage:     "Upload an activity file",
-	ArgsUsage: "<FILE or DIRECTORY> | <UPLOAD ID>",
+	ArgsUsage: "{{FILE | DIRECTORY} | UPLOAD_ID (...)}",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "status",

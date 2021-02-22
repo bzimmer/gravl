@@ -35,6 +35,6 @@ var Command = &cli.Command{
 	Name:      "gnis",
 	Category:  "geo",
 	Usage:     "Query the GNIS database",
-	ArgsUsage: "<US STATE ABBREVIATION>",
+	ArgsUsage: "US-STATE-TWO-LETTER-ABBREVIATION",
 	Action:    query,
 }

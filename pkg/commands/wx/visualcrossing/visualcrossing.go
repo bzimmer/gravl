@@ -46,7 +46,7 @@ var Command = &cli.Command{
 		{
 			Name:      "forecast",
 			Usage:     "Query VisualCrossing for a forecast",
-			ArgsUsage: "[--] [latitude] [longitude]",
+			ArgsUsage: "[--] LATITUTE LONGITUDE",
 			Flags: []cli.Flag{
 				&cli.IntFlag{
 					Name:    "interval",

@@ -6,6 +6,4 @@ Additionally, there's full support for implementing `webhooks` but only only web
 available via the commandline (eg [`strava webhook list`](#strava-webhook-list),
 [`strava webhook subscribe`](#strava-webhook-subscribe), and [`strava webhook unsubscribe`](#strava-webhook-unsubscribe)).
 
-The entire [`analysis`](#strava-analysis) package is built around Strava activities.
-
-
+The entire [`analysis`](#analysis) package is built around Strava activities.
