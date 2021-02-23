@@ -35,7 +35,7 @@ tasks:
     sources:
       - '**/*.go'
     cmds:
-      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/gravl/*.go
+      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
 
   install:
     desc: Install {{.APP}}
@@ -45,12 +45,6 @@ tasks:
         vars:
           DIST:
             sh: echo $GOPATH/bin
-
-  serve:
-    desc: Run the application
-    deps: [build]
-    cmds:
-      - '{{.DIST}}/{{.APP}} serve'
 
   lint:
     desc: Runs golint
