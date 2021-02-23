@@ -56,8 +56,8 @@ func (x *namedEncoder) Name() string {
 }
 
 func (x *namedEncoder) Encode(v interface{}) error {
-	if n, ok := v.(activity.Named); ok {
-		return x.enc.Encode(n.Handle())
+	if n, ok := v.(activity.Namer); ok {
+		return x.enc.Encode(n.Named())
 	}
 	return errors.New("not Named")
 }

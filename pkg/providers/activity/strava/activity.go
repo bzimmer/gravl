@@ -181,7 +181,7 @@ func (s *ActivityService) Status(ctx context.Context, uploadID int64) (*Upload, 
 
 // Poll the status of an upload
 //
-// The operation will continue until either it is completed (status != "processing"), the context
+// The operation will continue until either it is completed, the context
 //  is canceled, or the maximum number of iterations have been exceeded.
 //
 // More information can be found at:

@@ -10,7 +10,6 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
-	"github.com/bzimmer/gravl/pkg/providers/activity"
 	stravaweb "github.com/bzimmer/gravl/pkg/providers/activity/strava/web"
 )
 
@@ -38,14 +37,13 @@ func export(c *cli.Context) error {
 	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	format := activity.ToFormat(c.String("format"))
 	args := c.Args().Slice()
 	for i := 0; i < len(args); i++ {
 		x, err := strconv.ParseInt(args[i], 0, 64)
 		if err != nil {
 			return err
 		}
-		exp, err := client.Export.Export(ctx, x, format)
+		exp, err := client.Export.Export(ctx, x)
 		if err != nil {
 			return err
 		}
@@ -63,12 +61,6 @@ var exportCommand = &cli.Command{
 	Name:  "export",
 	Usage: "Export a Strava activity by id",
 	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:    "format",
-			Aliases: []string{"F"},
-			Value:   activity.Original.String(),
-			Usage:   "Export data file in the specified format",
-		},
 		&cli.BoolFlag{
 			Name:    "overwrite",
 			Aliases: []string{"o"},

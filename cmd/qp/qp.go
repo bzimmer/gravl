@@ -15,16 +15,14 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/gravl"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
-	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
 
-func export(ctx context.Context, c *cli.Context, activityID int64) (*activity.Export, error) {
+func exporter(c *cli.Context) (activity.Exporter, error) {
 	client, err := stcmd.NewWebClient(c)
 	if err != nil {
 		return nil, err
 	}
-	log.Info().Int64("activityID", activityID).Msg("exporting")
-	return client.Export.Export(ctx, activityID, activity.Original)
+	return client.Export, nil
 }
 
 func upload(c *cli.Context, export *activity.Export) error {
@@ -41,11 +39,11 @@ func upload(c *cli.Context, export *activity.Export) error {
 	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	upload, err := client.Rides.Upload(ctx, cyclinganalytics.Me, file)
+	upload, err := client.Rides.Upload(ctx, file)
 	if err != nil {
 		return err
 	}
-	pc := client.Rides.Poll(ctx, upload.UserID, upload.ID)
+	pc := client.Rides.PollWithUser(ctx, upload.UserID, upload.ID)
 	for {
 		select {
 		case <-ctx.Done():
@@ -65,6 +63,10 @@ func upload(c *cli.Context, export *activity.Export) error {
 }
 
 func qp(c *cli.Context) error {
+	expr, err := exporter(c)
+	if err != nil {
+		return err
+	}
 	for _, arg := range c.Args().Slice() {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -72,7 +74,8 @@ func qp(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		exp, err := export(ctx, c, actID)
+		log.Info().Int64("activityID", actID).Msg("exporting")
+		exp, err := expr.Export(ctx, actID)
 		if err != nil {
 			return err
 		}

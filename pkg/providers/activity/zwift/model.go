@@ -169,6 +169,6 @@ type Activity struct {
 	// SnapshotList         interface{} `json:"snapshotList"`
 }
 
-func (a *Activity) Handle() *activity.Handle {
-	return &activity.Handle{ID: a.ID, Name: a.Name, Date: a.StartDate.Time, Source: "zwift"}
+func (a *Activity) Named() *activity.Named {
+	return &activity.Named{ID: a.ID, Name: a.Name, Date: a.StartDate.Time, Source: "zwift"}
 }

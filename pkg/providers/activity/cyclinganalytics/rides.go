@@ -95,8 +95,13 @@ func (s *RidesService) Rides(ctx context.Context, userID UserID, spec activity.P
 	return res.Rides, nil
 }
 
+// Upload the file for the authenticated user
+func (s *RidesService) Upload(ctx context.Context, file *activity.File) (*Upload, error) {
+	return s.UploadWithUser(ctx, Me, file)
+}
+
 // Upload the file for the user
-func (s *RidesService) Upload(ctx context.Context, userID UserID, file *activity.File) (*Upload, error) {
+func (s *RidesService) UploadWithUser(ctx context.Context, userID UserID, file *activity.File) (*Upload, error) {
 	if file == nil {
 		return nil, errors.New("missing upload file")
 	}
@@ -155,6 +160,10 @@ func (s *RidesService) Status(ctx context.Context, userID UserID, uploadID int64
 	return res, nil
 }
 
+func (s *RidesService) Poll(ctx context.Context, uploadID int64) <-chan *UploadResult {
+	return s.PollWithUser(ctx, Me, uploadID)
+}
+
 // Poll the status of an upload
 //
 // The operation will continue until either it is completed (status != "processing"), the context
@@ -162,7 +171,7 @@ func (s *RidesService) Status(ctx context.Context, userID UserID, uploadID int64
 //
 // More information can be found at:
 //  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
-func (s *RidesService) Poll(ctx context.Context, userID UserID, uploadID int64) <-chan *UploadResult {
+func (s *RidesService) PollWithUser(ctx context.Context, userID UserID, uploadID int64) <-chan *UploadResult {
 	res := make(chan *UploadResult)
 	go func() {
 		defer close(res)

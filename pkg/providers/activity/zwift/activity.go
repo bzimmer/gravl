@@ -12,6 +12,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var _ activity.Exporter = &ActivityService{}
+
 // ActivityService is the API for profile endpoints
 type ActivityService service
 
@@ -81,7 +83,20 @@ func (s *ActivityService) Activities(ctx context.Context, athleteID int64, spec 
 	return p.activities, nil
 }
 
-func (s *ActivityService) Export(ctx context.Context, act *Activity) (*activity.Export, error) {
+// Export requests the data file for the activity
+func (s *ActivityService) Export(ctx context.Context, activityID int64) (*activity.Export, error) {
+	ath, err := s.client.Profile.Profile(ctx, Me)
+	if err != nil {
+		return nil, err
+	}
+	act, err := s.Activity(ctx, ath.ID, activityID)
+	if err != nil {
+		return nil, err
+	}
+	return s.ExportActivity(ctx, act)
+}
+
+func (s *ActivityService) ExportActivity(ctx context.Context, act *Activity) (*activity.Export, error) {
 	uri := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", act.FitFileBucket, act.FitFileKey)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -129,9 +144,10 @@ func (s *ActivityService) Export(ctx context.Context, act *Activity) (*activity.
 	}
 	log.Info().Str("filename", params["filename"]).Int64("activityID", act.ID).Msg("export")
 	return &activity.Export{
-		Reader: out,
-		ID:     act.ID,
-		Name:   params["filename"],
-		Format: activity.FIT,
+		ID: act.ID,
+		File: &activity.File{
+			Reader: out,
+			Name:   params["filename"],
+			Format: activity.FIT},
 	}, nil
 }
