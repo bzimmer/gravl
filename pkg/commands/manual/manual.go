@@ -49,9 +49,25 @@ func (c *command) fullname(sep string) string {
 	return strings.Join(names, sep)
 }
 
-func ticks() string { return "```" }
+func read(path string) (string, error) {
+	var err error
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	var usage []byte
+	usage, err = ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+	return string(usage), nil
+}
 
-func analyzersTemplate() (*template.Template, error) {
+func analyzersTemplate(root string) (*template.Template, error) {
+	ana, err := read(filepath.Join(root, "docs", "analyzers", "_analyzers.md"))
+	if err != nil {
+		return nil, err
+	}
 	return template.New("analyzers").
 		Funcs(map[string]interface{}{
 			"flags": func(s *flag.FlagSet) []*flag.Flag {
@@ -66,53 +82,30 @@ func analyzersTemplate() (*template.Template, error) {
 				})
 				return v
 			},
-			"ticks": ticks,
 		}).
-		Parse(`
-{{- range .Analyzers }}
-
-## *{{ .Name }}*
-
-**Description**
-
-{{ .Doc }}
-
-{{- with .Flags }}
-
-**Flags**
-
-|Flag|Default|Description|
-|-|-|-|
-{{- range flags . }}
-|{{ticks}}{{.Name}}{{ticks}}|{{ticks}}{{.DefValue}}{{ticks}}|{{.Usage}}|
-{{- end }}
-{{- end }}
-{{- end }}
-`)
+		Parse(ana)
 }
 
 func manualTemplate(root string) (*template.Template, error) {
+	man, err := read(filepath.Join(root, "docs", "commands", "_commands.md"))
+	if err != nil {
+		return nil, err
+	}
 	return template.New("commands").
 		Funcs(map[string]interface{}{
-			"usage": func(fn string) (string, error) {
-				var err error
+			"partial": func(fn string) (string, error) {
 				path := filepath.Join(root, "docs", "commands", fn+".md")
-				if _, err = os.Stat(path); os.IsNotExist(err) {
-					// ok to skip any commands without usage documentation
-					log.Warn().Str("path", path).Str("command", fn).Msg("missing")
-					return "", nil
-				}
-				file, err := os.Open(path)
+				usage, err := read(path)
 				if err != nil {
-					return "", err
-				}
-				var usage []byte
-				usage, err = ioutil.ReadAll(file)
-				if err != nil {
+					if os.IsNotExist(err) {
+						// ok to skip any commands without usage documentation
+						log.Warn().Str("path", path).Str("command", fn).Msg("missing")
+						return "", nil
+					}
 					return "", err
 				}
 				log.Info().Str("path", path).Str("command", fn).Msg("reading")
-				return strings.TrimSpace(string(usage)), nil
+				return usage, nil
 			},
 			"join": func(s []string, sep string) string {
 				return strings.Join(s, sep)
@@ -128,7 +121,7 @@ func manualTemplate(root string) (*template.Template, error) {
 				if len(f.Names()) <= 1 {
 					return ""
 				}
-				return fmt.Sprintf("```%s```", strings.Join(f.Names()[1:], ", "))
+				return strings.Join(f.Names()[1:], ", ")
 			},
 			"description": func(f cli.Flag) string {
 				if x, ok := f.(cli.DocGenerationFlag); ok {
@@ -136,53 +129,8 @@ func manualTemplate(root string) (*template.Template, error) {
 				}
 				return ""
 			},
-			"ticks": ticks,
 		}).
-		Parse(`# {{ .Name }} - {{ .Description }}
-
-{{ usage "gravl" }}
-
-## Commands
-
-{{- range .Commands }}
-* [{{ fullname . " " }}](#{{ fullname . "-" }})
-{{- end }}
-
-{{- range .Commands }}
-
-## *{{ fullname . " " }}*
-
-**Description**
-
-{{ if .Cmd.Description }}{{ .Cmd.Description }}{{ else }}{{ .Cmd.Usage }}{{ end }}
-
-{{ if .Cmd.Action }}
-**Syntax**
-
-{{ ticks }}sh
-$ gravl {{ fullname . " " }} [flags] {{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
-{{ ticks }}
-{{ end }}
-
-{{- with .Cmd.Flags }}
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-{{- range $f := . }}
-|{{ticks}}{{ $f.Name }}{{ticks}}|{{ names $f }}|{{ description $f }}|
-{{- end }}
-{{- end }}
-
-{{- $fn := fullname . "-" }}
-{{- $x := usage $fn }}
-{{ if $x }}
-{{ if .Cmd.Action }}**Example**{{ else }}**Overview**{{ end }}
-
-{{ $x }}
-{{- end }}
-{{- end }}
-`)
+		Parse(man)
 }
 
 func lineate(cmds []*cli.Command, lineage []*cli.Command) []*command {
@@ -239,7 +187,10 @@ var Manual = &cli.Command{
 		case c.Bool("commands"):
 			// generate the command manual
 			commands := lineate(c.App.Commands, nil)
-			t := template.Must(manualTemplate(root))
+			t, err := manualTemplate(root)
+			if err != nil {
+				return err
+			}
 			if err = t.Execute(buffer, map[string]interface{}{
 				"Name":        c.App.Name,
 				"Description": c.App.Description,
@@ -253,7 +204,10 @@ var Manual = &cli.Command{
 			sort.SliceStable(a, func(i, j int) bool {
 				return a[i].Name < a[j].Name
 			})
-			t := template.Must(analyzersTemplate())
+			t, err := analyzersTemplate(root)
+			if err != nil {
+				return err
+			}
 			if err = t.Execute(buffer, map[string]interface{}{
 				"Analyzers": a,
 			}); err != nil {

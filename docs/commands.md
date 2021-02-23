@@ -1,5 +1,6 @@
 # gravl - Activity related analysis, exploration, & planning
 
+
 The top level `gravl` command has some useful flags:
 
 * Use `--http-tracing` to enable verbose logging of http requests for debugging.
@@ -10,6 +11,7 @@ from Strava each query will honor the timeout value, it's not an aggregate timeo
 
 Some commands, such as [store update](#store-update) will require a timeout longer than the default
 since the operation can take a long time.
+
 
 ## Commands
 * [analysis](#analysis)
@@ -164,6 +166,7 @@ $ gravl pass -a totals -f ".StartDate.Year() == 2021" -g ".Type"
 }
 ```
 
+
 ## *analysis list*
 
 **Description**
@@ -214,6 +217,7 @@ $ gravl pass list
 	}
 }
 ```
+
 
 ## *commands*
 
@@ -314,6 +318,7 @@ $ gravl ca t
 }
 ```
 
+
 ## *cyclinganalytics oauth*
 
 **Description**
@@ -401,6 +406,7 @@ $ gravl -c gnis WA | grep "Barlow Pass" | jq ".geometry | .coordinates"
 ]
 ```
 
+
 ## *gpx*
 
 **Description**
@@ -446,6 +452,7 @@ $ gravl gpx info pkg/commands/geo/gpx/testdata/2017-07-13-TdF-Stage18.gpx
  "stopped_time": 12525
 }
 ```
+
 
 ## *help*
 
@@ -553,6 +560,7 @@ $ gravl openweather forecast -- 48.8 -128.0
 }
 ```
 
+
 ## *rwgps*
 
 **Description**
@@ -588,6 +596,7 @@ $ gravl rwgps activities [flags]
 |```count```|```N```|The number of activities to query from RideWithGPS (the number returned will be <= N)|
 
 **Example**
+
 
 Query RideWithGPS activities with an optional count. The order of the activities is not guaranteed but generally they are returned most recent first.
 
@@ -637,6 +646,7 @@ $ gravl rwgps activities -N 10
  "last_lng": -122.602798
 }
 ```
+
 
 ## *rwgps activity*
 
@@ -780,6 +790,7 @@ $ gravl -c store export -f ".Type == 'Ride'" -B ".Distance.Miles()" | jq ".[]" |
 76.653593016782
 ```
 
+
 ## *store remove*
 
 **Description**
@@ -869,6 +880,7 @@ $ gravl store update
 
 The results of the command show the number of new, existing, and total activities stored locally.
 
+
 ## *strava*
 
 **Description**
@@ -898,6 +910,7 @@ available via the commandline (eg [`strava webhook list`](#strava-webhook-list),
 [`strava webhook subscribe`](#strava-webhook-subscribe), and [`strava webhook unsubscribe`](#strava-webhook-unsubscribe)).
 
 The entire [`analysis`](#analysis) package is built around Strava activities.
+
 
 ## *strava activities*
 
@@ -932,6 +945,7 @@ $ gravl -c --timeout 1m strava activities -N 20 -f ".Type == 'VirtualRide'" -B "
 [4802094087,"London","2021-02-17T06:55:39Z",12.95105334844508]
 [4741552384,"2004","2021-02-05T18:15:27Z",17.51514902966675]
 ```
+
 
 ## *strava activity*
 
@@ -1046,6 +1060,7 @@ $ gravl strava activity -s watts 4802094087
 }
 ```
 
+
 ## *strava athlete*
 
 **Description**
@@ -1112,6 +1127,7 @@ $ gravl strava export -O Friday.fit 4814540547
 2021-02-20T09:24:45-08:00 ERR gravl strava error="file already exists"
 ```
 
+
 ## *strava fitness*
 
 **Description**
@@ -1171,6 +1187,7 @@ $ gravl strava fitness
   "activities": []
  }
 ]
+
 
 ## *strava oauth*
 
@@ -1314,6 +1331,7 @@ time
 velocity_smooth
 watts
 ```
+
 
 ## *strava upload*
 
@@ -1464,6 +1482,7 @@ $ gravl wta [flags] [REPORTER_NAME ...]
 
 Please support the [Washington Trails Association](https://wta.org), thanks!
 
+
 ## *zwift*
 
 **Description**
@@ -1484,6 +1503,7 @@ The Zwift client was heavily inspired by [zwift-client](https://github.com/jsmit
 
 The command [`files`](#zwift-files) is useful for uploading local files to services without direct
 integration such as [Cycling Analytics](#cyclinganalytics).
+
 
 ## *zwift activities*
 
@@ -1598,6 +1618,7 @@ $ gravl zwift files | jq -r ".[]" | xargs gravl strava upload -n
 2021-02-19T19:41:50-08:00 INF uploading dryrun=true file=2021-01-26-18-15-16.fit
 ```
 
+
 ## *zwift refresh*
 
 **Description**
@@ -1625,3 +1646,4 @@ $ gravl zwift refresh
 	"expiry": "2021-02-20T01:29:05.964572-08:00"
 }
 ```
+
