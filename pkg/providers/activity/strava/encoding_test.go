@@ -40,7 +40,7 @@ func TestGPXFromRoute(t *testing.T) {
 	rte, err := client.Route.Route(ctx, 26587226)
 	a.NoError(err)
 	a.NotNil(rte)
-	a.Equal(26587226, rte.ID)
+	a.Equal(int64(26587226), rte.ID)
 
 	gpx, err := rte.GPX()
 	a.NoError(err)

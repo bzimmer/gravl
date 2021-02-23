@@ -48,6 +48,9 @@ func main() {
 		func(c *cli.Context) encoding.Encoder {
 			return encoding.GeoJSON(c.App.Writer, c.Bool("compact"))
 		},
+		func(c *cli.Context) encoding.Encoder {
+			return encoding.Named(c.App.Writer, c.Bool("compact"))
+		},
 	)
 	initAnalysis := func(c *cli.Context) error {
 		analysis.Add(ageride.New(), false)

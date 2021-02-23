@@ -11,7 +11,7 @@ import (
 func TestActivityIntegration(t *testing.T) {
 	suite.Run(t, &internal.ActivityTestSuite{
 		Name:      "rwgps",
-		Encodings: []string{"gpx", "geojson"},
+		Encodings: []string{"gpx", "geojson", "named"},
 		Routes:    true,
 		Upload:    false,
 	})

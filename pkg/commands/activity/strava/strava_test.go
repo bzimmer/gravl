@@ -11,7 +11,7 @@ import (
 func TestActivityIntegration(t *testing.T) {
 	suite.Run(t, &internal.ActivityTestSuite{
 		Name:      "strava",
-		Encodings: []string{"gpx"},
+		Encodings: []string{"gpx", "named"},
 		Routes:    true,
 		Upload:    true,
 	})

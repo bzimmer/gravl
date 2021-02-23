@@ -2,6 +2,8 @@ package cyclinganalytics
 
 import (
 	"time"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 // Fault represents an error response
@@ -146,6 +148,10 @@ type Ride struct {
 	Trainer       bool     `json:"trainer"`
 	UserID        UserID   `json:"user_id"`
 	UTCDatetime   Datetime `json:"utc_datetime"`
+}
+
+func (r *Ride) Handle() *activity.Handle {
+	return &activity.Handle{ID: r.ID, Name: r.Title, Date: r.LocalDatetime.Time, Source: "cyclinganalytics"}
 }
 
 type Upload struct {

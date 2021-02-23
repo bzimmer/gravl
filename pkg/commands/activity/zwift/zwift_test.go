@@ -11,6 +11,7 @@ import (
 func TestActivityIntegration(t *testing.T) {
 	suite.Run(t, &internal.ActivityTestSuite{
 		Name:          "zwift",
+		Encodings:     []string{"named"},
 		MaxActivities: 15,
 		Routes:        false,
 		Upload:        false,

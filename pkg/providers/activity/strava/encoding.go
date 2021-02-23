@@ -87,7 +87,7 @@ func (r *Route) GPX() (*gpx.GPX, error) {
 	return &gpx.GPX{
 		Creator: pkg.UserAgent,
 		Metadata: &gpx.MetadataType{
-			Name: strconv.FormatInt(int64(r.ID), 10),
+			Name: strconv.FormatInt(r.ID, 10),
 			Desc: r.Description,
 		},
 		Rte: []*gpx.RteType{rte},
