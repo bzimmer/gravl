@@ -60,8 +60,9 @@ func export(c *cli.Context) error {
 }
 
 var exportCommand = &cli.Command{
-	Name:  "export",
-	Usage: "Export a Strava activity by id",
+	Name:      "export",
+	Usage:     "Export a Strava activity by id",
+	ArgsUsage: "ACTIVITY_ID (...)",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "format",
@@ -109,6 +110,6 @@ func fitness(c *cli.Context) error {
 
 var fitnessCommand = &cli.Command{
 	Name:   "fitness",
-	Usage:  "Query Strava for training load data",
+	Usage:  "Query Strava for training load data for the authenticated user",
 	Action: fitness,
 }

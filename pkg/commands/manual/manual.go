@@ -25,8 +25,19 @@ type command struct {
 	Lineage []*cli.Command
 }
 
-func (c *command) String() string {
-	return c.fullname(" ")
+func (c *command) String() string { return c.fullname(" ") }
+
+func (c *command) aliases() []string {
+	if c.Cmd.Aliases == nil {
+		return nil
+	}
+	var s []string
+	for i := range c.Cmd.Aliases {
+		if c.Cmd.Aliases[i] != "" {
+			s = append(s, c.Cmd.Aliases[i])
+		}
+	}
+	return s
 }
 
 func (c *command) fullname(sep string) string {
@@ -40,8 +51,8 @@ func (c *command) fullname(sep string) string {
 
 func ticks() string { return "```" }
 
-func analysisTemplate() (*template.Template, error) {
-	return template.New("analysis").
+func analyzersTemplate() (*template.Template, error) {
+	return template.New("analyzers").
 		Funcs(map[string]interface{}{
 			"flags": func(s *flag.FlagSet) []*flag.Flag {
 				var v []*flag.Flag
@@ -81,11 +92,11 @@ func analysisTemplate() (*template.Template, error) {
 }
 
 func manualTemplate(root string) (*template.Template, error) {
-	return template.New("command").
+	return template.New("commands").
 		Funcs(map[string]interface{}{
 			"usage": func(fn string) (string, error) {
 				var err error
-				path := filepath.Join(root, "docs", "usage", fn+".md")
+				path := filepath.Join(root, "docs", "commands", fn+".md")
 				if _, err = os.Stat(path); os.IsNotExist(err) {
 					// ok to skip any commands without usage documentation
 					log.Warn().Str("path", path).Str("command", fn).Msg("missing")
@@ -103,8 +114,14 @@ func manualTemplate(root string) (*template.Template, error) {
 				log.Info().Str("path", path).Str("command", fn).Msg("reading")
 				return strings.TrimSpace(string(usage)), nil
 			},
+			"join": func(s []string, sep string) string {
+				return strings.Join(s, sep)
+			},
 			"fullname": func(c *command, sep string) string {
 				return c.fullname(sep)
+			},
+			"aliases": func(c *command) []string {
+				return c.aliases()
 			},
 			"names": func(f cli.Flag) string {
 				// the first name is always the long name so skip it
@@ -143,23 +160,23 @@ func manualTemplate(root string) (*template.Template, error) {
 **Syntax**
 
 {{ ticks }}sh
-$ gravl {{ fullname . " " }}{{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
+$ gravl {{ fullname . " " }} [flags] {{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}{{ end }}
 {{ ticks }}
 {{ end }}
 
 {{- with .Cmd.Flags }}
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 {{- range $f := . }}
 |{{ticks}}{{ $f.Name }}{{ticks}}|{{ names $f }}|{{ description $f }}|
 {{- end }}
-{{ end }}
+{{- end }}
 
 {{- $fn := fullname . "-" }}
 {{- $x := usage $fn }}
-{{- if $x }}
+{{ if $x }}
 {{ if .Cmd.Action }}**Example**{{ else }}**Overview**{{ end }}
 
 {{ $x }}
@@ -236,7 +253,7 @@ var Manual = &cli.Command{
 			sort.SliceStable(a, func(i, j int) bool {
 				return a[i].Name < a[j].Name
 			})
-			t := template.Must(analysisTemplate())
+			t := template.Must(analyzersTemplate())
 			if err = t.Execute(buffer, map[string]interface{}{
 				"Analyzers": a,
 			}); err != nil {

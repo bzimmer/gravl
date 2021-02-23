@@ -1,9 +1,15 @@
 # gravl - Activity related analysis, exploration, & planning
 
-The top level `gravl` command has some use flags:
+The top level `gravl` command has some useful flags:
 
 * Use `--http-tracing` to enable verbose logging of http requests for debugging.
-* Use `--timeout (duration)` to specify a timeout duration.
+* Use `--timeout DURATION` to specify a timeout duration (eg `1m`, `10s`)
+
+For most commands the timeout value is reset on each query. For example, if you query 12 activities
+from Strava each query will honor the timeout value, it's not an aggregate timeout.
+
+Some commands, such as [store update](#store-update) will require a timeout longer than the default
+since the operation can take a long time.
 
 ## Commands
 * [analysis](#analysis)
@@ -73,12 +79,12 @@ Produce statistics and other interesting artifacts from Strava activities
 **Syntax**
 
 ```sh
-$ gravl analysis
+$ gravl analysis [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```units```|```u```|Units|
 |```filter```|```f```|Expression for filtering activities to remove|
@@ -168,8 +174,9 @@ Return the list of available analyzers
 **Syntax**
 
 ```sh
-$ gravl analysis list
+$ gravl analysis list [flags]
 ```
+
 
 **Example**
 
@@ -218,12 +225,12 @@ Return all possible commands
 **Syntax**
 
 ```sh
-$ gravl commands
+$ gravl commands [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```relative```|```r```|Specify the command relative to the current working directory|
 
@@ -237,7 +244,7 @@ Operations supported by the Cycling Analytics website
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```cyclinganalytics.client-id```||API key for Cycling Analytics API|
 |```cyclinganalytics.client-secret```||API secret for Cycling Analytics API|
@@ -254,12 +261,12 @@ Query activities for the authenticated athlete
 **Syntax**
 
 ```sh
-$ gravl cyclinganalytics activities
+$ gravl cyclinganalytics activities [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```count```|```N```|The number of activities to query from CA (the number returned will be <= N)|
 
@@ -274,8 +281,9 @@ Query an activity for the authenticated athlete
 **Syntax**
 
 ```sh
-$ gravl cyclinganalytics activity
+$ gravl cyclinganalytics activity [flags]
 ```
+
 
 
 ## *cyclinganalytics athlete*
@@ -288,9 +296,23 @@ Query for the authenticated athlete
 **Syntax**
 
 ```sh
-$ gravl cyclinganalytics athlete
+$ gravl cyclinganalytics athlete [flags]
 ```
 
+
+**Example**
+
+```sh
+$ gravl ca t
+{
+ "email": "me@example.com",
+ "id": 88827722,
+ "name": "That Guy",
+ "sex": "male",
+ "timezone": "America/Los_Angeles",
+ "units": "us"
+}
+```
 
 ## *cyclinganalytics oauth*
 
@@ -302,12 +324,12 @@ Authentication endpoints for access and refresh tokens
 **Syntax**
 
 ```sh
-$ gravl cyclinganalytics oauth
+$ gravl cyclinganalytics oauth [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```origin```||Callback origin|
 |```port```||Port on which to listen|
@@ -323,12 +345,12 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl cyclinganalytics upload {FILE | DIRECTORY}
+$ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY}
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
@@ -345,8 +367,9 @@ Query the GNIS database
 **Syntax**
 
 ```sh
-$ gravl gnis US-STATE-TWO-LETTER-ABBREVIATION
+$ gravl gnis [flags] US-STATE-TWO-LETTER-ABBREVIATION
 ```
+
 
 **Example**
 
@@ -386,6 +409,7 @@ gpx
 
 
 
+
 ## *gpx info*
 
 **Description**
@@ -396,9 +420,32 @@ Return basic statistics about a GPX file
 **Syntax**
 
 ```sh
-$ gravl gpx info
+$ gravl gpx info [flags] GPX_FILE (...)
 ```
 
+
+**Example**
+
+A simple utility for summarizing gpx data files.
+
+_Distance units are metric, time is seconds_
+
+```sh
+$ gravl gpx info pkg/commands/geo/gpx/testdata/2017-07-13-TdF-Stage18.gpx
+{
+ "filename": "pkg/commands/geo/gpx/testdata/2017-07-13-TdF-Stage18.gpx",
+ "tracks": 1,
+ "segments": 1,
+ "points": 396,
+ "distance2d": 180993.07498903852,
+ "distance3d": 181154.40869605148,
+ "ascent": 2310.6341268663095,
+ "descent": 1881.945114464303,
+ "start_time": "2017-07-13T06:00:00Z",
+ "moving_time": 23583,
+ "stopped_time": 12525
+}
+```
 
 ## *help*
 
@@ -410,8 +457,9 @@ Shows a list of commands or help for one command
 **Syntax**
 
 ```sh
-$ gravl help [command]
+$ gravl help [flags] [command]
 ```
+
 
 
 ## *noaa*
@@ -419,6 +467,7 @@ $ gravl help [command]
 **Description**
 
 Query NOAA for forecasts
+
 
 
 
@@ -432,8 +481,9 @@ Query NOAA for a forecast
 **Syntax**
 
 ```sh
-$ gravl noaa forecast [--] LATITUDE LONGITUDE
+$ gravl noaa forecast [flags] [--] LATITUDE LONGITUDE
 ```
+
 
 
 ## *openweather*
@@ -445,7 +495,7 @@ Query OpenWeather for forecasts
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```openweather.access-token```||API key for OpenWeather API|
 
@@ -460,8 +510,9 @@ Query OpenWeather for a forecast
 **Syntax**
 
 ```sh
-$ gravl openweather forecast [--] LATITUDE LONGITUDE
+$ gravl openweather forecast [flags] [--] LATITUDE LONGITUDE
 ```
+
 
 **Example**
 
@@ -511,7 +562,7 @@ Query RideWithGPS for rides and routes
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```rwgps.client-id```||Client ID for RideWithGPS API|
 |```rwgps.access-token```||Access token for RideWithGPS API|
@@ -527,12 +578,12 @@ Query activities for the authenticated athlete
 **Syntax**
 
 ```sh
-$ gravl rwgps activities
+$ gravl rwgps activities [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```count```|```N```|The number of activities to query from RideWithGPS (the number returned will be <= N)|
 
@@ -597,8 +648,9 @@ Query an activity from RideWithGPS
 **Syntax**
 
 ```sh
-$ gravl rwgps activity
+$ gravl rwgps activity [flags]
 ```
+
 
 
 ## *rwgps athlete*
@@ -611,8 +663,9 @@ Query for the authenticated athlete
 **Syntax**
 
 ```sh
-$ gravl rwgps athlete
+$ gravl rwgps athlete [flags]
 ```
+
 
 
 ## *rwgps route*
@@ -625,8 +678,9 @@ Query a route from RideWithGPS
 **Syntax**
 
 ```sh
-$ gravl rwgps route
+$ gravl rwgps route [flags]
 ```
+
 
 
 ## *rwgps routes*
@@ -639,12 +693,12 @@ Query routes for an athlete from RideWithGPS
 **Syntax**
 
 ```sh
-$ gravl rwgps routes
+$ gravl rwgps routes [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```count```|```N```|The number of routes to query from RideWithGPS (the number returned will be <= N)|
 
@@ -659,8 +713,9 @@ Query the SRTM database for elevation data
 **Syntax**
 
 ```sh
-$ gravl srtm
+$ gravl srtm [flags]
 ```
+
 
 
 ## *store*
@@ -668,6 +723,7 @@ $ gravl srtm
 **Description**
 
 Manage a local store of Strava activities
+
 
 
 
@@ -681,12 +737,12 @@ Export activities from local storage
 **Syntax**
 
 ```sh
-$ gravl store export
+$ gravl store export [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```input```|```i```|Input data store|
 |```filter```|```f```|Expression for filtering activities|
@@ -734,12 +790,12 @@ Remove activities from local storage
 **Syntax**
 
 ```sh
-$ gravl store remove
+$ gravl store remove [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```input```|```i```|Input data store|
 |```filter```|```f```|Expression for filtering activities|
@@ -756,12 +812,12 @@ Query and update Strava activities to local storage
 **Syntax**
 
 ```sh
-$ gravl store update
+$ gravl store update [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```input```|```i```|Input data store|
 |```output```|```o```|Output data store|
@@ -822,7 +878,7 @@ Query Strava for rides and routes
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```strava.client-id```||API key for Strava API|
 |```strava.client-secret```||API secret for Strava API|
@@ -853,12 +909,12 @@ Query activities for an athlete from Strava
 **Syntax**
 
 ```sh
-$ gravl strava activities
+$ gravl strava activities [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```count```|```N```|The number of activities to query from Strava (the number returned will be <= N)|
 |```filter```|```f```|Expression for filtering activities to remove|
@@ -887,12 +943,12 @@ Query an activity from Strava
 **Syntax**
 
 ```sh
-$ gravl strava activity ACTIVITY_ID (...)
+$ gravl strava activity [flags] ACTIVITY_ID (...)
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```stream```|```s```|Streams to include in the activity|
 
@@ -1000,8 +1056,9 @@ Query an athlete from Strava
 **Syntax**
 
 ```sh
-$ gravl strava athlete
+$ gravl strava athlete [flags]
 ```
+
 
 
 ## *strava export*
@@ -1014,12 +1071,12 @@ Export a Strava activity by id
 **Syntax**
 
 ```sh
-$ gravl strava export
+$ gravl strava export [flags] ACTIVITY_ID (...)
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```format```|```F```|Export data file in the specified format|
 |```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
@@ -1059,15 +1116,61 @@ $ gravl strava export -O Friday.fit 4814540547
 
 **Description**
 
-Query Strava for training load data
+Query Strava for training load data for the authenticated user
 
 
 **Syntax**
 
 ```sh
-$ gravl strava fitness
+$ gravl strava fitness [flags]
 ```
 
+
+**Example**
+
+Queries the fitness and freshness data for the authenticated user.
+
+```sh
+$ gravl strava fitness
+[
+ {
+  "date": {
+   "year": 2020,
+   "month": 8,
+   "day": 22
+  },
+  "fitness_profile": {
+   "fitness": 107.39025265712681,
+   "impulse": 83,
+   "relative_effort": 64,
+   "fatigue": 86.97505302175927,
+   "form": 20.415199635367543
+  },
+  "activities": [
+   {
+    "id": 3951687537,
+    "impulse": 83,
+    "relative_effort": 64
+   }
+  ]
+ },
+ ...,
+ {
+  "date": {
+   "year": 2021,
+   "month": 3,
+   "day": 8
+  },
+  "fitness_profile": {
+   "fitness": 56.367803371875894,
+   "impulse": 0,
+   "relative_effort": 0,
+   "fatigue": 5.510876434392897,
+   "form": 50.856926937482996
+  },
+  "activities": []
+ }
+]
 
 ## *strava oauth*
 
@@ -1079,12 +1182,12 @@ Authentication endpoints for access and refresh tokens
 **Syntax**
 
 ```sh
-$ gravl strava oauth
+$ gravl strava oauth [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```origin```||Callback origin|
 |```port```||Port on which to listen|
@@ -1100,8 +1203,9 @@ Acquire a new refresh token
 **Syntax**
 
 ```sh
-$ gravl strava refresh
+$ gravl strava refresh [flags]
 ```
+
 
 
 ## *strava route*
@@ -1114,8 +1218,9 @@ Query a route from Strava
 **Syntax**
 
 ```sh
-$ gravl strava route ROUTE_ID (...)
+$ gravl strava route [flags] ROUTE_ID (...)
 ```
+
 
 
 ## *strava routes*
@@ -1128,12 +1233,12 @@ Query routes for an athlete from Strava
 **Syntax**
 
 ```sh
-$ gravl strava routes
+$ gravl strava routes [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```count```|```N```|The number of routes to query from Strava (the number returned will be <= N)|
 
@@ -1148,12 +1253,12 @@ Query streams for an activity from Strava
 **Syntax**
 
 ```sh
-$ gravl strava streams ACTIVITY_ID (...)
+$ gravl strava streams [flags] ACTIVITY_ID (...)
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```stream```|```s```|Streams to include in the activity|
 
@@ -1168,8 +1273,9 @@ Return the set of available streams for query
 **Syntax**
 
 ```sh
-$ gravl strava streamsets
+$ gravl strava streamsets [flags]
 ```
+
 
 **Example**
 
@@ -1219,12 +1325,12 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl strava upload {{FILE | DIRECTORY} | UPLOAD_ID (...)}
+$ gravl strava upload [flags] {{FILE | DIRECTORY} | UPLOAD_ID (...)}
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
@@ -1239,6 +1345,7 @@ Manage webhook subscriptions
 
 
 
+
 ## *strava webhook list*
 
 **Description**
@@ -1249,8 +1356,9 @@ List all active webhook subscriptions
 **Syntax**
 
 ```sh
-$ gravl strava webhook list
+$ gravl strava webhook list [flags]
 ```
+
 
 
 ## *strava webhook subscribe*
@@ -1263,12 +1371,12 @@ Subscribe for webhook notications
 **Syntax**
 
 ```sh
-$ gravl strava webhook subscribe
+$ gravl strava webhook subscribe [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```url```||Address where webhook events will be sent (max length 255 characters|
 |```verify```||String chosen by the application owner for client security|
@@ -1284,8 +1392,9 @@ Unsubscribe an active webhook subscription (or all if specified)
 **Syntax**
 
 ```sh
-$ gravl strava webhook unsubscribe
+$ gravl strava webhook unsubscribe [flags]
 ```
+
 
 
 ## *version*
@@ -1298,8 +1407,9 @@ Version
 **Syntax**
 
 ```sh
-$ gravl version
+$ gravl version [flags]
 ```
+
 
 
 ## *visualcrossing*
@@ -1311,7 +1421,7 @@ Query VisualCrossing for forecasts
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```visualcrossing.access-token```||API key for Visual Crossing API|
 
@@ -1326,12 +1436,12 @@ Query VisualCrossing for a forecast
 **Syntax**
 
 ```sh
-$ gravl visualcrossing forecast [--] LATITUDE LONGITUDE
+$ gravl visualcrossing forecast [flags] [--] LATITUDE LONGITUDE
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```interval```|```i```|Forecast interval (eg 1, 12, 24)|
 
@@ -1346,8 +1456,9 @@ Query the WTA site for trip reports, if no reporter is specified the most recent
 **Syntax**
 
 ```sh
-$ gravl wta [REPORTER_NAME ...]
+$ gravl wta [flags] [REPORTER_NAME ...]
 ```
+
 
 **Example**
 
@@ -1362,7 +1473,7 @@ Query Zwift for activities
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```zwift.username```||Username for the Zwift website|
 |```zwift.password```||Password for the Zwift website|
@@ -1384,12 +1495,12 @@ Query activities for an athlete from Zwift
 **Syntax**
 
 ```sh
-$ gravl zwift activities
+$ gravl zwift activities [flags]
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```count```|```N```|The number of activities to query from Zwift (the number returned will be <= N)|
 
@@ -1404,8 +1515,9 @@ Query an activity from Zwift
 **Syntax**
 
 ```sh
-$ gravl zwift activity
+$ gravl zwift activity [flags] ACTIVITY_ID (...)
 ```
+
 
 
 ## *zwift athlete*
@@ -1418,8 +1530,9 @@ Query the athlete profile from Zwift
 **Syntax**
 
 ```sh
-$ gravl zwift athlete
+$ gravl zwift athlete [flags]
 ```
+
 
 
 ## *zwift export*
@@ -1432,12 +1545,12 @@ Export a Zwift activity by id
 **Syntax**
 
 ```sh
-$ gravl zwift export
+$ gravl zwift export [flags] ACTIVITY_ID (...)
 ```
 
 **Flags**
 
-|Flag|Short|Description|
+|Name|Aliases|Description|
 |-|-|-|
 |```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
 |```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
@@ -1453,8 +1566,9 @@ List all local Zwift files
 **Syntax**
 
 ```sh
-$ gravl zwift files
+$ gravl zwift files [flags]
 ```
+
 
 **Example**
 
@@ -1494,8 +1608,9 @@ Acquire a new refresh token
 **Syntax**
 
 ```sh
-$ gravl zwift refresh
+$ gravl zwift refresh [flags]
 ```
+
 
 **Example**
 

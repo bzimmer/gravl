@@ -19,10 +19,10 @@ func TestManualIntegration(t *testing.T) {
 		name string
 		args []string
 	}{
-		{name: "manual no flags", err: true, args: []string{"manual"}},
-		{name: "manual both args", err: true, args: []string{"manual", "--commands", "--analyzers"}},
-		{name: "manual commands", args: []string{"manual", "--commands"}},
-		{name: "manual analyzers", args: []string{"manual", "--analyzers"}},
+		{name: "no flags", err: true, args: []string{"manual"}},
+		{name: "both flags", err: true, args: []string{"manual", "--commands", "--analyzers"}},
+		{name: "--commands", args: []string{"manual", "--commands"}},
+		{name: "--analyzers", args: []string{"manual", "--analyzers"}},
 	}
 	for _, tt := range tests {
 		tt := tt

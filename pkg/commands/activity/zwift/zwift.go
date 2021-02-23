@@ -159,9 +159,10 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activi
 }
 
 var activityCommand = &cli.Command{
-	Name:    "activity",
-	Aliases: []string{"a"},
-	Usage:   "Query an activity from Zwift",
+	Name:      "activity",
+	Aliases:   []string{"a"},
+	Usage:     "Query an activity from Zwift",
+	ArgsUsage: "ACTIVITY_ID (...)",
 	Action: func(c *cli.Context) error {
 		return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
 			return encoding.Encode(act)
@@ -181,8 +182,9 @@ func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwif
 }
 
 var exportCommand = &cli.Command{
-	Name:  "export",
-	Usage: "Export a Zwift activity by id",
+	Name:      "export",
+	Usage:     "Export a Zwift activity by id",
+	ArgsUsage: "ACTIVITY_ID (...)",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "overwrite",
