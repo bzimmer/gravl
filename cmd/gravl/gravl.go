@@ -33,6 +33,9 @@ func main() {
 		func(c *cli.Context) encoding.Encoder {
 			return encoding.GeoJSON(c.App.Writer, c.Bool("compact"))
 		},
+		func(c *cli.Context) encoding.Encoder {
+			return encoding.Named(c.App.Writer, c.Bool("compact"))
+		},
 	)
 	commands := []*cli.Command{
 		analysis.Command,

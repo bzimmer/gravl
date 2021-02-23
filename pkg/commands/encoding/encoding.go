@@ -6,8 +6,10 @@ import (
 	"errors"
 	"io"
 
-	"github.com/bzimmer/gravl/pkg/providers/geo"
 	"github.com/davecgh/go-spew/spew"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity"
+	"github.com/bzimmer/gravl/pkg/providers/geo"
 )
 
 var ErrUnknownEncoder = errors.New("unknown encoder")
@@ -43,6 +45,21 @@ func For(encoder string) (Encoder, error) {
 		return nil, ErrUnknownEncoder
 	}
 	return enc, nil
+}
+
+type namedEncoder struct {
+	enc Encoder
+}
+
+func (x *namedEncoder) Name() string {
+	return "named"
+}
+
+func (x *namedEncoder) Encode(v interface{}) error {
+	if n, ok := v.(activity.Named); ok {
+		return x.enc.Encode(n.Handle())
+	}
+	return errors.New("not Named")
 }
 
 type spewEncoder struct {
@@ -152,4 +169,8 @@ func Spew(writer io.Writer) Encoder {
 	cfg := spew.NewDefaultConfig()
 	cfg.SortKeys = true
 	return &spewEncoder{cfg: cfg, writer: writer}
+}
+
+func Named(writer io.Writer, compact bool) Encoder {
+	return &namedEncoder{enc: JSON(writer, compact)}
 }

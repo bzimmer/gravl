@@ -5,6 +5,8 @@ import (
 
 	"github.com/martinlindhe/unit"
 	"github.com/twpayne/go-geom"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 // Error is an error from the Strava API
@@ -398,6 +400,10 @@ type Activity struct {
 	Streams                  *Streams               `json:"streams,omitempty"`
 }
 
+func (a *Activity) Handle() *activity.Handle {
+	return &activity.Handle{ID: a.ID, Name: a.Name, Date: a.StartDateLocal}
+}
+
 // Route is a planned activity
 type Route struct {
 	Private             bool          `json:"private"`
@@ -414,9 +420,13 @@ type Route struct {
 	SubType             int           `json:"sub_type"`
 	IDString            string        `json:"id_str"`
 	Name                string        `json:"name"`
-	ID                  int           `json:"id"`
+	ID                  int64         `json:"id"`
 	Map                 *Map          `json:"map"`
 	Timestamp           int           `json:"timestamp"`
+}
+
+func (r *Route) Handle() *activity.Handle {
+	return &activity.Handle{ID: r.ID, Name: r.Name, Date: r.CreatedAt, Source: "strava"}
 }
 
 type TrainingDate struct {

@@ -1,5 +1,14 @@
 package zwift
 
+import (
+	"time"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity"
+)
+
+// dateTimeFormat used by cyclinganalytics
+const datetimeFormat = `"2006-01-02T15:04:05+0000"`
+
 // Fault represents a Zwift error
 type Fault struct {
 	Message string `json:"message"`
@@ -7,6 +16,23 @@ type Fault struct {
 
 func (f *Fault) Error() string {
 	return f.Message
+}
+
+type Datetime struct {
+	time.Time
+}
+
+func (d *Datetime) UnmarshalJSON(b []byte) (err error) {
+	t, err := time.Parse(datetimeFormat, string(b))
+	if err != nil {
+		return
+	}
+	d.Time = t
+	return
+}
+
+func (d *Datetime) MarshalJSON() ([]byte, error) {
+	return []byte(d.Time.Format(datetimeFormat)), nil
 }
 
 type Privacy struct {
@@ -123,8 +149,8 @@ type Activity struct {
 	Description          string   `json:"description"`
 	PrivateActivity      bool     `json:"privateActivity"`
 	Sport                string   `json:"sport"`
-	StartDate            string   `json:"startDate"`
-	EndDate              string   `json:"endDate"`
+	StartDate            Datetime `json:"startDate"`
+	EndDate              Datetime `json:"endDate"`
 	LastSaveDate         string   `json:"lastSaveDate"`
 	AutoClosed           bool     `json:"autoClosed"`
 	Duration             string   `json:"duration"`
@@ -141,4 +167,8 @@ type Activity struct {
 	MovingTimeInMillis   int      `json:"movingTimeInMs"`
 	Privacy              string   `json:"privacy"`
 	// SnapshotList         interface{} `json:"snapshotList"`
+}
+
+func (a *Activity) Handle() *activity.Handle {
+	return &activity.Handle{ID: a.ID, Name: a.Name, Date: a.StartDate.Time, Source: "zwift"}
 }

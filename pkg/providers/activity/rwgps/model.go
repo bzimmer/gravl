@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/martinlindhe/unit"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 // Type of the trip
@@ -24,7 +26,7 @@ const (
 	Me UserID = 0
 )
 
-// Fault .
+// Fault is an error
 type Fault struct {
 	Message string `json:"message"`
 }
@@ -33,12 +35,7 @@ func (f *Fault) Error() string {
 	return f.Message
 }
 
-// UserResponse .
-type UserResponse struct {
-	User *User `json:"user"`
-}
-
-// User .
+// User is a user
 type User struct {
 	ID        UserID `json:"id"`
 	Name      string `json:"name"`
@@ -87,7 +84,7 @@ type Metrics struct {
 	Watts         *Summary    `json:"watts"`
 }
 
-// TrackPoint .
+// TrackPoint represents data about a point along a trip
 type TrackPoint struct {
 	Longitude float64     `json:"x"`
 	Latitude  float64     `json:"y"`
@@ -99,7 +96,7 @@ type TrackPoint struct {
 	Speed     unit.Speed  `json:"s" units:"kph"`
 }
 
-// Trip .
+// A Trip represents both an planned and completed activity
 type Trip struct {
 	CreatedAt     time.Time     `json:"created_at"`
 	DepartedAt    time.Time     `json:"departed_at"`
@@ -121,4 +118,8 @@ type Trip struct {
 	LastLat       float64       `json:"last_lat"`
 	LastLng       float64       `json:"last_lng"`
 	Metrics       *Metrics      `json:"metrics,omitempty"`
+}
+
+func (t *Trip) Handle() *activity.Handle {
+	return &activity.Handle{ID: t.ID, Name: t.Name, Date: t.DepartedAt, Source: "rwgps"}
 }
