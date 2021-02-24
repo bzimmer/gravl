@@ -168,20 +168,23 @@ func (s *RidesService) Poll(ctx context.Context, userID UserID, uploadID int64) 
 		defer close(res)
 		i := 0
 		for ; i < polls; i++ {
+			var r *UploadResult
 			upload, err := s.Status(ctx, userID, uploadID)
-			if err != nil {
-				res <- &UploadResult{Err: err}
-				return
-			}
-			res <- &UploadResult{Upload: upload}
-			// status: processing, done, or error
-			if upload.Status != "processing" {
-				return
+			switch {
+			case err != nil:
+				r = &UploadResult{Err: err}
+			default:
+				r = &UploadResult{Upload: upload}
 			}
 			select {
 			case <-ctx.Done():
-				res <- &UploadResult{Err: ctx.Err()}
+				log.Error().Err(ctx.Err()).Msg("ctx is done")
 				return
+			case res <- r:
+				// status: processing, done, or error
+				if upload.Status != "processing" {
+					return
+				}
 			case <-time.After(pollingDuration):
 			}
 		}
