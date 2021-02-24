@@ -118,7 +118,13 @@ func (s *ActivityService) Activities(ctx context.Context, spec activity.Paginati
 		p := &channelPaginator{service: *s, activities: acts}
 		err := activity.Paginate(ctx, p, spec)
 		if err != nil {
-			acts <- &ActivityResult{Err: err}
+			log.Error().Err(err).Msg("paginating activities")
+			select {
+			case <-ctx.Done():
+				return
+			case acts <- &ActivityResult{Err: err}:
+				return
+			}
 		}
 	}()
 	return acts

@@ -36,7 +36,7 @@ func poll(ctx context.Context, client *cyclinganalytics.Client, uploadID int64, 
 			return nil
 		}
 	}
-	return nil
+	return ctx.Err()
 }
 
 func upload(c *cli.Context) error {

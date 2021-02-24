@@ -319,7 +319,7 @@ func poll(ctx context.Context, client *strava.Client, uploadID int64, follow boo
 			return nil
 		}
 	}
-	return nil
+	return ctx.Err()
 }
 
 func upload(c *cli.Context) error {

@@ -30,16 +30,16 @@ tasks:
       - go generate -x ./...
 
   build:
-    desc: Build all commands
+    desc: Build all cmds
     deps: [build-gravl, build-qp]
 
   build-gravl:
-    desc: Build qp
+    desc: Build gravl
     deps: []
     sources:
       - '**/*.go'
     cmds:
-      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
+      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/gravl cmd/gravl/*.go
 
   build-qp:
     desc: Build qp
@@ -134,7 +134,7 @@ tasks:
 
   manual:
     desc: Generate usage documentation
+    deps: [build]
     cmds:
-      - task: build
       - dist/gravl manual --commands > docs/commands.md
       - dist/gravl manual --analyzers > docs/analyzers.md
