@@ -15,6 +15,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 const (
@@ -41,6 +42,10 @@ type Client struct {
 	Webhook  *WebhookService
 	Athlete  *AthleteService
 	Activity *ActivityService
+}
+
+func (c *Client) NewUploader() activity.Uploader {
+	return newUploader(c.Activity)
 }
 
 func withServices() Option {

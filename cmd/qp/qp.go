@@ -22,10 +22,18 @@ func exporter(c *cli.Context) (activity.Exporter, error) {
 	if err != nil {
 		return nil, err
 	}
-	return client.Export, nil
+	return client.NewExporter(), nil
 }
 
-func upload(c *cli.Context, export *activity.Export) error {
+func uploader(c *cli.Context) (activity.Uploader, error) {
+	client, err := cacmd.NewClient(c)
+	if err != nil {
+		return nil, err
+	}
+	return client.NewUploader(), nil
+}
+
+func upload(c *cli.Context, uploadr activity.Uploader, export *activity.Export) error {
 	out := new(bytes.Buffer)
 	_, err := io.Copy(out, export)
 	if err != nil {
@@ -33,23 +41,15 @@ func upload(c *cli.Context, export *activity.Export) error {
 	}
 	file := &activity.File{Reader: out, Format: export.Format, Name: export.Name}
 	defer file.Close()
-	client, err := cacmd.NewClient(c)
-	if err != nil {
-		return err
-	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
 	log.Info().Int64("activityID", export.ID).Msg("uploading")
-	upload, err := client.Rides.Upload(ctx, file)
-	if err != nil {
-		return err
-	}
-	pc := client.Rides.Poll(ctx, upload.ID)
+	u := uploadr.Upload(ctx, file)
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case res, ok := <-pc:
+		case res, ok := <-u:
 			if !ok {
 				return nil
 			}
@@ -75,6 +75,10 @@ func qp(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	uplr, err := uploader(c)
+	if err != nil {
+		return err
+	}
 	for _, arg := range c.Args().Slice() {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -87,7 +91,7 @@ func qp(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		if err := upload(c, exp); err != nil {
+		if err := upload(c, uplr, exp); err != nil {
 			return err
 		}
 	}

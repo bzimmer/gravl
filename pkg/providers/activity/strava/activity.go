@@ -20,8 +20,9 @@ import (
 type ActivityService service
 
 const (
-	polls           = 5
+	meanUploadTime  = 8 * time.Second
 	pollingDuration = 2 * time.Second
+	polls           = int(meanUploadTime / pollingDuration)
 )
 
 type channelPaginator struct {

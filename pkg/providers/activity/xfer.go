@@ -9,8 +9,23 @@ import (
 	"strings"
 )
 
+// Export the contents and metadata about an activity file
+type Export struct {
+	*File
+	ID int64 `json:"id"`
+}
+
 type Exporter interface {
 	Export(ctx context.Context, activityID int64) (*Export, error)
+}
+
+type Upload struct {
+	Upload interface{}
+	Err    error
+}
+
+type Uploader interface {
+	Upload(ctx context.Context, file *File) <-chan *Upload
 }
 
 // File for uploading
@@ -28,12 +43,6 @@ func (f *File) Close() error {
 		return x.Close()
 	}
 	return nil
-}
-
-// Export the contents and metadata about an activity file
-type Export struct {
-	*File
-	ID int64 `json:"id"`
 }
 
 // Format of the file used in exporting and uploading
