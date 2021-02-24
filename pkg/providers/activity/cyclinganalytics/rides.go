@@ -40,9 +40,12 @@ const (
 	meupload        = "me/upload"
 )
 
-func (r *RideOptions) values() *url.Values {
+func (r *RideOptions) values() (*url.Values, error) {
 	v := &url.Values{}
 	if r.Streams != nil {
+		if err := validateStreams(r.Streams); err != nil {
+			return nil, err
+		}
 		v.Set("streams", strings.Join(r.Streams, ","))
 	}
 	if r.Curves.AveragePower && r.Curves.EffectivePower {
@@ -51,13 +54,16 @@ func (r *RideOptions) values() *url.Values {
 		v.Set("power_curve", fmt.Sprintf("%t", r.Curves.AveragePower))
 		v.Set("epower_curve", fmt.Sprintf("%t", r.Curves.EffectivePower))
 	}
-	return v
+	return v, nil
 }
 
 // Ride returns a single ride with available options
 func (s *RidesService) Ride(ctx context.Context, rideID int64, opts RideOptions) (*Ride, error) {
 	uri := fmt.Sprintf("ride/%d", rideID)
-	params := opts.values()
+	params, err := opts.values()
+	if err != nil {
+		return nil, err
+	}
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, params, nil)
 	if err != nil {
 		return nil, err
@@ -209,58 +215,46 @@ func (s *RidesService) PollWithUser(ctx context.Context, userID UserID, uploadID
 	return res
 }
 
-// // ValidStream returns true if the strean name is valid
-// func ValidStream(stream string) bool { // nolint
-// 	// https://www.cyclinganalytics.com/developer/api#/ride/ride_id
-// 	switch stream {
-// 	case "cadence":
-// 		return true
-// 	case "distance":
-// 		// The sequence of distance values for this stream, in kilometers [float]
-// 		return true
-// 	case "elevation":
-// 		// The sequence of elevation values for this stream, in meters [float]
-// 		return true
-// 	case "gears":
-// 		return true
-// 	case "gradient":
-// 		// The sequence of grade values for this stream, as percents of a grade [float]
-// 		return true
-// 	case "heart_rate_variability":
-// 		return true
-// 	case "heartrate":
-// 		// The sequence of heart rate values for this stream, in beats per minute [integer]
-// 		return true
-// 	case "latitude":
-// 		return true
-// 	case "longitude":
-// 		return true
-// 	case "lrbalance":
-// 		return true
-// 	case "pedal_smoothness":
-// 		return true
-// 	case "platform_center_offset":
-// 		return true
-// 	case "power":
-// 		return true
-// 	case "power_direction":
-// 		return true
-// 	case "power_phase":
-// 		return true
-// 	case "respiration_rate":
-// 		return true
-// 	case "smo2":
-// 		return true
-// 	case "speed":
-// 		// The sequence of speed values for this stream, in meters per second [float]
-// 		return true
-// 	case "temperature":
-// 		// The sequence of temperature values for this stream, in celsius degrees [float]
-// 		return true
-// 	case "thb":
-// 		return true
-// 	case "torque_effectiveness":
-// 		return true
-// 	}
-// 	return false
-// }
+// AvailableStreams returns the list of valid stream names
+func (s *RidesService) StreamSets() map[string]string {
+	q := make(map[string]string)
+	for k, v := range streamsets {
+		q[k] = v
+	}
+	return q
+}
+
+func validateStreams(streams []string) error {
+	for i := range streams {
+		_, ok := streamsets[streams[i]]
+		if !ok {
+			return fmt.Errorf("invalid stream '%s'", streams[i])
+		}
+	}
+	return nil
+}
+
+// https://www.cyclinganalytics.com/developer/api#/ride/ride_id
+var streamsets = map[string]string{
+	"cadence":                "",
+	"distance":               "The sequence of distance values for this stream, in kilometers [float]",
+	"elevation":              "The sequence of elevation values for this stream, in meters [float]",
+	"gears":                  "",
+	"gradient":               "The sequence of grade values for this stream, as percents of a grade [float]",
+	"heart_rate_variability": "",
+	"heartrate":              "The sequence of heart rate values for this stream, in beats per minute [integer]",
+	"latitude":               "",
+	"longitude":              "",
+	"lrbalance":              "",
+	"pedal_smoothness":       "",
+	"platform_center_offset": "",
+	"power_direction":        "",
+	"power_phase":            "",
+	"power":                  "",
+	"respiration_rate":       "",
+	"smo2":                   "",
+	"speed":                  "The sequence of speed values for this stream, in meters per second [float]",
+	"temperature":            "The sequence of temperature values for this stream, in celsius degrees [float]",
+	"thb":                    "",
+	"torque_effectiveness":   "",
+}
