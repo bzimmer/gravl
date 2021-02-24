@@ -190,7 +190,7 @@ func (s *ActivityService) Status(ctx context.Context, uploadID int64) (*Upload, 
 
 // Poll the status of an upload
 //
-// The operation will continue until either it is completed (status != "processing"), the context
+// The operation will continue until either it is completed, the context
 //  is canceled, or the maximum number of iterations have been exceeded.
 //
 // More information can be found at:
@@ -204,18 +204,27 @@ func (s *ActivityService) Poll(ctx context.Context, uploadID int64) <-chan *Uplo
 		defer close(res)
 		i := 0
 		for ; i < polls; i++ {
+			var r *UploadResult
 			upload, err := s.Status(ctx, uploadID)
-			if err != nil {
-				res <- &UploadResult{Err: err}
-				return
-			}
-			res <- &UploadResult{Upload: upload}
-			if upload.ActivityID > 0 || upload.Error != "" {
-				return
+			switch {
+			case err != nil:
+				r = &UploadResult{Err: err}
+			default:
+				r = &UploadResult{Upload: upload}
 			}
 			select {
 			case <-ctx.Done():
-				res <- &UploadResult{Err: ctx.Err()}
+				log.Debug().Err(ctx.Err()).Msg("ctx is done")
+				return
+			case res <- r:
+				if r.Upload.Done() {
+					return
+				}
+			}
+			// wait for a bit to let the processing continue
+			select {
+			case <-ctx.Done():
+				log.Debug().Err(ctx.Err()).Msg("ctx is done")
 				return
 			case <-time.After(pollingDuration):
 			}

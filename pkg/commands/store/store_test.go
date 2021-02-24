@@ -76,6 +76,8 @@ func TestStoreIntegration(t *testing.T) {
 		name       string
 		args       []string
 	}{
+		{name: "export all activities as attribute", n: N,
+			args: []string{"-c", "store", "export", "-i", buntfile, "-B", ".ID, .Name, .StartDateLocal"}},
 		{name: "export all activities", n: N, args: []string{"-c", "store", "export", "-i", buntfile}},
 		{name: "remove requires a filter", err: true, args: []string{"-c", "store", "remove", "-i", buntfile}},
 		{name: "delete all", n: N, array: true, args: []string{"-c", "store", "remove", "-f", "true", "-i", buntfile}},

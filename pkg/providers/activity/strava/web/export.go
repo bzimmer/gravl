@@ -14,11 +14,18 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
+var _ activity.Exporter = &ExportService{}
+
 // ExportService is the API for export endpoints
 type ExportService service
 
 // Export requests the data file for the activity
-func (s *ExportService) Export(ctx context.Context, activityID int64, format activity.Format) (*activity.Export, error) {
+func (s *ExportService) Export(ctx context.Context, activityID int64) (*activity.Export, error) {
+	return s.ExportWithFormat(ctx, activityID, activity.Original)
+}
+
+// Export requests the data file for the activity for the specified format
+func (s *ExportService) ExportWithFormat(ctx context.Context, activityID int64, format activity.Format) (*activity.Export, error) {
 	uri := fmt.Sprintf("activities/%d/export_%s", activityID, format)
 	req, err := s.client.newWebRequest(ctx, http.MethodGet, uri, nil)
 	if err != nil {
@@ -50,9 +57,10 @@ func (s *ExportService) Export(ctx context.Context, activityID int64, format act
 		format = activity.ToFormat(ext)
 	}
 	return &activity.Export{
-		Reader: out,
-		ID:     activityID,
-		Name:   params["filename"],
-		Format: format,
+		ID: activityID,
+		File: &activity.File{
+			Reader: out,
+			Name:   params["filename"],
+			Format: format},
 	}, nil
 }

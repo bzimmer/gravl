@@ -30,12 +30,20 @@ tasks:
       - go generate -x ./...
 
   build:
-    desc: Build the application
+    desc: Build gravl
     deps: []
     sources:
       - '**/*.go'
     cmds:
       - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
+
+  build-qp:
+    desc: Build qp
+    deps: []
+    sources:
+      - '**/*.go'
+    cmds:
+      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/qp cmd/qp/*.go
 
   install:
     desc: Install {{.APP}}

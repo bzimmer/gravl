@@ -171,7 +171,7 @@ var activityCommand = &cli.Command{
 }
 
 func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwift.Activity) error {
-	exp, err := client.Activity.Export(ctx, act)
+	exp, err := client.Activity.ExportActivity(ctx, act)
 	if err != nil {
 		return err
 	}

@@ -400,8 +400,8 @@ type Activity struct {
 	Streams                  *Streams               `json:"streams,omitempty"`
 }
 
-func (a *Activity) Handle() *activity.Handle {
-	return &activity.Handle{ID: a.ID, Name: a.Name, Date: a.StartDateLocal}
+func (a *Activity) Named() *activity.Named {
+	return &activity.Named{ID: a.ID, Name: a.Name, Date: a.StartDateLocal}
 }
 
 // Route is a planned activity
@@ -425,8 +425,8 @@ type Route struct {
 	Timestamp           int           `json:"timestamp"`
 }
 
-func (r *Route) Handle() *activity.Handle {
-	return &activity.Handle{ID: r.ID, Name: r.Name, Date: r.CreatedAt, Source: "strava"}
+func (r *Route) Named() *activity.Named {
+	return &activity.Named{ID: r.ID, Name: r.Name, Date: r.CreatedAt, Source: "strava"}
 }
 
 type TrainingDate struct {
@@ -469,6 +469,10 @@ type Upload struct {
 	Error      string `json:"error"`
 	Status     string `json:"status"`
 	ActivityID int64  `json:"activity_id"`
+}
+
+func (u *Upload) Done() bool {
+	return u.ActivityID > 0 || u.Error != ""
 }
 
 // UploadResult is the result of polling for upload status

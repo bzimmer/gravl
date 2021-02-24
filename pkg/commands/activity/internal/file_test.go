@@ -39,7 +39,7 @@ func TestWrite(t *testing.T) {
 					&cli.StringFlag{Name: "output", Value: ""},
 				},
 				Action: func(c *cli.Context) error {
-					exp := &activity.Export{Name: tt.name, Reader: strings.NewReader(tt.name)}
+					exp := &activity.Export{File: &activity.File{Name: tt.name, Reader: strings.NewReader(tt.name)}}
 					return internal.Write(c, exp)
 				},
 			}
