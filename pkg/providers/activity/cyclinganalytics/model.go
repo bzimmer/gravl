@@ -150,8 +150,8 @@ type Ride struct {
 	UTCDatetime   Datetime `json:"utc_datetime"`
 }
 
-func (r *Ride) Handle() *activity.Handle {
-	return &activity.Handle{ID: r.ID, Name: r.Title, Date: r.LocalDatetime.Time, Source: "cyclinganalytics"}
+func (r *Ride) Named() *activity.Named {
+	return &activity.Named{ID: r.ID, Name: r.Title, Date: r.LocalDatetime.Time, Source: "cyclinganalytics"}
 }
 
 type Upload struct {
@@ -165,6 +165,11 @@ type Upload struct {
 	Size      int64    `json:"size"`
 	Error     string   `json:"error"`
 	ErrorCode string   `json:"error_code"`
+}
+
+func (u *Upload) Done() bool {
+	// status: processing, done, or error
+	return u.Status != "processing"
 }
 
 type UploadResult struct {

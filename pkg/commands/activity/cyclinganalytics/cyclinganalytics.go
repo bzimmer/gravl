@@ -29,7 +29,7 @@ func collect(name string) ([]*activity.File, error) {
 }
 
 func poll(ctx context.Context, client *cyclinganalytics.Client, uploadID int64, follow bool) error {
-	pc := client.Rides.Poll(ctx, cyclinganalytics.Me, uploadID)
+	pc := client.Rides.Poll(ctx, uploadID)
 	for {
 		select {
 		case <-ctx.Done():
@@ -75,7 +75,7 @@ func upload(c *cli.Context) error {
 			log.Info().Str("file", file.Name).Msg("uploading")
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			u, err := client.Rides.Upload(ctx, cyclinganalytics.Me, file)
+			u, err := client.Rides.Upload(ctx, file)
 			if err != nil {
 				return err
 			}

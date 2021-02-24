@@ -1,19 +1,39 @@
 package activity
 
-//go:generate stringer -type=Format -linecomment -output=export_string.go
+//go:generate stringer -type=Format -linecomment -output=xfer_string.go
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strings"
 )
 
-// Export the contents and metadata about an activity file
-type Export struct {
+type Exporter interface {
+	Export(ctx context.Context, activityID int64) (*Export, error)
+}
+
+// File for uploading
+type File struct {
 	io.Reader `json:"-"`
-	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	Format    Format `json:"format"`
+}
+
+func (f *File) Close() error {
+	if f.Reader == nil {
+		return nil
+	}
+	if x, ok := f.Reader.(io.Closer); ok {
+		return x.Close()
+	}
+	return nil
+}
+
+// Export the contents and metadata about an activity file
+type Export struct {
+	*File
+	ID int64 `json:"id"`
 }
 
 // Format of the file used in exporting and uploading

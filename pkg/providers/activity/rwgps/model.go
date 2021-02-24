@@ -96,7 +96,7 @@ type TrackPoint struct {
 	Speed     unit.Speed  `json:"s" units:"kph"`
 }
 
-// A Trip represents both an planned and completed activity
+// A Trip represents both a planned and completed activity
 type Trip struct {
 	CreatedAt     time.Time     `json:"created_at"`
 	DepartedAt    time.Time     `json:"departed_at"`
@@ -120,6 +120,6 @@ type Trip struct {
 	Metrics       *Metrics      `json:"metrics,omitempty"`
 }
 
-func (t *Trip) Handle() *activity.Handle {
-	return &activity.Handle{ID: t.ID, Name: t.Name, Date: t.DepartedAt, Source: "rwgps"}
+func (t *Trip) Named() *activity.Named {
+	return &activity.Named{ID: t.ID, Name: t.Name, Date: t.DepartedAt, Source: "rwgps"}
 }

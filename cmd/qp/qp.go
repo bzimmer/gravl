@@ -15,16 +15,14 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/gravl"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
-	"github.com/bzimmer/gravl/pkg/providers/activity/cyclinganalytics"
 )
 
-func export(ctx context.Context, c *cli.Context, activityID int64) (*activity.Export, error) {
+func exporter(c *cli.Context) (activity.Exporter, error) {
 	client, err := stcmd.NewWebClient(c)
 	if err != nil {
 		return nil, err
 	}
-	log.Info().Int64("activityID", activityID).Msg("exporting")
-	return client.Export.Export(ctx, activityID, activity.Original)
+	return client.Export, nil
 }
 
 func upload(c *cli.Context, export *activity.Export) error {
@@ -41,11 +39,12 @@ func upload(c *cli.Context, export *activity.Export) error {
 	}
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	upload, err := client.Rides.Upload(ctx, cyclinganalytics.Me, file)
+	log.Info().Int64("activityID", export.ID).Msg("uploading")
+	upload, err := client.Rides.Upload(ctx, file)
 	if err != nil {
 		return err
 	}
-	pc := client.Rides.Poll(ctx, upload.UserID, upload.ID)
+	pc := client.Rides.Poll(ctx, upload.ID)
 	for {
 		select {
 		case <-ctx.Done():
@@ -65,6 +64,17 @@ func upload(c *cli.Context, export *activity.Export) error {
 }
 
 func qp(c *cli.Context) error {
+	if c.NArg() == 0 {
+		help := c.App.Command("help")
+		if help == nil {
+			return nil
+		}
+		return help.Run(c)
+	}
+	expr, err := exporter(c)
+	if err != nil {
+		return err
+	}
 	for _, arg := range c.Args().Slice() {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -72,7 +82,8 @@ func qp(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		exp, err := export(ctx, c, actID)
+		log.Info().Int64("activityID", actID).Msg("exporting")
+		exp, err := expr.Export(ctx, actID)
 		if err != nil {
 			return err
 		}
@@ -88,12 +99,13 @@ func main() {
 	flags = append(flags, stcmd.AuthFlags...)
 	flags = append(flags, cacmd.AuthFlags...)
 	app := &cli.App{
-		Name:     "qp",
-		HelpName: "qp",
-		Usage:    "Copy activities from Strava to CyclingAnalytics",
-		Flags:    flags,
-		Before:   gravl.Befores(gravl.InitLogging(), gravl.InitEncoding(), gravl.InitConfig()),
-		Action:   qp,
+		Name:      "qp",
+		HelpName:  "qp",
+		Usage:     "Copy activities from Strava to CyclingAnalytics",
+		ArgsUsage: "ACTIVITY_ID (...)",
+		Flags:     flags,
+		Before:    gravl.Befores(gravl.InitLogging(), gravl.InitEncoding(), gravl.InitConfig()),
+		Action:    qp,
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return
