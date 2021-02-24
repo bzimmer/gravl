@@ -30,7 +30,7 @@ func uploader(c *cli.Context) (activity.Uploader, error) {
 	if err != nil {
 		return nil, err
 	}
-	return client.NewUploader(), nil
+	return client.Uploader(), nil
 }
 
 func upload(c *cli.Context, uploadr activity.Uploader, export *activity.Export) error {
@@ -44,23 +44,20 @@ func upload(c *cli.Context, uploadr activity.Uploader, export *activity.Export) 
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
 	log.Info().Int64("activityID", export.ID).Msg("uploading")
-	u := uploadr.Upload(ctx, file)
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case res, ok := <-u:
-			if !ok {
-				return nil
-			}
-			if res.Err != nil {
-				return res.Err
-			}
-			if err := encoding.Encode(res.Upload); err != nil {
-				return err
-			}
+	u, err := uploadr.Upload(ctx, file)
+	if err != nil {
+		return err
+	}
+	p := activity.Poller{Uploader: uploadr}
+	for res := range p.Poll(ctx, u.Identifier()) {
+		if res.Err != nil {
+			return res.Err
+		}
+		if err := encoding.Encode(res.Upload); err != nil {
+			return err
 		}
 	}
+	return nil
 }
 
 func qp(c *cli.Context) error {

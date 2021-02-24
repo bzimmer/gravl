@@ -9,7 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -18,12 +17,6 @@ import (
 
 // ActivityService is the API for activity endpoints
 type ActivityService service
-
-const (
-	meanUploadTime  = 8 * time.Second
-	pollingDuration = 2 * time.Second
-	polls           = int(meanUploadTime / pollingDuration)
-)
 
 type channelPaginator struct {
 	service    ActivityService
@@ -187,54 +180,6 @@ func (s *ActivityService) Status(ctx context.Context, uploadID int64) (*Upload, 
 		return nil, err
 	}
 	return res, nil
-}
-
-// Poll the status of an upload
-//
-// The operation will continue until either it is completed, the context
-//  is canceled, or the maximum number of iterations have been exceeded.
-//
-// More information can be found at:
-//   https://developers.strava.com/docs/uploads/
-//   A successful upload will return a response with an upload ID. You may use this ID to poll the
-//   status of your upload. Strava recommends polling no more than once a second. The mean processing
-//   time is around 8 seconds.
-func (s *ActivityService) Poll(ctx context.Context, uploadID int64) <-chan *UploadResult {
-	res := make(chan *UploadResult)
-	go func() {
-		defer close(res)
-		i := 0
-		for ; i < polls; i++ {
-			var r *UploadResult
-			upload, err := s.Status(ctx, uploadID)
-			switch {
-			case err != nil:
-				r = &UploadResult{Err: err}
-			default:
-				r = &UploadResult{Upload: upload}
-			}
-			select {
-			case <-ctx.Done():
-				log.Debug().Err(ctx.Err()).Msg("ctx is done")
-				return
-			case res <- r:
-				if r.Upload.Done() {
-					return
-				}
-			}
-			// wait for a bit to let the processing continue
-			select {
-			case <-ctx.Done():
-				log.Debug().Err(ctx.Err()).Msg("ctx is done")
-				return
-			case <-time.After(pollingDuration):
-			}
-		}
-		if i == polls {
-			log.Warn().Int("polls", polls).Msg("exceeded max polls")
-		}
-	}()
-	return res
 }
 
 // https://developers.strava.com/docs/reference/#api-models-StreamSet

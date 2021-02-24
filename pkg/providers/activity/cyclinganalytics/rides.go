@@ -11,9 +11,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
-
-	"github.com/rs/zerolog/log"
 
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
@@ -35,9 +32,7 @@ type RideOptions struct {
 }
 
 const (
-	polls           = 5
-	pollingDuration = 2 * time.Second
-	meupload        = "me/upload"
+	meupload = "me/upload"
 )
 
 func (r *RideOptions) values() *url.Values {
@@ -142,7 +137,12 @@ func (s *RidesService) UploadWithUser(ctx context.Context, userID UserID, file *
 }
 
 // Status returns the status of an upload request
-func (s *RidesService) Status(ctx context.Context, userID UserID, uploadID int64) (*Upload, error) {
+func (s *RidesService) Status(ctx context.Context, uploadID int64) (*Upload, error) {
+	return s.StatusWithUser(ctx, Me, uploadID)
+}
+
+// Status returns the status of an upload request for the user
+func (s *RidesService) StatusWithUser(ctx context.Context, userID UserID, uploadID int64) (*Upload, error) {
 	uri := meupload
 	if userID != Me {
 		uri = fmt.Sprintf("user/%d/upload", userID)
@@ -158,55 +158,6 @@ func (s *RidesService) Status(ctx context.Context, userID UserID, uploadID int64
 		return nil, err
 	}
 	return res, nil
-}
-
-func (s *RidesService) Poll(ctx context.Context, uploadID int64) <-chan *UploadResult {
-	return s.PollWithUser(ctx, Me, uploadID)
-}
-
-// Poll the status of an upload
-//
-// The operation will continue until either it is completed (status != "processing"), the context
-//  is canceled, or the maximum number of iterations have been exceeded.
-//
-// More information can be found at:
-//  https://www.cyclinganalytics.com/developer/api#/user/user_id/upload/upload_id
-func (s *RidesService) PollWithUser(ctx context.Context, userID UserID, uploadID int64) <-chan *UploadResult {
-	res := make(chan *UploadResult)
-	go func() {
-		defer close(res)
-		i := 0
-		for ; i < polls; i++ {
-			var r *UploadResult
-			upload, err := s.Status(ctx, userID, uploadID)
-			switch {
-			case err != nil:
-				r = &UploadResult{Err: err}
-			default:
-				r = &UploadResult{Upload: upload}
-			}
-			select {
-			case <-ctx.Done():
-				log.Debug().Err(ctx.Err()).Msg("ctx is done")
-				return
-			case res <- r:
-				if r.Upload.Done() {
-					return
-				}
-			}
-			// wait for a bit to let the processing continue
-			select {
-			case <-ctx.Done():
-				log.Debug().Err(ctx.Err()).Msg("ctx is done")
-				return
-			case <-time.After(pollingDuration):
-			}
-		}
-		if i == polls {
-			log.Warn().Int("polls", polls).Msg("exceeded max polls")
-		}
-	}()
-	return res
 }
 
 // // ValidStream returns true if the strean name is valid

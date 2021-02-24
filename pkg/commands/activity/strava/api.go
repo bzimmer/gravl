@@ -307,26 +307,19 @@ func collect(name string) ([]*activity.File, error) {
 }
 
 func poll(ctx context.Context, client *strava.Client, uploadID int64, follow bool) error {
-	pc := client.Activity.Poll(ctx, uploadID)
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case res, ok := <-pc:
-			if !ok {
-				return nil
-			}
-			if res.Err != nil {
-				return res.Err
-			}
-			if err := encoding.Encode(res.Upload); err != nil {
-				return err
-			}
+	p := &activity.Poller{Uploader: client.Uploader()}
+	for res := range p.Poll(ctx, activity.UploadID(uploadID)) {
+		if res.Err != nil {
+			return res.Err
+		}
+		if err := encoding.Encode(res.Upload); err != nil {
+			return err
 		}
 		if !follow {
 			return nil
 		}
 	}
+	return nil
 }
 
 func upload(c *cli.Context) error {

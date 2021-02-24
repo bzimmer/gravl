@@ -65,6 +65,6 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	return req, nil
 }
 
-func (c *Client) NewUploader() activity.Uploader {
+func (c *Client) Uploader() activity.Uploader {
 	return newUploader(c.Rides)
 }

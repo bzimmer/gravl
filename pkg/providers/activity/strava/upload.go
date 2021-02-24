@@ -3,10 +3,17 @@ package strava
 import (
 	"context"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
+
+// The operation will continue until either it is completed, the context
+//  is canceled, or the maximum number of iterations have been exceeded.
+//
+// More information can be found at:
+//   https://developers.strava.com/docs/uploads/
+//   A successful upload will return a response with an upload ID. You may use this ID to poll the
+//   status of your upload. Strava recommends polling no more than once a second. The mean processing
+//   time is around 8 seconds.
 
 type uploader struct {
 	s *ActivityService
@@ -16,52 +23,10 @@ func newUploader(s *ActivityService) activity.Uploader {
 	return &uploader{s: s}
 }
 
-func (u *uploader) Upload(ctx context.Context, file *activity.File) <-chan *activity.Upload {
-	res := make(chan *activity.Upload)
-	go func() {
-		defer close(res)
-		var up *activity.Upload
-		p, err := u.s.Upload(ctx, file)
-		switch {
-		case err != nil:
-			up = &activity.Upload{Err: err}
-		default:
-			up = &activity.Upload{Upload: p}
-		}
-		select {
-		case <-ctx.Done():
-			log.Debug().Err(ctx.Err()).Msg("ctx is done")
-			return
-		case res <- up:
-			if p.Done() {
-				return
-			}
-		}
+func (u *uploader) Upload(ctx context.Context, file *activity.File) (activity.Upload, error) {
+	return u.s.Upload(ctx, file)
+}
 
-		c := u.s.Poll(ctx, p.ID)
-		for {
-			select {
-			case <-ctx.Done():
-				log.Debug().Err(ctx.Err()).Msg("ctx is done")
-				return
-			case x, ok := <-c:
-				if !ok {
-					return
-				}
-				switch {
-				case x.Err != nil:
-					up = &activity.Upload{Err: x.Err}
-				case x.Upload != nil:
-					up = &activity.Upload{Upload: x.Upload}
-				}
-			}
-			select {
-			case <-ctx.Done():
-				log.Debug().Err(ctx.Err()).Msg("ctx is done")
-				return
-			case res <- up:
-			}
-		}
-	}()
-	return res
+func (u *uploader) Status(ctx context.Context, id activity.UploadID) (activity.Upload, error) {
+	return u.s.Status(ctx, int64(id))
 }

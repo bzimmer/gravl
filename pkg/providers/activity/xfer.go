@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 // Export the contents and metadata about an activity file
@@ -19,13 +22,21 @@ type Exporter interface {
 	Export(ctx context.Context, activityID int64) (*Export, error)
 }
 
-type Upload struct {
-	Upload interface{}
+type UploadID int64
+
+type Upload interface {
+	Identifier() UploadID
+	Done() bool
+}
+
+type UploadResult struct {
+	Upload Upload
 	Err    error
 }
 
 type Uploader interface {
-	Upload(ctx context.Context, file *File) <-chan *Upload
+	Upload(ctx context.Context, file *File) (Upload, error)
+	Status(ctx context.Context, id UploadID) (Upload, error)
 }
 
 // File for uploading
@@ -78,4 +89,54 @@ func ToFormat(format string) Format {
 	default:
 		return Original
 	}
+}
+
+type Poller struct {
+	Uploader Uploader
+}
+
+// Poll the status of an upload
+//
+// The operation will continue until either it is completed, the context
+//  is canceled, or the maximum number of iterations have been exceeded.
+func (p *Poller) Poll(ctx context.Context, uploadID UploadID) <-chan *UploadResult {
+	iterations := 5
+	duration := 2 * time.Second
+	res := make(chan *UploadResult)
+	go func() {
+		defer close(res)
+		if p.Uploader == nil {
+			return
+		}
+		i := 0
+		for ; i < iterations; i++ {
+			var r *UploadResult
+			log.Info().Int64("uploadID", int64(uploadID)).Msg("status")
+			upload, err := p.Uploader.Status(ctx, uploadID)
+			switch {
+			case err != nil:
+				r = &UploadResult{Err: err}
+			default:
+				r = &UploadResult{Upload: upload}
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case res <- r:
+				if r.Upload.Done() {
+					return
+				}
+			}
+			// wait for a bit to let the processing continue
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(duration):
+			}
+		}
+		if i == iterations {
+			log.Warn().Int("polls", iterations).Msg("exceeded max iterations")
+		}
+	}()
+	return res
 }

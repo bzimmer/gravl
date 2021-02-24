@@ -44,7 +44,7 @@ type Client struct {
 	Activity *ActivityService
 }
 
-func (c *Client) NewUploader() activity.Uploader {
+func (c *Client) Uploader() activity.Uploader {
 	return newUploader(c.Activity)
 }
 
