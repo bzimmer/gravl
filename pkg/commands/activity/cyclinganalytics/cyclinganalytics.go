@@ -23,11 +23,6 @@ func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 		cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")))
 }
 
-// collect returns a slice of files for uploading
-func collect(name string) ([]*activity.File, error) {
-	return internal.Collect(name, nil)
-}
-
 func poll(ctx context.Context, client *cyclinganalytics.Client, uploadID int64, follow bool) error {
 	pc := client.Rides.Poll(ctx, uploadID)
 	for {
@@ -56,9 +51,10 @@ func upload(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	args := c.Args()
 	dryrun := c.Bool("dryrun")
-	for i := 0; i < c.Args().Len(); i++ {
-		files, err := collect(c.Args().Get(i))
+	for i := 0; i < args.Len(); i++ {
+		files, err := internal.Collect(args.Get(i), nil)
 		if err != nil {
 			return err
 		}
@@ -111,9 +107,10 @@ func status(c *cli.Context) error {
 }
 
 var uploadCommand = &cli.Command{
-	Name:    "upload",
-	Aliases: []string{"u"},
-	Usage:   "Upload an activity file",
+	Name:      "upload",
+	Aliases:   []string{"u"},
+	Usage:     "Upload an activity file",
+	ArgsUsage: "{FILE | DIRECTORY}",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "status",
@@ -191,7 +188,7 @@ var activitiesCommand = &cli.Command{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "Count",
+			Usage:   "The number of activities to query from CA (the number returned will be <= N)",
 		},
 	},
 	Action: activities,
@@ -202,10 +199,10 @@ func ride(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	args := c.Args()
 	opts := cyclinganalytics.RideOptions{
 		Streams: []string{"latitude", "longitude", "elevation"},
 	}
+	args := c.Args()
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -232,11 +229,12 @@ var rideCommand = &cli.Command{
 }
 
 var Command = &cli.Command{
-	Name:     "cyclinganalytics",
-	Aliases:  []string{"ca"},
-	Category: "activity",
-	Usage:    "Query CyclingAnalytics",
-	Flags:    AuthFlags,
+	Name:        "cyclinganalytics",
+	Aliases:     []string{"ca"},
+	Category:    "activity",
+	Usage:       "Query CyclingAnalytics",
+	Description: "Operations supported by the Cycling Analytics website",
+	Flags:       AuthFlags,
 	Subcommands: []*cli.Command{
 		activitiesCommand,
 		athleteCommand,

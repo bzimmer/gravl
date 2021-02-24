@@ -157,7 +157,7 @@ var activitiesCommand = &cli.Command{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "Count",
+			Usage:   "The number of activities to query from Strava (the number returned will be <= N)",
 		},
 		&cli.StringFlag{
 			Name:    "filter",
@@ -206,7 +206,7 @@ var routesCommand = &cli.Command{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "Count",
+			Usage:   "The number of routes to query from Strava (the number returned will be <= N)",
 		},
 	},
 	Action: routes,
@@ -247,10 +247,11 @@ var streamFlag = &cli.StringSliceFlag{
 }
 
 var activityCommand = &cli.Command{
-	Name:    "activity",
-	Aliases: []string{"a"},
-	Usage:   "Query an activity from Strava",
-	Flags:   []cli.Flag{streamFlag},
+	Name:      "activity",
+	Aliases:   []string{"a"},
+	Usage:     "Query an activity from Strava",
+	ArgsUsage: "ACTIVITY_ID (...)",
+	Flags:     []cli.Flag{streamFlag},
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
 			return client.Activity.Activity(ctx, id, c.StringSlice("stream")...)
@@ -258,11 +259,28 @@ var activityCommand = &cli.Command{
 	},
 }
 
+var streamsetsCommand = &cli.Command{
+	Name:    "streamsets",
+	Aliases: []string{""},
+	Usage:   "Return the set of available streams for query",
+	Action: func(c *cli.Context) error {
+		client, err := NewAPIClient(c)
+		if err != nil {
+			return err
+		}
+		if err := encoding.Encode(client.Activity.StreamSets()); err != nil {
+			return err
+		}
+		return nil
+	},
+}
+
 var streamsCommand = &cli.Command{
-	Name:    "stream",
-	Aliases: []string{"s"},
-	Usage:   "Query streams for an activity from Strava",
-	Flags:   []cli.Flag{streamFlag},
+	Name:      "streams",
+	Aliases:   []string{"s"},
+	Usage:     "Query streams for an activity from Strava",
+	ArgsUsage: "ACTIVITY_ID (...)",
+	Flags:     []cli.Flag{streamFlag},
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
 			streams := append([]string{"latlng", "altitude", "time"}, c.StringSlice("stream")...)
@@ -272,9 +290,10 @@ var streamsCommand = &cli.Command{
 }
 
 var routeCommand = &cli.Command{
-	Name:    "route",
-	Aliases: []string{"r"},
-	Usage:   "Query a route from Strava",
+	Name:      "route",
+	Aliases:   []string{"r"},
+	Usage:     "Query a route from Strava",
+	ArgsUsage: "ROUTE_ID (...)",
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
 			return client.Route.Route(ctx, id)
@@ -370,9 +389,10 @@ func status(c *cli.Context) error {
 }
 
 var uploadCommand = &cli.Command{
-	Name:    "upload",
-	Aliases: []string{"u"},
-	Usage:   "Upload an activity file",
+	Name:      "upload",
+	Aliases:   []string{"u"},
+	Usage:     "Upload an activity file",
+	ArgsUsage: "{{FILE | DIRECTORY} | UPLOAD_ID (...)}",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "status",

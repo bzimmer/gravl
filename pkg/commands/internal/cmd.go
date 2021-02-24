@@ -10,8 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// root finds the root of the source tree by recursively ascending until 'go.mod' is located
-func root() (string, error) {
+// Root finds the root of the source tree by recursively ascending until 'go.mod' is located
+func Root() (string, error) {
 	path, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -41,7 +41,7 @@ type GravlCmd struct {
 
 // Gravl creates a new instance of `Gravl`
 func Gravl(args ...string) *GravlCmd {
-	root, err := root()
+	root, err := Root()
 	if err != nil {
 		panic(err)
 	}

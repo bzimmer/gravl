@@ -58,8 +58,9 @@ func export(c *cli.Context) error {
 }
 
 var exportCommand = &cli.Command{
-	Name:  "export",
-	Usage: "Export a Strava activity by id",
+	Name:      "export",
+	Usage:     "Export a Strava activity by id",
+	ArgsUsage: "ACTIVITY_ID (...)",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "overwrite",
@@ -71,7 +72,7 @@ var exportCommand = &cli.Command{
 			Name:    "output",
 			Aliases: []string{"O"},
 			Value:   "",
-			Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to Stdout",
+			Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
 		},
 	},
 	Action: export,
@@ -101,6 +102,6 @@ func fitness(c *cli.Context) error {
 
 var fitnessCommand = &cli.Command{
 	Name:   "fitness",
-	Usage:  "Query Strava for training load data",
+	Usage:  "Query Strava for training load data for the authenticated user",
 	Action: fitness,
 }

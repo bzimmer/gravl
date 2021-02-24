@@ -43,7 +43,12 @@ var Command = &cli.Command{
 	Usage:    "Query OpenWeather for forecasts",
 	Flags:    AuthFlags,
 	Subcommands: []*cli.Command{
-		{Name: "forecast", Action: forecast},
+		{
+			Name:      "forecast",
+			Usage:     "Query OpenWeather for a forecast",
+			ArgsUsage: "[--] LATITUDE LONGITUDE",
+			Action:    forecast,
+		},
 	},
 }
 

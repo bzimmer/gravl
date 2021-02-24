@@ -13,6 +13,8 @@ import (
 
 const doc = `festive500 returns the activities and distance ridden during the annual #festive500 challenge
 
+Only the activity types 'Ride', 'VirtualRide', and 'Handcycle' are considered.
+
 Thanks Rapha! https://www.rapha.cc/us/en_US/stories/festive-500`
 
 var activityTypes = map[string]bool{

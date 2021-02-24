@@ -7,6 +7,20 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/gravl/pkg/analysis/passes/ageride"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/benford"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/climbing"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/cluster"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/eddington"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/festive500"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/forecast"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/hourrecord"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/koms"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/pythagorean"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/rolling"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/splat"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
+	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
 	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
@@ -18,6 +32,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/geo/gpx"
 	"github.com/bzimmer/gravl/pkg/commands/geo/srtm"
 	"github.com/bzimmer/gravl/pkg/commands/gravl"
+	"github.com/bzimmer/gravl/pkg/commands/manual"
 	"github.com/bzimmer/gravl/pkg/commands/store"
 	"github.com/bzimmer/gravl/pkg/commands/version"
 	"github.com/bzimmer/gravl/pkg/commands/wx/noaa"
@@ -37,12 +52,30 @@ func main() {
 			return encoding.Named(c.App.Writer, c.Bool("compact"))
 		},
 	)
+	initAnalysis := func(c *cli.Context) error {
+		analysis.Add(ageride.New(), false)
+		analysis.Add(benford.New(), false)
+		analysis.Add(climbing.New(), true)
+		analysis.Add(cluster.New(), false)
+		analysis.Add(eddington.New(), true)
+		analysis.Add(festive500.New(), true)
+		analysis.Add(forecast.New(), false)
+		analysis.Add(hourrecord.New(), true)
+		analysis.Add(koms.New(), true)
+		analysis.Add(pythagorean.New(), true)
+		analysis.Add(rolling.New(), true)
+		analysis.Add(splat.New(), false)
+		analysis.Add(staticmap.New(), false)
+		analysis.Add(totals.New(), true)
+		return nil
+	}
 	commands := []*cli.Command{
 		analysis.Command,
 		cyclinganalytics.Command,
 		gnis.Command,
 		gpx.Command,
-		gravl.Commands,
+		manual.Commands,
+		manual.Manual,
 		noaa.Command,
 		openweather.Command,
 		rwgps.Command,
@@ -55,12 +88,13 @@ func main() {
 		zwift.Command,
 	}
 	app := &cli.App{
-		Name:     "gravl",
-		HelpName: "gravl",
-		Usage:    "Clients for activty-related services and an extensible analysis framework for activities",
-		Flags:    gravl.Flags("gravl.yaml"),
-		Commands: commands,
-		Before:   gravl.Befores(gravl.InitLogging(), initEncoding, gravl.InitConfig()),
+		Name:        "gravl",
+		HelpName:    "gravl",
+		Usage:       "CLI for activity related analysis, exploration, & planning",
+		Description: "Activity related analysis, exploration, & planning",
+		Flags:       gravl.Flags("gravl.yaml"),
+		Commands:    commands,
+		Before:      gravl.Befores(gravl.InitLogging(), initEncoding, gravl.InitConfig(), initAnalysis),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return

@@ -4,13 +4,17 @@
 
 **gravl** package provides clients for activty-related services and an extensible analysis framework for activities.
 
-The purpose of the package is to provide easy access to activity, weather, and geo services useful for either planning or analyzing activities. The package is split into a few top level compenents: `providers`, `analysis`, and `commands`.
-
-The `providers` package is responsible for communicating with services and aims to use a consistent approach to APIs and models.
-
-The `analysis` package is responsible for running analyzers on Strava data.
-
-The `commands` package contains all the commands for the cli.
+The purpose of the package is to provide easy access to activity, weather, and geo services useful for either planning or analyzing activities. The package is split into a few top level compenents:
+* `providers`
+  * a library for communicating with services and aims to use a consistent approach to APIs and models
+* `analysis`
+  * a library for running [analyzers](docs/analyzers.md) on Strava activities
+* `store`
+  * a library for storing Strava activity data, generally locally through `buntdb` or a file but also capable of interacting with Strava directly
+* `eval`
+  * a flexible evaluation library useful for dynamic filtering, grouping, and evaluating of Strava activities
+* `commands`
+  * the commands used by the cli (see the [manual](docs/commands.md) for many more examples)
 
 ## Activity clients
 * [Strava](https://strava.com)
@@ -19,14 +23,14 @@ The `commands` package contains all the commands for the cli.
 * [WTA](https://wta.org)
 * [Zwift](https://zwift.com)
 
-## Geo
-* [GNIS](https://geonames.usgs.gov)
-* [SRTM](https://github.com/sakisds/go-srtm)
-
 ## Weather
 * [NOAA](https://weather.gov)
 * [OpenWeather API](https://openweathermap.org/api)
 * [VisualCrossing](https://visualcrossing.com)
+
+## Geo
+* [GNIS](https://geonames.usgs.gov)
+* [SRTM](https://github.com/sakisds/go-srtm)
 
 # Documentation
 
@@ -68,7 +72,7 @@ cyclinganalytics:
 The package has functionality to generate access and refresh tokens for both `cyclinganalytics` and `strava` by using the `oauth` command for each after acquiring the client id from the respective sites.
 
 ```sh
-~ > gravl strava oauth
+$ gravl strava oauth
 2021-01-20T18:38:15-08:00 INF serving address=0.0.0.0:9001
 ```
 
@@ -85,14 +89,15 @@ Open a browser to http://localhost:9001 and you will be redirected to, in this c
 
 ## Analysis
 
-The analysis command supports flexible filtering and grouping of activities using the [expr](https://github.com/antonmedv/expr) package to evaluate the Strava [Activity](https://github.com/bzimmer/gravl/blob/master/pkg/providers/activity/strava/model.go#L333) model.
+The analysis command supports flexible filtering and grouping of activities using the [expr](https://github.com/antonmedv/expr) package to evaluate the Strava Activity model.
+
 
 * Filters
 
 As an example, to filter only start dates for 2021:
 
 ```sh
-~ > gravl pass -a totals -f ".StartDate.Year() == 2021"
+$ gravl pass -a totals -f ".StartDate.Year() == 2021"
 ```
 
 * Groups
@@ -100,7 +105,7 @@ As an example, to filter only start dates for 2021:
 Each of the group expressions will result in a new level in the output of the analysis:
 
 ```sh
-~ > gravl pass -a totals -f ".StartDate.Year() == 2021" -g "isoweek(.StartDate)" -g ".Type"
+$ gravl pass -a totals -f ".StartDate.Year() == 2021" -g "isoweek(.StartDate)" -g ".Type"
 ```
 
 ## Examples
@@ -140,14 +145,14 @@ done
 When executed the command output will look something like this:
 
 ```sh
-~ > qp
+$ qp
 2021-01-28T20:39:50-08:00 INF do all=50 count=50 n=50 start=1 total=50
 [4687554641,"Innsbruck","2021-01-26T18:15:29Z"]
 [4612178259,"Innsbruck","2021-01-12T18:40:56Z"]
 [4569050661,"Paris","2021-01-04T19:21:36Z"]
 [4481763454,"Watopia","2020-12-16T19:04:41Z"]
 
-~ > qp 4334103705
+$ qp 4334103705
 2021-01-28T20:37:16-08:00 INF export activityID=4334103705 format=original
 {
  "id": 4334103705,
@@ -185,7 +190,7 @@ When executed the command output will look something like this:
 Run the `totals` analyzer for the year 2021 by specifying a filter.
 
 ```sh
-~ > gravl pass -a totals -f ".StartDate.Year() == 2021"
+$ gravl pass -a totals -f ".StartDate.Year() == 2021"
 {
  "": {
   "totals": {

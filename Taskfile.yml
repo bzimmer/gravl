@@ -35,7 +35,7 @@ tasks:
     sources:
       - '**/*.go'
     cmds:
-      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/gravl/*.go
+      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
 
   build-qp:
     desc: Build qp
@@ -53,12 +53,6 @@ tasks:
         vars:
           DIST:
             sh: echo $GOPATH/bin
-
-  serve:
-    desc: Run the application
-    deps: [build]
-    cmds:
-      - '{{.DIST}}/{{.APP}} serve'
 
   lint:
     desc: Runs golint
@@ -135,3 +129,10 @@ tasks:
     desc: Display all struct fields with units
     cmds:
       - go run {{.CWD}}/cmd/genunits/* {{.CWD}}/pkg | jq .
+
+  manual:
+    desc: Generate usage documentation
+    cmds:
+      - task: build
+      - dist/gravl manual --commands > docs/commands.md
+      - dist/gravl manual --analyzers > docs/analyzers.md

@@ -104,8 +104,7 @@ func New() *analysis.Analyzer {
 	k := &kMeans{Threshold: 0.01, Clusters: 4}
 	fs := flag.NewFlagSet("cluster", flag.ExitOnError)
 	fs.IntVar(&k.Clusters, "clusters", k.Clusters, "number of clusters")
-	fs.Float64Var(&k.Threshold, "threshold", k.Threshold, `threshold (in percent between 0.0 and 0.1) aborts processing
-if less than n% of data points shifted clusters in the last iteration`)
+	fs.Float64Var(&k.Threshold, "threshold", k.Threshold, `threshold (in percent between 0.0 and 0.1) aborts processing if less than n% of data points shifted clusters in the last iteration`) // nolint
 	return &analysis.Analyzer{
 		Name:  fs.Name(),
 		Doc:   doc,

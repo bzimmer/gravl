@@ -113,14 +113,14 @@ func activities(c *cli.Context) error {
 
 var activitiesCommand = &cli.Command{
 	Name:    "activities",
-	Usage:   "Query activities for an athlete from Strava",
+	Usage:   "Query activities for an athlete from Zwift",
 	Aliases: []string{"A"},
 	Flags: []cli.Flag{
 		&cli.IntFlag{
 			Name:    "count",
 			Aliases: []string{"N"},
 			Value:   0,
-			Usage:   "Count",
+			Usage:   "The number of activities to query from Zwift (the number returned will be <= N)",
 		},
 	},
 	Action: activities,
@@ -159,9 +159,10 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activi
 }
 
 var activityCommand = &cli.Command{
-	Name:    "activity",
-	Aliases: []string{"a"},
-	Usage:   "Query an activity from Zwift",
+	Name:      "activity",
+	Aliases:   []string{"a"},
+	Usage:     "Query an activity from Zwift",
+	ArgsUsage: "ACTIVITY_ID (...)",
 	Action: func(c *cli.Context) error {
 		return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
 			return encoding.Encode(act)
@@ -181,8 +182,9 @@ func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwif
 }
 
 var exportCommand = &cli.Command{
-	Name:  "export",
-	Usage: "Export a Zwift activity by id",
+	Name:      "export",
+	Usage:     "Export a Zwift activity by id",
+	ArgsUsage: "ACTIVITY_ID (...)",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "overwrite",
@@ -258,7 +260,7 @@ func files(c *cli.Context) error {
 
 var filesCommand = &cli.Command{
 	Name:   "files",
-	Usage:  "List all local Zwift files; filters small files (584 bytes) and files named 'inProgressActivity.fit'",
+	Usage:  "List all local Zwift files",
 	Action: files,
 }
 

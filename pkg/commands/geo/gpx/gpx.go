@@ -41,9 +41,10 @@ func info(c *cli.Context) error {
 }
 
 var infoCommand = &cli.Command{
-	Name:   "info",
-	Usage:  "Return basic statistics about a GPX file",
-	Action: info,
+	Name:      "info",
+	Usage:     "Return basic statistics about a GPX file",
+	ArgsUsage: "GPX_FILE (...)",
+	Action:    info,
 }
 
 var Command = &cli.Command{

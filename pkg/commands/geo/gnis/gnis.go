@@ -9,7 +9,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/geo/gnis"
 )
 
-func forecast(c *cli.Context) error {
+func query(c *cli.Context) error {
 	client, err := gnis.NewClient(gnis.WithHTTPTracing(c.Bool("http-tracing")))
 	if err != nil {
 		return err
@@ -32,8 +32,9 @@ func forecast(c *cli.Context) error {
 }
 
 var Command = &cli.Command{
-	Name:     "gnis",
-	Category: "geo",
-	Usage:    "Query the GNIS database",
-	Action:   forecast,
+	Name:      "gnis",
+	Category:  "geo",
+	Usage:     "Query the GNIS database",
+	ArgsUsage: "US-STATE-TWO-LETTER-ABBREVIATION",
+	Action:    query,
 }

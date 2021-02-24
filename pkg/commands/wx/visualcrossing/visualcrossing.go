@@ -36,26 +36,28 @@ func forecast(c *cli.Context) error {
 	return encoding.Encode(fcst)
 }
 
-var forecastCommand = &cli.Command{
-	Name: "forecast",
-	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:    "interval",
-			Aliases: []string{"i"},
-			Value:   12,
-			Usage:   "Forecast interval (eg 1, 12, 24)",
+var Command = &cli.Command{
+	Name:     "visualcrossing",
+	Aliases:  []string{"vc"},
+	Category: "wx",
+	Usage:    "Query VisualCrossing for forecasts",
+	Flags:    AuthFlags,
+	Subcommands: []*cli.Command{
+		{
+			Name:      "forecast",
+			Usage:     "Query VisualCrossing for a forecast",
+			ArgsUsage: "[--] LATITUDE LONGITUDE",
+			Flags: []cli.Flag{
+				&cli.IntFlag{
+					Name:    "interval",
+					Aliases: []string{"i"},
+					Value:   12,
+					Usage:   "Forecast interval (eg 1, 12, 24)",
+				},
+			},
+			Action: forecast,
 		},
 	},
-	Action: forecast,
-}
-
-var Command = &cli.Command{
-	Name:        "visualcrossing",
-	Aliases:     []string{"vc"},
-	Category:    "wx",
-	Usage:       "Query VisualCrossing for forecasts",
-	Flags:       AuthFlags,
-	Subcommands: []*cli.Command{forecastCommand},
 }
 
 var AuthFlags = []cli.Flag{
