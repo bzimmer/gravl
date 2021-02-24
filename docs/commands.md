@@ -1093,7 +1093,6 @@ $ gravl strava export [flags] ACTIVITY_ID (...)
 
 |Name|Aliases|Description|
 |-|-|-|
-|```format```|```F```|Export data file in the specified format|
 |```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
 |```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
 
