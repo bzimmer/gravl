@@ -64,7 +64,7 @@ func filter(ctx context.Context, filterer eval.Evaluator, acts <-chan *stravaapi
 }
 
 func attributer(c *cli.Context) (func(ctx context.Context, act *stravaapi.Activity) (interface{}, error), error) {
-	f := func(ctx context.Context, act *stravaapi.Activity) (interface{}, error) { return act, nil }
+	f := func(_ context.Context, act *stravaapi.Activity) (interface{}, error) { return act, nil }
 	if c.IsSet("attribute") {
 		var evaluator eval.Evaluator
 		evaluator, err := commands.Evaluator(c.String("attribute"))
