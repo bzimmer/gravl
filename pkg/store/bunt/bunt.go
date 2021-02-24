@@ -104,23 +104,30 @@ func (b *bunt) Activities(ctx context.Context) <-chan *strava.ActivityResult {
 		defer close(acts)
 		err := b.db.View(func(tx *buntdb.Tx) error {
 			return tx.Ascend("", func(_, val string) bool {
+				var r *strava.ActivityResult
+				act, err := unmarshal(val)
+				if err != nil {
+					r = &strava.ActivityResult{Err: err}
+				} else {
+					r = &strava.ActivityResult{Activity: act}
+				}
 				select {
 				case <-ctx.Done():
-					acts <- &strava.ActivityResult{Err: ctx.Err()}
+					log.Error().Err(ctx.Err()).Msg("ctx is done")
 					return false
-				default:
-					act, err := unmarshal(val)
-					if err != nil {
-						acts <- &strava.ActivityResult{Err: err}
-						return true
-					}
-					acts <- &strava.ActivityResult{Activity: act}
-					return true
+				case acts <- r:
+					return r.Err == nil
 				}
 			})
 		})
 		if err != nil {
-			acts <- &strava.ActivityResult{Err: err}
+			select {
+			case <-ctx.Done():
+				log.Error().Err(ctx.Err()).Msg("ctx is done")
+				return
+			case acts <- &strava.ActivityResult{Err: err}:
+				return
+			}
 		}
 	}()
 	return acts

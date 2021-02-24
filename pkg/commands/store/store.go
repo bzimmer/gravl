@@ -27,27 +27,35 @@ func filter(ctx context.Context, filterer eval.Evaluator, acts <-chan *stravaapi
 	go func() {
 		defer close(res)
 		for {
+			var r *stravaapi.ActivityResult
 			select {
 			case <-ctx.Done():
-				res <- &stravaapi.ActivityResult{Err: ctx.Err()}
+				log.Error().Err(ctx.Err()).Msg("ctx is done")
 				return
 			case x, ok := <-acts:
 				if !ok {
 					return
 				}
-				if x.Err != nil {
-					res <- &stravaapi.ActivityResult{Err: x.Err}
-					continue
+				switch {
+				case x.Err != nil:
+					r = &stravaapi.ActivityResult{Err: x.Err}
+				case filterer == nil:
+					r = &stravaapi.ActivityResult{Activity: x.Activity}
+				default:
+					b, err := filterer.Bool(ctx, x.Activity)
+					if err != nil {
+						r = &stravaapi.ActivityResult{Err: x.Err}
+					} else if b {
+						r = &stravaapi.ActivityResult{Activity: x.Activity}
+					}
 				}
-				if filterer == nil {
-					res <- &stravaapi.ActivityResult{Activity: x.Activity}
-					continue
-				}
-				b, err := filterer.Bool(ctx, x.Activity)
-				if err != nil {
-					res <- &stravaapi.ActivityResult{Err: x.Err}
-				} else if b {
-					res <- &stravaapi.ActivityResult{Activity: x.Activity}
+			}
+			if r != nil {
+				select {
+				case <-ctx.Done():
+					log.Error().Err(ctx.Err()).Msg("ctx is done")
+					return
+				case res <- r:
 				}
 			}
 		}
