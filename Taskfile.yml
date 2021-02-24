@@ -30,7 +30,11 @@ tasks:
       - go generate -x ./...
 
   build:
-    desc: Build gravl
+    desc: Build all commands
+    deps: [build-gravl, build-qp]
+
+  build-gravl:
+    desc: Build qp
     deps: []
     sources:
       - '**/*.go'
@@ -60,7 +64,7 @@ tasks:
       - golint {{catLines .GO_PACKAGES}}
       - golangci-lint -v run
 
-  security:
+  sec:
     desc: Run security checks
     cmds:
       - gosec ./...
@@ -72,7 +76,7 @@ tasks:
 
   test-integration:
     desc: Run all integration tests
-    deps: [build]
+    deps: [build-gravl]
     cmds:
       - go test -count=1 -run Integration {{catLines .GO_PACKAGES}}
 
@@ -85,9 +89,7 @@ tasks:
 
   test-all:
     desc: Run all unit & integration tests
-    deps: [build]
-    cmds:
-      - go test -count=1 {{catLines .GO_PACKAGES}}
+    deps: [test, test-integration]
 
   cover:
     desc: Visualize test coverage

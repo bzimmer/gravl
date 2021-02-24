@@ -12,30 +12,48 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	pollIterations = 5
+	pollDuration   = 2 * time.Second
+)
+
 // Export the contents and metadata about an activity file
 type Export struct {
 	*File
 	ID int64 `json:"id"`
 }
 
+// Exporter exports activity data by activity id
 type Exporter interface {
+	// Export exports the data file
 	Export(ctx context.Context, activityID int64) (*Export, error)
 }
 
+// UploadID is the type for all upload identifiers
 type UploadID int64
 
+// Upload is the current status of an upload request
 type Upload interface {
+	// Identifier is unique id for the upload
 	Identifier() UploadID
+	// Done returns whether the upload is complete, either successfully or an error occurred
 	Done() bool
 }
 
-type UploadResult struct {
+// Poll is the result of polling
+type Poll struct {
+	// Upload is the upload status if no error occurred
 	Upload Upload
-	Err    error
+	// Err is non-nil when an error occurred in the operation but not semantically
+	// Check the `Upload` for semantic errors (eg missing data, duplicate activity, ...)
+	Err error
 }
 
+// Uploader supports uploading and status checking of an upload
 type Uploader interface {
+	// Upload uploads a file
 	Upload(ctx context.Context, file *File) (Upload, error)
+	// Status returns the processing status of a file
 	Status(ctx context.Context, id UploadID) (Upload, error)
 }
 
@@ -46,6 +64,7 @@ type File struct {
 	Format    Format `json:"format"`
 }
 
+// Close the reader (if supported)
 func (f *File) Close() error {
 	if f.Reader == nil {
 		return nil
@@ -91,7 +110,9 @@ func ToFormat(format string) Format {
 	}
 }
 
+// Poller will continually check the status of an upload request
 type Poller struct {
+	// Uploader is used for checking status
 	Uploader Uploader
 }
 
@@ -99,25 +120,23 @@ type Poller struct {
 //
 // The operation will continue until either it is completed, the context
 //  is canceled, or the maximum number of iterations have been exceeded.
-func (p *Poller) Poll(ctx context.Context, uploadID UploadID) <-chan *UploadResult {
-	iterations := 5
-	duration := 2 * time.Second
-	res := make(chan *UploadResult)
+func (p *Poller) Poll(ctx context.Context, uploadID UploadID) <-chan *Poll {
+	res := make(chan *Poll)
 	go func() {
 		defer close(res)
 		if p.Uploader == nil {
 			return
 		}
 		i := 0
-		for ; i < iterations; i++ {
-			var r *UploadResult
+		for ; i < pollIterations; i++ {
+			var r *Poll
 			log.Info().Int64("uploadID", int64(uploadID)).Msg("status")
 			upload, err := p.Uploader.Status(ctx, uploadID)
 			switch {
 			case err != nil:
-				r = &UploadResult{Err: err}
+				r = &Poll{Err: err}
 			default:
-				r = &UploadResult{Upload: upload}
+				r = &Poll{Upload: upload}
 			}
 			select {
 			case <-ctx.Done():
@@ -131,11 +150,11 @@ func (p *Poller) Poll(ctx context.Context, uploadID UploadID) <-chan *UploadResu
 			select {
 			case <-ctx.Done():
 				return
-			case <-time.After(duration):
+			case <-time.After(pollDuration):
 			}
 		}
-		if i == iterations {
-			log.Warn().Int("polls", iterations).Msg("exceeded max iterations")
+		if i == pollIterations {
+			log.Warn().Int("polls", pollIterations).Msg("exceeded max iterations")
 		}
 	}()
 	return res

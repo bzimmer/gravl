@@ -6,8 +6,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
-// Poll the status of an upload
-//
 // The operation will continue until either it is completed (status != "processing"), the context
 //  is canceled, or the maximum number of iterations have been exceeded.
 //

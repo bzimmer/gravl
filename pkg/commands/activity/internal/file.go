@@ -37,7 +37,11 @@ func Write(c *cli.Context, exp *activity.Export) error {
 	if err != nil {
 		return err
 	}
-	defer fp.Close()
+	defer func() {
+		if err = fp.Close(); err != nil {
+			log.Error().Err(err).Msg("write")
+		}
+	}()
 	_, err = io.Copy(fp, exp)
 	return err
 }

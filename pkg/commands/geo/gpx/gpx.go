@@ -3,9 +3,9 @@ package gpx
 import (
 	"os"
 
-	"github.com/urfave/cli/v2"
-
+	"github.com/rs/zerolog/log"
 	"github.com/twpayne/go-gpx"
+	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/geo"
@@ -17,7 +17,11 @@ func info(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		defer fp.Close()
+		defer func() {
+			if err = fp.Close(); err != nil {
+				log.Error().Err(err).Msg("info")
+			}
+		}()
 		x, err := gpx.Read(fp)
 		if err != nil {
 			return err

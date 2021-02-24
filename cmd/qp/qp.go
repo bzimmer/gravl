@@ -43,7 +43,7 @@ func upload(c *cli.Context, uploadr activity.Uploader, export *activity.Export) 
 	defer file.Close()
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	log.Info().Int64("activityID", export.ID).Msg("uploading")
+	log.Info().Int64("activityID", export.ID).Msg("upload")
 	u, err := uploadr.Upload(ctx, file)
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func qp(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		log.Info().Int64("activityID", actID).Msg("exporting")
+		log.Info().Int64("activityID", actID).Msg("export")
 		exp, err := expr.Export(ctx, actID)
 		if err != nil {
 			return err
