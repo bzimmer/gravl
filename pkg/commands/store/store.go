@@ -30,7 +30,7 @@ func filter(ctx context.Context, filterer eval.Evaluator, acts <-chan *stravaapi
 			var r *stravaapi.ActivityResult
 			select {
 			case <-ctx.Done():
-				log.Error().Err(ctx.Err()).Msg("ctx is done")
+				log.Debug().Err(ctx.Err()).Msg("ctx is done")
 				return
 			case x, ok := <-acts:
 				if !ok {
@@ -53,7 +53,7 @@ func filter(ctx context.Context, filterer eval.Evaluator, acts <-chan *stravaapi
 			if r != nil {
 				select {
 				case <-ctx.Done():
-					log.Error().Err(ctx.Err()).Msg("ctx is done")
+					log.Debug().Err(ctx.Err()).Msg("ctx is done")
 					return
 				case res <- r:
 				}

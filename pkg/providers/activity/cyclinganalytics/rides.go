@@ -187,12 +187,18 @@ func (s *RidesService) PollWithUser(ctx context.Context, userID UserID, uploadID
 			}
 			select {
 			case <-ctx.Done():
-				log.Error().Err(ctx.Err()).Msg("ctx is done")
+				log.Debug().Err(ctx.Err()).Msg("ctx is done")
 				return
 			case res <- r:
 				if r.Upload.Done() {
 					return
 				}
+			}
+			// wait for a bit to let the processing continue
+			select {
+			case <-ctx.Done():
+				log.Debug().Err(ctx.Err()).Msg("ctx is done")
+				return
 			case <-time.After(pollingDuration):
 			}
 		}
