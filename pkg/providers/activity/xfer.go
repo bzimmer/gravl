@@ -13,10 +13,6 @@ type Exporter interface {
 	Export(ctx context.Context, activityID int64) (*Export, error)
 }
 
-type Uploader interface {
-	Upload(ctx context.Context, file *File) context.Context
-}
-
 // File for uploading
 type File struct {
 	io.Reader `json:"-"`
@@ -39,28 +35,6 @@ type Export struct {
 	*File
 	ID int64 `json:"id"`
 }
-
-// type uploadContext struct{}
-
-// func Upload() context.Context {
-// 	return &uploadContext{}
-// }
-
-// func (u *uploadContext) Deadline() (deadline time.Time, ok bool) {
-// 	return time.Time{}, false
-// }
-
-// func (u *uploadContext) Done() <-chan struct{} {
-// 	return nil
-// }
-
-// func (u *uploadContext) Err() error {
-// 	return nil
-// }
-
-// func (u *uploadContext) Value(key interface{}) interface{} {
-// 	return nil
-// }
 
 // Format of the file used in exporting and uploading
 type Format int

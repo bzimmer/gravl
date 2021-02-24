@@ -208,7 +208,7 @@ func (s *ActivityService) Poll(ctx context.Context, uploadID int64) <-chan *Uplo
 				log.Error().Err(ctx.Err()).Msg("ctx is done")
 				return
 			case res <- r:
-				if upload.ActivityID > 0 || upload.Error != "" {
+				if r.Upload.Done() {
 					return
 				}
 			case <-time.After(pollingDuration):

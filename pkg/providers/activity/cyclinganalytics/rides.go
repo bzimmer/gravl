@@ -190,8 +190,7 @@ func (s *RidesService) PollWithUser(ctx context.Context, userID UserID, uploadID
 				log.Error().Err(ctx.Err()).Msg("ctx is done")
 				return
 			case res <- r:
-				// status: processing, done, or error
-				if upload.Status != "processing" {
+				if r.Upload.Done() {
 					return
 				}
 			case <-time.After(pollingDuration):
