@@ -37,6 +37,7 @@ since the operation can take a long time.
 * [rwgps athlete](#rwgps-athlete)
 * [rwgps route](#rwgps-route)
 * [rwgps routes](#rwgps-routes)
+* [rwgps upload](#rwgps-upload)
 * [srtm](#srtm)
 * [store](#store)
 * [store export](#store-export)
@@ -711,6 +712,28 @@ $ gravl rwgps routes [flags]
 |Name|Aliases|Description|
 |-|-|-|
 |```count```|```N```|The number of routes to query from RideWithGPS (the number returned will be <= N)|
+
+
+## *rwgps upload*
+
+**Description**
+
+Upload an activity file
+
+
+**Syntax**
+
+```sh
+$ gravl rwgps upload [flags] {FILE | DIRECTORY}
+```
+
+**Flags**
+
+|Name|Aliases|Description|
+|-|-|-|
+|```status```|```s```|Check the status of the upload|
+|```poll```|```p```|Continually check the status of the request until it is completed|
+|```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
 
 
 ## *srtm*

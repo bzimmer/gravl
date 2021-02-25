@@ -138,3 +138,9 @@ tasks:
     cmds:
       - dist/gravl manual --commands > docs/commands.md
       - dist/gravl manual --analyzers > docs/analyzers.md
+
+  manual-serve:
+    desc: Serve the manual content locally
+    deps: [manual]
+    cmds:
+      - grip
