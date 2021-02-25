@@ -62,7 +62,7 @@ func upload(c *cli.Context, uploadr activity.Uploader, export *activity.Export) 
 	if err != nil {
 		return err
 	}
-	p := activity.Poller{Uploader: uploadr}
+	p := activity.NewPoller(uploadr)
 	for res := range p.Poll(ctx, u.Identifier()) {
 		if res.Err != nil {
 			return res.Err

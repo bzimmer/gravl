@@ -56,6 +56,7 @@ func (p *paginator) Do(ctx context.Context, spec activity.Pagination) (int, erro
 	return len(acts), nil
 }
 
+// Activity returns the activity for the athlete and activity id
 func (s *ActivityService) Activity(ctx context.Context, athleteID int64, activityID int64) (*Activity, error) {
 	uri := fmt.Sprintf("api/profiles/%d/activities/%d", athleteID, activityID)
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
@@ -74,6 +75,7 @@ func (s *ActivityService) Activity(ctx context.Context, athleteID int64, activit
 	return act, nil
 }
 
+// Activities returns a slice of activities for the user
 func (s *ActivityService) Activities(ctx context.Context, athleteID int64, spec activity.Pagination) ([]*Activity, error) {
 	p := &paginator{service: *s, athleteID: athleteID, activities: make([]*Activity, 0)}
 	err := activity.Paginate(ctx, p, spec)
@@ -83,7 +85,7 @@ func (s *ActivityService) Activities(ctx context.Context, athleteID int64, spec 
 	return p.activities, nil
 }
 
-// Export requests the data file for the activity
+// Export exports the data file for the activity
 func (s *ActivityService) Export(ctx context.Context, activityID int64) (*activity.Export, error) {
 	ath, err := s.client.Profile.Profile(ctx, Me)
 	if err != nil {
@@ -96,6 +98,7 @@ func (s *ActivityService) Export(ctx context.Context, activityID int64) (*activi
 	return s.ExportActivity(ctx, act)
 }
 
+// ExportActivity exports the data file for the activity
 func (s *ActivityService) ExportActivity(ctx context.Context, act *Activity) (*activity.Export, error) {
 	uri := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", act.FitFileBucket, act.FitFileKey)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)

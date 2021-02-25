@@ -111,27 +111,32 @@ func ToFormat(format string) Format {
 }
 
 // Poller will continually check the status of an upload request
-type Poller struct {
-	// Uploader is used for checking status
-	Uploader Uploader
+type Poller interface {
+	// Poll the status of an upload
+	//
+	// The operation will continue until either it is completed, the context
+	//  is canceled, or the maximum number of iterations have been exceeded.
+	Poll(ctx context.Context, uploadID UploadID) <-chan *Poll
 }
 
-// Poll the status of an upload
-//
-// The operation will continue until either it is completed, the context
-//  is canceled, or the maximum number of iterations have been exceeded.
-func (p *Poller) Poll(ctx context.Context, uploadID UploadID) <-chan *Poll {
+// NewPoller returns an instance of a Poller
+func NewPoller(uploader Uploader) Poller {
+	return &poller{uploader: uploader}
+}
+
+type poller struct {
+	uploader Uploader
+}
+
+func (p *poller) Poll(ctx context.Context, uploadID UploadID) <-chan *Poll {
 	res := make(chan *Poll)
 	go func() {
 		defer close(res)
-		if p.Uploader == nil {
-			return
-		}
 		i := 0
 		for ; i < pollIterations; i++ {
 			var r *Poll
 			log.Info().Int64("uploadID", int64(uploadID)).Msg("status")
-			upload, err := p.Uploader.Status(ctx, uploadID)
+			upload, err := p.uploader.Status(ctx, uploadID)
 			switch {
 			case err != nil:
 				r = &Poll{Err: err}

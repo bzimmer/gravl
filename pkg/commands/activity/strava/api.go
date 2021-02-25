@@ -302,7 +302,7 @@ var routeCommand = &cli.Command{
 }
 
 func poll(ctx context.Context, client *strava.Client, uploadID int64, follow bool) error {
-	p := &activity.Poller{Uploader: client.Uploader()}
+	p := activity.NewPoller(client.Uploader())
 	for res := range p.Poll(ctx, activity.UploadID(uploadID)) {
 		if res.Err != nil {
 			return res.Err

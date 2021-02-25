@@ -11,6 +11,8 @@ type ProfileService service
 
 const Me = "me"
 
+// Profile returns the profile for the id
+// The `profileID` can be empty or "me" to return the profile for the authenticated user
 func (s *ProfileService) Profile(ctx context.Context, profileID string) (*Profile, error) {
 	if profileID == "" {
 		profileID = Me
