@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/martinlindhe/unit"
+	"github.com/rs/zerolog/log"
 
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
@@ -122,4 +123,48 @@ type Trip struct {
 
 func (t *Trip) Named() *activity.Named {
 	return &activity.Named{ID: t.ID, Name: t.Name, Date: t.DepartedAt, Source: "rwgps"}
+}
+
+type Tasks struct {
+	ID        int    `json:"id"`
+	Message   string `json:"message"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+	UserID    int    `json:"user_id"`
+	Status    int    `json:"status"`
+}
+
+// Upload is the state representation of an uploaded activity
+type Upload struct {
+	// TaskID of the enqueued request
+	TaskID int64 `json:"task_id"`
+	// Success is -1 for failed, 0 for pending, 1 for success
+	Success int `json:"success"`
+	// Tasks is a list of queued tasks and their status
+	Tasks []*Tasks `json:"queued_tasks"`
+}
+
+func (u *Upload) Identifier() activity.UploadID {
+	return activity.UploadID(u.TaskID)
+}
+
+func (u *Upload) Done() bool {
+	// More at https://ridewithgps.com/api?lang=en
+	n := len(u.Tasks)
+	switch n {
+	case 0:
+		// this case is for the initial enqueue on upload
+		return u.Success != 0
+	case 1:
+		// this case is for any requests to the status endpoint
+		return u.Tasks[0].Status != 0
+	default:
+		// this case should not exist because status accepts only a single ID
+		log.Warn().Int("count", n).Msg("> 1 task in rwgps upload response")
+		var ok = true
+		for i := 0; ok && i < n; i++ {
+			ok = ok && u.Tasks[i].Status != 0
+		}
+		return ok
+	}
 }

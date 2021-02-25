@@ -301,11 +301,6 @@ var routeCommand = &cli.Command{
 	},
 }
 
-// collect returns a slice of files ready for uploading
-func collect(name string) ([]*activity.File, error) {
-	return internal.Collect(name, nil)
-}
-
 func poll(ctx context.Context, client *strava.Client, uploadID int64, follow bool) error {
 	p := &activity.Poller{Uploader: client.Uploader()}
 	for res := range p.Poll(ctx, activity.UploadID(uploadID)) {
@@ -329,7 +324,7 @@ func upload(c *cli.Context) error {
 	}
 	dryrun := c.Bool("dryrun")
 	for i := 0; i < c.Args().Len(); i++ {
-		files, err := collect(c.Args().Get(i))
+		files, err := internal.Collect(c.Args().Get(i), nil)
 		if err != nil {
 			return err
 		}

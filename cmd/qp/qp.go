@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"os"
 	"strconv"
@@ -10,15 +11,18 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
-	cacmd "github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
-	stcmd "github.com/bzimmer/gravl/pkg/commands/activity/strava"
+	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
+	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
+	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/gravl"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
+const svc = "ca"
+
 func exporter(c *cli.Context) (activity.Exporter, error) {
-	client, err := stcmd.NewWebClient(c)
+	client, err := strava.NewWebClient(c)
 	if err != nil {
 		return nil, err
 	}
@@ -26,11 +30,21 @@ func exporter(c *cli.Context) (activity.Exporter, error) {
 }
 
 func uploader(c *cli.Context) (activity.Uploader, error) {
-	client, err := cacmd.NewClient(c)
-	if err != nil {
-		return nil, err
+	switch svc {
+	case "ca":
+		client, err := cyclinganalytics.NewClient(c)
+		if err != nil {
+			return nil, err
+		}
+		return client.Uploader(), nil
+	case "rwgps":
+		client, err := rwgps.NewClient(c)
+		if err != nil {
+			return nil, err
+		}
+		return client.Uploader(), nil
 	}
-	return client.Uploader(), nil
+	return nil, errors.New("fix svc")
 }
 
 func upload(c *cli.Context, uploadr activity.Uploader, export *activity.Export) error {
@@ -97,8 +111,9 @@ func qp(c *cli.Context) error {
 
 func main() {
 	var flags = gravl.Flags("gravl.yaml")
-	flags = append(flags, stcmd.AuthFlags...)
-	flags = append(flags, cacmd.AuthFlags...)
+	flags = append(flags, strava.AuthFlags...)
+	flags = append(flags, cyclinganalytics.AuthFlags...)
+	flags = append(flags, rwgps.AuthFlags...)
 	app := &cli.App{
 		Name:      "qp",
 		HelpName:  "qp",

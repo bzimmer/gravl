@@ -6,9 +6,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
+	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/rwgps"
@@ -155,6 +157,115 @@ var routeCommand = &cli.Command{
 	},
 }
 
+func poll(ctx context.Context, client *rwgps.Client, uploadID int64, follow bool) error {
+	p := &activity.Poller{Uploader: client.Uploader()}
+	for res := range p.Poll(ctx, activity.UploadID(uploadID)) {
+		if res.Err != nil {
+			return res.Err
+		}
+		if err := encoding.Encode(res.Upload); err != nil {
+			return err
+		}
+		if !follow {
+			return nil
+		}
+	}
+	return ctx.Err()
+}
+
+func upload(c *cli.Context) error {
+	client, err := NewClient(c)
+	if err != nil {
+		return err
+	}
+	args := c.Args()
+	dryrun := c.Bool("dryrun")
+	for i := 0; i < args.Len(); i++ {
+		files, err := internal.Collect(args.Get(i), nil)
+		if err != nil {
+			return err
+		}
+		if len(files) == 0 {
+			log.Warn().Msg("no files specified")
+			return nil
+		}
+		for _, file := range files {
+			defer file.Close()
+			if dryrun {
+				log.Info().Str("file", file.Name).Bool("dryrun", dryrun).Msg("uploading")
+				continue
+			}
+			log.Info().Str("file", file.Name).Msg("uploading")
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			u, err := client.Trips.Upload(ctx, file)
+			if err != nil {
+				return err
+			}
+			if !c.Bool("poll") {
+				return encoding.Encode(u)
+			}
+			if err := poll(ctx, client, u.TaskID, true); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func status(c *cli.Context) error {
+	client, err := NewClient(c)
+	if err != nil {
+		return err
+	}
+	args := c.Args()
+	for i := 0; i < args.Len(); i++ {
+		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+		defer cancel()
+		uploadID, err := strconv.ParseInt(args.Get(i), 0, 64)
+		if err != nil {
+			return err
+		}
+		if err := poll(ctx, client, uploadID, c.Bool("poll")); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+var uploadCommand = &cli.Command{
+	Name:      "upload",
+	Aliases:   []string{"u"},
+	Usage:     "Upload an activity file",
+	ArgsUsage: "{FILE | DIRECTORY}",
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:    "status",
+			Aliases: []string{"s"},
+			Value:   false,
+			Usage:   "Check the status of the upload",
+		},
+		&cli.BoolFlag{
+			Name:    "poll",
+			Aliases: []string{"p"},
+			Value:   false,
+			Usage:   "Continually check the status of the request until it is completed",
+		},
+		&cli.BoolFlag{
+			Name:    "dryrun",
+			Aliases: []string{"n"},
+			Value:   false,
+			Usage:   "Show the files which would be uploaded but do not upload them",
+		},
+	},
+	Action: func(c *cli.Context) error {
+		if c.Bool("status") {
+			return status(c)
+		}
+		return upload(c)
+	},
+}
+
 var Command = &cli.Command{
 	Name:     "rwgps",
 	Category: "activity",
@@ -166,6 +277,7 @@ var Command = &cli.Command{
 		athleteCommand,
 		routeCommand,
 		routesCommand,
+		uploadCommand,
 	},
 }
 
