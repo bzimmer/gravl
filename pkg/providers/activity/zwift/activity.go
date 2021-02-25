@@ -40,7 +40,7 @@ func (p *paginator) Do(ctx context.Context, spec activity.Pagination) (int, erro
 	count := spec.Count
 	start := int64((spec.Start - 1) * p.PageSize())
 
-	uri := fmt.Sprintf("/api/profiles/%d/activities/?start=%d&limit=%d", p.athleteID, start, count)
+	uri := fmt.Sprintf("api/profiles/%d/activities/?start=%d&limit=%d", p.athleteID, start, count)
 	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return 0, err
@@ -57,7 +57,7 @@ func (p *paginator) Do(ctx context.Context, spec activity.Pagination) (int, erro
 }
 
 func (s *ActivityService) Activity(ctx context.Context, athleteID int64, activityID int64) (*Activity, error) {
-	uri := fmt.Sprintf("/api/profiles/%d/activities/%d", athleteID, activityID)
+	uri := fmt.Sprintf("api/profiles/%d/activities/%d", athleteID, activityID)
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err

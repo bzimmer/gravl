@@ -15,7 +15,7 @@ func (s *ProfileService) Profile(ctx context.Context, profileID string) (*Profil
 	if profileID == "" {
 		profileID = Me
 	}
-	uri := fmt.Sprintf("/api/profiles/%s", profileID)
+	uri := fmt.Sprintf("api/profiles/%s", profileID)
 	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri)
 	if err != nil {
 		return nil, err
