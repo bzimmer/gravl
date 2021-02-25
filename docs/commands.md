@@ -351,7 +351,7 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY}
+$ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 ```
 
 **Flags**
@@ -724,7 +724,7 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl rwgps upload [flags] {FILE | DIRECTORY}
+$ gravl rwgps upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 ```
 
 **Flags**
@@ -1365,7 +1365,7 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl strava upload [flags] {{FILE | DIRECTORY} | UPLOAD_ID (...)}
+$ gravl strava upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 ```
 
 **Flags**

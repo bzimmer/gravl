@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
+	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/zwift"
@@ -175,7 +175,7 @@ func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwif
 	if err != nil {
 		return err
 	}
-	if err = internal.Write(c, exp); err != nil {
+	if err = actcmd.Write(c, exp); err != nil {
 		return err
 	}
 	return encoding.Encode(exp)

@@ -13,6 +13,6 @@ func TestActivityIntegration(t *testing.T) {
 		Name:      "rwgps",
 		Encodings: []string{"gpx", "geojson", "named"},
 		Routes:    true,
-		Upload:    false,
+		Upload:    true,
 	})
 }

@@ -3,6 +3,7 @@ package internal
 import (
 	"crypto/rand"
 	"math/big"
+	"path/filepath"
 	"strconv"
 	"testing"
 
@@ -70,15 +71,23 @@ func (s *ActivityTestSuite) TestRoutes() {
 	a.True(c.Success())
 }
 
+// TestUploads confirms collecting files and initiating a dryrun upload works but doesn't
+//  actually upload (if dryrun is working correctly!)
 func (s *ActivityTestSuite) TestUpload() {
 	if !s.Upload {
 		s.T().Logf("skipping upload for %s", s.Name)
 		return
 	}
 	a := s.Assert()
-	c := internal.Gravl("--timeout", "30s", "-c", s.Name, "upload", "-n")
+	root, err := internal.Root()
+	a.NoError(err)
+	tdf := "pkg/commands/geo/gpx/testdata/2017-07-13-TdF-Stage18.gpx"
+	c := internal.Gravl("--timeout", "30s", "-c", s.Name, "upload", "-n", filepath.Join(root, tdf))
 	<-c.Start()
 	a.True(c.Success())
+	a.Equal(1, len(c.Status().Stdout))
+	res := gjson.Parse(c.Status().Stdout[0])
+	a.Equal("2017-07-13-TdF-Stage18.gpx", gjson.Get(res.String(), "file.name").String())
 }
 
 func (s *ActivityTestSuite) TestActivity() {

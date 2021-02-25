@@ -60,6 +60,7 @@ type Uploader interface {
 // File for uploading
 type File struct {
 	io.Reader `json:"-"`
+	FQPN      string `json:"fqpn,omitempty"`
 	Name      string `json:"name"`
 	Format    Format `json:"format"`
 }
