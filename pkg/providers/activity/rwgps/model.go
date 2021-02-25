@@ -125,7 +125,7 @@ func (t *Trip) Named() *activity.Named {
 	return &activity.Named{ID: t.ID, Name: t.Name, Date: t.DepartedAt, Source: "rwgps"}
 }
 
-type Tasks struct {
+type Task struct {
 	ID        int    `json:"id"`
 	Message   string `json:"message"`
 	CreatedAt string `json:"created_at"`
@@ -141,7 +141,7 @@ type Upload struct {
 	// Success is -1 for failed, 0 for pending, 1 for success
 	Success int `json:"success"`
 	// Tasks is a list of queued tasks and their status
-	Tasks []*Tasks `json:"queued_tasks"`
+	Tasks []*Task `json:"queued_tasks"`
 }
 
 func (u *Upload) Identifier() activity.UploadID {
@@ -160,7 +160,7 @@ func (u *Upload) Done() bool {
 		return u.Tasks[0].Status != 0
 	default:
 		// this case should not exist because status accepts only a single ID
-		log.Warn().Int("count", n).Msg("> 1 task in rwgps upload response")
+		log.Debug().Int("count", n).Msg("> 1 task in rwgps upload response")
 		var ok = true
 		for i := 0; ok && i < n; i++ {
 			ok = ok && u.Tasks[i].Status != 0
