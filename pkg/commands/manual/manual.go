@@ -194,6 +194,7 @@ var Manual = &cli.Command{
 			if err = t.Execute(buffer, map[string]interface{}{
 				"Name":        c.App.Name,
 				"Description": c.App.Description,
+				"GlobalFlags": c.App.Flags,
 				"Commands":    commands,
 			}); err != nil {
 				return err

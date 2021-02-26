@@ -32,7 +32,7 @@ type Client struct {
 	Profile  *ProfileService
 }
 
-func (c *Client) NewExporter() activity.Exporter {
+func (c *Client) Exporter() activity.Exporter {
 	return c.Activity
 }
 

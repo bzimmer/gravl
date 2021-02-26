@@ -2,6 +2,13 @@
 
 {{ partial "_gravl" }}
 
+## Global Flags
+|Name|Aliases|Description|
+|-|-|-|
+{{- range $f := .GlobalFlags }}
+|```{{ $f.Name }}```|{{ if names $f }}```{{ names $f }}```{{ end }}|{{ description $f }}|
+{{- end }}
+
 ## Commands
 
 {{- range .Commands }}

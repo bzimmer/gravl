@@ -33,7 +33,7 @@ type Client struct {
 	Fitness *FitnessService
 }
 
-func (c *Client) NewExporter() activity.Exporter {
+func (c *Client) Exporter() activity.Exporter {
 	return c.Export
 }
 

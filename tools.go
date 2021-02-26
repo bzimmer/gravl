@@ -3,6 +3,8 @@
 package main
 
 import (
+	// # https://github.com/joeyespo/grip
+	// brew install grip
 	// brew install go-task
 	// _ "github.com/go-task/task/v3/cmd/task"
 	// brew install golangci-lint

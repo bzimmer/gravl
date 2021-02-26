@@ -3,9 +3,11 @@ package qp
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -27,50 +29,58 @@ func poller(c *cli.Context, uploader activity.Uploader) activity.Poller {
 func exporter(c *cli.Context) (activity.Exporter, error) {
 	exp := c.String("exporter")
 	log.Info().Str("provider", exp).Msg("exporter")
-	switch exp {
+	switch strings.ToLower(exp) {
+	case "":
+		return nil, errors.New("exporter is a required flag")
 	case "zwift":
 		client, err := zwift.NewClient(c)
 		if err != nil {
 			return nil, err
 		}
-		return client.NewExporter(), nil
+		return client.Exporter(), nil
 	case "strava": // nolint
 		client, err := strava.NewWebClient(c)
 		if err != nil {
 			return nil, err
 		}
-		return client.NewExporter(), nil
+		return client.Exporter(), nil
 	}
 	return nil, fmt.Errorf("unknown exporter {%s}", exp)
 }
 
-func uploader(c *cli.Context) (activity.Uploader, error) {
+func uploader(c *cli.Context) (activity.Uploader, activity.Poller, error) {
+	var updr activity.Uploader
 	upd := c.String("uploader")
 	log.Info().Str("provider", upd).Msg("uploader")
-	switch upd {
+	switch strings.ToLower(upd) {
+	case "":
+		return nil, nil, errors.New("uploader is a required flag")
 	case "ca", "cyclinganalytics":
 		client, err := cyclinganalytics.NewClient(c)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		return client.Uploader(), nil
-	case "rwgps":
+		updr = client.Uploader()
+	case "rwgps", "ridewithgps":
 		client, err := rwgps.NewClient(c)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		return client.Uploader(), nil
+		updr = client.Uploader()
 	case "strava":
 		client, err := strava.NewAPIClient(c)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		return client.Uploader(), nil
+		updr = client.Uploader()
+	default:
+		return nil, nil, fmt.Errorf("unknown uploader {%s}", upd)
 	}
-	return nil, fmt.Errorf("unknown importer {%s}", upd)
+	return updr, poller(c, updr), nil
 }
 
-func upload(c *cli.Context, upd activity.Uploader, export *activity.Export) error {
+func upload(c *cli.Context, upd activity.Uploader, plr activity.Poller, export *activity.Export) error {
+	log.Info().Int64("activityID", export.ID).Msg("upload")
 	out := new(bytes.Buffer)
 	_, err := io.Copy(out, export)
 	if err != nil {
@@ -80,13 +90,11 @@ func upload(c *cli.Context, upd activity.Uploader, export *activity.Export) erro
 	defer file.Close()
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	log.Info().Int64("activityID", export.ID).Msg("upload")
 	u, err := upd.Upload(ctx, file)
 	if err != nil {
 		return err
 	}
-	p := poller(c, upd)
-	for res := range p.Poll(ctx, u.Identifier()) {
+	for res := range plr.Poll(ctx, u.Identifier()) {
 		if res.Err != nil {
 			return res.Err
 		}
@@ -97,29 +105,33 @@ func upload(c *cli.Context, upd activity.Uploader, export *activity.Export) erro
 	return nil
 }
 
+func export(c *cli.Context, expr activity.Exporter, activityID int64) (*activity.Export, error) {
+	log.Info().Int64("activityID", activityID).Msg("export")
+	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+	defer cancel()
+	return expr.Export(ctx, activityID)
+}
+
 func qp(c *cli.Context) error {
-	exp, err := exporter(c)
+	expr, err := exporter(c)
 	if err != nil {
 		return err
 	}
-	upd, err := uploader(c)
+	updr, plr, err := uploader(c)
 	if err != nil {
 		return err
 	}
 	args := c.Args()
 	for i := 0; i < args.Len(); i++ {
-		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-		defer cancel()
-		actID, err := strconv.ParseInt(args.Get(i), 10, 64)
+		activityID, err := strconv.ParseInt(args.Get(i), 10, 64)
 		if err != nil {
 			return err
 		}
-		log.Info().Int64("activityID", actID).Msg("export")
-		exp, err := exp.Export(ctx, actID)
+		exp, err := export(c, expr, activityID)
 		if err != nil {
 			return err
 		}
-		if err := upload(c, upd, exp); err != nil {
+		if err := upload(c, updr, plr, exp); err != nil {
 			return err
 		}
 	}

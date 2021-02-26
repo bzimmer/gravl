@@ -1,17 +1,24 @@
 # gravl - Activity related analysis, exploration, & planning
 
 
-The top level `gravl` command has some useful flags:
-
-* Use `--http-tracing` to enable verbose logging of http requests for debugging.
-* Use `--timeout DURATION` to specify a timeout duration (eg `1m`, `10s`)
-
 For most commands the timeout value is reset on each query. For example, if you query 12 activities
 from Strava each query will honor the timeout value, it's not an aggregate timeout.
 
 Some commands, such as [store update](#store-update) will require a timeout longer than the default
 since the operation can take a long time.
 
+
+## Global Flags
+|Name|Aliases|Description|
+|-|-|-|
+|```verbosity```|```v```|Log level (trace, debug, info, warn, error, fatal, panic)|
+|```monochrome```|```m```|Use monochrome logging, color enabled by default|
+|```compact```|```c```|Use compact JSON output|
+|```encoding```|```e```|Output encoding (eg, json, xml, geojson, gpx, spew)|
+|```http-tracing```||Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)|
+|```timeout```|```t```|Timeout duration (eg, 1ms, 2s, 5m, 3h)|
+|```config```||File containing configuration values|
+|```help```|```h```|show help|
 
 ## Commands
 * [analysis](#analysis)

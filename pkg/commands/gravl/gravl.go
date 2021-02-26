@@ -140,7 +140,7 @@ func Flags(filename string) []cli.Flag {
 			Name:    "encoding",
 			Aliases: []string{"e"},
 			Value:   "json",
-			Usage:   "Output encoding (json, xml, geojson, gpx, spew)",
+			Usage:   "Output encoding (eg, json, xml, geojson, gpx, spew)",
 		},
 		&cli.BoolFlag{
 			Name:  "http-tracing",
@@ -156,7 +156,7 @@ func Flags(filename string) []cli.Flag {
 		&cli.StringFlag{
 			Name:  "config",
 			Value: config,
-			Usage: "File containing configuration settings",
+			Usage: "File containing configuration values",
 		},
 	}
 }
