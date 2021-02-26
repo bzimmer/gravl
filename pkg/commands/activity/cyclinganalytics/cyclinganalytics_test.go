@@ -10,9 +10,10 @@ import (
 
 func TestActivityIntegration(t *testing.T) {
 	suite.Run(t, &internal.ActivityTestSuite{
-		Name:      "ca",
-		Encodings: []string{"gpx", "named"},
-		Routes:    false,
-		Upload:    true,
+		Name:       "ca",
+		Encodings:  []string{"gpx", "named"},
+		Routes:     false,
+		Upload:     true,
+		StreamSets: true,
 	})
 }

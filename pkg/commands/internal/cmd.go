@@ -46,7 +46,7 @@ func Gravl(args ...string) *GravlCmd {
 		panic(err)
 	}
 	g := filepath.Join(root, "dist", "gravl")
-	log.Info().Strs("args", args).Msg("cmd")
+	log.Info().Strs("args", args).Str("cmd", g).Send()
 	return &GravlCmd{Cmd: cmd.NewCmd(g, args...)}
 }
 
