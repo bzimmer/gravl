@@ -13,6 +13,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 const baseURL = "https://www.cyclinganalytics.com/api"
@@ -62,4 +63,8 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, values *
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", c.token.AccessToken))
 	return req, nil
+}
+
+func (c *Client) Uploader() activity.Uploader {
+	return newUploader(c.Rides)
 }

@@ -13,6 +13,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 const (
@@ -30,6 +31,10 @@ type Client struct {
 	Trips *TripsService
 }
 
+func (c *Client) Uploader() activity.Uploader {
+	return newUploader(c.Trips)
+}
+
 func withServices() Option {
 	return func(c *Client) error {
 		c.Users = &UsersService{client: c}
@@ -38,7 +43,7 @@ func withServices() Option {
 	}
 }
 
-func (c *Client) newAPIRequest(ctx context.Context, method, uri string, params map[string]string) (*http.Request, error) {
+func (c *Client) newAPIRequest(ctx context.Context, uri string, params map[string]string) (*http.Request, error) {
 	u, err := url.Parse(fmt.Sprintf("%s/%s", baseURL, uri))
 	if err != nil {
 		return nil, err
@@ -55,7 +60,7 @@ func (c *Client) newAPIRequest(ctx context.Context, method, uri string, params m
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(b))
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}

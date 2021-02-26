@@ -1,8 +1,12 @@
 package rwgps
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 
@@ -38,7 +42,7 @@ func (p *tripsPaginator) Do(ctx context.Context, spec activity.Pagination) (int,
 		"offset": strconv.FormatInt(int64((spec.Start-1)*p.PageSize()), 10),
 		"limit":  strconv.FormatInt(int64(spec.Count), 10),
 	}
-	req, err := p.service.client.newAPIRequest(ctx, http.MethodGet, uri, params)
+	req, err := p.service.client.newAPIRequest(ctx, uri, params)
 	if err != nil {
 		return 0, err
 	}
@@ -89,7 +93,7 @@ func (s *TripsService) Route(ctx context.Context, routeID int64) (*Trip, error) 
 }
 
 func (s *TripsService) trip(ctx context.Context, entity Type, uri string) (*Trip, error) {
-	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
+	req, err := s.client.newAPIRequest(ctx, uri, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -115,4 +119,70 @@ func (s *TripsService) trip(ctx context.Context, entity Type, uri string) (*Trip
 	}
 	t.Type = entity.String()
 	return t, nil
+}
+
+// Upload the file for the user
+func (s *TripsService) Upload(ctx context.Context, file *activity.File) (*Upload, error) {
+	if file == nil || file.Name == "" || file.Format == activity.Original {
+		return nil, errors.New("missing upload file, name, or format")
+	}
+
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	for k, v := range map[string]string{
+		"filename":             file.Name,
+		"trip[name]":           "",
+		"trip[description]":    "",
+		"trip[bad_elevations]": "false",
+		"version":              apiVersion,
+		"apikey":               s.client.config.ClientID,
+		"auth_token":           s.client.token.AccessToken,
+	} {
+		if err := w.WriteField(k, v); err != nil {
+			return nil, err
+		}
+	}
+	fw, err := w.CreateFormFile("file", file.Name)
+	if err != nil {
+		return nil, err
+	}
+	if _, err = io.Copy(fw, file); err != nil {
+		return nil, err
+	}
+	if err = w.Close(); err != nil {
+		return nil, err
+	}
+
+	uri := fmt.Sprintf("%s/trips.json", baseURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri, &b)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	res := &Upload{}
+	err = s.client.do(req, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// Status returns the status of an upload request
+func (s *TripsService) Status(ctx context.Context, uploadID int64) (*Upload, error) {
+	uri := "queued_tasks/status.json"
+	id := strconv.FormatInt(uploadID, 10)
+	req, err := s.client.newAPIRequest(ctx, uri, map[string]string{
+		"ids":             id,
+		"include_objects": "false",
+	})
+	if err != nil {
+		return nil, err
+	}
+	res := &Upload{}
+	err = s.client.do(req, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

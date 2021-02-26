@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
-	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
+	"github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	stravaweb "github.com/bzimmer/gravl/pkg/providers/activity/strava/web"
 )
@@ -47,7 +47,7 @@ func export(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		if err = internal.Write(c, exp); err != nil {
+		if err = activity.Write(c, exp); err != nil {
 			return err
 		}
 		if err = encoding.Encode(exp); err != nil {

@@ -4,8 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 	"github.com/bzimmer/gravl/pkg/store"
 )
@@ -61,7 +59,6 @@ func (s *memory) Activities(ctx context.Context) <-chan *strava.ActivityResult {
 		for _, act := range s.activities {
 			select {
 			case <-ctx.Done():
-				log.Debug().Err(ctx.Err()).Msg("ctx is done")
 				return
 			case acts <- &strava.ActivityResult{Activity: act}:
 			}

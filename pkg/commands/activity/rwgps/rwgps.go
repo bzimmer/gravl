@@ -9,6 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
+	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/rwgps"
@@ -166,6 +167,13 @@ var Command = &cli.Command{
 		athleteCommand,
 		routeCommand,
 		routesCommand,
+		actcmd.UploadCommand(func(c *cli.Context) (activity.Uploader, error) {
+			client, err := NewClient(c)
+			if err != nil {
+				return nil, err
+			}
+			return client.Uploader(), nil
+		}),
 	},
 }
 

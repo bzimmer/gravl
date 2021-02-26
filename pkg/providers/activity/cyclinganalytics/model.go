@@ -167,6 +167,10 @@ type Upload struct {
 	ErrorCode string   `json:"error_code"`
 }
 
+func (u *Upload) Identifier() activity.UploadID {
+	return activity.UploadID(u.ID)
+}
+
 func (u *Upload) Done() bool {
 	// status: processing, done, or error
 	return u.Status != "processing"

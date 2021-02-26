@@ -1,4 +1,4 @@
-package internal
+package activity
 
 import (
 	"io"
@@ -37,7 +37,11 @@ func Write(c *cli.Context, exp *activity.Export) error {
 	if err != nil {
 		return err
 	}
-	defer fp.Close()
+	defer func() {
+		if err = fp.Close(); err != nil {
+			log.Error().Err(err).Msg("write")
+		}
+	}()
 	_, err = io.Copy(fp, exp)
 	return err
 }
@@ -74,7 +78,7 @@ func Collect(name string, f CollectFunc) ([]*activity.File, error) {
 		if err != nil {
 			return err
 		}
-		files = append(files, &activity.File{Name: filepath.Base(path), Format: format, Reader: file})
+		files = append(files, &activity.File{FQPN: path, Name: filepath.Base(path), Format: format, Reader: file})
 		return nil
 	})
 	return files, err

@@ -70,7 +70,7 @@ func do(ctx context.Context, paginator Paginator, spec Pagination) error {
 		}
 		all := paginator.Count()
 		// @warning(bzimmer)
-		// do not change the `spec.Count` during the pagination or strava will duplicate results
+		// the `spec.Count` value must be consistent throughout the entire pagination
 		log.Info().
 			Int("n", n).
 			Int("all", all).

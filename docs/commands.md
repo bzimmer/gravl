@@ -32,12 +32,14 @@ since the operation can take a long time.
 * [noaa forecast](#noaa-forecast)
 * [openweather](#openweather)
 * [openweather forecast](#openweather-forecast)
+* [qp](#qp)
 * [rwgps](#rwgps)
 * [rwgps activities](#rwgps-activities)
 * [rwgps activity](#rwgps-activity)
 * [rwgps athlete](#rwgps-athlete)
 * [rwgps route](#rwgps-route)
 * [rwgps routes](#rwgps-routes)
+* [rwgps upload](#rwgps-upload)
 * [srtm](#srtm)
 * [store](#store)
 * [store export](#store-export)
@@ -366,7 +368,7 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY}
+$ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 ```
 
 **Flags**
@@ -376,6 +378,8 @@ $ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY}
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
 |```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
 
 
 ## *gnis*
@@ -577,6 +581,77 @@ $ gravl openweather forecast -- 48.8 -128.0
 ```
 
 
+## *qp*
+
+**Description**
+
+Copy an activity from an exporter to an uploader
+
+
+**Syntax**
+
+```sh
+$ gravl qp [flags] ACTIVITY_ID (...)
+```
+
+**Flags**
+
+|Name|Aliases|Description|
+|-|-|-|
+|```exporter```|```e```|Export data provider|
+|```uploader```|```u```|Upload data provider|
+|```cyclinganalytics.client-id```||API key for Cycling Analytics API|
+|```cyclinganalytics.client-secret```||API secret for Cycling Analytics API|
+|```cyclinganalytics.access-token```||Access token for Cycling Analytics API|
+|```rwgps.client-id```||Client ID for RideWithGPS API|
+|```rwgps.access-token```||Access token for RideWithGPS API|
+|```strava.client-id```||API key for Strava API|
+|```strava.client-secret```||API secret for Strava API|
+|```strava.access-token```||Access token for Strava API|
+|```strava.refresh-token```||Refresh token for Strava API|
+|```strava.username```||Username for the Strava website|
+|```strava.password```||Password for the Strava website|
+|```zwift.username```||Username for the Zwift website|
+|```zwift.password```||Password for the Zwift website|
+
+**Example**
+
+```sh
+$ gravl qp -e strava -u ca 4838740537
+2021-02-25T20:53:13-08:00 INF exporter provider=strava
+2021-02-25T20:53:14-08:00 INF uploader provider=ca
+2021-02-25T20:53:14-08:00 INF export activityID=4838740537
+2021-02-25T20:53:14-08:00 INF export activityID=4838740537 format=original
+2021-02-25T20:53:15-08:00 INF upload activityID=4838740537
+2021-02-25T20:53:16-08:00 INF status uploadID=8145126587
+{
+ "upload_id": 8145126587,
+ "status": "processing",
+ "ride_id": 0,
+ "user_id": 1603533,
+ "format": "fit",
+ "datetime": "2021-02-26T04:53:18",
+ "filename": "Blakely_Harbor.fit",
+ "size": 62824,
+ "error": "",
+ "error_code": ""
+}
+2021-02-25T20:53:18-08:00 INF status uploadID=8145126587
+{
+ "upload_id": 8145126587,
+ "status": "error",
+ "ride_id": 0,
+ "user_id": 1603533,
+ "format": "fit",
+ "datetime": "2021-02-26T04:53:18",
+ "filename": "Blakely_Harbor.fit",
+ "size": 62824,
+ "error": "The ride already exists: 582750551527",
+ "error_code": "duplicate_ride"
+}
+```
+
+
 ## *rwgps*
 
 **Description**
@@ -727,6 +802,30 @@ $ gravl rwgps routes [flags]
 |Name|Aliases|Description|
 |-|-|-|
 |```count```|```N```|The number of routes to query from RideWithGPS (the number returned will be <= N)|
+
+
+## *rwgps upload*
+
+**Description**
+
+Upload an activity file
+
+
+**Syntax**
+
+```sh
+$ gravl rwgps upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
+```
+
+**Flags**
+
+|Name|Aliases|Description|
+|-|-|-|
+|```status```|```s```|Check the status of the upload|
+|```poll```|```p```|Continually check the status of the request until it is completed|
+|```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
 
 
 ## *srtm*
@@ -1358,7 +1457,7 @@ Upload an activity file
 **Syntax**
 
 ```sh
-$ gravl strava upload [flags] {{FILE | DIRECTORY} | UPLOAD_ID (...)}
+$ gravl strava upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 ```
 
 **Flags**
@@ -1368,6 +1467,47 @@ $ gravl strava upload [flags] {{FILE | DIRECTORY} | UPLOAD_ID (...)}
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
 |```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
+
+**Example**
+
+An example exporting an activity to a local file and uploading back to Strava. This
+example shows how the upload command can poll for status changes, in this case the
+file is uploading a duplicate activity (of course!) and completes the polling.
+
+*Note: check the results for any semantic errors*
+
+```sh
+$ gravl strava export -o 4838740537
+2021-02-24T08:39:19-08:00 INF export activityID=4838740537 format=original
+{
+ "name": "Blakey_Harbor.fit",
+ "format": "fit",
+ "id": 4838740537
+}
+$ gravl strava upload -p Blakey_Harbor.fit
+2021-02-24T08:39:36-08:00 INF collecting file=Blakey_Harbor.fit
+2021-02-24T08:39:36-08:00 INF uploading file=Blakey_Harbor.fit
+2021-02-24T08:39:37-08:00 INF status uploadID=5165766717
+{
+ "id": 5165766717,
+ "id_str": "5165766717",
+ "external_id": "",
+ "error": "",
+ "status": "Your activity is still being processed.",
+ "activity_id": 0
+}
+2021-02-24T08:39:39-08:00 INF status uploadID=5165766717
+{
+ "id": 5165766717,
+ "id_str": "5165766717",
+ "external_id": "",
+ "error": "Blakey_Harbor.fit duplicate of activity 4838740537",
+ "status": "There was an error processing your activity.",
+ "activity_id": 0
+}
+```
 
 
 ## *strava webhook*

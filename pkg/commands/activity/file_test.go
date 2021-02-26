@@ -1,4 +1,4 @@
-package internal_test
+package activity_test
 
 import (
 	"bytes"
@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/bzimmer/gravl/pkg/commands"
-	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
+	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 )
 
-func TestWrite(t *testing.T) {
+func TestOutputOverwrite(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	tests := []struct {
@@ -40,7 +40,7 @@ func TestWrite(t *testing.T) {
 				},
 				Action: func(c *cli.Context) error {
 					exp := &activity.Export{File: &activity.File{Name: tt.name, Reader: strings.NewReader(tt.name)}}
-					return internal.Write(c, exp)
+					return actcmd.Write(c, exp)
 				},
 			}
 			var args = []string{""}
@@ -48,7 +48,7 @@ func TestWrite(t *testing.T) {
 				args = append(args, "--overwrite")
 			}
 			if tt.output {
-				dirname, err := ioutil.TempDir("", "TestWrite")
+				dirname, err := ioutil.TempDir("", "TestOutputOverwrite")
 				a.NoError(err)
 				token, err := commands.Token(16)
 				a.NoError(err)
@@ -73,11 +73,11 @@ func TestCollect(t *testing.T) {
 
 	cwd, err := os.Getwd()
 	a.NoError(err)
-	files, err := internal.Collect(cwd, nil)
+	files, err := actcmd.Collect(cwd, nil)
 	a.NoError(err)
 	a.Equal(0, len(files))
 
-	files, err = internal.Collect(fmt.Sprintf("/tmp/does/not/exist/now/%s", time.Now()), nil)
+	files, err = actcmd.Collect(fmt.Sprintf("/tmp/does/not/exist/now/%s", time.Now()), nil)
 	a.Error(err)
 	a.Nil(files)
 
@@ -103,7 +103,7 @@ func TestCollect(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			files, err := internal.Collect(dirname, func(path string, info os.FileInfo) bool {
+			files, err := actcmd.Collect(dirname, func(path string, info os.FileInfo) bool {
 				ext := filepath.Ext(path)
 				format := activity.ToFormat(ext)
 				a.NotEqual(activity.Original, format)

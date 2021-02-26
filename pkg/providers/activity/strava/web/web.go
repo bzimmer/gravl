@@ -19,6 +19,7 @@ import (
 	"golang.org/x/net/publicsuffix"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 const baseWebURL = "https://www.strava.com"
@@ -30,6 +31,10 @@ type Client struct {
 	Auth    *AuthService
 	Export  *ExportService
 	Fitness *FitnessService
+}
+
+func (c *Client) NewExporter() activity.Exporter {
+	return c.Export
 }
 
 func withServices() Option {

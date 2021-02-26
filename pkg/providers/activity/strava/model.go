@@ -471,6 +471,10 @@ type Upload struct {
 	ActivityID int64  `json:"activity_id"`
 }
 
+func (u *Upload) Identifier() activity.UploadID {
+	return activity.UploadID(u.ID)
+}
+
 func (u *Upload) Done() bool {
 	return u.ActivityID > 0 || u.Error != ""
 }

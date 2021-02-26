@@ -30,20 +30,16 @@ tasks:
       - go generate -x ./...
 
   build:
+    desc: Build all cmds
+    deps: [build-gravl]
+
+  build-gravl:
     desc: Build gravl
     deps: []
     sources:
       - '**/*.go'
     cmds:
-      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
-
-  build-qp:
-    desc: Build qp
-    deps: []
-    sources:
-      - '**/*.go'
-    cmds:
-      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/qp cmd/qp/*.go
+      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/gravl cmd/gravl/*.go
 
   install:
     desc: Install {{.APP}}
@@ -60,7 +56,7 @@ tasks:
       - golint {{catLines .GO_PACKAGES}}
       - golangci-lint -v run
 
-  security:
+  sec:
     desc: Run security checks
     cmds:
       - gosec ./...
@@ -72,7 +68,7 @@ tasks:
 
   test-integration:
     desc: Run all integration tests
-    deps: [build]
+    deps: [build-gravl]
     cmds:
       - go test -count=1 -run Integration {{catLines .GO_PACKAGES}}
 
@@ -85,9 +81,7 @@ tasks:
 
   test-all:
     desc: Run all unit & integration tests
-    deps: [build]
-    cmds:
-      - go test -count=1 {{catLines .GO_PACKAGES}}
+    deps: [test, test-integration]
 
   cover:
     desc: Visualize test coverage
@@ -132,7 +126,13 @@ tasks:
 
   manual:
     desc: Generate usage documentation
+    deps: [build]
     cmds:
-      - task: build
       - dist/gravl manual --commands > docs/commands.md
       - dist/gravl manual --analyzers > docs/analyzers.md
+
+  manual-serve:
+    desc: Serve the manual content locally
+    deps: [manual]
+    cmds:
+      - grip

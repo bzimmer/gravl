@@ -22,6 +22,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/analysis/passes/staticmap"
 	"github.com/bzimmer/gravl/pkg/analysis/passes/totals"
 	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
+	"github.com/bzimmer/gravl/pkg/commands/activity/qp"
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/activity/wta"
@@ -78,6 +79,7 @@ func main() {
 		manual.Manual,
 		noaa.Command,
 		openweather.Command,
+		qp.Command,
 		rwgps.Command,
 		srtm.Command,
 		store.Command,

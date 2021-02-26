@@ -113,7 +113,6 @@ func (b *bunt) Activities(ctx context.Context) <-chan *strava.ActivityResult {
 				}
 				select {
 				case <-ctx.Done():
-					log.Debug().Err(ctx.Err()).Msg("ctx is done")
 					return false
 				case acts <- r:
 					return r.Err == nil
@@ -123,7 +122,6 @@ func (b *bunt) Activities(ctx context.Context) <-chan *strava.ActivityResult {
 		if err != nil {
 			select {
 			case <-ctx.Done():
-				log.Debug().Err(ctx.Err()).Msg("ctx is done")
 				return
 			case acts <- &strava.ActivityResult{Err: err}:
 				return

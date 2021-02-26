@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
 
-	"github.com/bzimmer/gravl/pkg/commands/activity/internal"
+	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/activity/zwift"
@@ -175,7 +175,7 @@ func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwif
 	if err != nil {
 		return err
 	}
-	if err = internal.Write(c, exp); err != nil {
+	if err = actcmd.Write(c, exp); err != nil {
 		return err
 	}
 	return encoding.Encode(exp)
@@ -264,20 +264,22 @@ var filesCommand = &cli.Command{
 	Action: files,
 }
 
+var AuthFlags = []cli.Flag{
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "zwift.username",
+		Usage: "Username for the Zwift website",
+	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "zwift.password",
+		Usage: "Password for the Zwift website",
+	}),
+}
+
 var Command = &cli.Command{
 	Name:     "zwift",
 	Category: "activity",
 	Usage:    "Query Zwift for activities",
-	Flags: []cli.Flag{
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "zwift.username",
-			Usage: "Username for the Zwift website",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "zwift.password",
-			Usage: "Password for the Zwift website",
-		}),
-	},
+	Flags:    AuthFlags,
 	Subcommands: []*cli.Command{
 		activitiesCommand,
 		activityCommand,

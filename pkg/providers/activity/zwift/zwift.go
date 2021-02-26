@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"golang.org/x/oauth2"
 )
 
@@ -29,6 +30,10 @@ type Client struct {
 	Auth     *AuthService
 	Activity *ActivityService
 	Profile  *ProfileService
+}
+
+func (c *Client) NewExporter() activity.Exporter {
+	return c.Activity
 }
 
 func withServices() Option {
