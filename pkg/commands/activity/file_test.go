@@ -17,7 +17,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func TestWrite(t *testing.T) {
+func TestOutputOverwrite(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 	tests := []struct {
@@ -48,7 +48,7 @@ func TestWrite(t *testing.T) {
 				args = append(args, "--overwrite")
 			}
 			if tt.output {
-				dirname, err := ioutil.TempDir("", "TestWrite")
+				dirname, err := ioutil.TempDir("", "TestOutputOverwrite")
 				a.NoError(err)
 				token, err := commands.Token(16)
 				a.NoError(err)

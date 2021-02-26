@@ -13,8 +13,8 @@ import (
 )
 
 const (
+	pollInterval   = 2 * time.Second
 	pollIterations = 5
-	pollDuration   = 2 * time.Second
 )
 
 // Export the contents and metadata about an activity file
@@ -111,6 +111,23 @@ func ToFormat(format string) Format {
 	}
 }
 
+// A PollerOption allows configuring the default poller
+type PollerOption func(p *poller)
+
+// WithInterval controls the duration between status polling
+func WithInterval(interval time.Duration) PollerOption {
+	return func(p *poller) {
+		p.interval = interval
+	}
+}
+
+// WithIterations controls the max number of polling iterations
+func WithIterations(iterations int) PollerOption {
+	return func(p *poller) {
+		p.iterations = iterations
+	}
+}
+
 // Poller will continually check the status of an upload request
 type Poller interface {
 	// Poll the status of an upload
@@ -121,12 +138,18 @@ type Poller interface {
 }
 
 // NewPoller returns an instance of a Poller
-func NewPoller(uploader Uploader) Poller {
-	return &poller{uploader: uploader}
+func NewPoller(uploader Uploader, opts ...PollerOption) Poller {
+	p := &poller{uploader: uploader, interval: pollInterval, iterations: pollIterations}
+	for _, opt := range opts {
+		opt(p)
+	}
+	return p
 }
 
 type poller struct {
-	uploader Uploader
+	uploader   Uploader
+	interval   time.Duration
+	iterations int
 }
 
 func (p *poller) Poll(ctx context.Context, uploadID UploadID) <-chan *Poll {
@@ -134,7 +157,7 @@ func (p *poller) Poll(ctx context.Context, uploadID UploadID) <-chan *Poll {
 	go func() {
 		defer close(res)
 		i := 0
-		for ; i < pollIterations; i++ {
+		for ; i < p.iterations; i++ {
 			var r *Poll
 			log.Info().Int64("uploadID", int64(uploadID)).Msg("status")
 			upload, err := p.uploader.Status(ctx, uploadID)
@@ -156,11 +179,11 @@ func (p *poller) Poll(ctx context.Context, uploadID UploadID) <-chan *Poll {
 			select {
 			case <-ctx.Done():
 				return
-			case <-time.After(pollDuration):
+			case <-time.After(p.interval):
 			}
 		}
-		if i == pollIterations {
-			log.Warn().Int("polls", pollIterations).Msg("exceeded max iterations")
+		if i == p.iterations {
+			log.Warn().Int("polls", p.iterations).Msg("exceeded max iterations")
 		}
 	}()
 	return res

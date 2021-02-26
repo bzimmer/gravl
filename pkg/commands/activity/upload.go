@@ -3,6 +3,7 @@ package activity
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -13,8 +14,13 @@ import (
 
 type UploaderFunc func(c *cli.Context) (activity.Uploader, error)
 
-func poll(ctx context.Context, uploader activity.Uploader, uploadID activity.UploadID, follow bool) error {
-	p := activity.NewPoller(uploader)
+func poller(c *cli.Context, uploader activity.Uploader) activity.Poller {
+	return activity.NewPoller(uploader,
+		activity.WithInterval(c.Duration("interval")),
+		activity.WithIterations(c.Int("iterations")))
+}
+
+func poll(ctx context.Context, p activity.Poller, uploadID activity.UploadID, follow bool) error {
 	for res := range p.Poll(ctx, uploadID) {
 		if res.Err != nil {
 			return res.Err
@@ -39,32 +45,34 @@ func upload(c *cli.Context, uploader activity.Uploader) error {
 		}
 		if len(files) == 0 {
 			log.Warn().Msg("no files specified")
-			return nil
 		}
 		for _, file := range files {
 			defer file.Close()
-			if dryrun {
-				log.Info().Str("file", file.Name).Bool("dryrun", dryrun).Msg("uploading")
-				if err := encoding.Encode(map[string]interface{}{
-					"dryrun": true,
-					"file":   file,
-				}); err != nil {
+			log.Info().Str("file", file.Name).Bool("dryrun", dryrun).Msg("uploading")
+			switch dryrun {
+			case true:
+				// @note(bzimmer) the output from a dryrun differs from an upload
+				if err := encoding.Encode(map[string]interface{}{"dryrun": true, "file": file}); err != nil {
 					return err
 				}
-				continue
-			}
-			log.Info().Str("file", file.Name).Msg("uploading")
-			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-			defer cancel()
-			u, err := uploader.Upload(ctx, file)
-			if err != nil {
-				return err
-			}
-			if !c.Bool("poll") {
-				return encoding.Encode(u)
-			}
-			if err := poll(ctx, uploader, u.Identifier(), true); err != nil {
-				return err
+			case false:
+				ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+				defer cancel()
+				u, err := uploader.Upload(ctx, file)
+				if err != nil {
+					return err
+				}
+				switch c.Bool("poll") {
+				case true:
+					p := poller(c, uploader)
+					if err = poll(ctx, p, u.Identifier(), true); err != nil {
+						return err
+					}
+				case false:
+					if err = encoding.Encode(u); err != nil {
+						return err
+					}
+				}
 			}
 		}
 	}
@@ -73,6 +81,7 @@ func upload(c *cli.Context, uploader activity.Uploader) error {
 
 func status(c *cli.Context, uploader activity.Uploader) error {
 	args := c.Args()
+	p := poller(c, uploader)
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -80,7 +89,7 @@ func status(c *cli.Context, uploader activity.Uploader) error {
 		if err != nil {
 			return err
 		}
-		if err := poll(ctx, uploader, activity.UploadID(uploadID), c.Bool("poll")); err != nil {
+		if err := poll(ctx, p, activity.UploadID(uploadID), c.Bool("poll")); err != nil {
 			return err
 		}
 	}
@@ -111,6 +120,18 @@ func UploadCommand(f UploaderFunc) *cli.Command {
 				Aliases: []string{"n"},
 				Value:   false,
 				Usage:   "Show the files which would be uploaded but do not upload them",
+			},
+			&cli.DurationFlag{
+				Name:    "interval",
+				Aliases: []string{"P"},
+				Value:   time.Second * 2,
+				Usage:   "The amount of time to wait between polling for an updated status",
+			},
+			&cli.IntFlag{
+				Name:    "iterations",
+				Aliases: []string{"N"},
+				Value:   5,
+				Usage:   "The max number of polling iterations to perform",
 			},
 		},
 		Action: func(c *cli.Context) error {
