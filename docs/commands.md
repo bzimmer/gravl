@@ -22,6 +22,7 @@ since the operation can take a long time.
 * [cyclinganalytics activity](#cyclinganalytics-activity)
 * [cyclinganalytics athlete](#cyclinganalytics-athlete)
 * [cyclinganalytics oauth](#cyclinganalytics-oauth)
+* [cyclinganalytics streamsets](#cyclinganalytics-streamsets)
 * [cyclinganalytics upload](#cyclinganalytics-upload)
 * [gnis](#gnis)
 * [gpx](#gpx)
@@ -338,6 +339,21 @@ $ gravl cyclinganalytics oauth [flags]
 |-|-|-|
 |```origin```||Callback origin|
 |```port```||Port on which to listen|
+
+
+## *cyclinganalytics streamsets*
+
+**Description**
+
+Return the set of available streams for query
+
+
+**Syntax**
+
+```sh
+$ gravl cyclinganalytics streamsets [flags]
+```
+
 
 
 ## *cyclinganalytics upload*

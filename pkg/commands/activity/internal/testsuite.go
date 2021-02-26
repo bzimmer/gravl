@@ -22,6 +22,7 @@ type ActivityTestSuite struct {
 	MaxActivities int64
 	Routes        bool
 	Upload        bool
+	StreamSets    bool
 }
 
 func random(n int) int {
@@ -68,6 +69,21 @@ func (s *ActivityTestSuite) TestRoutes() {
 	c := internal.Gravl("-c", s.Name, "routes", "-N", strconv.FormatInt(s.N(), 10))
 	<-c.Start()
 	a.True(c.Success())
+}
+
+func (s *ActivityTestSuite) TestStreamSets() {
+	if !s.StreamSets {
+		s.T().Logf("skipping streamsets for %s", s.Name)
+		return
+	}
+	a := s.Assert()
+	c := internal.Gravl("-c", s.Name, "streamsets")
+	<-c.Start()
+	a.True(c.Success())
+	for _, x := range []string{"distance", "heartrate"} {
+		y := gjson.Get(c.Stdout(), x).String()
+		a.NotEmpty(y)
+	}
 }
 
 func (s *ActivityTestSuite) TestUpload() {

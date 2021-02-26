@@ -228,6 +228,22 @@ var rideCommand = &cli.Command{
 	Action:  ride,
 }
 
+var streamsetsCommand = &cli.Command{
+	Name:    "streamsets",
+	Aliases: []string{""},
+	Usage:   "Return the set of available streams for query",
+	Action: func(c *cli.Context) error {
+		client, err := NewClient(c)
+		if err != nil {
+			return err
+		}
+		if err := encoding.Encode(client.Rides.StreamSets()); err != nil {
+			return err
+		}
+		return nil
+	},
+}
+
 var Command = &cli.Command{
 	Name:        "cyclinganalytics",
 	Aliases:     []string{"ca"},
@@ -240,6 +256,7 @@ var Command = &cli.Command{
 		athleteCommand,
 		oauthCommand,
 		rideCommand,
+		streamsetsCommand,
 		uploadCommand,
 	},
 }
