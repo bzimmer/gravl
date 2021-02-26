@@ -361,6 +361,8 @@ $ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
 |```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
 
 
 ## *gnis*
@@ -734,6 +736,8 @@ $ gravl rwgps upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
 |```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
 
 
 ## *srtm*
@@ -1375,6 +1379,8 @@ $ gravl strava upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 |```status```|```s```|Check the status of the upload|
 |```poll```|```p```|Continually check the status of the request until it is completed|
 |```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
 
 **Example**
 
