@@ -117,14 +117,18 @@ type PollerOption func(p *poller)
 // WithInterval controls the duration between status polling
 func WithInterval(interval time.Duration) PollerOption {
 	return func(p *poller) {
-		p.interval = interval
+		if interval > 0 {
+			p.interval = interval
+		}
 	}
 }
 
 // WithIterations controls the max number of polling iterations
 func WithIterations(iterations int) PollerOption {
 	return func(p *poller) {
-		p.iterations = iterations
+		if iterations > 0 {
+			p.iterations = iterations
+		}
 	}
 }
 

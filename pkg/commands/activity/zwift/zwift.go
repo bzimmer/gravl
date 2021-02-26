@@ -264,20 +264,22 @@ var filesCommand = &cli.Command{
 	Action: files,
 }
 
+var AuthFlags = []cli.Flag{
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "zwift.username",
+		Usage: "Username for the Zwift website",
+	}),
+	altsrc.NewStringFlag(&cli.StringFlag{
+		Name:  "zwift.password",
+		Usage: "Password for the Zwift website",
+	}),
+}
+
 var Command = &cli.Command{
 	Name:     "zwift",
 	Category: "activity",
 	Usage:    "Query Zwift for activities",
-	Flags: []cli.Flag{
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "zwift.username",
-			Usage: "Username for the Zwift website",
-		}),
-		altsrc.NewStringFlag(&cli.StringFlag{
-			Name:  "zwift.password",
-			Usage: "Password for the Zwift website",
-		}),
-	},
+	Flags:    AuthFlags,
 	Subcommands: []*cli.Command{
 		activitiesCommand,
 		activityCommand,

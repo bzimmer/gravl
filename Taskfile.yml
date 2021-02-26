@@ -31,7 +31,7 @@ tasks:
 
   build:
     desc: Build all cmds
-    deps: [build-gravl, build-qp]
+    deps: [build-gravl]
 
   build-gravl:
     desc: Build gravl
@@ -40,14 +40,6 @@ tasks:
       - '**/*.go'
     cmds:
       - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/gravl cmd/gravl/*.go
-
-  build-qp:
-    desc: Build qp
-    deps: []
-    sources:
-      - '**/*.go'
-    cmds:
-      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/qp cmd/qp/*.go
 
   install:
     desc: Install {{.APP}}
