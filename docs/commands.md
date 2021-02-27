@@ -253,16 +253,18 @@ $ gravl commands [flags]
 
 **Description**
 
-Operations supported by the Cycling Analytics website
+Operations supported by the CyclingAnalytics API
 
 
 **Flags**
 
 |Name|Aliases|Description|
 |-|-|-|
-|```cyclinganalytics.client-id```||API key for Cycling Analytics API|
-|```cyclinganalytics.client-secret```||API secret for Cycling Analytics API|
-|```cyclinganalytics.access-token```||Access token for Cycling Analytics API|
+|```cyclinganalytics.client-id```||API key for CyclingAnalytics API|
+|```cyclinganalytics.client-secret```||API secret for CyclingAnalytics API|
+|```cyclinganalytics.access-token```||Access token for CyclingAnalytics API|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
 
 
 ## *cyclinganalytics activities*
@@ -607,10 +609,12 @@ $ gravl qp [flags] ACTIVITY_ID (...)
 |-|-|-|
 |```exporter```|```e```|Export data provider|
 |```uploader```|```u```|Upload data provider|
-|```cyclinganalytics.client-id```||API key for Cycling Analytics API|
-|```cyclinganalytics.client-secret```||API secret for Cycling Analytics API|
-|```cyclinganalytics.access-token```||Access token for Cycling Analytics API|
-|```rwgps.client-id```||Client ID for RideWithGPS API|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
+|```cyclinganalytics.client-id```||API key for CyclingAnalytics API|
+|```cyclinganalytics.client-secret```||API secret for CyclingAnalytics API|
+|```cyclinganalytics.access-token```||Access token for CyclingAnalytics API|
+|```rwgps.client-id```||API key for RideWithGPS API|
 |```rwgps.access-token```||Access token for RideWithGPS API|
 |```strava.client-id```||API key for Strava API|
 |```strava.client-secret```||API secret for Strava API|
@@ -663,15 +667,17 @@ $ gravl qp -e strava -u ca 4838740537
 
 **Description**
 
-Query RideWithGPS for rides and routes
+Operations supported by the RideWithGPS API
 
 
 **Flags**
 
 |Name|Aliases|Description|
 |-|-|-|
-|```rwgps.client-id```||Client ID for RideWithGPS API|
+|```rwgps.client-id```||API key for RideWithGPS API|
 |```rwgps.access-token```||Access token for RideWithGPS API|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
 
 
 ## *rwgps activities*
@@ -1007,7 +1013,7 @@ The results of the command show the number of new, existing, and total activitie
 
 **Description**
 
-Query Strava for rides and routes
+Operations supported by the Strava API
 
 
 **Flags**
@@ -1020,6 +1026,8 @@ Query Strava for rides and routes
 |```strava.refresh-token```||Refresh token for Strava API|
 |```strava.username```||Username for the Strava website|
 |```strava.password```||Password for the Strava website|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
 
 **Overview**
 
@@ -1649,7 +1657,7 @@ Please support the [Washington Trails Association](https://wta.org), thanks!
 
 **Description**
 
-Query Zwift for activities
+Operations supported by the Zwift API
 
 
 **Flags**
@@ -1658,6 +1666,8 @@ Query Zwift for activities
 |-|-|-|
 |```zwift.username```||Username for the Zwift website|
 |```zwift.password```||Password for the Zwift website|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
 
 **Overview**
 

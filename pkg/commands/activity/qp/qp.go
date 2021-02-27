@@ -14,6 +14,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 
+	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
@@ -163,14 +164,13 @@ var flags = func() []cli.Flag {
 		&cli.StringFlag{
 			Name:    "exporter",
 			Aliases: []string{"e"},
-			Value:   "",
 			Usage:   "Export data provider"},
 		&cli.StringFlag{
 			Name:    "uploader",
 			Aliases: []string{"u"},
-			Value:   "",
 			Usage:   "Upload data provider"},
 	}
+	f = append(f, actcmd.RateLimitFlags...)
 	f = append(f, cyclinganalytics.AuthFlags...)
 	f = append(f, rwgps.AuthFlags...)
 	f = append(f, strava.AuthFlags...)

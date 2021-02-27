@@ -17,6 +17,8 @@ func NewWebClient(c *cli.Context) (*stravaweb.Client, error) {
 	client, err := stravaweb.NewClient(
 		stravaweb.WithHTTPTracing(c.Bool("http-tracing")),
 		stravaweb.WithCookieJar(),
+		// this client doesn't use the configurable rate-[limit|burst] because it's
+		// scraping the website and not using an API
 		stravaweb.WithRateLimiter(rate.NewLimiter(rate.Every(2*time.Second), 5)))
 	if err != nil {
 		return nil, err

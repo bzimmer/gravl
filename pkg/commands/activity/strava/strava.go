@@ -9,10 +9,11 @@ import (
 )
 
 var Command = &cli.Command{
-	Name:     "strava",
-	Category: "activity",
-	Usage:    "Query Strava for rides and routes",
-	Flags:    AuthFlags,
+	Name:        "strava",
+	Category:    "activity",
+	Usage:       "Query Strava for rides and routes",
+	Description: "Operations supported by the Strava API",
+	Flags:       append(AuthFlags, actcmd.RateLimitFlags...),
 	Subcommands: []*cli.Command{
 		activitiesCommand,
 		activityCommand,
