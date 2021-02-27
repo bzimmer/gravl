@@ -5,10 +5,12 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	"golang.org/x/time/rate"
 
 	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
@@ -33,7 +35,7 @@ func NewClient(c *cli.Context) (*zwift.Client, error) {
 	return zwift.NewClient(
 		zwift.WithHTTPTracing(c.Bool("http-tracing")),
 		zwift.WithToken(token),
-	)
+		zwift.WithRateLimiter(rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
 }
 
 func athlete(c *cli.Context) error {

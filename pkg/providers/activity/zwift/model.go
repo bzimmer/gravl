@@ -140,7 +140,7 @@ type Profile struct {
 }
 
 type Activity struct {
-	IDStr                string   `json:"id_str"`
+	IDString             string   `json:"id_str"`
 	ID                   int64    `json:"id"`
 	ProfileID            int64    `json:"profileId"`
 	Profile              *Profile `json:"profile"`

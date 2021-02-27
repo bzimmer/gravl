@@ -162,20 +162,14 @@ func (p *poller) Poll(ctx context.Context, uploadID UploadID) <-chan *Poll {
 		defer close(res)
 		i := 0
 		for ; i < p.iterations; i++ {
-			var r *Poll
 			log.Info().Int64("uploadID", int64(uploadID)).Msg("status")
 			upload, err := p.uploader.Status(ctx, uploadID)
-			switch {
-			case err != nil:
-				r = &Poll{Err: err}
-			default:
-				r = &Poll{Upload: upload}
-			}
+			poll := &Poll{Upload: upload, Err: err}
 			select {
 			case <-ctx.Done():
 				return
-			case res <- r:
-				if r.Upload.Done() {
+			case res <- poll:
+				if poll.Err != nil || poll.Upload.Done() {
 					return
 				}
 			}

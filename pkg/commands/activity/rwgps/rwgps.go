@@ -8,6 +8,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	"golang.org/x/time/rate"
 
 	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
@@ -20,7 +21,7 @@ func NewClient(c *cli.Context) (*rwgps.Client, error) {
 		rwgps.WithClientCredentials(c.String("rwgps.client-id"), ""),
 		rwgps.WithTokenCredentials(c.String("rwgps.access-token"), "", time.Time{}),
 		rwgps.WithHTTPTracing(c.Bool("http-tracing")),
-	)
+		rwgps.WithRateLimiter(rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
 }
 
 func athlete(c *cli.Context) error {

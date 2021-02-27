@@ -7,6 +7,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	"golang.org/x/time/rate"
 
 	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
@@ -19,7 +20,8 @@ func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 		cyclinganalytics.WithTokenCredentials(
 			c.String("cyclinganalytics.access-token"), c.String("cyclinganalytics.refresh-token"), time.Time{}),
 		cyclinganalytics.WithAutoRefresh(c.Context),
-		cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")))
+		cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
+		cyclinganalytics.WithRateLimiter(rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
 }
 
 func athlete(c *cli.Context) error {
