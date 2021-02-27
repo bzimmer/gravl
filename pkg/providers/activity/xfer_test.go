@@ -6,8 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 type upload struct {
