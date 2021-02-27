@@ -7,6 +7,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/bzimmer/gravl/pkg/commands"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
@@ -188,39 +189,46 @@ func update(c *cli.Context) error {
 	defer out.Close()
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
+	grp, ctx := errgroup.WithContext(ctx)
 	acts := in.Activities(ctx)
-	for active := true; active; {
+update:
+	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		case res, ok := <-acts:
 			if !ok {
-				// break the loop to return the processing results
-				active = false
-				break
+				break update
 			}
 			if res.Err != nil {
 				return res.Err
 			}
 			total++
-			ok, err = out.Exists(ctx, res.Activity.ID)
-			if err != nil {
-				return err
-			}
-			if ok {
-				break
-			}
-			log.Info().Int64("ID", res.Activity.ID).Msg("querying activity details")
-			act, err := in.Activity(ctx, res.Activity.ID)
-			if err != nil {
-				return err
-			}
-			n++
-			log.Info().Int("n", n).Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity details")
-			if err = out.Save(ctx, act); err != nil {
-				return err
-			}
+			grp.Go(func() error {
+				var act *stravaapi.Activity
+				ok, err = out.Exists(ctx, res.Activity.ID)
+				if err != nil {
+					return err
+				}
+				if ok {
+					return nil
+				}
+				log.Info().Int64("ID", res.Activity.ID).Msg("querying activity details")
+				act, err = in.Activity(ctx, res.Activity.ID)
+				if err != nil {
+					return err
+				}
+				n++
+				log.Info().Int("n", n).Int64("ID", act.ID).Str("name", act.Name).Msg("saving activity details")
+				if err = out.Save(ctx, act); err != nil {
+					return err
+				}
+				return nil
+			})
 		}
+	}
+	if err = grp.Wait(); err != nil {
+		return err
 	}
 	return encoding.Encode(map[string]int{"total": total, "new": n, "existing": total - n})
 }

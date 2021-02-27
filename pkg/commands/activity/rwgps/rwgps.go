@@ -21,7 +21,8 @@ func NewClient(c *cli.Context) (*rwgps.Client, error) {
 		rwgps.WithClientCredentials(c.String("rwgps.client-id"), ""),
 		rwgps.WithTokenCredentials(c.String("rwgps.access-token"), "", time.Time{}),
 		rwgps.WithHTTPTracing(c.Bool("http-tracing")),
-		rwgps.WithRateLimiter(rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
+		rwgps.WithRateLimiter(rate.NewLimiter(
+			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
 }
 
 func athlete(c *cli.Context) error {
@@ -158,10 +159,11 @@ var routeCommand = &cli.Command{
 }
 
 var Command = &cli.Command{
-	Name:     "rwgps",
-	Category: "activity",
-	Usage:    "Query RideWithGPS for rides and routes",
-	Flags:    AuthFlags,
+	Name:        "rwgps",
+	Category:    "activity",
+	Usage:       "Query RideWithGPS for rides and routes",
+	Description: "Operations supported by the RideWithGPS API",
+	Flags:       append(AuthFlags, actcmd.RateLimitFlags...),
 	Subcommands: []*cli.Command{
 		activitiesCommand,
 		activityCommand,
@@ -181,12 +183,10 @@ var Command = &cli.Command{
 var AuthFlags = []cli.Flag{
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "rwgps.client-id",
-		Value: "",
-		Usage: "Client ID for RideWithGPS API",
+		Usage: "API key for RideWithGPS API",
 	}),
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "rwgps.access-token",
-		Value: "",
 		Usage: "Access token for RideWithGPS API",
 	}),
 }

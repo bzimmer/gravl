@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -35,7 +34,8 @@ func NewClient(c *cli.Context) (*zwift.Client, error) {
 	return zwift.NewClient(
 		zwift.WithHTTPTracing(c.Bool("http-tracing")),
 		zwift.WithToken(token),
-		zwift.WithRateLimiter(rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
+		zwift.WithRateLimiter(rate.NewLimiter(
+			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
 }
 
 func athlete(c *cli.Context) error {
@@ -278,10 +278,11 @@ var AuthFlags = []cli.Flag{
 }
 
 var Command = &cli.Command{
-	Name:     "zwift",
-	Category: "activity",
-	Usage:    "Query Zwift for activities",
-	Flags:    AuthFlags,
+	Name:        "zwift",
+	Category:    "activity",
+	Usage:       "Query Zwift for activities",
+	Description: "Operations supported by the Zwift API",
+	Flags:       append(AuthFlags, actcmd.RateLimitFlags...),
 	Subcommands: []*cli.Command{
 		activitiesCommand,
 		activityCommand,

@@ -107,9 +107,8 @@ func analyze(c *cli.Context) error {
 }
 
 var listCommand = &cli.Command{
-	Name:    "list",
-	Aliases: []string{""},
-	Usage:   "Return the list of available analyzers",
+	Name:  "list",
+	Usage: "Return the list of available analyzers",
 	Action: func(c *cli.Context) error {
 		res := make(map[string]map[string]interface{})
 		for nm, an := range available {

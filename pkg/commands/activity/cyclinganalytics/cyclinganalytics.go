@@ -21,7 +21,8 @@ func NewClient(c *cli.Context) (*cyclinganalytics.Client, error) {
 			c.String("cyclinganalytics.access-token"), c.String("cyclinganalytics.refresh-token"), time.Time{}),
 		cyclinganalytics.WithAutoRefresh(c.Context),
 		cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
-		cyclinganalytics.WithRateLimiter(rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
+		cyclinganalytics.WithRateLimiter(rate.NewLimiter(
+			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
 }
 
 func athlete(c *cli.Context) error {
@@ -114,9 +115,8 @@ var rideCommand = &cli.Command{
 }
 
 var streamsetsCommand = &cli.Command{
-	Name:    "streamsets",
-	Aliases: []string{""},
-	Usage:   "Return the set of available streams for query",
+	Name:  "streamsets",
+	Usage: "Return the set of available streams for query",
 	Action: func(c *cli.Context) error {
 		client, err := NewClient(c)
 		if err != nil {
@@ -134,8 +134,8 @@ var Command = &cli.Command{
 	Aliases:     []string{"ca"},
 	Category:    "activity",
 	Usage:       "Query CyclingAnalytics",
-	Description: "Operations supported by the Cycling Analytics website",
-	Flags:       AuthFlags,
+	Description: "Operations supported by the CyclingAnalytics API",
+	Flags:       append(AuthFlags, actcmd.RateLimitFlags...),
 	Subcommands: []*cli.Command{
 		activitiesCommand,
 		athleteCommand,
@@ -155,14 +155,14 @@ var Command = &cli.Command{
 var AuthFlags = []cli.Flag{
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "cyclinganalytics.client-id",
-		Usage: "API key for Cycling Analytics API",
+		Usage: "API key for CyclingAnalytics API",
 	}),
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "cyclinganalytics.client-secret",
-		Usage: "API secret for Cycling Analytics API",
+		Usage: "API secret for CyclingAnalytics API",
 	}),
 	altsrc.NewStringFlag(&cli.StringFlag{
 		Name:  "cyclinganalytics.access-token",
-		Usage: "Access token for Cycling Analytics API",
+		Usage: "Access token for CyclingAnalytics API",
 	}),
 }

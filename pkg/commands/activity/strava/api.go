@@ -24,7 +24,8 @@ func NewAPIClient(c *cli.Context) (*strava.Client, error) {
 		strava.WithClientCredentials(c.String("strava.client-id"), c.String("strava.client-secret")),
 		strava.WithAutoRefresh(c.Context),
 		strava.WithHTTPTracing(c.Bool("http-tracing")),
-		strava.WithRateLimiter(rate.NewLimiter(rate.Every(1500*time.Millisecond), 25)))
+		strava.WithRateLimiter(rate.NewLimiter(
+			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
 }
 
 func athlete(c *cli.Context) error {
@@ -258,9 +259,8 @@ var activityCommand = &cli.Command{
 }
 
 var streamsetsCommand = &cli.Command{
-	Name:    "streamsets",
-	Aliases: []string{""},
-	Usage:   "Return the set of available streams for query",
+	Name:  "streamsets",
+	Usage: "Return the set of available streams for query",
 	Action: func(c *cli.Context) error {
 		client, err := NewAPIClient(c)
 		if err != nil {

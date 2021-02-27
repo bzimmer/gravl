@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"os/signal"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -105,7 +106,20 @@ func main() {
 		},
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	defer func() {
+		signal.Stop(c)
+		cancel()
+	}()
+	go func() {
+		select {
+		case <-c:
+			log.Info().Msg("canceling...")
+			cancel()
+		case <-ctx.Done():
+		}
+	}()
 	if err := app.RunContext(ctx, os.Args); err != nil {
 		os.Exit(1)
 	}

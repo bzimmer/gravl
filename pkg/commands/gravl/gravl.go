@@ -150,7 +150,7 @@ func Flags(filename string) []cli.Flag {
 		&cli.DurationFlag{
 			Name:    "timeout",
 			Aliases: []string{"t"},
-			Value:   time.Millisecond * 10000,
+			Value:   time.Second * 10,
 			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
 		},
 		&cli.StringFlag{
