@@ -1,6 +1,6 @@
 package cyclinganalytics
 
-//go:generate genwith --do --client --endpoint --config --token --package cyclinganalytics
+//go:generate genwith --do --client --endpoint --config --token --ratelimit --package cyclinganalytics
 
 import (
 	"context"

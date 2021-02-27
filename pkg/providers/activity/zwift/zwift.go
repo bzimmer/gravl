@@ -11,7 +11,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-//go:generate genwith --do --client --token --package zwift
+//go:generate genwith --do --client --token --ratelimit --package zwift
 
 const baseURL = "https://us-or-rly101.zwift.com"
 const userAgent = "CNL/3.4.1 (Darwin Kernel 20.3.0) zwift/1.0.61590 curl/7.64.1"

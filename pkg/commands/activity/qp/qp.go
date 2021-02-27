@@ -8,9 +8,11 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/bzimmer/gravl/pkg/commands/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
@@ -20,10 +22,24 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
-func poller(c *cli.Context, uploader activity.Uploader) activity.Poller {
-	return activity.NewPoller(uploader,
-		activity.WithInterval(c.Duration("interval")),
-		activity.WithIterations(c.Int("iterations")))
+type qr struct {
+	p activity.Poller
+	e activity.Exporter
+	u activity.Uploader
+	d time.Duration
+}
+
+func newqr(c *cli.Context) (*qr, error) {
+	e, err := exporter(c)
+	if err != nil {
+		return nil, err
+	}
+	u, p, err := uploader(c)
+	if err != nil {
+		return nil, err
+	}
+	d := c.Duration("timeout")
+	return &qr{e: e, u: u, p: p, d: d}, nil
 }
 
 func exporter(c *cli.Context) (activity.Exporter, error) {
@@ -49,7 +65,7 @@ func exporter(c *cli.Context) (activity.Exporter, error) {
 }
 
 func uploader(c *cli.Context) (activity.Uploader, activity.Poller, error) {
-	var updr activity.Uploader
+	var u activity.Uploader
 	upd := c.String("uploader")
 	log.Info().Str("provider", upd).Msg("uploader")
 	switch strings.ToLower(upd) {
@@ -60,26 +76,30 @@ func uploader(c *cli.Context) (activity.Uploader, activity.Poller, error) {
 		if err != nil {
 			return nil, nil, err
 		}
-		updr = client.Uploader()
+		u = client.Uploader()
 	case "rwgps", "ridewithgps":
 		client, err := rwgps.NewClient(c)
 		if err != nil {
 			return nil, nil, err
 		}
-		updr = client.Uploader()
+		u = client.Uploader()
 	case "strava":
 		client, err := strava.NewAPIClient(c)
 		if err != nil {
 			return nil, nil, err
 		}
-		updr = client.Uploader()
+		u = client.Uploader()
 	default:
 		return nil, nil, fmt.Errorf("unknown uploader {%s}", upd)
 	}
-	return updr, poller(c, updr), nil
+	p := activity.NewPoller(u,
+		activity.WithInterval(c.Duration("interval")),
+		activity.WithIterations(c.Int("iterations")))
+
+	return u, p, nil
 }
 
-func upload(c *cli.Context, upd activity.Uploader, plr activity.Poller, export *activity.Export) error {
+func (q *qr) upload(ctx context.Context, export *activity.Export) error {
 	log.Info().Int64("activityID", export.ID).Msg("upload")
 	out := new(bytes.Buffer)
 	_, err := io.Copy(out, export)
@@ -88,13 +108,13 @@ func upload(c *cli.Context, upd activity.Uploader, plr activity.Poller, export *
 	}
 	file := &activity.File{Reader: out, Format: export.Format, Name: export.Name}
 	defer file.Close()
-	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+	ctx, cancel := context.WithTimeout(ctx, q.d)
 	defer cancel()
-	u, err := upd.Upload(ctx, file)
+	u, err := q.u.Upload(ctx, file)
 	if err != nil {
 		return err
 	}
-	for res := range plr.Poll(ctx, u.Identifier()) {
+	for res := range q.p.Poll(ctx, u.Identifier()) {
 		if res.Err != nil {
 			return res.Err
 		}
@@ -102,40 +122,40 @@ func upload(c *cli.Context, upd activity.Uploader, plr activity.Poller, export *
 			return err
 		}
 	}
-	return nil
+	return ctx.Err()
 }
 
-func export(c *cli.Context, expr activity.Exporter, activityID int64) (*activity.Export, error) {
+func (q *qr) export(ctx context.Context, activityID int64) (*activity.Export, error) {
 	log.Info().Int64("activityID", activityID).Msg("export")
-	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+	ctx, cancel := context.WithTimeout(ctx, q.d)
 	defer cancel()
-	return expr.Export(ctx, activityID)
+	return q.e.Export(ctx, activityID)
 }
 
 func qp(c *cli.Context) error {
-	expr, err := exporter(c)
-	if err != nil {
-		return err
-	}
-	updr, plr, err := uploader(c)
+	q, err := newqr(c)
 	if err != nil {
 		return err
 	}
 	args := c.Args()
+	grp, ctx := errgroup.WithContext(c.Context)
 	for i := 0; i < args.Len(); i++ {
 		activityID, err := strconv.ParseInt(args.Get(i), 10, 64)
 		if err != nil {
 			return err
 		}
-		exp, err := export(c, expr, activityID)
-		if err != nil {
-			return err
-		}
-		if err := upload(c, updr, plr, exp); err != nil {
-			return err
-		}
+		grp.Go(func() error {
+			exp, err := q.export(ctx, activityID)
+			if err != nil {
+				return err
+			}
+			if err := q.upload(ctx, exp); err != nil {
+				return err
+			}
+			return nil
+		})
 	}
-	return nil
+	return grp.Wait()
 }
 
 var flags = func() []cli.Flag {
