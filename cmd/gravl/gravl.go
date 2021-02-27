@@ -119,6 +119,8 @@ func main() {
 			cancel()
 		case <-ctx.Done():
 		}
+		<-c
+		os.Exit(2)
 	}()
 	if err := app.RunContext(ctx, os.Args); err != nil {
 		os.Exit(1)

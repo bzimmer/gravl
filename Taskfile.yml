@@ -67,13 +67,13 @@ tasks:
 
   test-all:
     desc: Run tests
+    deps: [build-gravl]
     cmds:
       - mkdir -p {{.DIST}}
       - go test -count=1 {{.QUALIFIER}} -covermode count -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
 
   test-integration:
     desc: Run all integration tests
-    deps: [build-gravl]
     cmds:
       - task: test-all
         vars:
