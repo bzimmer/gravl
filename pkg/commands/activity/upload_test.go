@@ -16,8 +16,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
-var _ activity.Uploader = &uploader{}
-
 type upload struct {
 	done bool
 }

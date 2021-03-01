@@ -1,7 +1,6 @@
 package geo
 
 import (
-	"context"
 	"math"
 	"time"
 
@@ -20,12 +19,6 @@ const (
 type GPX interface {
 	// GPX returns a gpx instance
 	GPX() (*gpx.GPX, error)
-}
-
-// Elevator instances can provide an elevation for a point
-type Elevator interface {
-	// Elevation for a point
-	Elevation(ctx context.Context, point *geom.Point) (float64, error)
 }
 
 type Summary struct {
@@ -52,37 +45,6 @@ func distance(p, q *gpx.WptType) unit.Length {
 	llp := s2.LatLngFromDegrees(p.Lat, p.Lon)
 	llq := s2.LatLngFromDegrees(q.Lat, q.Lon)
 	return unit.Length(llp.Distance(llq)) * earthRadiusM
-}
-
-func CorrectElevations(ctx context.Context, gpx *gpx.GPX, elevator Elevator) error {
-	for _, track := range gpx.Trk {
-		for _, segment := range track.TrkSeg {
-			for _, point := range segment.TrkPt {
-				elv, err := elevator.Elevation(ctx, point.Geom(geom.XY))
-				if err != nil {
-					return err
-				}
-				// fmt.Println(point.Lat, point.Lon, point.Ele, elv)
-				// log.Debug().
-				// 	Float64("lat", point.Lat).
-				// 	Float64("lon", point.Lon).
-				// 	Float64("elv", point.Ele).
-				// 	Float64("srtm", elv).
-				// 	Msg("track")
-				point.Ele = elv
-			}
-		}
-	}
-	for _, rte := range gpx.Rte {
-		for _, point := range rte.RtePt {
-			elv, err := elevator.Elevation(ctx, point.Geom(geom.XY))
-			if err != nil {
-				return err
-			}
-			point.Ele = elv
-		}
-	}
-	return nil
 }
 
 func FlattenTracks(gpx *gpx.GPX, layout geom.Layout) *geom.LineString {

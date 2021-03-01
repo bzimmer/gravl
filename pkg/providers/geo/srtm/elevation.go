@@ -3,7 +3,6 @@ package srtm
 import (
 	"context"
 
-	"github.com/bzimmer/gravl/pkg/providers/geo"
 	"github.com/tkrajina/go-elevations/geoelevations"
 	"github.com/twpayne/go-geom"
 )
@@ -13,8 +12,6 @@ type ElevationService struct {
 	service
 	srtm *geoelevations.Srtm
 }
-
-var _ geo.Elevator = &ElevationService{}
 
 // Elevation returns the elevation for the coordinates
 func (s *ElevationService) Elevation(ctx context.Context, point *geom.Point) (float64, error) {

@@ -14,8 +14,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
-var _ activity.Exporter = &ExportService{}
-
 // ExportService is the API for export endpoints
 type ExportService service
 

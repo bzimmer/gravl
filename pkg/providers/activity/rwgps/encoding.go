@@ -11,8 +11,8 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/geo"
 )
 
-var _ geo.GPX = &Trip{}
-var _ geo.GeoJSON = &Trip{}
+var _ geo.GPX = (*Trip)(nil)
+var _ geo.GeoJSON = (*Trip)(nil)
 
 func (t *Trip) GeoJSON() (*geojson.Feature, error) {
 	layout := geom.XYZ

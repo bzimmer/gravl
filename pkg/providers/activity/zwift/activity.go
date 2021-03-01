@@ -12,8 +12,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var _ activity.Exporter = &ActivityService{}
-
 // ActivityService is the API for profile endpoints
 type ActivityService service
 

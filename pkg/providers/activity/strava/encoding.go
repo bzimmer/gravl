@@ -13,9 +13,9 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/geo"
 )
 
-var _ geo.GPX = &Route{}
-var _ geo.GPX = &Streams{}
-var _ geo.GPX = &Activity{}
+var _ geo.GPX = (*Route)(nil)
+var _ geo.GPX = (*Streams)(nil)
+var _ geo.GPX = (*Activity)(nil)
 
 func polylineToLineString(polylines ...string) (*geom.LineString, error) {
 	const N = 2

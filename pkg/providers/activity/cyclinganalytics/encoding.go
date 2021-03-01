@@ -12,7 +12,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/providers/geo"
 )
 
-var _ geo.GPX = &Ride{}
+var _ geo.GPX = (*Ride)(nil)
 
 func (r *Ride) GPX() (*gpx.GPX, error) {
 	var layout geom.Layout
