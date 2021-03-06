@@ -59,6 +59,7 @@ since the operation can take a long time.
 * [strava export](#strava-export)
 * [strava fitness](#strava-fitness)
 * [strava oauth](#strava-oauth)
+* [strava photos](#strava-photos)
 * [strava refresh](#strava-refresh)
 * [strava route](#strava-route)
 * [strava routes](#strava-routes)
@@ -1337,6 +1338,26 @@ $ gravl strava oauth [flags]
 |-|-|-|
 |```origin```||Callback origin|
 |```port```||Port on which to listen|
+
+
+## *strava photos*
+
+**Description**
+
+Query photos from Strava
+
+
+**Syntax**
+
+```sh
+$ gravl strava photos [flags] ACTIVITY_ID (...)
+```
+
+**Flags**
+
+|Name|Aliases|Description|
+|-|-|-|
+|```size```|```s```||
 
 
 ## *strava refresh*

@@ -5,7 +5,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 	"golang.org/x/time/rate"
 
 	"github.com/bzimmer/gravl/pkg/commands"
@@ -216,22 +218,41 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
 	if err != nil {
 		return err
 	}
-	for i := 0; i < len(args); i++ {
-		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-		defer cancel()
-		x, err := strconv.ParseInt(args[i], 0, 64)
-		if err != nil {
-			return err
+
+	argc := make(chan string, c.NArg())
+	go func() {
+		defer close(argc)
+		for _, arg := range args {
+			argc <- arg
 		}
-		v, err := f(ctx, client, x)
-		if err != nil {
-			return err
-		}
-		if err = encoding.Encode(v); err != nil {
-			return err
-		}
+	}()
+
+	concurrency := 5
+	if len(args) < concurrency {
+		concurrency = len(args)
 	}
-	return nil
+	grp, ctx := errgroup.WithContext(c.Context)
+	for i := 0; i < concurrency; i++ {
+		grp.Go(func() error {
+			gtx, cancel := context.WithTimeout(ctx, c.Duration("timeout"))
+			defer cancel()
+			for arg := range argc {
+				x, err := strconv.ParseInt(arg, 0, 64)
+				if err != nil {
+					return err
+				}
+				v, err := f(gtx, client, x)
+				if err != nil {
+					return err
+				}
+				if err := encoding.Encode(v); err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+	}
+	return grp.Wait()
 }
 
 func entity(c *cli.Context, f entityFunc) error {
@@ -253,23 +274,9 @@ var activityCommand = &cli.Command{
 	Flags:     []cli.Flag{streamFlag},
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			log.Info().Int64("id", id).Msg("querying activity")
 			return client.Activity.Activity(ctx, id, c.StringSlice("stream")...)
 		})
-	},
-}
-
-var streamsetsCommand = &cli.Command{
-	Name:  "streamsets",
-	Usage: "Return the set of available streams for query",
-	Action: func(c *cli.Context) error {
-		client, err := NewAPIClient(c)
-		if err != nil {
-			return err
-		}
-		if err := encoding.Encode(client.Activity.StreamSets()); err != nil {
-			return err
-		}
-		return nil
 	},
 }
 
@@ -281,6 +288,7 @@ var streamsCommand = &cli.Command{
 	Flags:     []cli.Flag{streamFlag},
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			log.Info().Int64("id", id).Msg("querying streams")
 			streams := append([]string{"latlng", "altitude", "time"}, c.StringSlice("stream")...)
 			return client.Activity.Streams(ctx, id, streams...)
 		})
@@ -294,6 +302,7 @@ var routeCommand = &cli.Command{
 	ArgsUsage: "ROUTE_ID (...)",
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			log.Info().Int64("id", id).Msg("querying route")
 			return client.Route.Route(ctx, id)
 		})
 	},
@@ -313,7 +322,25 @@ var photosCommand = &cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			defer func(t time.Time) {
+				log.Info().Int64("id", id).Dur("elapsed", time.Since(t)).Msg("querying photos")
+			}(time.Now())
 			return client.Activity.Photos(ctx, id, c.Int("size"))
 		})
+	},
+}
+
+var streamsetsCommand = &cli.Command{
+	Name:  "streamsets",
+	Usage: "Return the set of available streams for query",
+	Action: func(c *cli.Context) error {
+		client, err := NewAPIClient(c)
+		if err != nil {
+			return err
+		}
+		if err := encoding.Encode(client.Activity.StreamSets()); err != nil {
+			return err
+		}
+		return nil
 	},
 }
