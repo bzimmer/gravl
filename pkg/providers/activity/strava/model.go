@@ -316,16 +316,36 @@ type HighlightedKudosers struct {
 	ShowName       bool   `json:"show_name"`
 }
 
-// Photos .
+// Photo metadata for activity and post photos
+type Photo struct {
+	ID             int64             `json:"id"`
+	UniqueID       string            `json:"unique_id"`
+	AthleteID      int               `json:"athlete_id"`
+	ActivityID     int64             `json:"activity_id"`
+	ActivityName   string            `json:"activity_name"`
+	PostID         int64             `json:"post_id"`
+	ResourceState  int               `json:"resource_state"`
+	Ref            string            `json:"ref"`
+	UID            string            `json:"uid"`
+	Caption        string            `json:"caption"`
+	Type           string            `json:"type"`
+	Source         int               `json:"source"`
+	UploadedAt     time.Time         `json:"uploaded_at"`
+	CreatedAt      time.Time         `json:"created_at"`
+	CreatedAtLocal time.Time         `json:"created_at_local"`
+	URLs           map[string]string `json:"urls"`
+	Sizes          map[string][]int  `json:"sizes"`
+	DefaultPhoto   bool              `json:"default_photo"`
+	Location       []float64         `json:"location"`
+}
+
+// Photos for an activity
 type Photos struct {
 	Primary struct {
-		ID       int64  `json:"id"`
-		UniqueID string `json:"unique_id"`
-		URLs     struct {
-			Num100 string `json:"100"`
-			Num600 string `json:"600"`
-		} `json:"urls"`
-		Source int `json:"source"`
+		ID       int64             `json:"id"`
+		UniqueID string            `json:"unique_id"`
+		URLs     map[string]string `json:"urls"`
+		Source   int               `json:"source"`
 	} `json:"primary"`
 	UsePrimaryPhoto bool `json:"use_primary_photo"`
 	Count           int  `json:"count"`

@@ -21,6 +21,7 @@ var Command = &cli.Command{
 		exportCommand,
 		fitnessCommand,
 		oauthCommand,
+		photosCommand,
 		refreshCommand,
 		routeCommand,
 		routesCommand,
