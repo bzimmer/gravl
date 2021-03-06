@@ -298,3 +298,22 @@ var routeCommand = &cli.Command{
 		})
 	},
 }
+
+var photosCommand = &cli.Command{
+	Name:      "photos",
+	Aliases:   []string{""},
+	Usage:     "Query photos from Strava",
+	ArgsUsage: "ACTIVITY_ID (...)",
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:    "size",
+			Aliases: []string{"s"},
+			Value:   2048,
+		},
+	},
+	Action: func(c *cli.Context) error {
+		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			return client.Activity.Photos(ctx, id, c.Int("size"))
+		})
+	},
+}

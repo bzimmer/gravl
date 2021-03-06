@@ -221,3 +221,19 @@ func validateStreams(streams []string) error {
 	}
 	return nil
 }
+
+// Photos returns the metadata (not the photo itself) for an activity
+// Size can be (0, 64, 1024, 2048)
+func (s *ActivityService) Photos(ctx context.Context, activityID int64, size int) ([]*Photo, error) {
+	uri := fmt.Sprintf("activities/%d/photos?photo_sources=true&size=%d", activityID, size)
+	req, err := s.client.newAPIRequest(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, err
+	}
+	var photos []*Photo
+	err = s.client.do(req, &photos)
+	if err != nil {
+		return nil, err
+	}
+	return photos, nil
+}
