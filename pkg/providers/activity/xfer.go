@@ -57,7 +57,7 @@ type Uploader interface {
 	Status(ctx context.Context, id UploadID) (Upload, error)
 }
 
-// File for uploading
+// File for uploading and exporting
 type File struct {
 	io.Reader `json:"-"`
 	FQPN      string `json:"fqpn,omitempty"`

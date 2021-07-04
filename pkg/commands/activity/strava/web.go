@@ -52,9 +52,6 @@ func export(c *cli.Context) error {
 		if err = activity.Write(c, exp); err != nil {
 			return err
 		}
-		if err = encoding.Encode(exp); err != nil {
-			return err
-		}
 	}
 	return nil
 }

@@ -8,10 +8,13 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
-// Write the contents of the export to a file if `output` is specified, else stdout
+// Write the contents of the export to a file if `output` is specified, else `stdout`
+// If the file is written to `output` then the metadata is written to `stdout`, else
+// only the file is written to `stdout`.
 func Write(c *cli.Context, exp *activity.Export) error {
 	if exp == nil || exp.Reader == nil {
 		return nil
@@ -43,7 +46,10 @@ func Write(c *cli.Context, exp *activity.Export) error {
 		}
 	}()
 	_, err = io.Copy(fp, exp)
-	return err
+	if err != nil {
+		return err
+	}
+	return encoding.Encode(exp)
 }
 
 // CollectFunc returns true if the file should be uploaded, false otherwise

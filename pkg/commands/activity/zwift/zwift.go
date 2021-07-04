@@ -177,10 +177,7 @@ func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwif
 	if err != nil {
 		return err
 	}
-	if err = actcmd.Write(c, exp); err != nil {
-		return err
-	}
-	return encoding.Encode(exp)
+	return actcmd.Write(c, exp)
 }
 
 var exportCommand = &cli.Command{
