@@ -1,7 +1,6 @@
 package web
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
@@ -36,7 +35,7 @@ func AuthCallbackHandler(c *oauth2.Config, state string) http.HandlerFunc {
 			return
 		}
 
-		token, err := c.Exchange(context.Background(), code)
+		token, err := c.Exchange(r.Context(), code)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

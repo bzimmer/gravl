@@ -44,7 +44,7 @@ tasks:
     desc: Install {{.APP}}
     deps: [test]
     cmds:
-      - task: build
+      - task: build-gravl
         vars:
           DIST:
             sh: echo $GOPATH/bin
