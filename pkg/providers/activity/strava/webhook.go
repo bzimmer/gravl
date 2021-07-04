@@ -33,7 +33,7 @@ type WebhookSubscription struct {
 // WebhookMessage is the incoming webhook message
 type WebhookMessage struct {
 	ObjectType     string            `json:"object_type"`
-	ObjectID       int               `json:"object_id"`
+	ObjectID       int64             `json:"object_id"`
 	AspectType     string            `json:"aspect_type"`
 	OwnerID        int               `json:"owner_id"`
 	SubscriptionID int64             `json:"subscription_id"`
