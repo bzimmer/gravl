@@ -104,7 +104,7 @@ func webhookSubscriptionHandler(subscriber WebhookSubscriber) http.HandlerFunc {
 			return
 		}
 		challenge, ok := q["hub.challenge"]
-		if !ok && len(verify) == 1 {
+		if !ok && len(challenge) == 1 {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
