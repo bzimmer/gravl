@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"io/ioutil"
-	"os"
 	"testing"
 	"time"
 
@@ -12,7 +11,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
-	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	enccmd "github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
@@ -63,21 +62,22 @@ func TestUpload(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Skip(tt.name)
 			a := assert.New(t)
-			app := &cli.App{Writer: ioutil.Discard}
+			app := &cli.App{
+				Writer: ioutil.Discard,
+				Metadata: map[string]interface{}{
+					"enc": enccmd.JSON(ioutil.Discard, true),
+				},
+			}
 			set := flag.NewFlagSet("test", 0)
-			err := set.Parse(tt.args)
-			a.NoError(err)
-
-			encoding.Add(encoding.JSON(os.Stdout, true))
+			a.NoError(set.Parse(tt.args))
 
 			context := cli.NewContext(app, set, nil)
 			command := actcmd.UploadCommand(func(c *cli.Context) (activity.Uploader, error) {
 				return &uploader{status: 1}, nil
 			})
 			command.Flags = append(command.Flags, &cli.DurationFlag{Name: "timeout", Value: tt.duration})
-			err = command.Run(context)
+			err := command.Run(context)
 			switch tt.err {
 			case true:
 				a.Error(err)

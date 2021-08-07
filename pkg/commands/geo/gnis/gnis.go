@@ -14,6 +14,7 @@ func query(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	enc := encoding.For(c)
 	args := c.Args()
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -23,7 +24,7 @@ func query(c *cli.Context) error {
 			return err
 		}
 		for _, x := range features {
-			if err = encoding.Encode(x); err != nil {
+			if err = enc.Encode(x); err != nil {
 				return err
 			}
 		}

@@ -36,7 +36,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	err = encoding.Encode(user)
+	err = encoding.For(c).Encode(user)
 	if err != nil {
 		return err
 	}
@@ -73,8 +73,9 @@ func trips(c *cli.Context, kind string) error {
 	if err != nil {
 		return err
 	}
+	enc := encoding.For(c)
 	for _, trip := range trips {
-		err = encoding.Encode(trip)
+		err = enc.Encode(trip)
 		if err != nil {
 			return err
 		}
@@ -117,6 +118,7 @@ func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (inter
 	if err != nil {
 		return err
 	}
+	enc := encoding.For(c)
 	args := c.Args()
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -129,7 +131,7 @@ func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (inter
 		if err != nil {
 			return err
 		}
-		if err = encoding.Encode(v); err != nil {
+		if err = enc.Encode(v); err != nil {
 			return err
 		}
 	}

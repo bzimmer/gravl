@@ -115,7 +115,7 @@ func export(c *cli.Context) error {
 			if err != nil {
 				return err
 			}
-			if err := encoding.Encode(y); err != nil {
+			if err := encoding.For(c).Encode(y); err != nil {
 				return err
 			}
 			i++
@@ -168,7 +168,7 @@ collect:
 			return err
 		}
 	}
-	if err := encoding.Encode(ids); err != nil {
+	if err := encoding.For(c).Encode(ids); err != nil {
 		return err
 	}
 	return nil
@@ -230,7 +230,7 @@ update:
 	if err = grp.Wait(); err != nil {
 		return err
 	}
-	return encoding.Encode(map[string]int{"total": total, "new": n, "existing": total - n})
+	return encoding.For(c).Encode(map[string]int{"total": total, "new": n, "existing": total - n})
 }
 
 var updateCommand = &cli.Command{

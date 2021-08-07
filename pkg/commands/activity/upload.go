@@ -20,12 +20,12 @@ func poller(c *cli.Context, uploader activity.Uploader) activity.Poller {
 		activity.WithIterations(c.Int("iterations")))
 }
 
-func poll(ctx context.Context, p activity.Poller, uploadID activity.UploadID, follow bool) error {
+func poll(ctx context.Context, enc encoding.Encoder, p activity.Poller, uploadID activity.UploadID, follow bool) error {
 	for res := range p.Poll(ctx, uploadID) {
 		if res.Err != nil {
 			return res.Err
 		}
-		if err := encoding.Encode(res.Upload); err != nil {
+		if err := enc.Encode(res.Upload); err != nil {
 			return err
 		}
 		if !follow {
@@ -38,6 +38,7 @@ func poll(ctx context.Context, p activity.Poller, uploadID activity.UploadID, fo
 func upload(c *cli.Context, uploader activity.Uploader) error {
 	args := c.Args()
 	dryrun := c.Bool("dryrun")
+	enc := encoding.For(c)
 	for i := 0; i < args.Len(); i++ {
 		files, err := Collect(args.Get(i), nil)
 		if err != nil {
@@ -51,8 +52,7 @@ func upload(c *cli.Context, uploader activity.Uploader) error {
 			log.Info().Str("file", file.Name).Bool("dryrun", dryrun).Msg("uploading")
 			switch dryrun {
 			case true:
-				// @note(bzimmer) the output from a dryrun differs from an upload
-				if err := encoding.Encode(map[string]interface{}{"dryrun": true, "file": file}); err != nil {
+				if err := enc.Encode(map[string]interface{}{"dryrun": true, "file": file}); err != nil {
 					return err
 				}
 			case false:
@@ -65,11 +65,11 @@ func upload(c *cli.Context, uploader activity.Uploader) error {
 				switch c.Bool("poll") {
 				case true:
 					p := poller(c, uploader)
-					if err = poll(ctx, p, u.Identifier(), true); err != nil {
+					if err = poll(ctx, enc, p, u.Identifier(), true); err != nil {
 						return err
 					}
 				case false:
-					if err = encoding.Encode(u); err != nil {
+					if err = enc.Encode(u); err != nil {
 						return err
 					}
 				}
@@ -82,6 +82,7 @@ func upload(c *cli.Context, uploader activity.Uploader) error {
 func status(c *cli.Context, uploader activity.Uploader) error {
 	args := c.Args()
 	p := poller(c, uploader)
+	enc := encoding.For(c)
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -89,7 +90,7 @@ func status(c *cli.Context, uploader activity.Uploader) error {
 		if err != nil {
 			return err
 		}
-		if err := poll(ctx, p, activity.UploadID(uploadID), c.Bool("poll")); err != nil {
+		if err := poll(ctx, enc, p, activity.UploadID(uploadID), c.Bool("poll")); err != nil {
 			return err
 		}
 	}

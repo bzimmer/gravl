@@ -49,7 +49,7 @@ func Write(c *cli.Context, exp *activity.Export) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(exp)
+	return encoding.For(c).Encode(exp)
 }
 
 // CollectFunc returns true if the file should be uploaded, false otherwise

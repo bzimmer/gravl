@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/bzimmer/gravl/pkg/providers/geo"
@@ -20,31 +21,8 @@ type Encoder interface {
 	Encode(v interface{}) error
 }
 
-var DefaultEncoder = "json"
-var encoders = make(map[string]Encoder)
-
-var Encode = func(v interface{}) error {
-	enc, err := For(DefaultEncoder)
-	if err != nil {
-		return err
-	}
-	return enc.Encode(v)
-}
-
-// Add the encoder for the encoding if no prior encoder exists
-//
-// This function is not thread-safe
-func Add(encoder Encoder) {
-	encoders[encoder.Name()] = encoder
-}
-
-// For name return an encoder
-func For(encoder string) (Encoder, error) {
-	enc, ok := encoders[encoder]
-	if !ok {
-		return nil, ErrUnknownEncoder
-	}
-	return enc, nil
+func For(c *cli.Context) Encoder {
+	return c.App.Metadata["enc"].(Encoder)
 }
 
 type namedEncoder struct {

@@ -250,6 +250,6 @@ var Commands = &cli.Command{
 		for _, c := range lineate(c.App.Commands, nil) {
 			s = append(s, cmd+" "+c.fullname(" "))
 		}
-		return encoding.Encode(s)
+		return encoding.For(c).Encode(s)
 	},
 }

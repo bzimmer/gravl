@@ -12,6 +12,7 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/commands"
 	actcmd "github.com/bzimmer/gravl/pkg/commands/activity"
+	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
@@ -30,7 +31,6 @@ func TestOutputOverwrite(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Skip(tt.name)
 			a := assert.New(t)
 			writer := &bytes.Buffer{}
 			app := &cli.App{
@@ -42,6 +42,9 @@ func TestOutputOverwrite(t *testing.T) {
 				Action: func(c *cli.Context) error {
 					exp := &activity.Export{File: &activity.File{Name: tt.name, Reader: strings.NewReader(tt.name)}}
 					return actcmd.Write(c, exp)
+				},
+				Metadata: map[string]interface{}{
+					"enc": encoding.JSON(ioutil.Discard, true),
 				},
 			}
 			var args = []string{""}

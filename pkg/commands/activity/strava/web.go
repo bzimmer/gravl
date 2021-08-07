@@ -104,7 +104,7 @@ func fitness(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(load)
+	return encoding.For(c).Encode(load)
 }
 
 var fitnessCommand = &cli.Command{

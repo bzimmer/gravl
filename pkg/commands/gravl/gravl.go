@@ -73,21 +73,23 @@ func InitConfig() cli.BeforeFunc {
 	}
 }
 
-type EncoderFunc func(c *cli.Context) encoding.Encoder
-
-func InitEncoding(fns ...EncoderFunc) cli.BeforeFunc {
+func InitEncoding() cli.BeforeFunc {
 	return func(c *cli.Context) error {
-		encoding.Add(encoding.Spew(c.App.Writer))
-		encoding.Add(encoding.XML(c.App.Writer, c.Bool("compact")))
-		encoding.Add(encoding.JSON(c.App.Writer, c.Bool("compact")))
-		for i := 0; i < len(fns); i++ {
-			encoding.Add(fns[i](c))
+		var enc encoding.Encoder
+		compact := c.Bool("compact")
+		switch c.String("encoding") {
+		case "spew":
+			enc = encoding.Spew(c.App.Writer)
+		case "geojson":
+			enc = encoding.GeoJSON(c.App.Writer, compact)
+		case "xml":
+			enc = encoding.XML(c.App.Writer, compact)
+		case "named":
+			enc = encoding.Named(c.App.Writer, compact)
+		default:
+			enc = encoding.JSON(c.App.Writer, compact)
 		}
-		encoder, err := encoding.For(c.String("encoding"))
-		if err != nil {
-			return err
-		}
-		encoding.Encode = encoder.Encode
+		c.App.Metadata["enc"] = enc
 		return nil
 	}
 }
@@ -140,7 +142,7 @@ func Flags(filename string) []cli.Flag {
 			Name:    "encoding",
 			Aliases: []string{"e"},
 			Value:   "json",
-			Usage:   "Output encoding (eg, json, xml, geojson, gpx, spew)",
+			Usage:   "Output encoding (eg: json, xml, geojson, gpx, spew)",
 		},
 		&cli.BoolFlag{
 			Name:  "http-tracing",

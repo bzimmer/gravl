@@ -36,7 +36,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(athlete)
+	return encoding.For(c).Encode(athlete)
 }
 
 var athleteCommand = &cli.Command{
@@ -57,8 +57,9 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	enc := encoding.For(c)
 	for _, ride := range rides {
-		if err := encoding.Encode(ride); err != nil {
+		if err := enc.Encode(ride); err != nil {
 			return err
 		}
 	}
@@ -88,6 +89,7 @@ func ride(c *cli.Context) error {
 	opts := cyclinganalytics.RideOptions{
 		Streams: []string{"latitude", "longitude", "elevation"},
 	}
+	enc := encoding.For(c)
 	args := c.Args()
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -100,7 +102,7 @@ func ride(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		if err = encoding.Encode(ride); err != nil {
+		if err = enc.Encode(ride); err != nil {
 			return err
 		}
 	}
@@ -122,7 +124,7 @@ var streamsetsCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		if err := encoding.Encode(client.Rides.StreamSets()); err != nil {
+		if err := encoding.For(c).Encode(client.Rides.StreamSets()); err != nil {
 			return err
 		}
 		return nil
