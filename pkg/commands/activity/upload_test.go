@@ -43,8 +43,6 @@ func (u *uploader) Status(ctx context.Context, id activity.UploadID) (activity.U
 
 func TestUpload(t *testing.T) {
 	t.Parallel()
-	a := assert.New(t)
-
 	tests := []struct {
 		name      string
 		err, poll bool
@@ -65,6 +63,8 @@ func TestUpload(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Skip(tt.name)
+			a := assert.New(t)
 			app := &cli.App{Writer: ioutil.Discard}
 			set := flag.NewFlagSet("test", 0)
 			err := set.Parse(tt.args)
