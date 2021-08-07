@@ -10,6 +10,7 @@ import (
 
 	"github.com/bzimmer/gravl/pkg/commands/activity"
 	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	providers "github.com/bzimmer/gravl/pkg/providers/activity"
 	stravaweb "github.com/bzimmer/gravl/pkg/providers/activity/strava/web"
 )
 
@@ -37,6 +38,7 @@ func export(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	f := providers.ToFormat(c.String("format"))
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
 	args := c.Args().Slice()
@@ -45,7 +47,7 @@ func export(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		exp, err := client.Export.Export(ctx, x)
+		exp, err := client.Export.ExportWithFormat(ctx, x, f)
 		if err != nil {
 			return err
 		}
@@ -66,6 +68,12 @@ var exportCommand = &cli.Command{
 			Aliases: []string{"o"},
 			Value:   false,
 			Usage:   "Overwrite the file if it exists; fail otherwise",
+		},
+		&cli.StringFlag{
+			Name:    "format",
+			Aliases: []string{"f"},
+			Value:   "original",
+			Usage:   "The export format ('original', 'gpx', 'fit', 'tcx')",
 		},
 		&cli.StringFlag{
 			Name:    "output",
