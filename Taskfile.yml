@@ -70,7 +70,7 @@ tasks:
     deps: [build-gravl]
     cmds:
       - mkdir -p {{.DIST}}
-      - go test -count=1 {{.QUALIFIER}} -covermode count -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
+      - go test -count=1 {{.QUALIFIER}} -race -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
 
   test-integration:
     desc: Run all integration tests
