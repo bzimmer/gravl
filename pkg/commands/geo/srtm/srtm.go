@@ -48,6 +48,6 @@ var Command = &cli.Command{
 		if err != nil {
 			return err
 		}
-		return encoding.Encode(elevation)
+		return encoding.For(c).Encode(elevation)
 	},
 }

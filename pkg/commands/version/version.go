@@ -11,7 +11,7 @@ var Command = &cli.Command{
 	Name:  "version",
 	Usage: "Version",
 	Action: func(c *cli.Context) error {
-		return encoding.Encode(map[string]string{
+		return encoding.For(c).Encode(map[string]string{
 			"version":    pkg.BuildVersion,
 			"timestamp":  pkg.BuildTime,
 			"user-agent": pkg.UserAgent,

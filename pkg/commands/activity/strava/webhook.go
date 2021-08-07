@@ -34,7 +34,7 @@ func whlist(c *cli.Context) error {
 	active := false
 	err := list(c, func(sub *strava.WebhookSubscription) error {
 		active = true
-		return encoding.Encode(sub)
+		return encoding.For(c).Encode(sub)
 	})
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func whsubscribe(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(ack)
+	return encoding.For(c).Encode(ack)
 }
 
 var verifyFlag = &cli.StringFlag{

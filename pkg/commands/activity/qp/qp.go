@@ -19,15 +19,16 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/commands/activity/strava"
 	"github.com/bzimmer/gravl/pkg/commands/activity/zwift"
-	"github.com/bzimmer/gravl/pkg/commands/encoding"
+	enccmd "github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/providers/activity"
 )
 
 type qr struct {
-	p activity.Poller
-	e activity.Exporter
-	u activity.Uploader
-	d time.Duration
+	p   activity.Poller
+	e   activity.Exporter
+	u   activity.Uploader
+	d   time.Duration
+	enc enccmd.Encoder
 }
 
 func newqr(c *cli.Context) (*qr, error) {
@@ -40,7 +41,8 @@ func newqr(c *cli.Context) (*qr, error) {
 		return nil, err
 	}
 	d := c.Duration("timeout")
-	return &qr{e: e, u: u, p: p, d: d}, nil
+	enc := enccmd.For(c)
+	return &qr{e: e, u: u, p: p, d: d, enc: enc}, nil
 }
 
 func exporter(c *cli.Context) (activity.Exporter, error) {
@@ -119,7 +121,7 @@ func (q *qr) upload(ctx context.Context, export *activity.Export) error {
 		if res.Err != nil {
 			return res.Err
 		}
-		if err := encoding.Encode(res.Upload); err != nil {
+		if err := q.enc.Encode(res.Upload); err != nil {
 			return err
 		}
 	}

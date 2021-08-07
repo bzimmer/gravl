@@ -47,6 +47,7 @@ func athlete(c *cli.Context) error {
 	if len(args) == 0 {
 		args = append(args, zwift.Me)
 	}
+	enc := encoding.For(c)
 	for i := range args {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -54,7 +55,7 @@ func athlete(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		if err = encoding.Encode(profile); err != nil {
+		if err = enc.Encode(profile); err != nil {
 			return err
 		}
 	}
@@ -80,7 +81,7 @@ func refresh(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(token)
+	return encoding.For(c).Encode(token)
 }
 
 var refreshCommand = &cli.Command{
@@ -106,7 +107,7 @@ func activities(c *cli.Context) error {
 		return err
 	}
 	for i := range acts {
-		if err = encoding.Encode(acts[i]); err != nil {
+		if err = encoding.For(c).Encode(acts[i]); err != nil {
 			return err
 		}
 	}
@@ -167,7 +168,7 @@ var activityCommand = &cli.Command{
 	ArgsUsage: "ACTIVITY_ID (...)",
 	Action: func(c *cli.Context) error {
 		return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
-			return encoding.Encode(act)
+			return encoding.For(c).Encode(act)
 		})
 	},
 }
@@ -254,7 +255,7 @@ func files(c *cli.Context) error {
 			return err
 		}
 	}
-	return encoding.Encode(paths)
+	return encoding.For(c).Encode(paths)
 }
 
 var filesCommand = &cli.Command{

@@ -12,6 +12,7 @@ import (
 )
 
 func info(c *cli.Context) error {
+	enc := encoding.For(c)
 	for _, arg := range c.Args().Slice() {
 		fp, err := os.Open(arg)
 		if err != nil {
@@ -29,14 +30,14 @@ func info(c *cli.Context) error {
 		s := geo.SummarizeTracks(x)
 		if s.Tracks > 0 {
 			s.Filename = arg
-			if err := encoding.Encode(s); err != nil {
+			if err := enc.Encode(s); err != nil {
 				return err
 			}
 		}
 		s = geo.SummarizeRoutes(x)
 		if s.Routes > 0 {
 			s.Filename = arg
-			if err := encoding.Encode(s); err != nil {
+			if err := enc.Encode(s); err != nil {
 				return err
 			}
 		}

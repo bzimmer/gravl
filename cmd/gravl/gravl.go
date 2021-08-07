@@ -29,7 +29,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/commands/activity/wta"
 	"github.com/bzimmer/gravl/pkg/commands/activity/zwift"
 	"github.com/bzimmer/gravl/pkg/commands/analysis"
-	"github.com/bzimmer/gravl/pkg/commands/encoding"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gnis"
 	"github.com/bzimmer/gravl/pkg/commands/geo/gpx"
 	"github.com/bzimmer/gravl/pkg/commands/geo/srtm"
@@ -43,17 +42,6 @@ import (
 )
 
 func main() {
-	initEncoding := gravl.InitEncoding(
-		func(c *cli.Context) encoding.Encoder {
-			return encoding.GPX(c.App.Writer, c.Bool("compact"))
-		},
-		func(c *cli.Context) encoding.Encoder {
-			return encoding.GeoJSON(c.App.Writer, c.Bool("compact"))
-		},
-		func(c *cli.Context) encoding.Encoder {
-			return encoding.Named(c.App.Writer, c.Bool("compact"))
-		},
-	)
 	initAnalysis := func(c *cli.Context) error {
 		analysis.Add(ageride.New(), false)
 		analysis.Add(benford.New(), false)
@@ -97,7 +85,7 @@ func main() {
 		Description: "Activity related analysis, exploration, & planning",
 		Flags:       gravl.Flags("gravl.yaml"),
 		Commands:    commands,
-		Before:      gravl.Befores(gravl.InitLogging(), initEncoding, gravl.InitConfig(), initAnalysis),
+		Before:      gravl.Befores(gravl.InitLogging(), gravl.InitEncoding(), gravl.InitConfig(), initAnalysis),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return

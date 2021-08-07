@@ -103,7 +103,7 @@ func analyze(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(results)
+	return encoding.For(c).Encode(results)
 }
 
 var listCommand = &cli.Command{
@@ -117,7 +117,7 @@ var listCommand = &cli.Command{
 			res[nm]["base"] = an.standard
 			res[nm]["flags"] = (an.analyzer.Flags != nil)
 		}
-		return encoding.Encode(res)
+		return encoding.For(c).Encode(res)
 	},
 }
 

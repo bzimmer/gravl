@@ -29,7 +29,7 @@ func forecast(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(fcst)
+	return encoding.For(c).Encode(fcst)
 }
 
 var Command = &cli.Command{

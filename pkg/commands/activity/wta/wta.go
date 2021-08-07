@@ -24,6 +24,7 @@ var Command = &cli.Command{
 		if err != nil {
 			return err
 		}
+		enc := encoding.For(c)
 		for _, arg := range args {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
@@ -31,7 +32,7 @@ var Command = &cli.Command{
 			if err != nil {
 				return err
 			}
-			if err = encoding.Encode(reports); err != nil {
+			if err = enc.Encode(reports); err != nil {
 				return err
 			}
 		}

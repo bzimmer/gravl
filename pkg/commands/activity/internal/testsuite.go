@@ -49,7 +49,8 @@ func (s *ActivityTestSuite) SetupSuite() {
 }
 
 func (s *ActivityTestSuite) BeforeTest(suiteName, testName string) {
-	s.T().Parallel()
+	// @todo(bzimmer) a race condition exists in the testing library if the suite is run in parallel
+	// s.T().Parallel()
 }
 
 func (s *ActivityTestSuite) TestAthlete() {

@@ -41,7 +41,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(athlete)
+	return encoding.For(c).Encode(athlete)
 }
 
 var athleteCommand = &cli.Command{
@@ -62,7 +62,7 @@ func refresh(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(tokens)
+	return encoding.For(c).Encode(tokens)
 }
 
 var refreshCommand = &cli.Command{
@@ -114,6 +114,8 @@ func activities(c *cli.Context) error {
 		return err
 	}
 
+	enc := encoding.For(c)
+
 	var ok bool
 	var res *strava.ActivityResult
 	acts := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
@@ -142,7 +144,7 @@ func activities(c *cli.Context) error {
 				return err
 			}
 			// encode
-			if err = encoding.Encode(res); err != nil {
+			if err = enc.Encode(res); err != nil {
 				return err
 			}
 		}
@@ -189,8 +191,9 @@ func routes(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	enc := encoding.For(c)
 	for _, route := range routes {
-		err = encoding.Encode(route)
+		err = enc.Encode(route)
 		if err != nil {
 			return err
 		}
@@ -231,6 +234,8 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
 	if len(args) < concurrency {
 		concurrency = len(args)
 	}
+
+	enc := encoding.For(c)
 	grp, ctx := errgroup.WithContext(c.Context)
 	for i := 0; i < concurrency; i++ {
 		grp.Go(func() error {
@@ -245,7 +250,7 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
 				if err != nil {
 					return err
 				}
-				if err := encoding.Encode(v); err != nil {
+				if err := enc.Encode(v); err != nil {
 					return err
 				}
 			}
@@ -338,7 +343,7 @@ var streamsetsCommand = &cli.Command{
 		if err != nil {
 			return err
 		}
-		if err := encoding.Encode(client.Activity.StreamSets()); err != nil {
+		if err := encoding.For(c).Encode(client.Activity.StreamSets()); err != nil {
 			return err
 		}
 		return nil
