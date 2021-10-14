@@ -14,15 +14,13 @@ since the operation can take a long time.
 |```verbosity```|```v```|Log level (trace, debug, info, warn, error, fatal, panic)|
 |```monochrome```|```m```|Use monochrome logging, color enabled by default|
 |```compact```|```c```|Use compact JSON output|
-|```encoding```|```e```|Output encoding (eg, json, xml, geojson, gpx, spew)|
+|```encoding```|```e```|Output encoding (eg: json, xml, geojson, gpx, spew)|
 |```http-tracing```||Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)|
 |```timeout```|```t```|Timeout duration (eg, 1ms, 2s, 5m, 3h)|
 |```config```||File containing configuration values|
 |```help```|```h```|show help|
 
 ## Commands
-* [analysis](#analysis)
-* [analysis list](#analysis-list)
 * [commands](#commands)
 * [cyclinganalytics](#cyclinganalytics)
 * [cyclinganalytics activities](#cyclinganalytics-activities)
@@ -31,14 +29,7 @@ since the operation can take a long time.
 * [cyclinganalytics oauth](#cyclinganalytics-oauth)
 * [cyclinganalytics streamsets](#cyclinganalytics-streamsets)
 * [cyclinganalytics upload](#cyclinganalytics-upload)
-* [gnis](#gnis)
-* [gpx](#gpx)
-* [gpx info](#gpx-info)
 * [help](#help)
-* [noaa](#noaa)
-* [noaa forecast](#noaa-forecast)
-* [openweather](#openweather)
-* [openweather forecast](#openweather-forecast)
 * [qp](#qp)
 * [rwgps](#rwgps)
 * [rwgps activities](#rwgps-activities)
@@ -47,17 +38,10 @@ since the operation can take a long time.
 * [rwgps route](#rwgps-route)
 * [rwgps routes](#rwgps-routes)
 * [rwgps upload](#rwgps-upload)
-* [srtm](#srtm)
-* [store](#store)
-* [store export](#store-export)
-* [store remove](#store-remove)
-* [store update](#store-update)
 * [strava](#strava)
 * [strava activities](#strava-activities)
 * [strava activity](#strava-activity)
 * [strava athlete](#strava-athlete)
-* [strava export](#strava-export)
-* [strava fitness](#strava-fitness)
 * [strava oauth](#strava-oauth)
 * [strava photos](#strava-photos)
 * [strava refresh](#strava-refresh)
@@ -71,9 +55,6 @@ since the operation can take a long time.
 * [strava webhook subscribe](#strava-webhook-subscribe)
 * [strava webhook unsubscribe](#strava-webhook-unsubscribe)
 * [version](#version)
-* [visualcrossing](#visualcrossing)
-* [visualcrossing forecast](#visualcrossing-forecast)
-* [wta](#wta)
 * [zwift](#zwift)
 * [zwift activities](#zwift-activities)
 * [zwift activity](#zwift-activity)
@@ -81,154 +62,6 @@ since the operation can take a long time.
 * [zwift export](#zwift-export)
 * [zwift files](#zwift-files)
 * [zwift refresh](#zwift-refresh)
-
-## *analysis*
-
-**Description**
-
-Produce statistics and other interesting artifacts from Strava activities
-
-
-**Syntax**
-
-```sh
-$ gravl analysis [flags]
-```
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```units```|```u```|Units|
-|```filter```|```f```|Expression for filtering activities to remove|
-|```group```|```g```|Expressions for grouping activities|
-|```analyzer```|```a```|Analyzers to include (if none specified, default set is used)|
-|```input```|```i```|Input data store|
-
-**Example**
-
-Run the analysis on the Strava activities. Learn more about analyzers [here](analyzers.md).
-
-```sh
-$ gravl pass -a totals -f ".StartDate.Year() == 2021"
-{
- "": {
-  "totals": {
-   "count": 50,
-   "distance": 592.2288211842838,
-   "elevation": 47769.68503937008,
-   "calories": 34076.5,
-   "movingtime": 192936,
-   "centuries": {
-    "metric": 1,
-    "imperial": 0
-   }
-  }
- }
-}
-```
-
-In addition to filtering, it's often useful to group activities and perform analysis on sub-groups.
-In this example the year is filtered and then totals are computed per type.
-
-```sh
-$ gravl pass -a totals -f ".StartDate.Year() == 2021" -g ".Type"
-{
- "NordicSki": {
-  "totals": {
-   "count": 4,
-   "distance": 27.716013481269382,
-   "elevation": 2030.8398950131236,
-   "calories": 1984,
-   "movingtime": 19512,
-   "centuries": {
-    "metric": 0,
-    "imperial": 0
-   }
-  }
- },
- "Ride": {
-  "totals": {
-   "count": 19,
-   "distance": 433.0711768273283,
-   "elevation": 34855.64304461942,
-   "calories": 23870.5,
-   "movingtime": 105859,
-   "centuries": {
-    "metric": 1,
-    "imperial": 0
-   }
-  }
- },
- ...,
- "Walk": {
-  "totals": {
-   "count": 19,
-   "distance": 41.42433190169411,
-   "elevation": 4248.687664041995,
-   "calories": 4170,
-   "movingtime": 46374,
-   "centuries": {
-    "metric": 0,
-    "imperial": 0
-   }
-  }
- }
-}
-```
-
-
-## *analysis list*
-
-**Description**
-
-Return the list of available analyzers
-
-
-**Syntax**
-
-```sh
-$ gravl analysis list [flags]
-```
-
-
-**Example**
-
-List all the available analyzers.
-
-```sh
-$ gravl pass list
-{
-	"ageride": {
-		"base": false,
-		"doc": "ageride returns all activities whose distance is greater than the athlete's age at the time of the activity",
-		"flags": true
-	},
-	...,
-	"cluster": {
-		"base": false,
-		"doc": "clusters returns the activities clustered by (distance, elevation) dimensions",
-		"flags": true
-	},
-	"eddington": {
-		"base": true,
-		"doc": "eddington returns the Eddington number for all activities - The Eddington is the largest integer E, where you have cycled at least E miles (or kilometers) on at least E days",
-		"flags": false
-	},
-	"festive500": {
-		"base": true,
-		"doc": "festive500 returns the activities and distance ridden during the annual #festive500 challenge - Thanks Rapha! https://www.rapha.cc/us/en_US/stories/festive-500",
-		"flags": false
-	},
-	...,
-	"totals": {
-		"base": true,
-		"doc": "totals returns the number of centuries (100 mi or 100 km)",
-		"flags": false
-	}
-}
-```
-
 
 ## *commands*
 
@@ -392,98 +225,6 @@ $ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 |```iterations```|```N```|The max number of polling iterations to perform|
 
 
-## *gnis*
-
-**Description**
-
-Query the GNIS database
-
-
-**Syntax**
-
-```sh
-$ gravl gnis [flags] US-STATE-TWO-LETTER-ABBREVIATION
-```
-
-
-**Example**
-
-Query the [GNIS](https://www.usgs.gov/core-science-systems/national-geospatial-program/geographic-names) database for US States.
-
-This functionality was added mainly to get pseudo-accurate coordinates for use in querying weather forecasts.
-
-```sh
-$ gravl -c gnis NH | wc -l
-   14770
-$ gravl -c gnis NH | head -5
-{"type":"Feature","id":"205110","geometry":{"type":"Point","coordinates":[-77.0775473,40.3221113,200]},"properties":{"class":"Trail","locale":"PA","name":"North Country National Scenic Trail","source":"https://geonames.usgs.gov"}}
-{"type":"Feature","id":"206425","geometry":{"type":"Point","coordinates":[-72.3331382,41.2723203,0]},"properties":{"class":"Stream","locale":"CT","name":"Connecticut River","source":"https://geonames.usgs.gov"}}
-{"type":"Feature","id":"561049","geometry":{"type":"Point","coordinates":[-71.0306287,44.9383838,384]},"properties":{"class":"Stream","locale":"ME","name":"Abbott Brook","source":"https://geonames.usgs.gov"}}
-{"type":"Feature","id":"561428","geometry":{"type":"Point","coordinates":[-70.7517197,43.0823107,9]},"properties":{"class":"Island","locale":"ME","name":"Badgers Island","source":"https://geonames.usgs.gov"}}
-{"type":"Feature","id":"561491","geometry":{"type":"Point","coordinates":[-70.9716939,43.6157566,168]},"properties":{"class":"Reservoir","locale":"ME","name":"Balch Pond","source":"https://geonames.usgs.gov"}}
-```
-
-I might typically use it like this:
-
-```sh
-$ gravl -c gnis WA | grep "Barlow Pass"
-{"type":"Feature","id":"1516141","geometry":{"type":"Point","coordinates":[-121.4440005,48.0264959,721]},"properties":{"class":"Gap","locale":"WA","name":"Barlow Pass","source":"https://geonames.usgs.gov"}}
-$ gravl -c gnis WA | grep "Barlow Pass" | jq ".geometry | .coordinates"
-[
-  -121.4440005,
-  48.0264959,
-  721
-]
-```
-
-
-## *gpx*
-
-**Description**
-
-gpx
-
-
-
-
-## *gpx info*
-
-**Description**
-
-Return basic statistics about a GPX file
-
-
-**Syntax**
-
-```sh
-$ gravl gpx info [flags] GPX_FILE (...)
-```
-
-
-**Example**
-
-A simple utility for summarizing gpx data files.
-
-_Distance units are metric, time is seconds_
-
-```sh
-$ gravl gpx info pkg/commands/geo/gpx/testdata/2017-07-13-TdF-Stage18.gpx
-{
- "filename": "pkg/commands/geo/gpx/testdata/2017-07-13-TdF-Stage18.gpx",
- "tracks": 1,
- "segments": 1,
- "points": 396,
- "distance2d": 180993.07498903852,
- "distance3d": 181154.40869605148,
- "ascent": 2310.6341268663095,
- "descent": 1881.945114464303,
- "start_time": "2017-07-13T06:00:00Z",
- "moving_time": 23583,
- "stopped_time": 12525
-}
-```
-
-
 ## *help*
 
 **Description**
@@ -497,98 +238,6 @@ Shows a list of commands or help for one command
 $ gravl help [flags] [command]
 ```
 
-
-
-## *noaa*
-
-**Description**
-
-Query NOAA for forecasts
-
-
-
-
-## *noaa forecast*
-
-**Description**
-
-Query NOAA for a forecast
-
-
-**Syntax**
-
-```sh
-$ gravl noaa forecast [flags] [--] LATITUDE LONGITUDE
-```
-
-
-
-## *openweather*
-
-**Description**
-
-Query OpenWeather for forecasts
-
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```openweather.access-token```||API key for OpenWeather API|
-
-
-## *openweather forecast*
-
-**Description**
-
-Query OpenWeather for a forecast
-
-
-**Syntax**
-
-```sh
-$ gravl openweather forecast [flags] [--] LATITUDE LONGITUDE
-```
-
-
-**Example**
-
-Query [OpenWeather](https://openweathermap.org/) for a forecast
-
-```sh
-$ gravl openweather forecast -- 48.8 -128.0
-{
- "lat": 48.8,
- "lon": -128,
- "timezone": "Etc/GMT+9",
- "timezone_offset": -32400,
- "current": {
-  "dt": 1613843684,
-  "sunrise": 1613835032,
-  "sunset": 1613872869,
-  "temp": 7.19,
-  "feels_like": 1.02,
-  "pressure": 1023,
-  "humidity": 70,
-  "dew_point": 2.09,
-  "uvi": 0.68,
-  "clouds": 91,
-  "visibility": 10000,
-  "wind_speed": 6.45,
-  "wind_deg": 252,
-  "wind_gust": 0,
-  "weather": [
-   {
-    "id": 804,
-    "main": "Clouds",
-    "description": "overcast clouds",
-    "icon": "04d"
-   }
-  ]
- },
- ...
-}
-```
 
 
 ## *qp*
@@ -842,174 +491,6 @@ $ gravl rwgps upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 |```iterations```|```N```|The max number of polling iterations to perform|
 
 
-## *srtm*
-
-**Description**
-
-Query the SRTM database for elevation data
-
-
-**Syntax**
-
-```sh
-$ gravl srtm [flags]
-```
-
-
-
-## *store*
-
-**Description**
-
-Manage a local store of Strava activities
-
-
-
-
-## *store export*
-
-**Description**
-
-Export activities from local storage
-
-
-**Syntax**
-
-```sh
-$ gravl store export [flags]
-```
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```input```|```i```|Input data store|
-|```filter```|```f```|Expression for filtering activities|
-|```attribute```|```B```|Evaluate the expression on an activity and return only those results|
-
-**Example**
-
-`gravl` allows flexible exporting of Strava activities from the local store by the `export` command. As an example
-of exporting a subset of activities:
-
-```sh
-$ gravl -c store export -f ".Type == 'NordicSki'" | wc -l
-2021-02-20T19:12:07-08:00 INF bunt db path="/Users/bzimmer/Library/Application Support/com.github.bzimmer.gravl/gravl.db"
-2021-02-20T19:12:08-08:00 INF export activities=46 elapsed=678.191786
-46
-```
-
-It's also possible to use the attribute functionality by specifying one or more attributes using the `-B` flag. In this
-example we export only those activities of type `Ride`, extract their distance in miles, and use standard unix tools to
-create the top 10 rides by distance.
-
-```sh
-$ gravl -c store export -f ".Type == 'Ride'" -B ".Distance.Miles()" | jq ".[]" | sort -nr | head -10
-2021-02-20T18:56:27-08:00 INF bunt db path="/Users/bzimmer/Library/Application Support/com.github.bzimmer.gravl/gravl.db"
-2021-02-20T18:56:28-08:00 INF export activities=618 elapsed=682.669242
-161.20357114451602
-107.90359301678198
-101.80421339378032
-99.08571442774199
-97.57764654418197
-90.31630279169649
-84.45552970651396
-83.14567923327766
-79.88223773164718
-76.653593016782
-```
-
-
-## *store remove*
-
-**Description**
-
-Remove activities from local storage
-
-
-**Syntax**
-
-```sh
-$ gravl store remove [flags]
-```
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```input```|```i```|Input data store|
-|```filter```|```f```|Expression for filtering activities|
-|```dryrun```|```n```|Don't actually remove anything, just show what would be done|
-
-
-## *store update*
-
-**Description**
-
-Query and update Strava activities to local storage
-
-
-**Syntax**
-
-```sh
-$ gravl store update [flags]
-```
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```input```|```i```|Input data store|
-|```output```|```o```|Output data store|
-|```strava.client-id```||API key for Strava API|
-|```strava.client-secret```||API secret for Strava API|
-|```strava.access-token```||Access token for Strava API|
-|```strava.refresh-token```||Refresh token for Strava API|
-|```strava.username```||Username for the Strava website|
-|```strava.password```||Password for the Strava website|
-
-**Example**
-
-In order to have a more performant experience when running analyzers all Strava activities
-are stored locally in a `Store` implementation. The default `Store` is an implementation
-using `buntdb` as it allows very simple, fast, and durable local storage though other
-implementations exist.
-
-Updates from Strava are incremental and should be run periodically to get the latest activities.
-
-*Note: if the activity already exists locally `gravl` will not update it, it will need to be removed and updated*
-
-```sh
-$ gravl store update
-2021-02-20T15:59:25-08:00 INF bunt db path="/Users/bzimmer/Library/Application Support/com.github.bzimmer.gravl/gravl.db"
-2021-02-20T15:59:26-08:00 INF do all=0 count=100 n=0 start=0 total=0
-2021-02-20T15:59:29-08:00 INF do all=100 count=100 n=100 start=1 total=0
-2021-02-20T15:59:29-08:00 INF querying activity details ID=4819927284
-2021-02-20T15:59:30-08:00 INF saving activity details ID=4819927284 n=1 name="Morning Ride"
-2021-02-20T15:59:30-08:00 INF querying activity details ID=4814540574
-2021-02-20T15:59:30-08:00 INF saving activity details ID=4814540574 n=2 name="Afternoon Ride"
-2021-02-20T15:59:31-08:00 INF do all=200 count=100 n=100 start=2 total=0
-2021-02-20T15:59:34-08:00 INF do all=300 count=100 n=100 start=3 total=0
-2021-02-20T15:59:36-08:00 INF do all=400 count=100 n=100 start=4 total=0
-2021-02-20T15:59:39-08:00 INF do all=500 count=100 n=100 start=5 total=0
-2021-02-20T15:59:41-08:00 INF do all=600 count=100 n=100 start=6 total=0
-2021-02-20T15:59:43-08:00 INF do all=700 count=100 n=100 start=7 total=0
-2021-02-20T15:59:48-08:00 INF do all=800 count=100 n=100 start=8 total=0
-2021-02-20T15:59:51-08:00 INF do all=900 count=100 n=100 start=9 total=0
-2021-02-20T15:59:54-08:00 INF do all=1000 count=100 n=100 start=10 total=0
-2021-02-20T15:59:56-08:00 INF do all=1100 count=100 n=100 start=11 total=0
-2021-02-20T15:59:58-08:00 INF do all=1200 count=100 n=100 start=12 total=0
-2021-02-20T15:59:59-08:00 INF do all=1200 count=100 n=0 start=13 total=0
-{
- "existing": 1198,
- "new": 2,
- "total": 1200
-}
-```
-
-The results of the command show the number of new, existing, and total activities stored locally.
-
-
 ## *strava*
 
 **Description**
@@ -1205,118 +686,6 @@ Query an athlete from Strava
 $ gravl strava athlete [flags]
 ```
 
-
-
-## *strava export*
-
-**Description**
-
-Export a Strava activity by id
-
-
-**Syntax**
-
-```sh
-$ gravl strava export [flags] ACTIVITY_ID (...)
-```
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
-|```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
-
-**Example**
-
-Strava export uses the website and therefore requires a username and password instead of the usual oauth credentials.
-
-If neither `-o` or `-O` are specified the contents of the file are written to stdout.
-If `-o` is specified, the file will be written to disk using the name provided by Strava, even if it already exists locally.
-If `-O` is specified, the file will be written to disk using the name provided by the flag. It will not overwrite an existing
-file unless `-o` was also specified.
-
-```sh
-$ gravl strava export -o 4814450574
-2021-02-20T09:20:29-08:00 INF export activityID=4814540574 format=original
-{
- "id": 4814450574,
- "name": "Friday.fit",
- "format": "fit"
-}
-$ ls -las Friday.fit
-56 -rw-r--r--  1 bzimmer  staff    25K Feb 20 09:20 Friday.fit
-```
-
-An example of the overwrite logic.
-
-```sh
-$ gravl strava export -O Friday.fit 4814540547
-2021-02-20T09:24:44-08:00 INF export activityID=4814540547 format=original
-2021-02-20T09:24:45-08:00 ERR file exists and -o flag not specified filename=Friday.fit
-2021-02-20T09:24:45-08:00 ERR gravl strava error="file already exists"
-```
-
-
-## *strava fitness*
-
-**Description**
-
-Query Strava for training load data for the authenticated user
-
-
-**Syntax**
-
-```sh
-$ gravl strava fitness [flags]
-```
-
-
-**Example**
-
-Queries the fitness and freshness data for the authenticated user.
-
-```sh
-$ gravl strava fitness
-[
- {
-  "date": {
-   "year": 2020,
-   "month": 8,
-   "day": 22
-  },
-  "fitness_profile": {
-   "fitness": 107.39025265712681,
-   "impulse": 83,
-   "relative_effort": 64,
-   "fatigue": 86.97505302175927,
-   "form": 20.415199635367543
-  },
-  "activities": [
-   {
-    "id": 3951687537,
-    "impulse": 83,
-    "relative_effort": 64
-   }
-  ]
- },
- ...,
- {
-  "date": {
-   "year": 2021,
-   "month": 3,
-   "day": 8
-  },
-  "fitness_profile": {
-   "fitness": 56.367803371875894,
-   "impulse": 0,
-   "relative_effort": 0,
-   "fatigue": 5.510876434392897,
-   "form": 50.856926937482996
-  },
-  "activities": []
- }
-]
 
 
 ## *strava oauth*
@@ -1619,59 +988,6 @@ Version
 $ gravl version [flags]
 ```
 
-
-
-## *visualcrossing*
-
-**Description**
-
-Query VisualCrossing for forecasts
-
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```visualcrossing.access-token```||API key for Visual Crossing API|
-
-
-## *visualcrossing forecast*
-
-**Description**
-
-Query VisualCrossing for a forecast
-
-
-**Syntax**
-
-```sh
-$ gravl visualcrossing forecast [flags] [--] LATITUDE LONGITUDE
-```
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```interval```|```i```|Forecast interval (eg 1, 12, 24)|
-
-
-## *wta*
-
-**Description**
-
-Query the WTA site for trip reports, if no reporter is specified the most recent reports are returned
-
-
-**Syntax**
-
-```sh
-$ gravl wta [flags] [REPORTER_NAME ...]
-```
-
-
-**Example**
-
-Please support the [Washington Trails Association](https://wta.org), thanks!
 
 
 ## *zwift*

@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bzimmer/activity/strava"
 	"github.com/martinlindhe/unit"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/gravl/pkg/eval/antonmedv"
-	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 var acts = []*strava.Activity{

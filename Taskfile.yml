@@ -31,14 +31,9 @@ tasks:
 
   build:
     desc: Build all cmds
-    deps: [build-gravl]
-
-  build-gravl:
-    desc: Build gravl
-    sources:
-      - '**/*.go'
+    deps: [dist]
     cmds:
-      - GO111MODULE=on go build {{.LDFLAGS}} -o {{.DIST}}/gravl cmd/gravl/*.go
+      - go build {{.LDFLAGS}} -o {{.DIST}}/gravl cmd/gravl/*.go
 
   install:
     desc: Install {{.APP}}
@@ -50,49 +45,33 @@ tasks:
             sh: echo $GOPATH/bin
 
   lint:
-    desc: Runs golint
+    desc: Runs lint
     cmds:
-      - golint {{catLines .GO_PACKAGES}}
       - golangci-lint -v run
-
-  sec:
-    desc: Run security checks
-    cmds:
-      - gosec ./...
-
-  vet:
-    desc: Runs golint
-    cmds:
-      - go vet {{catLines .GO_PACKAGES}}
 
   test-all:
     desc: Run tests
-    deps: [build-gravl]
+    deps: [test, test-integration]
+
+  dist:
     cmds:
       - mkdir -p {{.DIST}}
-      - go test {{.CLI_ARGS}} -count=1 {{.QUALIFIER}} -race -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
-
-  test-integration:
-    desc: Run all integration tests
-    cmds:
-      - task: test-all
-        vars:
-          QUALIFIER: "-run Integration"
-
-  test-unit:
-    desc: Run all unit tests
-    cmds:
-      - task: test-all
-        vars:
-          QUALIFIER: "-short"
 
   test:
-    desc: Run all unit tests
-    deps: [test-unit]
+    desc: Run tests
+    deps: [dist]
+    cmds:
+      - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt ./...
+
+  test-integration:
+    desc: Run integration tests
+    deps: [build]
+    cmds:
+      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic ./...
 
   cover:
     desc: Visualize test coverage
-    deps: []
+    deps: [test]
     cmds:
       - go tool cover -html={{.DIST}}/coverage.txt
 
@@ -100,36 +79,6 @@ tasks:
     desc: Remove build artifacts
     cmds:
       - rm -rf {{.DIST}} {{.TASK}}
-
-  download:
-    desc: Download dependencies
-    cmds:
-      - go mod download
-
-  tidy:
-    desc: Clean up dependencies
-    cmds:
-      - go mod tidy
-
-  install-tools:
-    # https://marcofranssen.nl/manage-go-tools-via-go-modules/
-    desc: Install build tools for {{.APP}}
-    deps: [download]
-    vars:
-      TOOLS:
-        # the braces need to be escaped or they are interpreted by Taskfile
-        sh: go list -f '{{"{{range .Imports}}{{.}} {{end}}"}}' cmd/tools/tools.go
-    cmds:
-      - go install {{.TOOLS}}
-      - task: tidy
-
-  tools-install:
-    deps: [install-tools]
-
-  units:
-    desc: Display all struct fields with units
-    cmds:
-      - go run {{.CWD}}/cmd/genunits/* {{.CWD}}/pkg | jq .
 
   manual:
     desc: Generate usage documentation
