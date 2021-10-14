@@ -1,0 +1,33 @@
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - env:
+      - CGO_ENABLED=0
+      - PKG=github.com/bzimmer/gravl
+    goos:
+      - linux
+      - windows
+      - darwin
+    main: ./cmd/gravl
+    ldflags:
+      - -s -w -X {{.Env.PKG}}/pkg.BuildVersion={{.Version}} -X {{.Env.PKG}}/pkg.BuildTime="{{.Date}}"
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+announce:
+  skip: "true"

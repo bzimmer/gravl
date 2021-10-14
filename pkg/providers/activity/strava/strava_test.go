@@ -2,10 +2,10 @@ package strava_test
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
@@ -36,29 +36,44 @@ type ManyTransport struct {
 
 func (t *ManyTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	q := req.URL.Query()
-	n, _ := strconv.Atoi(q.Get("per_page"))
+	n, err := strconv.Atoi(q.Get("per_page"))
+	if err != nil {
+		return nil, err
+	}
 	if t.Total > 0 {
 		n = t.Total
 		if t.total >= t.Total {
 			n = 0
 		}
 	}
+	t.total = t.total + n
 
-	data, err := ioutil.ReadFile(t.Filename)
+	data, err := os.ReadFile(t.Filename)
 	if err != nil {
 		return nil, err
 	}
 
-	var acts []string
-	for i := 0; i < n; i++ {
-		acts = append(acts, string(data))
+	var body bytes.Buffer
+	if err := body.WriteByte(byte('[')); err != nil {
+		return nil, err
 	}
-	t.total = t.total + len(acts)
+	for i := 0; i < n; i++ {
+		if _, err := body.Write(data); err != nil {
+			return nil, err
+		}
+		if i+1 < n {
+			if err := body.WriteByte(','); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if err := body.WriteByte(byte(']')); err != nil {
+		return nil, err
+	}
 
-	res := strings.Join(acts, ",")
 	return &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(bytes.NewBufferString("[" + res + "]")),
+		Body:       io.NopCloser(&body),
 		Header:     make(http.Header),
 	}, nil
 }
