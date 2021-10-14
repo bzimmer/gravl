@@ -70,7 +70,7 @@ tasks:
     deps: [build-gravl]
     cmds:
       - mkdir -p {{.DIST}}
-      - go test -count=1 {{.QUALIFIER}} -race -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
+      - go test {{.CLI_ARGS}} -count=1 {{.QUALIFIER}} -race -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{catLines .GO_PACKAGES}}
 
   test-integration:
     desc: Run all integration tests
@@ -143,3 +143,8 @@ tasks:
     deps: [manual]
     cmds:
       - grip
+
+  snapshot:
+    desc: Build a snapshot
+    cmds:
+      - goreleaser release --snapshot --rm-dist
