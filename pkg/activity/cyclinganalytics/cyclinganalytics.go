@@ -150,21 +150,18 @@ func Command() *cli.Command {
 
 var AuthFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name:     "cyclinganalytics-client-id",
-		Required: true,
-		Usage:    "cyclinganalytics client id",
-		EnvVars:  []string{"CYCLINGANALYTICS_CLIENT_ID"},
+		Name:    "cyclinganalytics-client-id",
+		Usage:   "cyclinganalytics client id",
+		EnvVars: []string{"CYCLINGANALYTICS_CLIENT_ID"},
 	},
 	&cli.StringFlag{
-		Name:     "cyclinganalytics-client-secret",
-		Required: true,
-		Usage:    "cyclinganalytics client secret",
-		EnvVars:  []string{"CYCLINGANALYTICS_CLIENT_SECRET"},
+		Name:    "cyclinganalytics-client-secret",
+		Usage:   "cyclinganalytics client secret",
+		EnvVars: []string{"CYCLINGANALYTICS_CLIENT_SECRET"},
 	},
 	&cli.StringFlag{
-		Name:     "cyclinganalytics-access-token",
-		Required: true,
-		Usage:    "cyclinganalytics access token",
-		EnvVars:  []string{"CYCLINGANALYTICS_ACCESS_TOKEN"},
+		Name:    "cyclinganalytics-access-token",
+		Usage:   "cyclinganalytics access token",
+		EnvVars: []string{"CYCLINGANALYTICS_ACCESS_TOKEN"},
 	},
 }

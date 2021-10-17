@@ -397,21 +397,18 @@ func Command() *cli.Command {
 
 var AuthFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name:     "strava-client-id",
-		Required: true,
-		Usage:    "strava client id",
-		EnvVars:  []string{"STRAVA_CLIENT_ID"},
+		Name:    "strava-client-id",
+		Usage:   "strava client id",
+		EnvVars: []string{"STRAVA_CLIENT_ID"},
 	},
 	&cli.StringFlag{
-		Name:     "strava-client-secret",
-		Required: true,
-		Usage:    "strava client secret",
-		EnvVars:  []string{"STRAVA_CLIENT_SECRET"},
+		Name:    "strava-client-secret",
+		Usage:   "strava client secret",
+		EnvVars: []string{"STRAVA_CLIENT_SECRET"},
 	},
 	&cli.StringFlag{
-		Name:     "strava-refresh-token",
-		Required: true,
-		Usage:    "strava refresh token",
-		EnvVars:  []string{"STRAVA_REFRESH_TOKEN"},
+		Name:    "strava-refresh-token",
+		Usage:   "strava refresh token",
+		EnvVars: []string{"STRAVA_REFRESH_TOKEN"},
 	},
 }

@@ -181,15 +181,13 @@ func Command() *cli.Command {
 
 var AuthFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name:     "rwgps-client-id",
-		Required: true,
-		Usage:    "rwgps client id",
-		EnvVars:  []string{"RWGPS_CLIENT_ID"},
+		Name:    "rwgps-client-id",
+		Usage:   "rwgps client id",
+		EnvVars: []string{"RWGPS_CLIENT_ID"},
 	},
 	&cli.StringFlag{
-		Name:     "rwgps-access-token",
-		Required: true,
-		Usage:    "rwgps access token",
-		EnvVars:  []string{"RWGPS_ACCESS_TOKEN"},
+		Name:    "rwgps-access-token",
+		Usage:   "rwgps access token",
+		EnvVars: []string{"RWGPS_ACCESS_TOKEN"},
 	},
 }

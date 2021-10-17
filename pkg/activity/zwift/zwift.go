@@ -236,16 +236,14 @@ var filesCommand = &cli.Command{
 
 var AuthFlags = []cli.Flag{
 	&cli.StringFlag{
-		Name:     "zwift-username",
-		Required: true,
-		Usage:    "zwift username",
-		EnvVars:  []string{"ZWIFT_USERNAME"},
+		Name:    "zwift-username",
+		Usage:   "zwift username",
+		EnvVars: []string{"ZWIFT_USERNAME"},
 	},
 	&cli.StringFlag{
-		Name:     "zwift-password",
-		Required: true,
-		Usage:    "zwift password",
-		EnvVars:  []string{"ZWIFT_PASSWORD"},
+		Name:    "zwift-password",
+		Usage:   "zwift password",
+		EnvVars: []string{"ZWIFT_PASSWORD"},
 	},
 }
 
