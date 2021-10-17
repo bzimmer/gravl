@@ -145,7 +145,7 @@ func qp(c *cli.Context) error {
 	return grp.Wait()
 }
 
-var flags = func() []cli.Flag {
+func flags() []cli.Flag {
 	f := []cli.Flag{
 		&cli.StringFlag{
 			Name:    "exporter",
@@ -162,14 +162,16 @@ var flags = func() []cli.Flag {
 		f = append(f, x...)
 	}
 	return f
-}()
+}
 
-var Command = &cli.Command{
-	Name:      "qp",
-	Category:  "activity",
-	Usage:     "Copy an activity from an exporter to an uploader",
-	ArgsUsage: "ACTIVITY_ID (...)",
-	Flags:     flags,
-	Action:    qp,
-	Before:    pkg.Befores(strava.Before, cyclinganalytics.Before, zwift.Before, rwgps.Before),
+func Command() *cli.Command {
+	return &cli.Command{
+		Name:      "qp",
+		Category:  "activity",
+		Usage:     "Copy an activity from an exporter to an uploader",
+		ArgsUsage: "ACTIVITY_ID (...)",
+		Flags:     flags(),
+		Action:    qp,
+		Before:    pkg.Befores(strava.Before, cyclinganalytics.Before, zwift.Before, rwgps.Before),
+	}
 }

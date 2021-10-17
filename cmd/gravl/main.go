@@ -127,12 +127,12 @@ func flags() []cli.Flag {
 func commands() []*cli.Command {
 	return []*cli.Command{
 		cyclinganalytics.Command(),
-		manual.Commands,
-		manual.Manual,
-		qp.Command,
+		manual.Command(),
+		manual.Commands(),
+		qp.Command(),
 		rwgps.Command(),
 		strava.Command(),
-		version.Command,
+		version.Command(),
 		zwift.Command(),
 	}
 }
