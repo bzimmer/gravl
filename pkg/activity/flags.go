@@ -20,6 +20,6 @@ var RateLimitFlags = []cli.Flag{
 	&cli.IntFlag{
 		Name:  "concurrency",
 		Value: 2,
-		Usage: "Allowable concurrent queries to data providers",
+		Usage: "Maximum concurrent API queries",
 	},
 }
