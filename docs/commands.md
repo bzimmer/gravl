@@ -4,9 +4,6 @@
 For most commands the timeout value is reset on each query. For example, if you query 12 activities
 from Strava each query will honor the timeout value, it's not an aggregate timeout.
 
-Some commands, such as [store update](#store-update) will require a timeout longer than the default
-since the operation can take a long time.
-
 
 ## Global Flags
 |Name|Aliases|Description|
@@ -17,7 +14,6 @@ since the operation can take a long time.
 |```encoding```|```e```|Output encoding (eg: json, xml, geojson, gpx, spew)|
 |```http-tracing```||Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)|
 |```timeout```|```t```|Timeout duration (eg, 1ms, 2s, 5m, 3h)|
-|```config```||File containing configuration values|
 |```help```|```h```|show help|
 
 ## Commands
@@ -94,11 +90,12 @@ Operations supported by the CyclingAnalytics API
 
 |Name|Aliases|Description|
 |-|-|-|
-|```cyclinganalytics.client-id```||API key for CyclingAnalytics API|
-|```cyclinganalytics.client-secret```||API secret for CyclingAnalytics API|
-|```cyclinganalytics.access-token```||Access token for CyclingAnalytics API|
+|```cyclinganalytics-client-id```||cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||cyclinganalytics access token|
 |```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```||Maximum burst size for API request events|
+|```concurrency```||Maximum concurrent API queries|
 
 
 ## *cyclinganalytics activities*
@@ -261,19 +258,17 @@ $ gravl qp [flags] ACTIVITY_ID (...)
 |```uploader```|```u```|Upload data provider|
 |```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```||Maximum burst size for API request events|
-|```cyclinganalytics.client-id```||API key for CyclingAnalytics API|
-|```cyclinganalytics.client-secret```||API secret for CyclingAnalytics API|
-|```cyclinganalytics.access-token```||Access token for CyclingAnalytics API|
-|```rwgps.client-id```||API key for RideWithGPS API|
-|```rwgps.access-token```||Access token for RideWithGPS API|
-|```strava.client-id```||API key for Strava API|
-|```strava.client-secret```||API secret for Strava API|
-|```strava.access-token```||Access token for Strava API|
-|```strava.refresh-token```||Refresh token for Strava API|
-|```strava.username```||Username for the Strava website|
-|```strava.password```||Password for the Strava website|
-|```zwift.username```||Username for the Zwift website|
-|```zwift.password```||Password for the Zwift website|
+|```concurrency```||Maximum concurrent API queries|
+|```cyclinganalytics-client-id```||cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||cyclinganalytics access token|
+|```rwgps-client-id```||rwgps client id|
+|```rwgps-access-token```||rwgps access token|
+|```strava-client-id```||strava client id|
+|```strava-client-secret```||strava client secret|
+|```strava-refresh-token```||strava refresh token|
+|```zwift-username```||zwift username|
+|```zwift-password```||zwift password|
 
 **Example**
 
@@ -324,10 +319,11 @@ Operations supported by the RideWithGPS API
 
 |Name|Aliases|Description|
 |-|-|-|
-|```rwgps.client-id```||API key for RideWithGPS API|
-|```rwgps.access-token```||Access token for RideWithGPS API|
+|```rwgps-client-id```||rwgps client id|
+|```rwgps-access-token```||rwgps access token|
 |```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```||Maximum burst size for API request events|
+|```concurrency```||Maximum concurrent API queries|
 
 
 ## *rwgps activities*
@@ -502,14 +498,12 @@ Operations supported by the Strava API
 
 |Name|Aliases|Description|
 |-|-|-|
-|```strava.client-id```||API key for Strava API|
-|```strava.client-secret```||API secret for Strava API|
-|```strava.access-token```||Access token for Strava API|
-|```strava.refresh-token```||Refresh token for Strava API|
-|```strava.username```||Username for the Strava website|
-|```strava.password```||Password for the Strava website|
+|```strava-client-id```||strava client id|
+|```strava-client-secret```||strava client secret|
+|```strava-refresh-token```||strava refresh token|
 |```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```||Maximum burst size for API request events|
+|```concurrency```||Maximum concurrent API queries|
 
 **Overview**
 
@@ -1001,10 +995,11 @@ Operations supported by the Zwift API
 
 |Name|Aliases|Description|
 |-|-|-|
-|```zwift.username```||Username for the Zwift website|
-|```zwift.password```||Password for the Zwift website|
+|```zwift-username```||zwift username|
+|```zwift-password```||zwift password|
 |```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```||Maximum burst size for API request events|
+|```concurrency```||Maximum concurrent API queries|
 
 **Overview**
 

@@ -16,14 +16,16 @@ var (
 	UserAgent = fmt.Sprintf("gravl/%s (https://github.com/bzimmer/gravl)", BuildVersion)
 )
 
-var Command = &cli.Command{
-	Name:  "version",
-	Usage: "Version",
-	Action: func(c *cli.Context) error {
-		return pkg.Runtime(c).Encoder.Encode(map[string]string{
-			"version":    BuildVersion,
-			"timestamp":  BuildTime,
-			"user-agent": UserAgent,
-		})
-	},
+func Command() *cli.Command {
+	return &cli.Command{
+		Name:  "version",
+		Usage: "Version",
+		Action: func(c *cli.Context) error {
+			return pkg.Runtime(c).Encoder.Encode(map[string]string{
+				"version":    BuildVersion,
+				"timestamp":  BuildTime,
+				"user-agent": UserAgent,
+			})
+		},
+	}
 }

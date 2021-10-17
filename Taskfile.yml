@@ -84,14 +84,7 @@ tasks:
     desc: Generate usage documentation
     deps: [build]
     cmds:
-      - dist/gravl manual --commands > docs/commands.md
-      - dist/gravl manual --analyzers > docs/analyzers.md
-
-  manual-serve:
-    desc: Serve the manual content locally
-    deps: [manual]
-    cmds:
-      - grip
+      - dist/gravl manual > docs/commands.md
 
   snapshot:
     desc: Build a snapshot

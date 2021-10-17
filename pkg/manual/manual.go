@@ -118,61 +118,66 @@ func lineate(cmds, lineage []*cli.Command) []*command {
 	return commands
 }
 
-var Manual = &cli.Command{
-	Name:    "manual",
-	Usage:   "Generate the `gravl` manual",
-	Aliases: []string{"md"},
-	Hidden:  true,
-	Action: func(c *cli.Context) error {
-		buffer := &bytes.Buffer{}
-		commands := lineate(c.App.Commands, nil)
-		t, err := manualTemplate(".")
-		if err != nil {
-			return err
-		}
-		if err = t.Execute(buffer, map[string]interface{}{
-			"Name":        c.App.Name,
-			"Description": c.App.Description,
-			"GlobalFlags": c.App.Flags,
-			"Commands":    commands,
-		}); err != nil {
-			return err
-		}
-		fmt.Fprint(c.App.Writer, buffer.String())
-		return nil
-	},
+func Command() *cli.Command {
+	return &cli.Command{
+		Name:    "manual",
+		Usage:   "Generate the `gravl` manual",
+		Aliases: []string{"md"},
+		Hidden:  true,
+		Action: func(c *cli.Context) error {
+			buffer := &bytes.Buffer{}
+			commands := lineate(c.App.Commands, nil)
+			t, err := manualTemplate(".")
+			if err != nil {
+				return err
+			}
+			if err := t.Execute(buffer, map[string]interface{}{
+				"Name":        c.App.Name,
+				"Description": c.App.Description,
+				"GlobalFlags": c.App.Flags,
+				"Commands":    commands,
+			}); err != nil {
+				return err
+			}
+			fmt.Fprint(c.App.Writer, buffer.String())
+			return nil
+		},
+	}
 }
 
-var Commands = &cli.Command{
-	Name:  "commands",
-	Usage: "Return all possible commands",
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "relative",
-			Aliases: []string{"r"},
-			Usage:   "Specify the command relative to the current working directory",
+func Commands() *cli.Command {
+	return &cli.Command{
+		Name:  "commands",
+		Usage: "Return all possible commands",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "relative",
+				Aliases: []string{"r"},
+				Usage:   "Specify the command relative to the current working directory",
+			},
 		},
-	},
-	Action: func(c *cli.Context) error {
-		cmd := c.App.Name
-		if c.Bool("relative") {
-			cwd, err := os.Getwd()
-			if err != nil {
-				return err
+		Action: func(c *cli.Context) error {
+			cmd := c.App.Name
+			if c.Bool("relative") {
+				cwd, err := os.Getwd()
+				if err != nil {
+					return err
+				}
+				cmd, err = os.Executable()
+				if err != nil {
+					return err
+				}
+				cmd, err = filepath.Rel(cwd, cmd)
+				if err != nil {
+					return err
+				}
 			}
-			cmd, err = os.Executable()
-			if err != nil {
-				return err
+			var s []string
+			for _, c := range lineate(c.App.Commands, nil) {
+				log.Info().Str("name", c.Cmd.Name).Str("usage", c.Cmd.Usage).Msg("command")
+				s = append(s, cmd+" "+c.fullname(" "))
 			}
-			cmd, err = filepath.Rel(cwd, cmd)
-			if err != nil {
-				return err
-			}
-		}
-		var s []string
-		for _, c := range lineate(c.App.Commands, nil) {
-			s = append(s, cmd+" "+c.fullname(" "))
-		}
-		return pkg.Runtime(c).Encoder.Encode(s)
-	},
+			return pkg.Runtime(c).Encoder.Encode(s)
+		},
+	}
 }
