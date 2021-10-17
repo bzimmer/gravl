@@ -7,6 +7,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
+	"time"
 
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/activity"
@@ -33,7 +34,10 @@ func Token(n int) (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
-type RT struct {
+type Rt struct {
+	// Metadata
+	Start time.Time
+
 	// Activity clients
 	Zwift            *zwift.Client
 	Strava           *strava.Client
@@ -54,8 +58,8 @@ type RT struct {
 	Evaluator func(string) (eval.Evaluator, error)
 }
 
-func Runtime(c *cli.Context) *RT {
-	return c.App.Metadata[RuntimeKey].(*RT)
+func Runtime(c *cli.Context) *Rt {
+	return c.App.Metadata[RuntimeKey].(*Rt)
 }
 
 var ErrUnknownEncoder = errors.New("unknown encoder")

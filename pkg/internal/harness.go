@@ -28,8 +28,8 @@ type Harness struct {
 	Before, After func(app *cli.App)
 }
 
-func runtime(app *cli.App) *pkg.RT {
-	return app.Metadata[pkg.RuntimeKey].(*pkg.RT)
+func runtime(app *cli.App) *pkg.Rt {
+	return app.Metadata[pkg.RuntimeKey].(*pkg.Rt)
 }
 
 func CopyFile(w io.Writer, filename string) error {
@@ -74,7 +74,7 @@ func Run(t *testing.T, tt *Harness, mux *http.ServeMux, cmd func(*testing.T, str
 		tt.Before(app)
 	}
 
-	err := app.RunContext(context.TODO(), tt.Args)
+	err := app.RunContext(context.Background(), tt.Args)
 	switch tt.Err == "" {
 	case true:
 		a.NoError(err)
@@ -130,7 +130,8 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
 		},
 		Commands: []*cli.Command{cmd},
 		Metadata: map[string]interface{}{
-			pkg.RuntimeKey: &pkg.RT{
+			pkg.RuntimeKey: &pkg.Rt{
+				Start:     time.Now(),
 				Metrics:   metric,
 				Sink:      sink,
 				Encoder:   pkg.Blackhole(),

@@ -20,7 +20,6 @@ import (
 
 func TestOutputOverwrite(t *testing.T) {
 	t.Skipf("replace with unittest")
-	t.Parallel()
 	tests := []struct {
 		name                   string
 		err, output, overwrite bool
@@ -73,14 +72,13 @@ func TestOutputOverwrite(t *testing.T) {
 }
 
 func TestCollect(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 
-	files, err := actcmd.Collect(filepath.Dir(internal.TdF(t)), nil)
+	files, err := actcmd.Walk(filepath.Dir(internal.TdF(t)), nil)
 	a.NoError(err)
 	a.Equal(1, len(files))
 
-	files, err = actcmd.Collect(fmt.Sprintf("/tmp/does/not/exist/now/%s", time.Now()), nil)
+	files, err = actcmd.Walk(fmt.Sprintf("/tmp/does/not/exist/now/%s", time.Now()), nil)
 	a.Error(err)
 	a.Nil(files)
 
@@ -106,9 +104,8 @@ func TestCollect(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			a := assert.New(t)
-			files, err := actcmd.Collect(dirname, func(path string, info os.FileInfo) bool {
+			files, err := actcmd.Walk(dirname, func(path string, info os.FileInfo) bool {
 				ext := filepath.Ext(path)
 				format := activity.ToFormat(ext)
 				a.NotEqual(activity.FormatOriginal, format)

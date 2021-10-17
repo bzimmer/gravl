@@ -52,12 +52,12 @@ func Write(c *cli.Context, exp *activity.Export) error {
 	return pkg.Runtime(c).Encoder.Encode(exp)
 }
 
-// CollectFunc returns true if the file should be uploaded, false otherwise
-type CollectFunc func(path string, info os.FileInfo) bool
+// WalkFunc returns true if the file should be uploaded, false otherwise
+type WalkFunc func(path string, info os.FileInfo) bool
 
-// Collect data files ready for uploading to an activity service
+// Walk data files ready for uploading to an activity service
 // Only files of the format FIT, GPX, or TCX will be considered for uploading
-func Collect(name string, f CollectFunc) ([]*activity.File, error) {
+func Walk(name string, f WalkFunc) ([]*activity.File, error) {
 	var files []*activity.File
 	err := filepath.Walk(name, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

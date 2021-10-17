@@ -41,28 +41,30 @@ func newRouter(c *cli.Context) (*http.ServeMux, error) {
 	return mux, nil
 }
 
-var oauthCommand = &cli.Command{
-	Name:  "oauth",
-	Usage: "Authentication endpoints for access and refresh tokens",
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "origin",
-			Value: "http://localhost",
-			Usage: "Callback origin",
+func oauthCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "oauth",
+		Usage: "Authentication endpoints for access and refresh tokens",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "origin",
+				Value: "http://localhost",
+				Usage: "Callback origin",
+			},
+			&cli.IntFlag{
+				Name:  "port",
+				Value: 9002,
+				Usage: "Port on which to listen",
+			},
 		},
-		&cli.IntFlag{
-			Name:  "port",
-			Value: 9002,
-			Usage: "Port on which to listen",
+		Action: func(c *cli.Context) error {
+			mux, err := newRouter(c)
+			if err != nil {
+				return err
+			}
+			address := fmt.Sprintf("0.0.0.0:%d", c.Int("port"))
+			log.Info().Str("address", address).Msg("serving")
+			return http.ListenAndServe(address, mux)
 		},
-	},
-	Action: func(c *cli.Context) error {
-		mux, err := newRouter(c)
-		if err != nil {
-			return err
-		}
-		address := fmt.Sprintf("0.0.0.0:%d", c.Int("port"))
-		log.Info().Str("address", address).Msg("serving")
-		return http.ListenAndServe(address, mux)
-	},
+	}
 }
