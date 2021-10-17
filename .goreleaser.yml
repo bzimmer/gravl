@@ -1,17 +1,17 @@
 before:
   hooks:
-    - go mod tidy
+    - go mod tidy -compat=1.17
 builds:
   - env:
       - CGO_ENABLED=0
-      - PKG=github.com/bzimmer/gravl
+      - PKG=github.com/bzimmer/gravl/pkg/version
     goos:
       - linux
       - windows
       - darwin
     main: ./cmd/gravl
     ldflags:
-      - -s -w -X {{.Env.PKG}}/pkg.BuildVersion={{.Version}} -X {{.Env.PKG}}/pkg.BuildTime="{{.Date}}"
+      - -s -w -X {{.Env.PKG}}.BuildVersion={{.Version}} -X {{.Env.PKG}}.BuildTime="{{.Date}}"
 archives:
   - replacements:
       darwin: Darwin

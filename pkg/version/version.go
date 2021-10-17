@@ -14,8 +14,6 @@ var (
 	BuildTime = "now"
 	// UserAgent of the package
 	UserAgent = fmt.Sprintf("gravl/%s (https://github.com/bzimmer/gravl)", BuildVersion)
-	// PackageName is the name of the package
-	PackageName = "com.github.bzimmer.gravl"
 )
 
 var Command = &cli.Command{
@@ -26,7 +24,6 @@ var Command = &cli.Command{
 			"version":    BuildVersion,
 			"timestamp":  BuildTime,
 			"user-agent": UserAgent,
-			"config":     c.String("config"),
 		})
 	},
 }
