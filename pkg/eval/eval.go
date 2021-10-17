@@ -3,7 +3,7 @@ package eval
 import (
 	"context"
 
-	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
+	"github.com/bzimmer/activity/strava"
 )
 
 // Filterer performs activity filtering

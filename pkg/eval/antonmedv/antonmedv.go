@@ -8,10 +8,10 @@ import (
 
 	"github.com/antonmedv/expr"
 	"github.com/antonmedv/expr/vm"
+	"github.com/bzimmer/activity/strava"
 	"github.com/martinlindhe/unit"
 
 	"github.com/bzimmer/gravl/pkg/eval"
-	"github.com/bzimmer/gravl/pkg/providers/activity/strava"
 )
 
 func closure(f string) string {
@@ -22,7 +22,7 @@ func closure(f string) string {
 		f = "{" + f
 	}
 	if !strings.HasSuffix(f, "}") {
-		f = f + "}"
+		f += "}"
 	}
 	return f
 }
