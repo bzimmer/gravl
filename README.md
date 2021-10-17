@@ -11,7 +11,6 @@
 * [Strava](https://strava.com)
 * [Cycling Analytics](https://www.cyclinganalytics.com/)
 * [Ride with GPS](https://ridewithgps.com)
-* [WTA](https://wta.org)
 * [Zwift](https://zwift.com)
 
 # Documentation
