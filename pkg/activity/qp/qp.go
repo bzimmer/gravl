@@ -14,9 +14,9 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/bzimmer/activity"
+	api "github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl/pkg"
-	actcmd "github.com/bzimmer/gravl/pkg/activity"
+	"github.com/bzimmer/gravl/pkg/activity"
 	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/activity/strava"
@@ -24,9 +24,9 @@ import (
 )
 
 type qr struct {
-	p   activity.Poller
-	e   activity.Exporter
-	u   activity.Uploader
+	p   api.Poller
+	e   api.Exporter
+	u   api.Uploader
 	d   time.Duration
 	enc pkg.Encoder
 }
@@ -45,7 +45,7 @@ func newqr(c *cli.Context) (*qr, error) {
 	return &qr{e: e, u: u, p: p, d: d, enc: enc}, nil
 }
 
-func exporter(c *cli.Context) (activity.Exporter, error) {
+func exporter(c *cli.Context) (api.Exporter, error) {
 	exp := c.String("exporter")
 	log.Info().Str("provider", exp).Msg("exporter")
 	switch strings.ToLower(exp) {
@@ -60,8 +60,8 @@ func exporter(c *cli.Context) (activity.Exporter, error) {
 	return nil, fmt.Errorf("unknown exporter {%s}", exp)
 }
 
-func uploader(c *cli.Context) (activity.Uploader, activity.Poller, error) {
-	var u activity.Uploader
+func uploader(c *cli.Context) (api.Uploader, api.Poller, error) {
+	var u api.Uploader
 	upd := c.String("uploader")
 	log.Info().Str("provider", upd).Msg("uploader")
 	switch strings.ToLower(upd) {
@@ -79,21 +79,21 @@ func uploader(c *cli.Context) (activity.Uploader, activity.Poller, error) {
 	default:
 		return nil, nil, fmt.Errorf("unknown uploader {%s}", upd)
 	}
-	p := activity.NewPoller(u,
-		activity.WithInterval(c.Duration("interval")),
-		activity.WithIterations(c.Int("iterations")))
+	p := api.NewPoller(u,
+		api.WithInterval(c.Duration("interval")),
+		api.WithIterations(c.Int("iterations")))
 
 	return u, p, nil
 }
 
-func (q *qr) upload(ctx context.Context, export *activity.Export) error {
+func (q *qr) upload(ctx context.Context, export *api.Export) error {
 	log.Info().Int64("activityID", export.ID).Msg("upload")
 	out := new(bytes.Buffer)
 	_, err := io.Copy(out, export)
 	if err != nil {
 		return err
 	}
-	file := &activity.File{Reader: out, Format: export.Format, Name: export.Name}
+	file := &api.File{Reader: out, Format: export.Format, Name: export.Name}
 	defer file.Close()
 	ctx, cancel := context.WithTimeout(ctx, q.d)
 	defer cancel()
@@ -112,7 +112,7 @@ func (q *qr) upload(ctx context.Context, export *activity.Export) error {
 	return ctx.Err()
 }
 
-func (q *qr) export(ctx context.Context, activityID int64) (*activity.Export, error) {
+func (q *qr) export(ctx context.Context, activityID int64) (*api.Export, error) {
 	log.Info().Int64("activityID", activityID).Msg("export")
 	ctx, cancel := context.WithTimeout(ctx, q.d)
 	defer cancel()
@@ -157,7 +157,7 @@ var flags = func() []cli.Flag {
 			Usage:   "Upload data provider"},
 	}
 	for _, x := range [][]cli.Flag{
-		actcmd.RateLimitFlags, cyclinganalytics.AuthFlags, rwgps.AuthFlags, strava.AuthFlags, zwift.AuthFlags,
+		activity.RateLimitFlags, cyclinganalytics.AuthFlags(), rwgps.AuthFlags(), strava.AuthFlags(), zwift.AuthFlags(),
 	} {
 		f = append(f, x...)
 	}

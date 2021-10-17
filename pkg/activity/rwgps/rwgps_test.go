@@ -1,6 +1,7 @@
 package rwgps_test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
@@ -30,7 +31,6 @@ func command(t *testing.T, baseURL string) *cli.Command {
 }
 
 func TestAthlete(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
@@ -53,4 +53,20 @@ func TestAthlete(t *testing.T) {
 			internal.Run(t, tt, mux, command)
 		})
 	}
+}
+
+func TestBefore(t *testing.T) {
+	a := assert.New(t)
+	app := &cli.App{
+		Name:   "TestBefore",
+		Before: rwgps.Before,
+		Metadata: map[string]interface{}{
+			pkg.RuntimeKey: &pkg.Rt{},
+		},
+		Action: func(c *cli.Context) error {
+			a.NotNil(pkg.Runtime(c).RideWithGPS)
+			return nil
+		},
+	}
+	a.NoError(app.RunContext(context.Background(), []string{"test"}))
 }

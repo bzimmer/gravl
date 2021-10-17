@@ -17,4 +17,9 @@ var RateLimitFlags = []cli.Flag{
 		Value: 35,
 		Usage: "Maximum burst size for API request events",
 	},
+	&cli.IntFlag{
+		Name:  "concurrency",
+		Value: 2,
+		Usage: "Allowable concurrent queries to data providers",
+	},
 }

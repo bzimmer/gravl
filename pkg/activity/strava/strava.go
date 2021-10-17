@@ -10,10 +10,10 @@ import (
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/time/rate"
 
-	"github.com/bzimmer/activity"
+	api "github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/gravl/pkg"
-	actcmd "github.com/bzimmer/gravl/pkg/activity"
+	"github.com/bzimmer/gravl/pkg/activity"
 	"github.com/bzimmer/gravl/pkg/eval"
 )
 
@@ -33,11 +33,13 @@ func athlete(c *cli.Context) error {
 	return pkg.Runtime(c).Encoder.Encode(athlete)
 }
 
-var athleteCommand = &cli.Command{
-	Name:    "athlete",
-	Usage:   "Query an athlete from Strava",
-	Aliases: []string{"t"},
-	Action:  athlete,
+func athleteCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "athlete",
+		Usage:   "Query an athlete from Strava",
+		Aliases: []string{"t"},
+		Action:  athlete,
+	}
 }
 
 func refresh(c *cli.Context) error {
@@ -51,10 +53,12 @@ func refresh(c *cli.Context) error {
 	return pkg.Runtime(c).Encoder.Encode(tokens)
 }
 
-var refreshCommand = &cli.Command{
-	Name:   "refresh",
-	Usage:  "Acquire a new refresh token",
-	Action: refresh,
+func refreshCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "refresh",
+		Usage:  "Acquire a new refresh token",
+		Action: refresh,
+	}
 }
 
 func filter(c *cli.Context) (func(ctx context.Context, act *strava.Activity) (bool, error), error) {
@@ -107,7 +111,7 @@ func activities(c *cli.Context) error {
 
 	var ok bool
 	var res *strava.ActivityResult
-	acts := client.Activity.Activities(ctx, activity.Pagination{Total: c.Int("count")})
+	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int("count")})
 	for {
 		select {
 		case <-ctx.Done():
@@ -147,29 +151,31 @@ func activities(c *cli.Context) error {
 	}
 }
 
-var activitiesCommand = &cli.Command{
-	Name:    "activities",
-	Usage:   "Query activities for an athlete from Strava",
-	Aliases: []string{"A"},
-	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:    "count",
-			Aliases: []string{"N"},
-			Value:   0,
-			Usage:   "The number of activities to query from Strava (the number returned will be <= N)",
+func activitiesCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "activities",
+		Usage:   "Query activities for an athlete from Strava",
+		Aliases: []string{"A"},
+		Flags: []cli.Flag{
+			&cli.IntFlag{
+				Name:    "count",
+				Aliases: []string{"N"},
+				Value:   0,
+				Usage:   "The number of activities to query from Strava (the number returned will be <= N)",
+			},
+			&cli.StringFlag{
+				Name:    "filter",
+				Aliases: []string{"f"},
+				Usage:   "Expression for filtering activities to remove",
+			},
+			&cli.StringSliceFlag{
+				Name:    "attribute",
+				Aliases: []string{"B"},
+				Usage:   "Evaluate the expression on an activity and return only those results",
+			},
 		},
-		&cli.StringFlag{
-			Name:    "filter",
-			Aliases: []string{"f"},
-			Usage:   "Expression for filtering activities to remove",
-		},
-		&cli.StringSliceFlag{
-			Name:    "attribute",
-			Aliases: []string{"B"},
-			Usage:   "Evaluate the expression on an activity and return only those results",
-		},
-	},
-	Action: activities,
+		Action: activities,
+	}
 }
 
 func routes(c *cli.Context) error {
@@ -180,73 +186,85 @@ func routes(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	routes, err := client.Route.Routes(ctx, athlete.ID, activity.Pagination{Total: c.Int("count")})
+	routes, err := client.Route.Routes(ctx, athlete.ID, api.Pagination{Total: c.Int("count")})
 	if err != nil {
 		return err
 	}
 	enc := pkg.Runtime(c).Encoder
+	met := pkg.Runtime(c).Metrics
+	met.IncrCounter([]string{provider, c.Command.Name}, 1)
 	for _, route := range routes {
-		err = enc.Encode(route)
-		if err != nil {
+		met.IncrCounter([]string{provider, "route"}, 1)
+		if err := enc.Encode(route); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-var routesCommand = &cli.Command{
-	Name:    "routes",
-	Usage:   "Query routes for an athlete from Strava",
-	Aliases: []string{"R"},
-	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:    "count",
-			Aliases: []string{"N"},
-			Value:   0,
-			Usage:   "The number of routes to query from Strava (the number returned will be <= N)",
+func routesCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "routes",
+		Usage:   "Query routes for an athlete from Strava",
+		Aliases: []string{"R"},
+		Flags: []cli.Flag{
+			&cli.IntFlag{
+				Name:    "count",
+				Aliases: []string{"N"},
+				Value:   0,
+				Usage:   "The number of routes to query from Strava (the number returned will be <= N)",
+			},
 		},
-	},
-	Action: routes,
+		Action: routes,
+	}
 }
 
 func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
+	if len(args) == 0 {
+		log.Info().Str("entity", c.Command.Name).Msg("no arguments provided")
+		return nil
+	}
+	enc := pkg.Runtime(c).Encoder
+	met := pkg.Runtime(c).Metrics
 	client := pkg.Runtime(c).Strava
-	argc := make(chan string, c.NArg())
-	go func() {
-		defer close(argc)
-		for _, arg := range args {
-			argc <- arg
-		}
-	}()
 
-	concurrency := 5
+	concurrency := c.Int("concurrency")
 	if len(args) < concurrency {
 		concurrency = len(args)
 	}
+	if concurrency <= 0 {
+		concurrency = 1
+	}
 
-	enc := pkg.Runtime(c).Encoder
-	met := pkg.Runtime(c).Metrics
-	defer func(t time.Time) {
-		met.AddSample([]string{provider, c.Command.Name}, float32(time.Since(t).Seconds()))
-	}(time.Now())
-
+	argc := make(chan int64)
 	grp, ctx := errgroup.WithContext(c.Context)
+	grp.Go(func() error {
+		defer close(argc)
+		for _, arg := range args {
+			x, err := strconv.ParseInt(arg, 0, 64)
+			if err != nil {
+				return err
+			}
+			argc <- x
+		}
+		return nil
+	})
 	for i := 0; i < concurrency; i++ {
 		grp.Go(func() error {
 			gtx, cancel := context.WithTimeout(ctx, c.Duration("timeout"))
 			defer cancel()
-			for arg := range argc {
-				x, err := strconv.ParseInt(arg, 0, 64)
-				if err != nil {
-					return err
-				}
+			for x := range argc {
+				t := time.Now()
+				log.Info().Int64("id", x).Str("entity", c.Command.Name).Msg("querying")
 				v, err := f(gtx, client, x)
 				if err != nil {
 					return err
 				}
+				pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
 				if err := enc.Encode(v); err != nil {
 					return err
 				}
+				met.AddSample([]string{provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 			}
 			return nil
 		})
@@ -258,98 +276,120 @@ func entity(c *cli.Context, f entityFunc) error {
 	return entityWithArgs(c, f, c.Args().Slice())
 }
 
-var streamFlag = &cli.StringSliceFlag{
-	Name:    "stream",
-	Aliases: []string{"s"},
-	Value:   cli.NewStringSlice(),
-	Usage:   "Streams to include in the activity",
+func streamFlag(streams ...string) cli.Flag {
+	return &cli.StringSliceFlag{
+		Name:    "stream",
+		Aliases: []string{"s"},
+		Value:   cli.NewStringSlice(streams...),
+		Usage:   "Streams to include in the activity",
+	}
 }
 
-var activityCommand = &cli.Command{
-	Name:      "activity",
-	Aliases:   []string{"a"},
-	Usage:     "Query an activity from Strava",
-	ArgsUsage: "ACTIVITY_ID (...)",
-	Flags:     []cli.Flag{streamFlag},
-	Action: func(c *cli.Context) error {
-		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
-			act, err := client.Activity.Activity(ctx, id, c.StringSlice("stream")...)
-			if err != nil {
-				return nil, err
+func activityCommand() *cli.Command {
+	return &cli.Command{
+		Name:      "activity",
+		Aliases:   []string{"a"},
+		Usage:     "Query an activity from Strava",
+		ArgsUsage: "ACTIVITY_ID (...)",
+		Flags:     []cli.Flag{streamFlag()},
+		Action: func(c *cli.Context) error {
+			s := make(map[string]bool)
+			for _, x := range c.StringSlice("stream") {
+				s[x] = true
 			}
-			pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
-			log.Info().
-				Time("date", act.StartDateLocal).
-				Int64("id", act.ID).
-				Str("name", act.Name).
-				Str("type", act.Type).
-				Msg("activity")
-			return act, nil
-		})
-	},
-}
-
-var streamsCommand = &cli.Command{
-	Name:      "streams",
-	Aliases:   []string{"s"},
-	Usage:     "Query streams for an activity from Strava",
-	ArgsUsage: "ACTIVITY_ID (...)",
-	Flags:     []cli.Flag{streamFlag},
-	Action: func(c *cli.Context) error {
-		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
-			log.Info().Int64("id", id).Msg("querying streams")
-			streams := append([]string{"latlng", "altitude", "time"}, c.StringSlice("stream")...)
-			return client.Activity.Streams(ctx, id, streams...)
-		})
-	},
-}
-
-var routeCommand = &cli.Command{
-	Name:      "route",
-	Aliases:   []string{"r"},
-	Usage:     "Query a route from Strava",
-	ArgsUsage: "ROUTE_ID (...)",
-	Action: func(c *cli.Context) error {
-		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
-			log.Info().Int64("id", id).Msg("querying route")
-			return client.Route.Route(ctx, id)
-		})
-	},
-}
-
-var photosCommand = &cli.Command{
-	Name:      "photos",
-	Aliases:   []string{""},
-	Usage:     "Query photos from Strava",
-	ArgsUsage: "ACTIVITY_ID (...)",
-	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:    "size",
-			Aliases: []string{"s"},
-			Value:   2048,
+			var streams []string
+			for stream := range s {
+				streams = append(streams, stream)
+			}
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+				act, err := client.Activity.Activity(ctx, id, streams...)
+				if err != nil {
+					return nil, err
+				}
+				log.Info().
+					Time("date", act.StartDateLocal).
+					Int64("id", act.ID).
+					Str("name", act.Name).
+					Str("type", act.Type).
+					Msg("activity")
+				return act, nil
+			})
 		},
-	},
-	Action: func(c *cli.Context) error {
-		return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
-			defer func(t time.Time) {
-				log.Info().Int64("id", id).Dur("elapsed", time.Since(t)).Msg("querying photos")
-			}(time.Now())
-			return client.Activity.Photos(ctx, id, c.Int("size"))
-		})
-	},
+	}
 }
 
-var streamsetsCommand = &cli.Command{
-	Name:  "streamsets",
-	Usage: "Return the set of available streams for query",
-	Action: func(c *cli.Context) error {
-		client := pkg.Runtime(c).Strava
-		pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
-		if err := pkg.Runtime(c).Encoder.Encode(client.Activity.StreamSets()); err != nil {
-			return err
-		}
-		return nil
-	},
+func streamsCommand() *cli.Command {
+	return &cli.Command{
+		Name:      "streams",
+		Aliases:   []string{"s"},
+		Usage:     "Query streams for an activity from Strava",
+		ArgsUsage: "ACTIVITY_ID (...)",
+		Flags:     []cli.Flag{streamFlag("latlng", "altitude", "time")},
+		Action: func(c *cli.Context) error {
+			s := make(map[string]bool)
+			for _, x := range c.StringSlice("stream") {
+				s[x] = true
+			}
+			var streams []string
+			for stream := range s {
+				streams = append(streams, stream)
+			}
+			log.Info().Strs("streams", streams).Msg(c.Command.Name)
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+				return client.Activity.Streams(ctx, id, streams...)
+			})
+		},
+	}
+}
+
+func routeCommand() *cli.Command {
+	return &cli.Command{
+		Name:      "route",
+		Aliases:   []string{"r"},
+		Usage:     "Query a route from Strava",
+		ArgsUsage: "ROUTE_ID (...)",
+		Action: func(c *cli.Context) error {
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+				return client.Route.Route(ctx, id)
+			})
+		},
+	}
+}
+
+func photosCommand() *cli.Command {
+	return &cli.Command{
+		Name:      "photos",
+		Aliases:   []string{""},
+		Usage:     "Query photos from Strava",
+		ArgsUsage: "ACTIVITY_ID (...)",
+		Flags: []cli.Flag{
+			&cli.IntFlag{
+				Name:    "size",
+				Aliases: []string{"s"},
+				Value:   2048,
+			},
+		},
+		Action: func(c *cli.Context) error {
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+				return client.Activity.Photos(ctx, id, c.Int("size"))
+			})
+		},
+	}
+}
+
+func streamSetsCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "streamsets",
+		Usage: "Return the set of available streams for query",
+		Action: func(c *cli.Context) error {
+			client := pkg.Runtime(c).Strava
+			pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
+			if err := pkg.Runtime(c).Encoder.Encode(client.Activity.StreamSets()); err != nil {
+				return err
+			}
+			return nil
+		},
+	}
 }
 
 func Before(c *cli.Context) error {
@@ -374,20 +414,20 @@ func Command() *cli.Command {
 		Category:    "activity",
 		Usage:       "Query Strava for rides and routes",
 		Description: "Operations supported by the Strava API",
-		Flags:       append(AuthFlags, actcmd.RateLimitFlags...),
+		Flags:       append(AuthFlags(), activity.RateLimitFlags...),
 		Before:      Before,
 		Subcommands: []*cli.Command{
-			activitiesCommand,
-			activityCommand,
-			athleteCommand,
-			oauthCommand,
-			photosCommand,
-			refreshCommand,
-			routeCommand,
-			routesCommand,
-			streamsCommand,
-			streamsetsCommand,
-			actcmd.UploadCommand(func(c *cli.Context) (activity.Uploader, error) {
+			activitiesCommand(),
+			activityCommand(),
+			athleteCommand(),
+			oauthCommand(),
+			photosCommand(),
+			refreshCommand(),
+			routeCommand(),
+			routesCommand(),
+			streamsCommand(),
+			streamSetsCommand(),
+			activity.UploadCommand(func(c *cli.Context) (api.Uploader, error) {
 				return pkg.Runtime(c).Strava.Uploader(), nil
 			}),
 			webhookCommand,
@@ -395,20 +435,22 @@ func Command() *cli.Command {
 	}
 }
 
-var AuthFlags = []cli.Flag{
-	&cli.StringFlag{
-		Name:    "strava-client-id",
-		Usage:   "strava client id",
-		EnvVars: []string{"STRAVA_CLIENT_ID"},
-	},
-	&cli.StringFlag{
-		Name:    "strava-client-secret",
-		Usage:   "strava client secret",
-		EnvVars: []string{"STRAVA_CLIENT_SECRET"},
-	},
-	&cli.StringFlag{
-		Name:    "strava-refresh-token",
-		Usage:   "strava refresh token",
-		EnvVars: []string{"STRAVA_REFRESH_TOKEN"},
-	},
+func AuthFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:    "strava-client-id",
+			Usage:   "strava client id",
+			EnvVars: []string{"STRAVA_CLIENT_ID"},
+		},
+		&cli.StringFlag{
+			Name:    "strava-client-secret",
+			Usage:   "strava client secret",
+			EnvVars: []string{"STRAVA_CLIENT_SECRET"},
+		},
+		&cli.StringFlag{
+			Name:    "strava-refresh-token",
+			Usage:   "strava refresh token",
+			EnvVars: []string{"STRAVA_REFRESH_TOKEN"},
+		},
+	}
 }

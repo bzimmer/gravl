@@ -10,10 +10,10 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
-	"github.com/bzimmer/activity"
+	api "github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/zwift"
 	"github.com/bzimmer/gravl/pkg"
-	actcmd "github.com/bzimmer/gravl/pkg/activity"
+	"github.com/bzimmer/gravl/pkg/activity"
 )
 
 const (
@@ -43,11 +43,13 @@ func athlete(c *cli.Context) error {
 	return nil
 }
 
-var athleteCommand = &cli.Command{
-	Name:    "athlete",
-	Usage:   "Query the athlete profile from Zwift",
-	Aliases: []string{"t"},
-	Action:  athlete,
+func athleteCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "athlete",
+		Usage:   "Query the athlete profile from Zwift",
+		Aliases: []string{"t"},
+		Action:  athlete,
+	}
 }
 
 func refresh(c *cli.Context) error {
@@ -62,10 +64,12 @@ func refresh(c *cli.Context) error {
 	return pkg.Runtime(c).Encoder.Encode(token)
 }
 
-var refreshCommand = &cli.Command{
-	Name:   "refresh",
-	Usage:  "Acquire a new refresh token",
-	Action: refresh,
+func refreshCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "refresh",
+		Usage:  "Acquire a new refresh token",
+		Action: refresh,
+	}
 }
 
 func activities(c *cli.Context) error {
@@ -76,7 +80,7 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	spec := activity.Pagination{Total: c.Int("count")}
+	spec := api.Pagination{Total: c.Int("count")}
 	acts, err := client.Activity.Activities(ctx, profile.ID, spec)
 	if err != nil {
 		return err
@@ -89,19 +93,21 @@ func activities(c *cli.Context) error {
 	return nil
 }
 
-var activitiesCommand = &cli.Command{
-	Name:    "activities",
-	Usage:   "Query activities for an athlete from Zwift",
-	Aliases: []string{"A"},
-	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:    "count",
-			Aliases: []string{"N"},
-			Value:   0,
-			Usage:   "The number of activities to query from Zwift (the number returned will be <= N)",
+func activitiesCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "activities",
+		Usage:   "Query activities for an athlete from Zwift",
+		Aliases: []string{"A"},
+		Flags: []cli.Flag{
+			&cli.IntFlag{
+				Name:    "count",
+				Aliases: []string{"N"},
+				Value:   0,
+				Usage:   "The number of activities to query from Zwift (the number returned will be <= N)",
+			},
 		},
-	},
-	Action: activities,
+		Action: activities,
+	}
 }
 
 func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activity) error) error {
@@ -121,7 +127,7 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activi
 		if err != nil {
 			return err
 		}
-		log.Info().Int64("id", x).Msg("querying activity")
+		log.Info().Int64("id", x).Str("entity", c.Command.Name).Msg("querying")
 		act, err := client.Activity.Activity(ctx, profile.ID, x)
 		if err != nil {
 			return err
@@ -133,16 +139,18 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activi
 	return nil
 }
 
-var activityCommand = &cli.Command{
-	Name:      "activity",
-	Aliases:   []string{"a"},
-	Usage:     "Query an activity from Zwift",
-	ArgsUsage: "ACTIVITY_ID (...)",
-	Action: func(c *cli.Context) error {
-		return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
-			return pkg.Runtime(c).Encoder.Encode(act)
-		})
-	},
+func activityCommand() *cli.Command {
+	return &cli.Command{
+		Name:      "activity",
+		Aliases:   []string{"a"},
+		Usage:     "Query an activity from Zwift",
+		ArgsUsage: "ACTIVITY_ID (...)",
+		Action: func(c *cli.Context) error {
+			return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
+				return pkg.Runtime(c).Encoder.Encode(act)
+			})
+		},
+	}
 }
 
 func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwift.Activity) error {
@@ -150,32 +158,34 @@ func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwif
 	if err != nil {
 		return err
 	}
-	return actcmd.Write(c, exp)
+	return activity.Write(c, exp)
 }
 
-var exportCommand = &cli.Command{
-	Name:      "export",
-	Usage:     "Export a Zwift activity by id",
-	ArgsUsage: "ACTIVITY_ID (...)",
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "overwrite",
-			Aliases: []string{"o"},
-			Value:   false,
-			Usage:   "Overwrite the file if it exists; fail otherwise",
+func exportCommand() *cli.Command {
+	return &cli.Command{
+		Name:      "export",
+		Usage:     "Export a Zwift activity by id",
+		ArgsUsage: "ACTIVITY_ID (...)",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "overwrite",
+				Aliases: []string{"o"},
+				Value:   false,
+				Usage:   "Overwrite the file if it exists; fail otherwise",
+			},
+			&cli.StringFlag{
+				Name:    "output",
+				Aliases: []string{"O"},
+				Value:   "",
+				Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
+			},
 		},
-		&cli.StringFlag{
-			Name:    "output",
-			Aliases: []string{"O"},
-			Value:   "",
-			Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
+		Action: func(c *cli.Context) error {
+			return entity(c, func(ctx context.Context, client *zwift.Client, act *zwift.Activity) error {
+				return export(ctx, c, client, act)
+			})
 		},
-	},
-	Action: func(c *cli.Context) error {
-		return entity(c, func(ctx context.Context, client *zwift.Client, act *zwift.Activity) error {
-			return export(ctx, c, client, act)
-		})
-	},
+	}
 }
 
 // Primary use case has been uploading fit files from a local Zwift directory
@@ -214,8 +224,8 @@ func files(c *cli.Context) error {
 				log.Warn().Int64("size", info.Size()).Str("file", path).Msg("skipping, too small")
 				return nil
 			}
-			format := activity.ToFormat(filepath.Ext(path))
-			if format != activity.FormatFIT {
+			format := api.ToFormat(filepath.Ext(path))
+			if format != api.FormatFIT {
 				log.Info().Str("file", path).Msg("skipping, not a FIT file")
 				return nil
 			}
@@ -228,23 +238,27 @@ func files(c *cli.Context) error {
 	return nil
 }
 
-var filesCommand = &cli.Command{
-	Name:   "files",
-	Usage:  "List all local Zwift files",
-	Action: files,
+func filesCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "files",
+		Usage:  "List all local Zwift files",
+		Action: files,
+	}
 }
 
-var AuthFlags = []cli.Flag{
-	&cli.StringFlag{
-		Name:    "zwift-username",
-		Usage:   "zwift username",
-		EnvVars: []string{"ZWIFT_USERNAME"},
-	},
-	&cli.StringFlag{
-		Name:    "zwift-password",
-		Usage:   "zwift password",
-		EnvVars: []string{"ZWIFT_PASSWORD"},
-	},
+func AuthFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:    "zwift-username",
+			Usage:   "zwift username",
+			EnvVars: []string{"ZWIFT_USERNAME"},
+		},
+		&cli.StringFlag{
+			Name:    "zwift-password",
+			Usage:   "zwift password",
+			EnvVars: []string{"ZWIFT_PASSWORD"},
+		},
+	}
 }
 
 func Before(c *cli.Context) error {
@@ -277,15 +291,15 @@ func Command() *cli.Command {
 		Category:    "activity",
 		Usage:       "Query Zwift for activities",
 		Description: "Operations supported by the Zwift API",
-		Flags:       append(AuthFlags, actcmd.RateLimitFlags...),
+		Flags:       append(AuthFlags(), activity.RateLimitFlags...),
 		Before:      Before,
 		Subcommands: []*cli.Command{
-			activitiesCommand,
-			activityCommand,
-			athleteCommand,
-			exportCommand,
-			filesCommand,
-			refreshCommand,
+			activitiesCommand(),
+			activityCommand(),
+			athleteCommand(),
+			exportCommand(),
+			filesCommand(),
+			refreshCommand(),
 		},
 	}
 }

@@ -49,7 +49,8 @@ func initRuntime() cli.BeforeFunc {
 			return err
 		}
 
-		c.App.Metadata[pkg.RuntimeKey] = &pkg.RT{
+		c.App.Metadata[pkg.RuntimeKey] = &pkg.Rt{
+			Start:     time.Now(),
 			Encoder:   enc,
 			Mapper:    antonmedv.Mapper,
 			Filterer:  antonmedv.Filterer,
@@ -144,8 +145,13 @@ func run() error {
 		Description: "Activity related analysis, exploration, & planning",
 		Flags:       flags(),
 		Commands:    commands(),
-		After:       pkg.Stats,
-		Before:      pkg.Befores(initLogging(), initRuntime()),
+		After: func(c *cli.Context) error {
+			t := pkg.Runtime(c).Start
+			met := pkg.Runtime(c).Metrics
+			met.AddSample([]string{"runtime"}, float32(time.Since(t).Seconds()))
+			return pkg.Stats(c)
+		},
+		Before: pkg.Befores(initLogging(), initRuntime()),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return
@@ -153,7 +159,8 @@ func run() error {
 			log.Error().Err(err).Msg(c.App.Name)
 		},
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	defer func() {

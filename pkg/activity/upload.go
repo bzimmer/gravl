@@ -40,7 +40,7 @@ func upload(c *cli.Context, uploader activity.Uploader) error {
 	dryrun := c.Bool("dryrun")
 	enc := pkg.Runtime(c).Encoder
 	for i := 0; i < args.Len(); i++ {
-		files, err := Collect(args.Get(i), nil)
+		files, err := Walk(args.Get(i), nil)
 		if err != nil {
 			return err
 		}

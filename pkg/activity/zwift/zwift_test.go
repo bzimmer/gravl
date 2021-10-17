@@ -30,7 +30,6 @@ func command(t *testing.T, baseURL string) *cli.Command {
 }
 
 func TestAthlete(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 
 	mux := http.NewServeMux()

@@ -42,7 +42,6 @@ func (u *uploader) Status(ctx context.Context, id activity.UploadID) (activity.U
 
 func TestUpload(t *testing.T) {
 	t.Skipf("replace with unittest")
-	t.Parallel()
 	tdf := internal.TdF(t)
 	tests := []struct {
 		name      string

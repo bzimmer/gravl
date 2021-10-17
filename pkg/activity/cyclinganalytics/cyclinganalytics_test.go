@@ -12,14 +12,19 @@ import (
 	"github.com/bzimmer/gravl/pkg/internal"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 )
 
 func command(t *testing.T, baseURL string) *cli.Command {
+	endpoint := api.Endpoint()
+	endpoint.AuthURL = baseURL
+	endpoint.TokenURL = baseURL
 	c := cyclinganalytics.Command()
 	c.Before = func(c *cli.Context) error {
 		client, err := api.NewClient(
 			api.WithBaseURL(baseURL),
-			api.WithTokenCredentials("foo", "bar", time.Now()))
+			api.WithConfig(oauth2.Config{Endpoint: endpoint}),
+			api.WithTokenCredentials("foo", "bar", time.Now().Add(time.Hour*24)))
 		if err != nil {
 			t.Error(err)
 		}
@@ -30,7 +35,6 @@ func command(t *testing.T, baseURL string) *cli.Command {
 }
 
 func TestAthlete(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
