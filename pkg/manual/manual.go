@@ -125,13 +125,13 @@ func Command() *cli.Command {
 		Aliases: []string{"md"},
 		Hidden:  true,
 		Action: func(c *cli.Context) error {
-			buffer := &bytes.Buffer{}
+			var buffer bytes.Buffer
 			commands := lineate(c.App.Commands, nil)
 			t, err := manualTemplate(".")
 			if err != nil {
 				return err
 			}
-			if err := t.Execute(buffer, map[string]interface{}{
+			if err := t.Execute(&buffer, map[string]interface{}{
 				"Name":        c.App.Name,
 				"Description": c.App.Description,
 				"GlobalFlags": c.App.Flags,
