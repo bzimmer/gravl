@@ -72,6 +72,7 @@ Return all possible commands
 $ gravl commands [flags]
 ```
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -84,6 +85,7 @@ $ gravl commands [flags]
 **Description**
 
 Operations supported by the CyclingAnalytics API
+
 
 
 **Flags**
@@ -110,6 +112,7 @@ Query activities for the authenticated athlete
 ```sh
 $ gravl cyclinganalytics activities [flags]
 ```
+
 
 **Flags**
 
@@ -175,6 +178,7 @@ Authentication endpoints for access and refresh tokens
 $ gravl cyclinganalytics oauth [flags]
 ```
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -210,6 +214,7 @@ Upload an activity file
 ```sh
 $ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 ```
+
 
 **Flags**
 
@@ -249,6 +254,7 @@ Copy an activity from an exporter to an uploader
 ```sh
 $ gravl qp [flags] ACTIVITY_ID (...)
 ```
+
 
 **Flags**
 
@@ -315,6 +321,7 @@ $ gravl qp -e strava -u ca 4838740537
 Operations supported by the RideWithGPS API
 
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -338,6 +345,7 @@ Query activities for the authenticated athlete
 ```sh
 $ gravl rwgps activities [flags]
 ```
+
 
 **Flags**
 
@@ -456,6 +464,7 @@ Query routes for an athlete from RideWithGPS
 $ gravl rwgps routes [flags]
 ```
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -476,6 +485,7 @@ Upload an activity file
 $ gravl rwgps upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 ```
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -494,6 +504,7 @@ $ gravl rwgps upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 Operations supported by the Strava API
 
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -508,14 +519,11 @@ Operations supported by the Strava API
 **Overview**
 
 The Strava client is comprised of general [API](https://developers.strava.com/) access supporting
-activites, routes, and streams as well as some functionality available by scraping the website as
-inspired by [stravaweblib](https://github.com/pR0Ps/stravaweblib).
+activites, routes, and streams.
 
 Additionally, there's full support for implementing `webhooks` but only only webhook management is
 available via the commandline (eg [`strava webhook list`](#strava-webhook-list),
 [`strava webhook subscribe`](#strava-webhook-subscribe), and [`strava webhook unsubscribe`](#strava-webhook-unsubscribe)).
-
-The entire [`analysis`](#analysis) package is built around Strava activities.
 
 
 ## *strava activities*
@@ -530,6 +538,7 @@ Query activities for an athlete from Strava
 ```sh
 $ gravl strava activities [flags]
 ```
+
 
 **Flags**
 
@@ -565,6 +574,7 @@ Query an activity from Strava
 ```sh
 $ gravl strava activity [flags] ACTIVITY_ID (...)
 ```
+
 
 **Flags**
 
@@ -695,6 +705,7 @@ Authentication endpoints for access and refresh tokens
 $ gravl strava oauth [flags]
 ```
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -715,6 +726,7 @@ Query photos from Strava
 ```sh
 $ gravl strava photos [flags] ACTIVITY_ID (...)
 ```
+
 
 **Flags**
 
@@ -766,6 +778,7 @@ Query routes for an athlete from Strava
 $ gravl strava routes [flags]
 ```
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -785,6 +798,7 @@ Query streams for an activity from Strava
 ```sh
 $ gravl strava streams [flags] ACTIVITY_ID (...)
 ```
+
 
 **Flags**
 
@@ -858,6 +872,7 @@ Upload an activity file
 ```sh
 $ gravl strava upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
 ```
+
 
 **Flags**
 
@@ -946,6 +961,7 @@ Subscribe for webhook notications
 $ gravl strava webhook subscribe [flags]
 ```
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -991,6 +1007,7 @@ $ gravl version [flags]
 Operations supported by the Zwift API
 
 
+
 **Flags**
 
 |Name|Aliases|Description|
@@ -1021,6 +1038,7 @@ Query activities for an athlete from Zwift
 ```sh
 $ gravl zwift activities [flags]
 ```
+
 
 **Flags**
 
@@ -1071,6 +1089,7 @@ Export a Zwift activity by id
 ```sh
 $ gravl zwift export [flags] ACTIVITY_ID (...)
 ```
+
 
 **Flags**
 

@@ -31,7 +31,11 @@ $ gravl {{ fullname . " " }} [flags] {{- if .Cmd.ArgsUsage }} {{.Cmd.ArgsUsage}}
 ```
 {{ end }}
 
+{{- if aliases . -}}
+{{- end -}}
+
 {{- with .Cmd.Flags }}
+
 **Flags**
 
 |Name|Aliases|Description|

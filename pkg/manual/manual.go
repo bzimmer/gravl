@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/internal"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
@@ -122,16 +123,20 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:    "manual",
 		Usage:   "Generate the `gravl` manual",
-		Aliases: []string{"md"},
+		Aliases: []string{"man"},
 		Hidden:  true,
 		Action: func(c *cli.Context) error {
-			buffer := &bytes.Buffer{}
+			var buffer bytes.Buffer
 			commands := lineate(c.App.Commands, nil)
-			t, err := manualTemplate(".")
+			root, err := internal.Root()
 			if err != nil {
 				return err
 			}
-			if err := t.Execute(buffer, map[string]interface{}{
+			t, err := manualTemplate(root)
+			if err != nil {
+				return err
+			}
+			if err := t.Execute(&buffer, map[string]interface{}{
 				"Name":        c.App.Name,
 				"Description": c.App.Description,
 				"GlobalFlags": c.App.Flags,
@@ -168,6 +173,10 @@ func Commands() *cli.Command {
 					return err
 				}
 				cmd, err = filepath.Rel(cwd, cmd)
+				if err != nil {
+					return err
+				}
+				cmd, err = filepath.Abs(cmd)
 				if err != nil {
 					return err
 				}
