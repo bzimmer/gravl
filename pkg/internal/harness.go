@@ -25,7 +25,7 @@ type Harness struct {
 	Name, Err     string
 	Args          []string
 	Counters      map[string]int
-	Before, After func(app *cli.App)
+	Before, After func(c *cli.Context) error
 }
 
 func runtime(app *cli.App) *pkg.Rt {
@@ -102,7 +102,7 @@ func Run(t *testing.T, tt *Harness, mux *http.ServeMux, cmd func(*testing.T, str
 	app := NewTestApp(t, tt.Name, cmd(t, svr.URL))
 
 	if tt.Before != nil {
-		tt.Before(app)
+		app.Before = pkg.Befores(app.Before, tt.Before)
 	}
 
 	err := app.RunContext(context.Background(), tt.Args)
@@ -121,7 +121,7 @@ func Run(t *testing.T, tt *Harness, mux *http.ServeMux, cmd func(*testing.T, str
 	}
 
 	if tt.After != nil {
-		tt.After(app)
+		app.After = pkg.Afters(app.After, tt.After)
 	}
 }
 
