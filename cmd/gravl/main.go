@@ -10,6 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg"
@@ -30,12 +31,14 @@ func initRuntime() cli.BeforeFunc {
 		switch c.String("encoding") {
 		case "spew":
 			enc = pkg.Spew(c.App.Writer)
-		// case "geojson":
-		// 	enc = gravl.GeoJSON(c.App.Writer, compact)
+		case "geojson":
+			enc = pkg.GeoJSON(c.App.Writer, compact)
 		case "xml":
 			enc = pkg.XML(c.App.Writer, compact)
 		case "json":
 			enc = pkg.JSON(c.App.Writer, compact)
+		case "gpx":
+			enc = pkg.GPX(c.App.Writer, compact)
 		default:
 			enc = pkg.Blackhole()
 		}
@@ -57,6 +60,7 @@ func initRuntime() cli.BeforeFunc {
 			Evaluator: antonmedv.Evaluator,
 			Sink:      sink,
 			Metrics:   metric,
+			Fs:        afero.NewOsFs(),
 		}
 		return nil
 	}

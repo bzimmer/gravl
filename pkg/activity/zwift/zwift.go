@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
@@ -200,36 +201,46 @@ func files(c *cli.Context) error {
 			log.Warn().Err(err).Msg("homedir not found")
 			return nil
 		}
-		// @todo(bzimmer) add windows support when it can be tested
-		args = []string{
-			filepath.Join(home, "Documents", "Zwift", "Activities"),
-		}
+		args = append(args, filepath.Join(home, "Documents", "Zwift", "Activities"))
 	}
+	fs := pkg.Runtime(c).Fs
+	enc := pkg.Runtime(c).Encoder
+	met := pkg.Runtime(c).Metrics
+	log.Info().Str("fs", fs.Name()).Msg("walk")
 	for _, arg := range args {
-		err := filepath.Walk(arg, func(path string, info os.FileInfo, err error) error {
+		err := afero.Walk(fs, arg, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				// log and continue
-				log.Warn().Err(err).Str("file", path).Msg("path does not exist")
-				return nil
+				if os.IsNotExist(err) {
+					met.IncrCounter([]string{provider, c.Command.Name, "skipping", "does-not-exist"}, 1)
+					log.Warn().Str("file", path).Msg("path does not exist")
+					return nil
+				}
+				return err
 			}
+			met.IncrCounter([]string{provider, c.Command.Name, "found"}, 1)
 			if info.IsDir() {
+				met.IncrCounter([]string{provider, c.Command.Name, "directory"}, 1)
 				return nil
 			}
 			base := filepath.Base(path)
 			if base == "inProgressActivity.fit" {
+				met.IncrCounter([]string{provider, c.Command.Name, "skipping", "in-progress"}, 1)
 				log.Warn().Str("file", path).Msg("skipping, activity in progress")
 				return nil
 			}
 			if info.Size() <= tooSmall {
+				met.IncrCounter([]string{provider, c.Command.Name, "skipping", "too-small"}, 1)
 				log.Warn().Int64("size", info.Size()).Str("file", path).Msg("skipping, too small")
 				return nil
 			}
 			format := api.ToFormat(filepath.Ext(path))
 			if format != api.FormatFIT {
+				met.IncrCounter([]string{provider, c.Command.Name, "skipping", format.String()}, 1)
 				log.Info().Str("file", path).Msg("skipping, not a FIT file")
 				return nil
 			}
-			return pkg.Runtime(c).Encoder.Encode(path)
+			met.IncrCounter([]string{provider, c.Command.Name, "success"}, 1)
+			return enc.Encode(path)
 		})
 		if err != nil {
 			return err

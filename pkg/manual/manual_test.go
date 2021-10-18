@@ -19,39 +19,45 @@ func TestManual(t *testing.T) {
 		{
 			Name: "manual",
 			Args: []string{"gravl", "manual"},
-			Before: func(app *cli.App) {
-				app.Writer = &bytes.Buffer{}
+			Before: func(c *cli.Context) error {
+				c.App.Writer = &bytes.Buffer{}
+				return nil
 			},
-			After: func(app *cli.App) {
-				s := app.Writer.(*bytes.Buffer).String()
+			After: func(c *cli.Context) error {
+				s := c.App.Writer.(*bytes.Buffer).String()
 				a.Greater(len(s), 0)
 				a.Contains(s, "manual")
+				return nil
 			},
 		},
 		{
 			Name: "manual",
 			Args: []string{"gravl", "man"},
-			Before: func(app *cli.App) {
-				app.Writer = &bytes.Buffer{}
+			Before: func(c *cli.Context) error {
+				c.App.Writer = &bytes.Buffer{}
+				return nil
 			},
-			After: func(app *cli.App) {
-				s := app.Writer.(*bytes.Buffer).String()
+			After: func(c *cli.Context) error {
+				s := c.App.Writer.(*bytes.Buffer).String()
 				a.Greater(len(s), 0)
 				a.Contains(s, "manual")
+				return nil
 			},
 		},
 		{
 			Name: "manual (not hidden)",
 			Args: []string{"gravl", "manual"},
-			Before: func(app *cli.App) {
-				app.Writer = &bytes.Buffer{}
-				a.Equal("manual", app.Commands[0].Name)
-				app.Commands[0].Hidden = false
+			Before: func(c *cli.Context) error {
+				c.App.Writer = &bytes.Buffer{}
+				a.Equal("manual", c.App.Commands[0].Name)
+				c.App.Commands[0].Hidden = false
+				return nil
 			},
-			After: func(app *cli.App) {
-				s := app.Writer.(*bytes.Buffer).String()
+			After: func(c *cli.Context) error {
+				s := c.App.Writer.(*bytes.Buffer).String()
 				a.Greater(len(s), 0)
 				a.Contains(s, "* [manual](#manual)")
+				return nil
 			},
 		},
 	}
@@ -72,33 +78,37 @@ func TestCommands(t *testing.T) {
 		{
 			Name: "commands",
 			Args: []string{"gravl", "-e", "json", "commands"},
-			Before: func(app *cli.App) {
-				app.Writer = &bytes.Buffer{}
+			Before: func(c *cli.Context) error {
+				c.App.Writer = &bytes.Buffer{}
+				return nil
 			},
-			After: func(app *cli.App) {
-				s := app.Writer.(*bytes.Buffer).String()
+			After: func(c *cli.Context) error {
+				s := c.App.Writer.(*bytes.Buffer).String()
 				var m []string
 				a.NoError(json.Unmarshal([]byte(s), &m))
 				a.Greater(len(m), 0)
 				a.Contains(m, "commands commands")
+				return nil
 			},
 		},
 		{
 			Name: "commands relative",
 			Args: []string{"gravl", "-e", "json", "commands", "--relative"},
-			Before: func(app *cli.App) {
-				app.Writer = &bytes.Buffer{}
+			Before: func(c *cli.Context) error {
+				c.App.Writer = &bytes.Buffer{}
+				return nil
 			},
-			After: func(app *cli.App) {
+			After: func(c *cli.Context) error {
 				var x bool
 				var m []string
-				s := app.Writer.(*bytes.Buffer).String()
+				s := c.App.Writer.(*bytes.Buffer).String()
 				a.NoError(json.Unmarshal([]byte(s), &m))
 				a.Greater(len(m), 0)
 				for i := 0; !x && i < len(m); i++ {
 					x = strings.Contains(m[i], "manual.test commands")
 				}
 				a.True(x, "did not find `manual.test commands`")
+				return nil
 			},
 		},
 	}

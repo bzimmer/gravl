@@ -63,7 +63,6 @@ func Runtime(c *cli.Context) *Rt {
 }
 
 var ErrUnknownEncoder = errors.New("unknown encoder")
-var ErrExistingEncoder = errors.New("encoder exists")
 
 type Encoder interface {
 	Encode(v interface{}) error
@@ -101,25 +100,25 @@ func (g *gpxEncoder) Encode(v interface{}) error {
 	return g.enc.Encode(v)
 }
 
-// type geoJSONEncoder struct {
-// 	enc Encoder
-// }
+type geoJSONEncoder struct {
+	enc Encoder
+}
 
-// func (g *geoJSONEncoder) Encode(v interface{}) error {
-// 	q, ok := v.(activity.GeoJSON)
-// 	if !ok {
-// 		return errors.New("encoding GeoJSON not supported")
-// 	}
-// 	v, err := q.GeoJSON()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return g.enc.Encode(v)
-// }
+func (g *geoJSONEncoder) Encode(v interface{}) error {
+	q, ok := v.(activity.GeoJSONer)
+	if !ok {
+		return errors.New("encoding GeoJSON not supported")
+	}
+	v, err := q.GeoJSON()
+	if err != nil {
+		return err
+	}
+	return g.enc.Encode(v)
+}
 
-// func (g *geoJSONEncoder) Name() string {
-// 	return "geojson"
-// }
+func (g *geoJSONEncoder) Name() string {
+	return "geojson"
+}
 
 type jsonEncoder struct {
 	enc *json.Encoder
@@ -154,9 +153,9 @@ func XML(writer io.Writer, compact bool) Encoder {
 	return &xmlEncoder{enc: enc}
 }
 
-// func GeoJSON(writer io.Writer, compact bool) Encoder {
-// 	return &geoJSONEncoder{enc: JSON(writer, compact)}
-// }
+func GeoJSON(writer io.Writer, compact bool) Encoder {
+	return &geoJSONEncoder{enc: JSON(writer, compact)}
+}
 
 func GPX(writer io.Writer, compact bool) Encoder {
 	return &gpxEncoder{enc: XML(writer, compact)}
@@ -170,6 +169,21 @@ func Spew(writer io.Writer) Encoder {
 
 func Blackhole() Encoder {
 	return &blackhole{}
+}
+
+// Afters combines multiple `cli.AfterFunc`s into a single `cli.AfterFunc`
+func Afters(afs ...cli.AfterFunc) cli.AfterFunc {
+	return func(c *cli.Context) error {
+		for _, fn := range afs {
+			if fn == nil {
+				continue
+			}
+			if err := fn(c); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 }
 
 // Befores combines multiple `cli.BeforeFunc`s into a single `cli.BeforeFunc`

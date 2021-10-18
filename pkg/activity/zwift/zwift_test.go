@@ -58,3 +58,31 @@ func TestAthlete(t *testing.T) {
 		})
 	}
 }
+
+func TestFiles(t *testing.T) {
+	tests := []*internal.Harness{
+		{
+			Name: "files with specific path",
+			Args: []string{"gravl", "zwift", "files", "/foo/bar"},
+			Counters: map[string]int{
+				"gravl.zwift.files.found":                4,
+				"gravl.zwift.files.directory":            3,
+				"gravl.zwift.files.skipping.in-progress": 1,
+			},
+			Before: func(c *cli.Context) error {
+				a := assert.New(t)
+				fs := pkg.Runtime(c).Fs
+				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0777))
+				fp, err := fs.Create("/foo/bar/Zwift/Activities/inProgressActivity.fit")
+				a.NoError(err)
+				return fp.Close()
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, nil, command)
+		})
+	}
+}
