@@ -12,14 +12,20 @@ import (
 	"github.com/bzimmer/gravl/pkg/internal"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 )
 
 func command(t *testing.T, baseURL string) *cli.Command {
+	endpoint := api.Endpoint()
+	endpoint.AuthURL = baseURL + "/auth"
+	endpoint.TokenURL = baseURL + "/token"
 	c := zwift.Command()
 	c.Before = func(c *cli.Context) error {
 		client, err := api.NewClient(
 			api.WithBaseURL(baseURL),
-			api.WithTokenCredentials("foo", "bar", time.Now()))
+			api.WithHTTPTracing(false),
+			api.WithConfig(oauth2.Config{Endpoint: endpoint}),
+			api.WithTokenCredentials("foo", "bar", time.Now().Add(time.Hour*24)))
 		if err != nil {
 			t.Error(err)
 		}
