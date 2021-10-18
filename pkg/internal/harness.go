@@ -32,6 +32,37 @@ func runtime(app *cli.App) *pkg.Rt {
 	return app.Metadata[pkg.RuntimeKey].(*pkg.Rt)
 }
 
+func before(c *cli.Context) error {
+	var enc pkg.Encoder
+	cfg := metrics.DefaultConfig("gravl")
+	cfg.EnableRuntimeMetrics = false
+	cfg.TimerGranularity = time.Second
+	sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)
+	metric, err := metrics.New(cfg, sink)
+	if err != nil {
+		return err
+	}
+	switch c.String("encoding") {
+	case "json":
+		enc = pkg.JSON(c.App.Writer, false)
+	default:
+		enc = pkg.Blackhole()
+	}
+	c.App.Metadata = map[string]interface{}{
+		pkg.RuntimeKey: &pkg.Rt{
+			Start:     time.Now(),
+			Metrics:   metric,
+			Sink:      sink,
+			Encoder:   enc,
+			Fs:        afero.NewMemMapFs(),
+			Mapper:    antonmedv.Mapper,
+			Filterer:  antonmedv.Filterer,
+			Evaluator: antonmedv.Evaluator,
+		},
+	}
+	return nil
+}
+
 func CopyFile(w io.Writer, filename string) error {
 	fp, err := os.Open(filename)
 	if err != nil {
@@ -95,18 +126,10 @@ func Run(t *testing.T, tt *Harness, mux *http.ServeMux, cmd func(*testing.T, str
 }
 
 func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
-	cfg := metrics.DefaultConfig("gravl")
-	cfg.EnableRuntimeMetrics = false
-	cfg.TimerGranularity = time.Second
-	sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)
-	metric, err := metrics.New(cfg, sink)
-	if err != nil {
-		t.Error(err)
-	}
-
 	return &cli.App{
 		Name:     name,
 		HelpName: name,
+		Before:   before,
 		After: func(c *cli.Context) error {
 			t.Log(name)
 			switch v := runtime(c.App).Fs.(type) {
@@ -116,12 +139,19 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
 			}
 			return pkg.Stats(c)
 		},
-		Flags: []cli.Flag{&cli.DurationFlag{
-			Name:    "timeout",
-			Aliases: []string{"t"},
-			Value:   time.Second * 10,
-			Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
-		}},
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "encoding",
+				Aliases: []string{"e"},
+				Value:   "",
+				Usage:   "Output encoding (eg: json, xml, geojson, gpx, spew)",
+			},
+			&cli.DurationFlag{
+				Name:    "timeout",
+				Aliases: []string{"t"},
+				Value:   time.Second * 10,
+				Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
+			}},
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return
@@ -129,17 +159,5 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
 			log.Error().Err(err).Msg(c.App.Name)
 		},
 		Commands: []*cli.Command{cmd},
-		Metadata: map[string]interface{}{
-			pkg.RuntimeKey: &pkg.Rt{
-				Start:     time.Now(),
-				Metrics:   metric,
-				Sink:      sink,
-				Encoder:   pkg.Blackhole(),
-				Fs:        afero.NewMemMapFs(),
-				Mapper:    antonmedv.Mapper,
-				Filterer:  antonmedv.Filterer,
-				Evaluator: antonmedv.Evaluator,
-			},
-		},
 	}
 }
