@@ -101,6 +101,13 @@ func activities(c *cli.Context) error {
 		return err
 	}
 
+	var opt strava.APIOption
+	if c.IsSet("since") {
+		before := time.Now()
+		after := c.Duration("since")
+		opt = strava.WithDateRange(before, before.Add(-after))
+	}
+
 	enc := pkg.Runtime(c).Encoder
 	met := pkg.Runtime(c).Metrics
 
@@ -109,46 +116,34 @@ func activities(c *cli.Context) error {
 		met.AddSample([]string{provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 	}(time.Now())
 
-	var ok bool
-	var res *strava.ActivityResult
-	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int("count")})
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case res, ok = <-acts:
-			if !ok {
-				return nil
-			}
-			if res.Err != nil {
-				return res.Err
-			}
-			// filter
-			ok, err = f(ctx, res.Activity)
-			if err != nil {
-				return err
-			}
-			if !ok {
-				continue
-			}
-			// extract
-			act, err := g(ctx, res.Activity)
-			if err != nil {
-				return err
-			}
-			met.IncrCounter([]string{provider, "activity"}, 1)
-			log.Info().
-				Time("date", res.Activity.StartDateLocal).
-				Int64("id", res.Activity.ID).
-				Str("name", res.Activity.Name).
-				Str("type", res.Activity.Type).
-				Msg(c.Command.Name)
-			// encode
-			if err := enc.Encode(act); err != nil {
-				return err
-			}
+	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int("count")}, opt)
+	return strava.ActivitiesIter(acts, func(act *strava.Activity) (bool, error) {
+		// filter
+		ok, err := f(ctx, act)
+		if err != nil {
+			return false, err
 		}
-	}
+		if !ok {
+			return true, nil
+		}
+		// extract
+		ext, err := g(ctx, act)
+		if err != nil {
+			return false, err
+		}
+		met.IncrCounter([]string{provider, "activity"}, 1)
+		log.Info().
+			Time("date", act.StartDateLocal).
+			Int64("id", act.ID).
+			Str("name", act.Name).
+			Str("type", act.Type).
+			Msg(c.Command.Name)
+		// encode
+		if err := enc.Encode(ext); err != nil {
+			return false, err
+		}
+		return true, nil
+	})
 }
 
 func activitiesCommand() *cli.Command {
@@ -172,6 +167,10 @@ func activitiesCommand() *cli.Command {
 				Name:    "attribute",
 				Aliases: []string{"B"},
 				Usage:   "Evaluate the expression on an activity and return only those results",
+			},
+			&cli.DurationFlag{
+				Name:  "since",
+				Usage: "Return results since the duration specified",
 			},
 		},
 		Action: activities,

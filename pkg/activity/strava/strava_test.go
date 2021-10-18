@@ -117,6 +117,11 @@ func TestActivities(t *testing.T) {
 			Args:     []string{"gravl", "strava", "activities", "-N", "3", "--attribute", ".Type"},
 			Counters: map[string]int{"gravl.strava.activity": 3},
 		},
+		{
+			Name:     "activities since",
+			Args:     []string{"gravl", "strava", "activities", "-N", "3", "--since", "72h"},
+			Counters: map[string]int{"gravl.strava.activity": 3},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
