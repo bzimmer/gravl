@@ -57,6 +57,8 @@ github.com/bzimmer/activity v0.3.0 h1:9W+5hm0kVqpZqwKue8wN2IdnVsjvy4QOpbZQMhQln+
 github.com/bzimmer/activity v0.3.0/go.mod h1:pIHwb0n0wkqbI7hni78Sqvc3/gpgCMmTKrzcZS6RotQ=
 github.com/bzimmer/activity v0.3.1 h1:iNKYV4jC9wXR0TFRGxLC0fgp+gcE+e2xY6yCkQClV58=
 github.com/bzimmer/activity v0.3.1/go.mod h1:pIHwb0n0wkqbI7hni78Sqvc3/gpgCMmTKrzcZS6RotQ=
+github.com/bzimmer/activity v0.3.2 h1:pnZO/isq5OqiepAB8/fpSNow42a6Ct2C1Bj0ExRA5Ss=
+github.com/bzimmer/activity v0.3.2/go.mod h1:pIHwb0n0wkqbI7hni78Sqvc3/gpgCMmTKrzcZS6RotQ=
 github.com/bzimmer/httpwares v0.0.4 h1:ttcM0AtYFpmcyISWVFMDOf2TUUAMSm4m5NUFGTdjJ2Q=
 github.com/bzimmer/httpwares v0.0.4/go.mod h1:7/J2QFL6EDur3v11kij1ZJLK7f2cs9qeNXgT7BTjm8E=
 github.com/cenkalti/backoff/v3 v3.0.0/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4rc0ij+ULvLYs=

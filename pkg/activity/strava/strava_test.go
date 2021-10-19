@@ -24,7 +24,7 @@ func command(t *testing.T, baseURL string) *cli.Command {
 	c.Before = func(c *cli.Context) error {
 		client, err := api.NewClient(
 			api.WithBaseURL(baseURL),
-			api.WithHTTPTracing(true),
+			api.WithHTTPTracing(false),
 			api.WithConfig(oauth2.Config{Endpoint: endpoint}),
 			api.WithTokenCredentials("foo", "bar", time.Now().Add(time.Hour*24)))
 		if err != nil {
