@@ -17,7 +17,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/eval"
 )
 
-const provider = "strava"
+const Provider = "strava"
 
 type entityFunc func(context.Context, *strava.Client, int64) (interface{}, error)
 
@@ -29,7 +29,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	return pkg.Runtime(c).Encoder.Encode(athlete)
 }
 
@@ -111,9 +111,9 @@ func activities(c *cli.Context) error {
 	enc := pkg.Runtime(c).Encoder
 	met := pkg.Runtime(c).Metrics
 
-	met.IncrCounter([]string{provider, c.Command.Name}, 1)
+	met.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	defer func(t time.Time) {
-		met.AddSample([]string{provider, c.Command.Name}, float32(time.Since(t).Seconds()))
+		met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 	}(time.Now())
 
 	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int("count")}, opt)
@@ -131,7 +131,7 @@ func activities(c *cli.Context) error {
 		if err != nil {
 			return false, err
 		}
-		met.IncrCounter([]string{provider, "activity"}, 1)
+		met.IncrCounter([]string{Provider, "activity"}, 1)
 		log.Info().
 			Time("date", act.StartDateLocal).
 			Int64("id", act.ID).
@@ -191,9 +191,9 @@ func routes(c *cli.Context) error {
 	}
 	enc := pkg.Runtime(c).Encoder
 	met := pkg.Runtime(c).Metrics
-	met.IncrCounter([]string{provider, c.Command.Name}, 1)
+	met.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	for _, route := range routes {
-		met.IncrCounter([]string{provider, "route"}, 1)
+		met.IncrCounter([]string{Provider, "route"}, 1)
 		if err := enc.Encode(route); err != nil {
 			return err
 		}
@@ -259,11 +259,11 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
 				if err != nil {
 					return err
 				}
-				pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
+				pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 				if err := enc.Encode(v); err != nil {
 					return err
 				}
-				met.AddSample([]string{provider, c.Command.Name}, float32(time.Since(t).Seconds()))
+				met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 			}
 			return nil
 		})
@@ -382,7 +382,7 @@ func streamSetsCommand() *cli.Command {
 		Usage: "Return the set of available streams for query",
 		Action: func(c *cli.Context) error {
 			client := pkg.Runtime(c).Strava
-			pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
+			pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 			if err := pkg.Runtime(c).Encoder.Encode(client.Activity.StreamSets()); err != nil {
 				return err
 			}
@@ -409,11 +409,11 @@ func Before(c *cli.Context) error {
 
 func Command() *cli.Command {
 	return &cli.Command{
-		Name:        provider,
+		Name:        Provider,
 		Category:    "activity",
 		Usage:       "Query Strava for rides and routes",
 		Description: "Operations supported by the Strava API",
-		Flags:       append(AuthFlags(), activity.RateLimitFlags...),
+		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,
 		Subcommands: []*cli.Command{
 			activitiesCommand(),
@@ -426,10 +426,7 @@ func Command() *cli.Command {
 			routesCommand(),
 			streamsCommand(),
 			streamSetsCommand(),
-			activity.UploadCommand(func(c *cli.Context) (api.Uploader, error) {
-				return pkg.Runtime(c).Strava.Uploader(), nil
-			}),
-			webhookCommand,
+			webhookCommand(),
 		},
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/martinlindhe/unit"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
@@ -19,7 +20,7 @@ import (
 
 const (
 	tooSmall = 1024
-	provider = "zwift"
+	Provider = "zwift"
 )
 
 func athlete(c *cli.Context) error {
@@ -36,7 +37,7 @@ func athlete(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		if err := enc.Encode(profile); err != nil {
 			return err
 		}
@@ -49,6 +50,7 @@ func athleteCommand() *cli.Command {
 		Name:    "athlete",
 		Usage:   "Query the athlete profile from Zwift",
 		Aliases: []string{"t"},
+		Before:  Before,
 		Action:  athlete,
 	}
 }
@@ -69,6 +71,7 @@ func refreshCommand() *cli.Command {
 	return &cli.Command{
 		Name:   "refresh",
 		Usage:  "Acquire a new refresh token",
+		Before: Before,
 		Action: refresh,
 	}
 }
@@ -86,8 +89,15 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	for i := range acts {
-		if err := pkg.Runtime(c).Encoder.Encode(acts[i]); err != nil {
+	for _, act := range acts {
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
+		log.Info().
+			Time("date", act.StartDate.Time).
+			Int64("id", act.ID).
+			Str("name", act.Name).
+			Float64("miles", unit.Length(act.DistanceInMeters).Miles()).
+			Msg(c.Command.Name)
+		if err := pkg.Runtime(c).Encoder.Encode(act); err != nil {
 			return err
 		}
 	}
@@ -107,6 +117,7 @@ func activitiesCommand() *cli.Command {
 				Usage:   "The number of activities to query from Zwift (the number returned will be <= N)",
 			},
 		},
+		Before: Before,
 		Action: activities,
 	}
 }
@@ -146,6 +157,7 @@ func activityCommand() *cli.Command {
 		Aliases:   []string{"a"},
 		Usage:     "Query an activity from Zwift",
 		ArgsUsage: "ACTIVITY_ID (...)",
+		Before:    Before,
 		Action: func(c *cli.Context) error {
 			return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
 				return pkg.Runtime(c).Encoder.Encode(act)
@@ -154,40 +166,41 @@ func activityCommand() *cli.Command {
 	}
 }
 
-func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwift.Activity) error {
-	exp, err := client.Activity.ExportActivity(ctx, act)
-	if err != nil {
-		return err
-	}
-	return activity.Write(c, exp)
-}
+// func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwift.Activity) error {
+// 	exp, err := client.Activity.ExportActivity(ctx, act)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return qp.Write(c, exp)
+// }
 
-func exportCommand() *cli.Command {
-	return &cli.Command{
-		Name:      "export",
-		Usage:     "Export a Zwift activity by id",
-		ArgsUsage: "ACTIVITY_ID (...)",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "overwrite",
-				Aliases: []string{"o"},
-				Value:   false,
-				Usage:   "Overwrite the file if it exists; fail otherwise",
-			},
-			&cli.StringFlag{
-				Name:    "output",
-				Aliases: []string{"O"},
-				Value:   "",
-				Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
-			},
-		},
-		Action: func(c *cli.Context) error {
-			return entity(c, func(ctx context.Context, client *zwift.Client, act *zwift.Activity) error {
-				return export(ctx, c, client, act)
-			})
-		},
-	}
-}
+// func exportCommand() *cli.Command {
+// 	return &cli.Command{
+// 		Name:      "export",
+// 		Usage:     "Export a Zwift activity by id",
+// 		ArgsUsage: "ACTIVITY_ID (...)",
+// 		Flags: []cli.Flag{
+// 			&cli.BoolFlag{
+// 				Name:    "overwrite",
+// 				Aliases: []string{"o"},
+// 				Value:   false,
+// 				Usage:   "Overwrite the file if it exists; fail otherwise",
+// 			},
+// 			&cli.StringFlag{
+// 				Name:    "output",
+// 				Aliases: []string{"O"},
+// 				Value:   "",
+// 				Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
+// 			},
+// 		},
+// 		Before: Before,
+// 		Action: func(c *cli.Context) error {
+// 			return entity(c, func(ctx context.Context, client *zwift.Client, act *zwift.Activity) error {
+// 				return export(ctx, c, client, act)
+// 			})
+// 		},
+// 	}
+// }
 
 // Primary use case has been uploading fit files from a local Zwift directory
 // Filters small files (584 bytes) and files named "inProgressActivity.fit"
@@ -211,35 +224,35 @@ func files(c *cli.Context) error {
 		err := afero.Walk(fs, arg, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				if os.IsNotExist(err) {
-					met.IncrCounter([]string{provider, c.Command.Name, "skipping", "does-not-exist"}, 1)
+					met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "does-not-exist"}, 1)
 					log.Warn().Str("file", path).Msg("path does not exist")
 					return nil
 				}
 				return err
 			}
-			met.IncrCounter([]string{provider, c.Command.Name, "found"}, 1)
+			met.IncrCounter([]string{Provider, c.Command.Name, "found"}, 1)
 			if info.IsDir() {
-				met.IncrCounter([]string{provider, c.Command.Name, "directory"}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, "directory"}, 1)
 				return nil
 			}
 			base := filepath.Base(path)
 			if base == "inProgressActivity.fit" {
-				met.IncrCounter([]string{provider, c.Command.Name, "skipping", "in-progress"}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "in-progress"}, 1)
 				log.Warn().Str("file", path).Msg("skipping, activity in progress")
 				return nil
 			}
 			if info.Size() <= tooSmall {
-				met.IncrCounter([]string{provider, c.Command.Name, "skipping", "too-small"}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "too-small"}, 1)
 				log.Warn().Int64("size", info.Size()).Str("file", path).Msg("skipping, too small")
 				return nil
 			}
 			format := api.ToFormat(filepath.Ext(path))
 			if format != api.FormatFIT {
-				met.IncrCounter([]string{provider, c.Command.Name, "skipping", format.String()}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", format.String()}, 1)
 				log.Info().Str("file", path).Msg("skipping, not a FIT file")
 				return nil
 			}
-			met.IncrCounter([]string{provider, c.Command.Name, "success"}, 1)
+			met.IncrCounter([]string{Provider, c.Command.Name, "success"}, 1)
 			return enc.Encode(path)
 		})
 		if err != nil {
@@ -272,6 +285,8 @@ func AuthFlags() []cli.Flag {
 	}
 }
 
+// Before configures the zwift client
+// Use this function carefully as it immediately makes an authentication request
 func Before(c *cli.Context) error {
 	client, err := zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
 	if err != nil {
@@ -302,13 +317,12 @@ func Command() *cli.Command {
 		Category:    "activity",
 		Usage:       "Query Zwift for activities",
 		Description: "Operations supported by the Zwift API",
-		Flags:       append(AuthFlags(), activity.RateLimitFlags...),
-		Before:      Before,
+		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Subcommands: []*cli.Command{
 			activitiesCommand(),
 			activityCommand(),
 			athleteCommand(),
-			exportCommand(),
+			// exportCommand(),
 			filesCommand(),
 			refreshCommand(),
 		},

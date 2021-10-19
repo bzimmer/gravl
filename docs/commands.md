@@ -24,16 +24,19 @@ from Strava each query will honor the timeout value, it's not an aggregate timeo
 * [cyclinganalytics athlete](#cyclinganalytics-athlete)
 * [cyclinganalytics oauth](#cyclinganalytics-oauth)
 * [cyclinganalytics streamsets](#cyclinganalytics-streamsets)
-* [cyclinganalytics upload](#cyclinganalytics-upload)
 * [help](#help)
 * [qp](#qp)
+* [qp copy](#qp-copy)
+* [qp export](#qp-export)
+* [qp list](#qp-list)
+* [qp status](#qp-status)
+* [qp upload](#qp-upload)
 * [rwgps](#rwgps)
 * [rwgps activities](#rwgps-activities)
 * [rwgps activity](#rwgps-activity)
 * [rwgps athlete](#rwgps-athlete)
 * [rwgps route](#rwgps-route)
 * [rwgps routes](#rwgps-routes)
-* [rwgps upload](#rwgps-upload)
 * [strava](#strava)
 * [strava activities](#strava-activities)
 * [strava activity](#strava-activity)
@@ -45,7 +48,6 @@ from Strava each query will honor the timeout value, it's not an aggregate timeo
 * [strava routes](#strava-routes)
 * [strava streams](#strava-streams)
 * [strava streamsets](#strava-streamsets)
-* [strava upload](#strava-upload)
 * [strava webhook](#strava-webhook)
 * [strava webhook list](#strava-webhook-list)
 * [strava webhook subscribe](#strava-webhook-subscribe)
@@ -55,7 +57,6 @@ from Strava each query will honor the timeout value, it's not an aggregate timeo
 * [zwift activities](#zwift-activities)
 * [zwift activity](#zwift-activity)
 * [zwift athlete](#zwift-athlete)
-* [zwift export](#zwift-export)
 * [zwift files](#zwift-files)
 * [zwift refresh](#zwift-refresh)
 
@@ -202,31 +203,6 @@ $ gravl cyclinganalytics streamsets [flags]
 
 
 
-## *cyclinganalytics upload*
-
-**Description**
-
-Upload an activity file
-
-
-**Syntax**
-
-```sh
-$ gravl cyclinganalytics upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
-```
-
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```status```|```s```|Check the status of the upload|
-|```poll```|```p```|Continually check the status of the request until it is completed|
-|```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
-|```interval```|```P```|The amount of time to wait between polling for an updated status|
-|```iterations```|```N```|The max number of polling iterations to perform|
-
-
 ## *help*
 
 **Description**
@@ -246,22 +222,14 @@ $ gravl help [flags] [command]
 
 **Description**
 
-Copy an activity from an exporter to an uploader
+Copy activities from a source to a destination
 
-
-**Syntax**
-
-```sh
-$ gravl qp [flags] ACTIVITY_ID (...)
-```
 
 
 **Flags**
 
 |Name|Aliases|Description|
 |-|-|-|
-|```exporter```|```e```|Export data provider|
-|```uploader```|```u```|Upload data provider|
 |```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```||Maximum burst size for API request events|
 |```concurrency```||Maximum concurrent API queries|
@@ -276,7 +244,7 @@ $ gravl qp [flags] ACTIVITY_ID (...)
 |```zwift-username```||zwift username|
 |```zwift-password```||zwift password|
 
-**Example**
+**Overview**
 
 ```sh
 $ gravl qp -e strava -u ca 4838740537
@@ -312,6 +280,167 @@ $ gravl qp -e strava -u ca 4838740537
  "error_code": "duplicate_ride"
 }
 ```
+
+
+## *qp copy*
+
+**Description**
+
+
+
+
+**Syntax**
+
+```sh
+$ gravl qp copy [flags] --from <exporter> --to <uploader> id [id, ...]
+```
+
+
+**Flags**
+
+|Name|Aliases|Description|
+|-|-|-|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
+|```concurrency```||Maximum concurrent API queries|
+|```from```||Source data provider|
+|```to```||Destination data provider|
+|```poll```|```p```|Continually check the status of the request until it is completed|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
+|```cyclinganalytics-client-id```||cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||cyclinganalytics access token|
+|```rwgps-client-id```||rwgps client id|
+|```rwgps-access-token```||rwgps access token|
+|```strava-client-id```||strava client id|
+|```strava-client-secret```||strava client secret|
+|```strava-refresh-token```||strava refresh token|
+|```zwift-username```||zwift username|
+|```zwift-password```||zwift password|
+
+
+## *qp export*
+
+**Description**
+
+
+
+
+**Syntax**
+
+```sh
+$ gravl qp export [flags]
+```
+
+
+**Flags**
+
+|Name|Aliases|Description|
+|-|-|-|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
+|```concurrency```||Maximum concurrent API queries|
+|```from```||Source data provider|
+|```cyclinganalytics-client-id```||cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||cyclinganalytics access token|
+|```rwgps-client-id```||rwgps client id|
+|```rwgps-access-token```||rwgps access token|
+|```strava-client-id```||strava client id|
+|```strava-client-secret```||strava client secret|
+|```strava-refresh-token```||strava refresh token|
+|```zwift-username```||zwift username|
+|```zwift-password```||zwift password|
+
+
+## *qp list*
+
+**Description**
+
+
+
+
+**Syntax**
+
+```sh
+$ gravl qp list [flags] {FILE | DIRECTORY} (...)
+```
+
+
+
+## *qp status*
+
+**Description**
+
+Check the status of the upload
+
+
+**Syntax**
+
+```sh
+$ gravl qp status [flags] UPLOAD_ID (...)
+```
+
+
+**Flags**
+
+|Name|Aliases|Description|
+|-|-|-|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
+|```concurrency```||Maximum concurrent API queries|
+|```to```||Destination data provider|
+|```poll```|```p```|Continually check the status of the request until it is completed|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
+|```cyclinganalytics-client-id```||cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||cyclinganalytics access token|
+|```rwgps-client-id```||rwgps client id|
+|```rwgps-access-token```||rwgps access token|
+|```strava-client-id```||strava client id|
+|```strava-client-secret```||strava client secret|
+|```strava-refresh-token```||strava refresh token|
+|```zwift-username```||zwift username|
+|```zwift-password```||zwift password|
+
+
+## *qp upload*
+
+**Description**
+
+
+
+
+**Syntax**
+
+```sh
+$ gravl qp upload [flags] {FILE | DIRECTORY} (...)
+```
+
+
+**Flags**
+
+|Name|Aliases|Description|
+|-|-|-|
+|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```||Maximum burst size for API request events|
+|```concurrency```||Maximum concurrent API queries|
+|```to```||Destination data provider|
+|```poll```|```p```|Continually check the status of the request until it is completed|
+|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```iterations```|```N```|The max number of polling iterations to perform|
+|```cyclinganalytics-client-id```||cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||cyclinganalytics access token|
+|```rwgps-client-id```||rwgps client id|
+|```rwgps-access-token```||rwgps access token|
+|```strava-client-id```||strava client id|
+|```strava-client-secret```||strava client secret|
+|```strava-refresh-token```||strava refresh token|
+|```zwift-username```||zwift username|
+|```zwift-password```||zwift password|
 
 
 ## *rwgps*
@@ -472,31 +601,6 @@ $ gravl rwgps routes [flags]
 |```count```|```N```|The number of routes to query from RideWithGPS (the number returned will be <= N)|
 
 
-## *rwgps upload*
-
-**Description**
-
-Upload an activity file
-
-
-**Syntax**
-
-```sh
-$ gravl rwgps upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
-```
-
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```status```|```s```|Check the status of the upload|
-|```poll```|```p```|Continually check the status of the request until it is completed|
-|```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
-|```interval```|```P```|The amount of time to wait between polling for an updated status|
-|```iterations```|```N```|The max number of polling iterations to perform|
-
-
 ## *strava*
 
 **Description**
@@ -547,6 +651,7 @@ $ gravl strava activities [flags]
 |```count```|```N```|The number of activities to query from Strava (the number returned will be <= N)|
 |```filter```|```f```|Expression for filtering activities to remove|
 |```attribute```|```B```|Evaluate the expression on an activity and return only those results|
+|```since```||Return results since the duration specified|
 
 **Example**
 
@@ -860,70 +965,6 @@ watts
 ```
 
 
-## *strava upload*
-
-**Description**
-
-Upload an activity file
-
-
-**Syntax**
-
-```sh
-$ gravl strava upload [flags] {FILE | DIRECTORY} | UPLOAD_ID (...)
-```
-
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```status```|```s```|Check the status of the upload|
-|```poll```|```p```|Continually check the status of the request until it is completed|
-|```dryrun```|```n```|Show the files which would be uploaded but do not upload them|
-|```interval```|```P```|The amount of time to wait between polling for an updated status|
-|```iterations```|```N```|The max number of polling iterations to perform|
-
-**Example**
-
-An example exporting an activity to a local file and uploading back to Strava. This
-example shows how the upload command can poll for status changes, in this case the
-file is uploading a duplicate activity (of course!) and completes the polling.
-
-*Note: check the results for any semantic errors*
-
-```sh
-$ gravl strava export -o 4838740537
-2021-02-24T08:39:19-08:00 INF export activityID=4838740537 format=original
-{
- "name": "Blakey_Harbor.fit",
- "format": "fit",
- "id": 4838740537
-}
-$ gravl strava upload -p Blakey_Harbor.fit
-2021-02-24T08:39:36-08:00 INF collecting file=Blakey_Harbor.fit
-2021-02-24T08:39:36-08:00 INF uploading file=Blakey_Harbor.fit
-2021-02-24T08:39:37-08:00 INF status uploadID=5165766717
-{
- "id": 5165766717,
- "id_str": "5165766717",
- "external_id": "",
- "error": "",
- "status": "Your activity is still being processed.",
- "activity_id": 0
-}
-2021-02-24T08:39:39-08:00 INF status uploadID=5165766717
-{
- "id": 5165766717,
- "id_str": "5165766717",
- "external_id": "",
- "error": "Blakey_Harbor.fit duplicate of activity 4838740537",
- "status": "There was an error processing your activity.",
- "activity_id": 0
-}
-```
-
-
 ## *strava webhook*
 
 **Description**
@@ -1075,28 +1116,6 @@ Query the athlete profile from Zwift
 $ gravl zwift athlete [flags]
 ```
 
-
-
-## *zwift export*
-
-**Description**
-
-Export a Zwift activity by id
-
-
-**Syntax**
-
-```sh
-$ gravl zwift export [flags] ACTIVITY_ID (...)
-```
-
-
-**Flags**
-
-|Name|Aliases|Description|
-|-|-|-|
-|```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
-|```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
 
 
 ## *zwift files*

@@ -106,12 +106,14 @@ var whsubscribeCommand = &cli.Command{
 	Action: whsubscribe,
 }
 
-var webhookCommand = &cli.Command{
-	Name:  "webhook",
-	Usage: "Manage webhook subscriptions",
-	Subcommands: []*cli.Command{
-		whlistCommand,
-		whsubscribeCommand,
-		whunsubscribeCommand,
-	},
+func webhookCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "webhook",
+		Usage: "Manage webhook subscriptions",
+		Subcommands: []*cli.Command{
+			whlistCommand,
+			whsubscribeCommand,
+			whunsubscribeCommand,
+		},
+	}
 }

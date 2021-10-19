@@ -15,7 +15,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/activity"
 )
 
-const provider = "rwgps"
+const Provider = "rwgps"
 
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).RideWithGPS
@@ -25,7 +25,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	err = pkg.Runtime(c).Encoder.Encode(user)
 	if err != nil {
 		return err
@@ -174,7 +174,7 @@ func Command() *cli.Command {
 		Category:    "activity",
 		Usage:       "Query RideWithGPS for rides and routes",
 		Description: "Operations supported by the RideWithGPS API",
-		Flags:       append(AuthFlags(), activity.RateLimitFlags...),
+		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,
 		Subcommands: []*cli.Command{
 			activitiesCommand(),
@@ -182,9 +182,6 @@ func Command() *cli.Command {
 			athleteCommand(),
 			routeCommand(),
 			routesCommand(),
-			activity.UploadCommand(func(c *cli.Context) (api.Uploader, error) {
-				return pkg.Runtime(c).RideWithGPS.Uploader(), nil
-			}),
 		},
 	}
 }
