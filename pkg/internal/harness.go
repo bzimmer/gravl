@@ -58,6 +58,8 @@ func before(c *cli.Context) error {
 			Mapper:    antonmedv.Mapper,
 			Filterer:  antonmedv.Filterer,
 			Evaluator: antonmedv.Evaluator,
+			Exporters: make(map[string]pkg.ExporterFunc),
+			Uploaders: make(map[string]pkg.UploaderFunc),
 		},
 	}
 	return nil

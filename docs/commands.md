@@ -304,9 +304,9 @@ $ gravl qp copy [flags] --from <exporter> --to <uploader> id [id, ...]
 |```rate-burst```||Maximum burst size for API request events|
 |```concurrency```||Maximum concurrent API queries|
 |```from```||Source data provider|
-|```to```||Destination data provider|
-|```poll```|```p```|Continually check the status of the request until it is completed|
-|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```to```||Sink data provider|
+|```poll```||Continually check the status of the request until it is completed|
+|```interval```||The amount of time to wait between polling for an updated status|
 |```iterations```|```N```|The max number of polling iterations to perform|
 |```cyclinganalytics-client-id```||cyclinganalytics client id|
 |```cyclinganalytics-client-secret```||cyclinganalytics client secret|
@@ -390,9 +390,9 @@ $ gravl qp status [flags] UPLOAD_ID (...)
 |```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```||Maximum burst size for API request events|
 |```concurrency```||Maximum concurrent API queries|
-|```to```||Destination data provider|
-|```poll```|```p```|Continually check the status of the request until it is completed|
-|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```to```||Sink data provider|
+|```poll```||Continually check the status of the request until it is completed|
+|```interval```||The amount of time to wait between polling for an updated status|
 |```iterations```|```N```|The max number of polling iterations to perform|
 |```cyclinganalytics-client-id```||cyclinganalytics client id|
 |```cyclinganalytics-client-secret```||cyclinganalytics client secret|
@@ -427,9 +427,9 @@ $ gravl qp upload [flags] {FILE | DIRECTORY} (...)
 |```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```||Maximum burst size for API request events|
 |```concurrency```||Maximum concurrent API queries|
-|```to```||Destination data provider|
-|```poll```|```p```|Continually check the status of the request until it is completed|
-|```interval```|```P```|The amount of time to wait between polling for an updated status|
+|```to```||Sink data provider|
+|```poll```||Continually check the status of the request until it is completed|
+|```interval```||The amount of time to wait between polling for an updated status|
 |```iterations```|```N```|The max number of polling iterations to perform|
 |```cyclinganalytics-client-id```||cyclinganalytics client id|
 |```cyclinganalytics-client-secret```||cyclinganalytics client secret|

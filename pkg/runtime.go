@@ -34,6 +34,9 @@ func Token(n int) (string, error) {
 	return base64.URLEncoding.EncodeToString(b), nil
 }
 
+type ExporterFunc func(c *cli.Context) (activity.Exporter, error)
+type UploaderFunc func(c *cli.Context) (activity.Uploader, error)
+
 type Rt struct {
 	// Metadata
 	Start time.Time
@@ -43,6 +46,10 @@ type Rt struct {
 	Strava           *strava.Client
 	RideWithGPS      *rwgps.Client
 	CyclingAnalytics *cyclinganalytics.Client
+
+	// Export / Upload
+	Exporters map[string]ExporterFunc
+	Uploaders map[string]UploaderFunc
 
 	// IO
 	Fs      afero.Fs

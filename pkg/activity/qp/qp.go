@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/armon/go-metrics"
@@ -19,72 +17,30 @@ import (
 	api "github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity"
-	"github.com/bzimmer/gravl/pkg/activity/blackhole"
 	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/activity/zwift"
 )
 
-type UploaderFunc func(c *cli.Context) (api.Uploader, error)
-
-func exporter(c *cli.Context) (api.Exporter, error) {
-	exp := c.String("from")
-	log.Info().Str("provider", exp).Msg("exporter")
-	switch strings.ToLower(exp) {
-	case "":
-		return nil, errors.New("`from` is a required flag")
-	case zwift.Provider:
-		if err := zwift.Before(c); err != nil {
-			return nil, err
-		}
-		client := pkg.Runtime(c).Zwift
-		return client.Exporter(), nil
-	case blackhole.Provider:
-		if err := blackhole.Before(c); err != nil {
-			return nil, err
-		}
-		return blackhole.NewExporter(), nil
-	case strava.Provider:
-		return nil, errors.New("strava exporter needs to be rewritten to use gpx file")
-	}
-	return nil, fmt.Errorf("unknown exporter {%s}", exp)
-}
-
-func uploader(c *cli.Context) (api.Uploader, api.Poller, error) {
-	var uploader api.Uploader
-	upd := c.String("to")
-	log.Info().Str("provider", upd).Msg("uploader")
-	switch strings.ToLower(upd) {
-	case "":
-		return nil, nil, errors.New("`to` is a required flag")
-	case blackhole.Provider:
-		if err := blackhole.Before(c); err != nil {
-			return nil, nil, err
-		}
-		uploader = blackhole.NewUploader()
-	case cyclinganalytics.Provider, "ca":
-		if err := cyclinganalytics.Before(c); err != nil {
-			return nil, nil, err
-		}
-		uploader = pkg.Runtime(c).CyclingAnalytics.Uploader()
-	case rwgps.Provider, "ridewithgps":
-		if err := rwgps.Before(c); err != nil {
-			return nil, nil, err
-		}
-		uploader = pkg.Runtime(c).RideWithGPS.Uploader()
-	case strava.Provider:
-		if err := strava.Before(c); err != nil {
-			return nil, nil, err
-		}
-		uploader = pkg.Runtime(c).Strava.Uploader()
-	default:
-		return nil, nil, fmt.Errorf("unknown uploader {%s}", upd)
-	}
-	p := api.NewPoller(uploader,
+func poller(c *cli.Context, upd api.Uploader) api.Poller {
+	return api.NewPoller(upd,
 		api.WithInterval(c.Duration("interval")),
 		api.WithIterations(c.Int("iterations")))
-	return uploader, p, nil
+}
+
+func exporter(c *cli.Context, name string) (api.Exporter, error) {
+	if f, ok := pkg.Runtime(c).Exporters[name]; ok {
+		return f(c)
+	}
+	return nil, errors.New("unknown exporter")
+}
+
+func uploader(c *cli.Context, name string) (api.Uploader, error) {
+	if f, ok := pkg.Runtime(c).Uploaders[name]; ok {
+		return f(c)
+	}
+	return nil, errors.New("unknown uploader")
 }
 
 type xfer struct {
@@ -129,13 +85,12 @@ func upload(c *cli.Context) error {
 	fs := pkg.Runtime(c).Fs
 	enc := pkg.Runtime(c).Encoder
 	met := pkg.Runtime(c).Metrics
-	upd, plr, err := uploader(c)
+	upd, err := uploader(c, c.String("to"))
 	if err != nil {
 		return err
 	}
-
 	x := xfer{
-		poller:   plr,
+		poller:   poller(c, upd),
 		metrics:  met,
 		encoder:  enc,
 		uploader: upd,
@@ -192,12 +147,12 @@ func uploadCommand() *cli.Command {
 
 func status(c *cli.Context) error {
 	args := c.Args()
-	_, plr, err := uploader(c)
+	upd, err := uploader(c, c.String("to"))
 	if err != nil {
 		return err
 	}
 	x := xfer{
-		poller:  plr,
+		poller:  poller(c, upd),
 		encoder: pkg.Runtime(c).Encoder,
 		metrics: pkg.Runtime(c).Metrics,
 	}
@@ -246,7 +201,7 @@ func listCommand() *cli.Command {
 }
 
 func export(c *cli.Context) error {
-	expr, err := exporter(c)
+	expr, err := exporter(c, c.String("from"))
 	if err != nil {
 		return err
 	}
@@ -277,19 +232,19 @@ func exportCommand() *cli.Command {
 }
 
 func qp(c *cli.Context) error {
-	expr, err := exporter(c)
+	expr, err := exporter(c, c.String("from"))
 	if err != nil {
 		return err
 	}
 
-	uplr, plr, err := uploader(c)
+	upd, err := uploader(c, c.String("to"))
 	if err != nil {
 		return err
 	}
 
 	x := xfer{
-		poller:   plr,
-		uploader: uplr,
+		poller:   poller(c, upd),
+		uploader: upd,
 		encoder:  pkg.Runtime(c).Encoder,
 		metrics:  pkg.Runtime(c).Metrics,
 	}
@@ -346,7 +301,7 @@ func flags(c cfg) []cli.Flag {
 		x = append(x,
 			&cli.StringFlag{
 				Name:  "to",
-				Usage: "Destination data provider"})
+				Usage: "Sink data provider"})
 	}
 	if c.poll {
 		x = append(x,

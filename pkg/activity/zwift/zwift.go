@@ -162,42 +162,6 @@ func activityCommand() *cli.Command {
 	}
 }
 
-// func export(ctx context.Context, c *cli.Context, client *zwift.Client, act *zwift.Activity) error {
-// 	exp, err := client.Activity.ExportActivity(ctx, act)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return qp.Write(c, exp)
-// }
-
-// func exportCommand() *cli.Command {
-// 	return &cli.Command{
-// 		Name:      "export",
-// 		Usage:     "Export a Zwift activity by id",
-// 		ArgsUsage: "ACTIVITY_ID (...)",
-// 		Flags: []cli.Flag{
-// 			&cli.BoolFlag{
-// 				Name:    "overwrite",
-// 				Aliases: []string{"o"},
-// 				Value:   false,
-// 				Usage:   "Overwrite the file if it exists; fail otherwise",
-// 			},
-// 			&cli.StringFlag{
-// 				Name:    "output",
-// 				Aliases: []string{"O"},
-// 				Value:   "",
-// 				Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
-// 			},
-// 		},
-// 		Before: Before,
-// 		Action: func(c *cli.Context) error {
-// 			return entity(c, func(ctx context.Context, client *zwift.Client, act *zwift.Activity) error {
-// 				return export(ctx, c, client, act)
-// 			})
-// 		},
-// 	}
-// }
-
 // Primary use case has been uploading fit files from a local Zwift directory
 // Filters small files (584 bytes) and files named "inProgressActivity.fit"
 // If no arguments are specified will try to default to the Zwift Activities directory

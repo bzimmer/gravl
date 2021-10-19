@@ -61,3 +61,11 @@ func (b *blackhole) Export(ctx context.Context, activityID int64) (*activity.Exp
 func Before(c *cli.Context) error {
 	return nil
 }
+
+func UploaderFunc(c *cli.Context) (activity.Uploader, error) {
+	return &blackhole{}, nil
+}
+
+func ExporterFunc(c *cli.Context) (activity.Exporter, error) {
+	return &blackhole{}, nil
+}

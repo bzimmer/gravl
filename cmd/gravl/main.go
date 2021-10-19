@@ -61,6 +61,8 @@ func initRuntime() cli.BeforeFunc {
 			Sink:      sink,
 			Metrics:   metric,
 			Fs:        afero.NewOsFs(),
+			Uploaders: make(map[string]pkg.UploaderFunc),
+			Exporters: make(map[string]pkg.ExporterFunc),
 		}
 		return nil
 	}
