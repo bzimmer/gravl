@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -17,8 +16,6 @@ import (
 )
 
 const Provider = "rwgps"
-
-var once sync.Once
 
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).RideWithGPS
@@ -158,18 +155,17 @@ func routeCommand() *cli.Command {
 }
 
 func Before(c *cli.Context) error {
-	var err error
-	once.Do(func() {
-		var client *rwgps.Client
-		client, err = rwgps.NewClient(
-			rwgps.WithClientCredentials(c.String("rwgps-client-id"), ""),
-			rwgps.WithTokenCredentials(c.String("rwgps-access-token"), "", time.Time{}),
-			rwgps.WithHTTPTracing(c.Bool("http-tracing")),
-			rwgps.WithRateLimiter(rate.NewLimiter(
-				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-		pkg.Runtime(c).RideWithGPS = client
-	})
-	return err
+	client, err := rwgps.NewClient(
+		rwgps.WithClientCredentials(c.String("rwgps-client-id"), ""),
+		rwgps.WithTokenCredentials(c.String("rwgps-access-token"), "", time.Time{}),
+		rwgps.WithHTTPTracing(c.Bool("http-tracing")),
+		rwgps.WithRateLimiter(rate.NewLimiter(
+			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+	if err != nil {
+		return err
+	}
+	pkg.Runtime(c).RideWithGPS = client
+	return nil
 }
 
 func Command() *cli.Command {

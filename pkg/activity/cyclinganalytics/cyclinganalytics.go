@@ -3,7 +3,6 @@ package cyclinganalytics
 import (
 	"context"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -16,8 +15,6 @@ import (
 )
 
 const Provider = "cyclinganalytics"
-
-var once sync.Once
 
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).CyclingAnalytics
@@ -123,19 +120,18 @@ func streamsetsCommand() *cli.Command {
 }
 
 func Before(c *cli.Context) error {
-	var err error
-	once.Do(func() {
-		var client *cyclinganalytics.Client
-		client, err = cyclinganalytics.NewClient(
-			cyclinganalytics.WithTokenCredentials(
-				c.String("cyclinganalytics-access-token"), c.String("cyclinganalytics-refresh-token"), time.Time{}),
-			cyclinganalytics.WithAutoRefresh(c.Context),
-			cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
-			cyclinganalytics.WithRateLimiter(rate.NewLimiter(
-				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-		pkg.Runtime(c).CyclingAnalytics = client
-	})
-	return err
+	client, err := cyclinganalytics.NewClient(
+		cyclinganalytics.WithTokenCredentials(
+			c.String("cyclinganalytics-access-token"), c.String("cyclinganalytics-refresh-token"), time.Time{}),
+		cyclinganalytics.WithAutoRefresh(c.Context),
+		cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
+		cyclinganalytics.WithRateLimiter(rate.NewLimiter(
+			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+	if err != nil {
+		return err
+	}
+	pkg.Runtime(c).CyclingAnalytics = client
+	return nil
 }
 
 func Command() *cli.Command {

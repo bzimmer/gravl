@@ -3,7 +3,6 @@ package strava
 import (
 	"context"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -19,8 +18,6 @@ import (
 )
 
 const Provider = "strava"
-
-var once sync.Once
 
 type entityFunc func(context.Context, *strava.Client, int64) (interface{}, error)
 
@@ -395,20 +392,19 @@ func streamSetsCommand() *cli.Command {
 }
 
 func Before(c *cli.Context) error {
-	var err error
-	once.Do(func() {
-		var client *strava.Client
-		client, err = strava.NewClient(
-			strava.WithTokenCredentials(
-				c.String("strava-refresh-token"), c.String("strava-refresh-token"), time.Now().Add(-1*time.Minute)),
-			strava.WithClientCredentials(c.String("strava-client-id"), c.String("strava-client-secret")),
-			strava.WithAutoRefresh(c.Context),
-			strava.WithHTTPTracing(c.Bool("http-tracing")),
-			strava.WithRateLimiter(rate.NewLimiter(
-				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-		pkg.Runtime(c).Strava = client
-	})
-	return err
+	client, err := strava.NewClient(
+		strava.WithTokenCredentials(
+			c.String("strava-refresh-token"), c.String("strava-refresh-token"), time.Now().Add(-1*time.Minute)),
+		strava.WithClientCredentials(c.String("strava-client-id"), c.String("strava-client-secret")),
+		strava.WithAutoRefresh(c.Context),
+		strava.WithHTTPTracing(c.Bool("http-tracing")),
+		strava.WithRateLimiter(rate.NewLimiter(
+			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+	if err != nil {
+		return err
+	}
+	pkg.Runtime(c).Strava = client
+	return nil
 }
 
 func Command() *cli.Command {
