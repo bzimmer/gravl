@@ -5,11 +5,13 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 
 	"github.com/martinlindhe/unit"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 	"golang.org/x/time/rate"
 
 	api "github.com/bzimmer/activity"
@@ -22,6 +24,8 @@ const (
 	tooSmall = 1024
 	Provider = "zwift"
 )
+
+var once sync.Once
 
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).Zwift
@@ -50,7 +54,6 @@ func athleteCommand() *cli.Command {
 		Name:    "athlete",
 		Usage:   "Query the athlete profile from Zwift",
 		Aliases: []string{"t"},
-		Before:  Before,
 		Action:  athlete,
 	}
 }
@@ -71,7 +74,6 @@ func refreshCommand() *cli.Command {
 	return &cli.Command{
 		Name:   "refresh",
 		Usage:  "Acquire a new refresh token",
-		Before: Before,
 		Action: refresh,
 	}
 }
@@ -117,7 +119,6 @@ func activitiesCommand() *cli.Command {
 				Usage:   "The number of activities to query from Zwift (the number returned will be <= N)",
 			},
 		},
-		Before: Before,
 		Action: activities,
 	}
 }
@@ -157,7 +158,6 @@ func activityCommand() *cli.Command {
 		Aliases:   []string{"a"},
 		Usage:     "Query an activity from Zwift",
 		ArgsUsage: "ACTIVITY_ID (...)",
-		Before:    Before,
 		Action: func(c *cli.Context) error {
 			return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
 				return pkg.Runtime(c).Encoder.Encode(act)
@@ -288,27 +288,29 @@ func AuthFlags() []cli.Flag {
 // Before configures the zwift client
 // Use this function carefully as it immediately makes an authentication request
 func Before(c *cli.Context) error {
-	client, err := zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
-	if err != nil {
-		return err
-	}
-	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-	defer cancel()
-	username, password := c.String("zwift-username"), c.String("zwift-password")
-	token, err := client.Auth.Refresh(ctx, username, password)
-	if err != nil {
-		return err
-	}
-	client, err = zwift.NewClient(
-		zwift.WithHTTPTracing(c.Bool("http-tracing")),
-		zwift.WithToken(token),
-		zwift.WithRateLimiter(rate.NewLimiter(
-			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-	if err != nil {
-		return err
-	}
-	pkg.Runtime(c).Zwift = client
-	return nil
+	var err error
+	once.Do(func() {
+		var token *oauth2.Token
+		var client *zwift.Client
+		client, err = zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
+		if err != nil {
+			return
+		}
+		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+		defer cancel()
+		username, password := c.String("zwift-username"), c.String("zwift-password")
+		token, err = client.Auth.Refresh(ctx, username, password)
+		if err != nil {
+			return
+		}
+		client, err = zwift.NewClient(
+			zwift.WithHTTPTracing(c.Bool("http-tracing")),
+			zwift.WithToken(token),
+			zwift.WithRateLimiter(rate.NewLimiter(
+				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+		pkg.Runtime(c).Zwift = client
+	})
+	return err
 }
 
 func Command() *cli.Command {
@@ -318,11 +320,11 @@ func Command() *cli.Command {
 		Usage:       "Query Zwift for activities",
 		Description: "Operations supported by the Zwift API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
+		Before:      Before,
 		Subcommands: []*cli.Command{
 			activitiesCommand(),
 			activityCommand(),
 			athleteCommand(),
-			// exportCommand(),
 			filesCommand(),
 			refreshCommand(),
 		},
