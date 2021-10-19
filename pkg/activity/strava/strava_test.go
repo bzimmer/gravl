@@ -134,7 +134,7 @@ func TestActivities(t *testing.T) {
 func TestStreamSets(t *testing.T) {
 	tests := []*internal.Harness{
 		{
-			Name:     "activity",
+			Name:     "streamsets",
 			Args:     []string{"gravl", "strava", "streamsets"},
 			Counters: map[string]int{"gravl.strava.streamsets": 1},
 		},

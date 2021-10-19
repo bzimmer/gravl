@@ -89,6 +89,7 @@ func ride(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		if err := enc.Encode(ride); err != nil {
 			return err
 		}
@@ -105,12 +106,13 @@ func rideCommand() *cli.Command {
 	}
 }
 
-func streamsetsCommand() *cli.Command {
+func streamSetsCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "streamsets",
 		Usage: "Return the set of available streams for query",
 		Action: func(c *cli.Context) error {
 			client := pkg.Runtime(c).CyclingAnalytics
+			pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 			if err := pkg.Runtime(c).Encoder.Encode(client.Rides.StreamSets()); err != nil {
 				return err
 			}
@@ -148,7 +150,7 @@ func Command() *cli.Command {
 			athleteCommand(),
 			oauthCommand(),
 			rideCommand(),
-			streamsetsCommand(),
+			streamSetsCommand(),
 		},
 	}
 }

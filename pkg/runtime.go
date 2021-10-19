@@ -16,7 +16,6 @@ import (
 	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/activity/zwift"
 	"github.com/bzimmer/gravl/pkg/eval"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog/log"
 
 	"github.com/spf13/afero"
@@ -60,7 +59,6 @@ type Rt struct {
 	Sink    *metrics.InmemSink
 
 	// Evaluation
-	Mapper    func(string) (eval.Mapper, error)
 	Filterer  func(string) (eval.Filterer, error)
 	Evaluator func(string) (eval.Evaluator, error)
 }
@@ -78,16 +76,6 @@ type Encoder interface {
 type blackhole struct{}
 
 func (b *blackhole) Encode(v interface{}) error {
-	return nil
-}
-
-type spewEncoder struct {
-	cfg    *spew.ConfigState
-	writer io.Writer
-}
-
-func (s *spewEncoder) Encode(v interface{}) error {
-	s.cfg.Fdump(s.writer, v)
 	return nil
 }
 
@@ -166,12 +154,6 @@ func GeoJSON(writer io.Writer, compact bool) Encoder {
 
 func GPX(writer io.Writer, compact bool) Encoder {
 	return &gpxEncoder{enc: XML(writer, compact)}
-}
-
-func Spew(writer io.Writer) Encoder {
-	cfg := spew.NewDefaultConfig()
-	cfg.SortKeys = true
-	return &spewEncoder{cfg: cfg, writer: writer}
 }
 
 func Blackhole() Encoder {

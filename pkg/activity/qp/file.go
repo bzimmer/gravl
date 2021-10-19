@@ -21,7 +21,6 @@ func Write(c *cli.Context, exp *activity.Export) error {
 	if exp == nil || exp.Reader == nil {
 		return nil
 	}
-	fs := pkg.Runtime(c).Fs
 	// if neither overwrite or output is set use stdout
 	if !c.IsSet("overwrite") && !c.IsSet("output") {
 		_, err := io.Copy(c.App.Writer, exp)
@@ -35,6 +34,7 @@ func Write(c *cli.Context, exp *activity.Export) error {
 		filename = c.String("output")
 	}
 	// if the file exists and overwrite is not set then error
+	fs := pkg.Runtime(c).Fs
 	if _, err = fs.Stat(filename); err == nil && !c.Bool("overwrite") {
 		log.Error().Str("filename", filename).Msg("file exists and -o flag not specified")
 		return os.ErrExist
@@ -76,12 +76,11 @@ func formatWalkFunc(met *metrics.Metrics, path string, info os.FileInfo) bool {
 // Only files of the format FIT, GPX, or TCX will be considered for uploading
 func walk(c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult {
 	ctx := c.Context
-	fs := pkg.Runtime(c).Fs
 	met := pkg.Runtime(c).Metrics
 	files := make(chan *walkResult)
 	go func() {
 		defer close(files)
-		err := afero.Walk(fs, name, func(path string, info os.FileInfo, err error) error {
+		err := afero.Walk(pkg.Runtime(c).Fs, name, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}

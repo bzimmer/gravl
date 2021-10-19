@@ -226,7 +226,7 @@ func export(c *cli.Context) error {
 func exportCommand() *cli.Command {
 	return &cli.Command{
 		Name:   "export",
-		Flags:  flags(cfg{from: true}),
+		Flags:  flags(cfg{from: true, io: true}),
 		Action: export,
 	}
 }
@@ -278,7 +278,7 @@ func copyCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "copy",
 		ArgsUsage: "--from <exporter> --to <uploader> id [id, ...]",
-		Flags:     flags(cfg{from: true, to: true, poll: true}),
+		Flags:     flags(cfg{from: true, to: true, poll: true, io: true}),
 		Action:    qp,
 	}
 }
@@ -287,6 +287,7 @@ type cfg struct {
 	from bool
 	to   bool
 	poll bool
+	io   bool
 }
 
 func flags(c cfg) []cli.Flag {
@@ -302,6 +303,24 @@ func flags(c cfg) []cli.Flag {
 			&cli.StringFlag{
 				Name:  "to",
 				Usage: "Sink data provider"})
+	}
+	if c.io {
+		x = append(x,
+			[]cli.Flag{
+				&cli.BoolFlag{
+					Name:    "overwrite",
+					Aliases: []string{"o"},
+					Value:   false,
+					Usage:   "Overwrite the file if it exists; fail otherwise",
+				},
+				&cli.StringFlag{
+					Name:    "output",
+					Aliases: []string{"O"},
+					Value:   "",
+					Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
+				},
+			}...,
+		)
 	}
 	if c.poll {
 		x = append(x,
@@ -349,7 +368,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:     "qp",
 		Category: "activity",
-		Usage:    "Copy activities from a source to a destination",
+		Usage:    "Copy activities from a source to a sink",
 		Flags:    flags(cfg{}),
 		Subcommands: []*cli.Command{
 			copyCommand(),

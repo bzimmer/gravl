@@ -8,7 +8,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const Provider = "blackhole"
+const (
+	Provider = "blackhole"
+	Data     = `<gpx xmlns="http://www.topografix.com/GPX/"></gpx>`
+)
 
 type uploadable struct {
 	id   activity.UploadID
@@ -53,7 +56,7 @@ func (b *blackhole) Export(ctx context.Context, activityID int64) (*activity.Exp
 			Format:   activity.FormatGPX,
 			Name:     "Foo",
 			Filename: "Foo.gpx",
-			Reader:   strings.NewReader("blackhole-foo.gpx"),
+			Reader:   strings.NewReader(Data),
 		},
 	}, nil
 }

@@ -1,4 +1,4 @@
-# gravl - Activity related analysis, exploration, & planning
+# gravl - command line access to activity platforms
 
 
 For most commands the timeout value is reset on each query. For example, if you query 12 activities
@@ -11,7 +11,7 @@ from Strava each query will honor the timeout value, it's not an aggregate timeo
 |```verbosity```|```v```|Log level (trace, debug, info, warn, error, fatal, panic)|
 |```monochrome```|```m```|Use monochrome logging, color enabled by default|
 |```compact```|```c```|Use compact JSON output|
-|```encoding```|```e```|Output encoding (eg: json, xml, geojson, gpx, spew)|
+|```encoding```|```e```|Output encoding (eg: json, xml, geojson, gpx)|
 |```http-tracing```||Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)|
 |```timeout```|```t```|Timeout duration (eg, 1ms, 2s, 5m, 3h)|
 |```help```|```h```|show help|
@@ -244,43 +244,6 @@ Copy activities from a source to a destination
 |```zwift-username```||zwift username|
 |```zwift-password```||zwift password|
 
-**Overview**
-
-```sh
-$ gravl qp -e strava -u ca 4838740537
-2021-02-25T20:53:13-08:00 INF exporter provider=strava
-2021-02-25T20:53:14-08:00 INF uploader provider=ca
-2021-02-25T20:53:14-08:00 INF export activityID=4838740537
-2021-02-25T20:53:14-08:00 INF export activityID=4838740537 format=original
-2021-02-25T20:53:15-08:00 INF upload activityID=4838740537
-2021-02-25T20:53:16-08:00 INF status uploadID=8145126587
-{
- "upload_id": 8145126587,
- "status": "processing",
- "ride_id": 0,
- "user_id": 1603533,
- "format": "fit",
- "datetime": "2021-02-26T04:53:18",
- "filename": "Blakely_Harbor.fit",
- "size": 62824,
- "error": "",
- "error_code": ""
-}
-2021-02-25T20:53:18-08:00 INF status uploadID=8145126587
-{
- "upload_id": 8145126587,
- "status": "error",
- "ride_id": 0,
- "user_id": 1603533,
- "format": "fit",
- "datetime": "2021-02-26T04:53:18",
- "filename": "Blakely_Harbor.fit",
- "size": 62824,
- "error": "The ride already exists: 582750551527",
- "error_code": "duplicate_ride"
-}
-```
-
 
 ## *qp copy*
 
@@ -305,6 +268,8 @@ $ gravl qp copy [flags] --from <exporter> --to <uploader> id [id, ...]
 |```concurrency```||Maximum concurrent API queries|
 |```from```||Source data provider|
 |```to```||Sink data provider|
+|```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
+|```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
 |```poll```||Continually check the status of the request until it is completed|
 |```interval```||The amount of time to wait between polling for an updated status|
 |```iterations```|```N```|The max number of polling iterations to perform|
@@ -342,6 +307,8 @@ $ gravl qp export [flags]
 |```rate-burst```||Maximum burst size for API request events|
 |```concurrency```||Maximum concurrent API queries|
 |```from```||Source data provider|
+|```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
+|```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
 |```cyclinganalytics-client-id```||cyclinganalytics client id|
 |```cyclinganalytics-client-secret```||cyclinganalytics client secret|
 |```cyclinganalytics-access-token```||cyclinganalytics access token|
@@ -352,6 +319,13 @@ $ gravl qp export [flags]
 |```strava-refresh-token```||strava refresh token|
 |```zwift-username```||zwift username|
 |```zwift-password```||zwift password|
+
+**Example**
+
+If neither `-o` or `-O` are specified the contents of the file are written to stdout.
+If `-o` is specified, the file will be written to disk using the name provided by Strava, even if it already exists locally.
+If `-O` is specified, the file will be written to disk using the name provided by the flag. It will not overwrite an existing
+file unless `-o` was also specified.
 
 
 ## *qp list*

@@ -49,10 +49,6 @@ tasks:
     cmds:
       - golangci-lint -v run
 
-  test-all:
-    desc: Run tests
-    deps: [test, test-integration]
-
   dist:
     cmds:
       - mkdir -p {{.DIST}}
@@ -62,12 +58,6 @@ tasks:
     deps: [dist]
     cmds:
       - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt ./...
-
-  test-integration:
-    desc: Run integration tests
-    deps: [build]
-    cmds:
-      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic ./...
 
   cover:
     desc: Visualize test coverage

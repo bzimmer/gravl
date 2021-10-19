@@ -23,6 +23,7 @@ func command(t *testing.T, baseURL string) *cli.Command {
 	c.Before = func(c *cli.Context) error {
 		client, err := api.NewClient(
 			api.WithBaseURL(baseURL),
+			api.WithHTTPTracing(false),
 			api.WithConfig(oauth2.Config{Endpoint: endpoint}),
 			api.WithTokenCredentials("foo", "bar", time.Now().Add(time.Hour*24)))
 		if err != nil {
@@ -49,6 +50,49 @@ func TestAthlete(t *testing.T) {
 			Name:     "athlete",
 			Args:     []string{"gravl", "cyclinganalytics", "athlete"},
 			Counters: map[string]int{"gravl.cyclinganalytics.athlete": 1},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestStreamSets(t *testing.T) {
+	tests := []*internal.Harness{
+		{
+			Name:     "streamsets",
+			Args:     []string{"gravl", "cyclinganalytics", "streamsets"},
+			Counters: map[string]int{"gravl.cyclinganalytics.streamsets": 1},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, nil, command)
+		})
+	}
+}
+
+func TestActivity(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/ride/77282721", func(w http.ResponseWriter, r *http.Request) {
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(api.Ride{
+			LocalDatetime: api.Datetime{Time: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.Local)},
+			UTCDatetime:   api.Datetime{Time: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)},
+		}))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "ride",
+			Args:     []string{"gravl", "cyclinganalytics", "activity", "77282721"},
+			Counters: map[string]int{"gravl.cyclinganalytics.activity": 1},
 		},
 	}
 	for _, tt := range tests {
