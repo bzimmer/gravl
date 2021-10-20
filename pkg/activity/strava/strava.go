@@ -89,6 +89,23 @@ func attributer(c *cli.Context) (func(ctx context.Context, act *strava.Activity)
 	return f, nil
 }
 
+func since(c *cli.Context) (strava.APIOption, error) {
+	var opt strava.APIOption
+	if c.IsSet("since") {
+		before := time.Now()
+		after, err := naturaldate.Parse(c.String("since"), before)
+		if err != nil {
+			return nil, err
+		}
+		log.Info().Time("before", before).Time("after", after).Msg("date range")
+		if after.After(before) {
+			return nil, errors.New("invalid date range")
+		}
+		opt = strava.WithDateRange(before, after)
+	}
+	return opt, nil
+}
+
 func activities(c *cli.Context) error {
 	client := pkg.Runtime(c).Strava
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -103,18 +120,9 @@ func activities(c *cli.Context) error {
 		return err
 	}
 
-	var opt strava.APIOption
-	if c.IsSet("since") {
-		before := time.Now()
-		after, err := naturaldate.Parse(c.String("since"), before)
-		if err != nil {
-			return err
-		}
-		log.Info().Time("before", before).Time("after", after).Msg("date range")
-		if after.After(before) {
-			return errors.New("invalid date range")
-		}
-		opt = strava.WithDateRange(before, after)
+	opt, err := since(c)
+	if err != nil {
+		return err
 	}
 
 	enc := pkg.Runtime(c).Encoder

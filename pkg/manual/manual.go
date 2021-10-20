@@ -10,10 +10,10 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/bzimmer/gravl/pkg"
-	"github.com/bzimmer/gravl/pkg/internal"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/gravl/pkg"
 )
 
 type command struct {
@@ -119,6 +119,30 @@ func lineate(cmds, lineage []*cli.Command) []*command {
 	return commands
 }
 
+// root finds the root of the source tree by recursively ascending until 'go.mod' is located
+func root() (string, error) {
+	path, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	path, err = filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	paths := []string{string(os.PathSeparator)}
+	paths = append(paths, strings.Split(path, string(os.PathSeparator))...)
+	for len(paths) > 0 {
+		x := filepath.Join(paths...)
+		mod := filepath.Join(x, "go.mod")
+		if _, err := os.Stat(mod); os.IsNotExist(err) {
+			paths = paths[:len(paths)-1]
+		} else {
+			return x, nil
+		}
+	}
+	return "", os.ErrNotExist
+}
+
 func Command() *cli.Command {
 	return &cli.Command{
 		Name:    "manual",
@@ -128,11 +152,11 @@ func Command() *cli.Command {
 		Action: func(c *cli.Context) error {
 			var buffer bytes.Buffer
 			commands := lineate(c.App.Commands, nil)
-			root, err := internal.Root()
+			path, err := root()
 			if err != nil {
 				return err
 			}
-			t, err := manualTemplate(root)
+			t, err := manualTemplate(path)
 			if err != nil {
 				return err
 			}

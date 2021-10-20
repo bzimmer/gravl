@@ -24,8 +24,9 @@ func command(t *testing.T, baseURL string) *cli.Command {
 	c.Before = func(c *cli.Context) error {
 		client, err := api.NewClient(
 			api.WithBaseURL(baseURL),
-			api.WithHTTPTracing(false),
+			api.WithHTTPTracing(c.Bool("http-tracing")),
 			api.WithConfig(oauth2.Config{Endpoint: endpoint}),
+			api.WithClientCredentials(c.String("strava-client-id"), "dummy"),
 			api.WithTokenCredentials("foo", "bar", time.Now().Add(time.Hour*24)))
 		if err != nil {
 			t.Error(err)

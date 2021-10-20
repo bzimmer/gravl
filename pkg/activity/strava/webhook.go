@@ -20,6 +20,7 @@ func list(c *cli.Context, f func(sub *strava.WebhookSubscription) error) error {
 		return err
 	}
 	for _, sub := range subs {
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "webhook", c.Command.Name}, 1)
 		if err := f(sub); err != nil {
 			return err
 		}
@@ -72,38 +73,41 @@ func whsubscribe(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "webhook", c.Command.Name}, 1)
 	return pkg.Runtime(c).Encoder.Encode(ack)
 }
 
-var verifyFlag = &cli.StringFlag{
-	Name:  "verify",
-	Value: "",
-	Usage: "String chosen by the application owner for client security"}
-
-var whlistCommand = &cli.Command{
-	Name:   "list",
-	Usage:  "List all active webhook subscriptions",
-	Action: whlist,
+func whlistCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "list",
+		Usage:  "List all active webhook subscriptions",
+		Action: whlist,
+	}
 }
 
-var whunsubscribeCommand = &cli.Command{
-	Name:    "unsubscribe",
-	Aliases: []string{"delete", "remove"},
-	Usage:   "Unsubscribe an active webhook subscription (or all if specified)",
-	Action:  whunsubscribe,
+func whunsubscribeCommand() *cli.Command {
+	return &cli.Command{
+		Name:    "unsubscribe",
+		Aliases: []string{"delete", "remove"},
+		Usage:   "Unsubscribe an active webhook subscription (or all if specified)",
+		Action:  whunsubscribe,
+	}
 }
 
-var whsubscribeCommand = &cli.Command{
-	Name:  "subscribe",
-	Usage: "Subscribe for webhook notications",
-	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "url",
-			Value: "",
-			Usage: "Address where webhook events will be sent (max length 255 characters"},
-		verifyFlag,
-	},
-	Action: whsubscribe,
+func whsubscribeCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "subscribe",
+		Usage: "Subscribe for webhook notifications",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "url",
+				Usage: "Address where webhook events will be sent (max length 255 characters"},
+			&cli.StringFlag{
+				Name:  "verify",
+				Usage: "String chosen by the application owner for client security"},
+		},
+		Action: whsubscribe,
+	}
 }
 
 func webhookCommand() *cli.Command {
@@ -111,9 +115,9 @@ func webhookCommand() *cli.Command {
 		Name:  "webhook",
 		Usage: "Manage webhook subscriptions",
 		Subcommands: []*cli.Command{
-			whlistCommand,
-			whsubscribeCommand,
-			whunsubscribeCommand,
+			whlistCommand(),
+			whsubscribeCommand(),
+			whunsubscribeCommand(),
 		},
 	}
 }
