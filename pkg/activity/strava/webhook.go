@@ -20,10 +20,11 @@ func list(c *cli.Context, f func(sub *strava.WebhookSubscription) error) error {
 		return err
 	}
 	for _, sub := range subs {
-		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "webhook", c.Command.Name}, 1)
 		if err := f(sub); err != nil {
 			return err
 		}
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "webhook", c.Command.Name}, 1)
+		log.Info().Time("created", sub.CreatedAt).Str("url", sub.CallbackURL).Int64("id", sub.ID).Msg("webhook")
 	}
 	return nil
 }
