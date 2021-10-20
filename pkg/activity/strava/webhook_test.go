@@ -71,14 +71,14 @@ func TestWebhookUnsubscribe(t *testing.T) {
 	tests := []*internal.Harness{
 		{
 			Name: "unsubscribe with no args",
-			Args: []string{"gravl", "--http-tracing", "strava", "webhook", "unsubscribe"},
+			Args: []string{"gravl", "strava", "webhook", "unsubscribe"},
 			Counters: map[string]int{
 				"gravl.strava.unsubscribe": 2,
 			},
 		},
 		{
 			Name: "unsubscribe one",
-			Args: []string{"gravl", "--http-tracing", "strava", "webhook", "unsubscribe", "334455"},
+			Args: []string{"gravl", "strava", "webhook", "unsubscribe", "334455"},
 			Counters: map[string]int{
 				"gravl.strava.unsubscribe": 1,
 			},
@@ -109,7 +109,7 @@ func TestWebhookSubscribe(t *testing.T) {
 	tests := []*internal.Harness{
 		{
 			Name: "subscribe",
-			Args: []string{"gravl", "--http-tracing", "strava", "webhook", "subscribe", "--url", "https://example.com"},
+			Args: []string{"gravl", "strava", "webhook", "subscribe", "--url", "https://example.com"},
 			Counters: map[string]int{
 				"gravl.strava.webhook.subscribe": 1,
 			},

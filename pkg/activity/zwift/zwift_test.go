@@ -113,7 +113,7 @@ func TestActivities(t *testing.T) {
 	tests := []*internal.Harness{
 		{
 			Name: "two activities",
-			Args: []string{"gravl", "--http-tracing", "zwift", "activities", "-N", "2"},
+			Args: []string{"gravl", "zwift", "activities", "-N", "2"},
 			Counters: map[string]int{
 				"gravl.zwift.activity":   2,
 				"gravl.zwift.activities": 1,
