@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 )
 
 type Harness struct {
@@ -61,6 +62,7 @@ func before(c *cli.Context) error {
 			Evaluator: antonmedv.Evaluator,
 			Exporters: make(map[string]pkg.ExporterFunc),
 			Uploaders: make(map[string]pkg.UploaderFunc),
+			Endpoints: make(map[string]oauth2.Endpoint),
 		},
 	}
 	return nil

@@ -140,6 +140,7 @@ func Before(c *cli.Context) error {
 		if err != nil {
 			return
 		}
+		pkg.Runtime(c).Endpoints[Provider] = cyclinganalytics.Endpoint()
 		pkg.Runtime(c).CyclingAnalytics = client
 		log.Info().Msg("created cyclinganalytics client")
 	})

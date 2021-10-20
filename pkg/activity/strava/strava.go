@@ -427,6 +427,7 @@ func Before(c *cli.Context) error {
 		if err != nil {
 			return
 		}
+		pkg.Runtime(c).Endpoints[Provider] = strava.Endpoint()
 		pkg.Runtime(c).Strava = client
 		log.Info().Msg("created strava client")
 	})

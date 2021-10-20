@@ -12,6 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 
 	"github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl/pkg"
@@ -84,6 +85,7 @@ func initRuntime(c *cli.Context) error {
 		Fs:        afero.NewOsFs(),
 		Uploaders: make(map[string]pkg.UploaderFunc),
 		Exporters: make(map[string]pkg.ExporterFunc),
+		Endpoints: make(map[string]oauth2.Endpoint),
 	}
 	return nil
 }
@@ -187,10 +189,6 @@ func run() error {
 	ctx, cancel := context.WithCancel(ctx)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
-	defer func() {
-		signal.Stop(c)
-		cancel()
-	}()
 	go func() {
 		select {
 		case <-c:
@@ -198,8 +196,15 @@ func run() error {
 			cancel()
 		case <-ctx.Done():
 		}
-		<-c
-		os.Exit(2)
+		iterations := 1
+		log.Info().Dur("seconds", time.Duration(iterations)*time.Millisecond).Msg("time remaining")
+		for range time.Tick(time.Duration(iterations) * time.Second) {
+			iterations--
+			if iterations <= 0 {
+				os.Exit(2)
+			}
+			log.Info().Dur("seconds", time.Duration(iterations)*time.Millisecond).Msg("time remaining")
+		}
 	}()
 	return app.RunContext(ctx, os.Args)
 }

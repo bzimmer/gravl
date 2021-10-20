@@ -7,7 +7,6 @@ require (
 	github.com/armon/go-metrics v0.3.9
 	github.com/bzimmer/activity v0.4.0
 	github.com/fatih/color v1.13.0
-	github.com/go-cmd/cmd v1.3.1
 	github.com/martinlindhe/unit v0.0.0-20210313160520-19b60e03648d
 	github.com/rs/zerolog v1.25.0
 	github.com/spf13/afero v1.6.0

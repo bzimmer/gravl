@@ -2,6 +2,8 @@
 
 version: '3'
 
+dotenv: ["clean.env"]
+
 vars:
   CWD:
     sh: git rev-parse --show-toplevel

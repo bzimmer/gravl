@@ -282,10 +282,13 @@ func TestBefore(t *testing.T) {
 		Name:   "TestBefore",
 		Before: strava.Before,
 		Metadata: map[string]interface{}{
-			pkg.RuntimeKey: &pkg.Rt{},
+			pkg.RuntimeKey: &pkg.Rt{
+				Endpoints: make(map[string]oauth2.Endpoint),
+			},
 		},
 		Action: func(c *cli.Context) error {
 			a.NotNil(pkg.Runtime(c).Strava)
+			a.NotNil(pkg.Runtime(c).Endpoints[strava.Provider])
 			return nil
 		},
 	}

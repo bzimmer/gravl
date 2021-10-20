@@ -1,6 +1,7 @@
 package cyclinganalytics_test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
@@ -101,4 +102,23 @@ func TestActivity(t *testing.T) {
 			internal.Run(t, tt, mux, command)
 		})
 	}
+}
+
+func TestBefore(t *testing.T) {
+	a := assert.New(t)
+	app := &cli.App{
+		Name:   "TestBefore",
+		Before: cyclinganalytics.Before,
+		Metadata: map[string]interface{}{
+			pkg.RuntimeKey: &pkg.Rt{
+				Endpoints: make(map[string]oauth2.Endpoint),
+			},
+		},
+		Action: func(c *cli.Context) error {
+			a.NotNil(pkg.Runtime(c).CyclingAnalytics)
+			a.NotNil(pkg.Runtime(c).Endpoints[cyclinganalytics.Provider])
+			return nil
+		},
+	}
+	a.NoError(app.RunContext(context.Background(), []string{"test"}))
 }

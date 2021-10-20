@@ -10,16 +10,17 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
+	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
+
 	"github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/cyclinganalytics"
 	"github.com/bzimmer/activity/rwgps"
 	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/activity/zwift"
 	"github.com/bzimmer/gravl/pkg/eval"
-	"github.com/rs/zerolog/log"
-
-	"github.com/spf13/afero"
-	"github.com/urfave/cli/v2"
 )
 
 const RuntimeKey = "github.com/bzimmer/gravl#RuntimeKey"
@@ -45,6 +46,9 @@ type Rt struct {
 	Strava           *strava.Client
 	RideWithGPS      *rwgps.Client
 	CyclingAnalytics *cyclinganalytics.Client
+
+	// Endpoints
+	Endpoints map[string]oauth2.Endpoint
 
 	// Export / Upload
 	Exporters map[string]ExporterFunc

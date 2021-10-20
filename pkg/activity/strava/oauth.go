@@ -8,7 +8,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
 
-	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/web"
 )
@@ -25,11 +24,12 @@ func newRouter(c *cli.Context) (*http.ServeMux, error) {
 	})
 	address := fmt.Sprintf("%s:%d", c.String("origin"), c.Int("port"))
 	config := &oauth2.Config{
-		ClientID:     c.String("strava.client-id"),
-		ClientSecret: c.String("strava.client-secret"),
+		ClientID:     c.String("strava-client-id"),
+		ClientSecret: c.String("strava-client-secret"),
 		Scopes:       []string{"read_all,profile:read_all,activity:read_all,activity:write"},
 		RedirectURL:  fmt.Sprintf("%s/strava/auth/callback", address),
-		Endpoint:     strava.Endpoint()}
+		Endpoint:     pkg.Runtime(c).Endpoints[Provider]}
+	log.Info().Str("redirect", config.RedirectURL).Msg(c.Command.Name)
 	handle := web.NewLogHandler(&log.Logger)
 	mux.Handle("/strava/auth/login", handle(web.AuthHandler(config, state)))
 	mux.Handle("/strava/auth/callback", handle(web.AuthCallbackHandler(config, state)))
@@ -57,9 +57,9 @@ func oauthCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			address := fmt.Sprintf("0.0.0.0:%d", c.Int("port"))
+			address := fmt.Sprintf("%s:%d", c.String("origin"), c.Int("port"))
 			log.Info().Str("address", address).Msg("serving")
-			return http.ListenAndServe(address, mux)
+			return http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", c.Int("port")), mux)
 		},
 	}
 }
