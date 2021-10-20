@@ -10,7 +10,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/oauth2"
 	"golang.org/x/time/rate"
 
 	api "github.com/bzimmer/activity"
@@ -251,27 +250,12 @@ func AuthFlags() []cli.Flag {
 }
 
 // Before configures the zwift client
-// Use this function carefully as it immediately makes an authentication request
 func Before(c *cli.Context) error {
 	var err error
-	ctx := c.Context
 	before.Do(func() {
-		var cancel func()
-		var token *oauth2.Token
 		var client *zwift.Client
-		client, err = zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
-		if err != nil {
-			return
-		}
-		ctx, cancel = context.WithTimeout(ctx, c.Duration("timeout"))
-		defer cancel()
-		username, password := c.String("zwift-username"), c.String("zwift-password")
-		token, err = client.Auth.Refresh(ctx, username, password)
-		if err != nil {
-			return
-		}
 		client, err = zwift.NewClient(
-			zwift.WithToken(token),
+			zwift.WithTokenRefresh(c.String("zwift-username"), c.String("zwift-password")),
 			zwift.WithHTTPTracing(c.Bool("http-tracing")),
 			zwift.WithRateLimiter(rate.NewLimiter(
 				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))

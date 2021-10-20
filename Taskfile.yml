@@ -33,7 +33,7 @@ tasks:
     desc: Build all cmds
     deps: [dist]
     cmds:
-      - go build {{.LDFLAGS}} -o {{.DIST}}/gravl cmd/gravl/*.go
+      - go build {{.CLI_ARGS}} {{.LDFLAGS}} -o {{.DIST}}/gravl cmd/gravl/*.go
 
   install:
     desc: Install {{.APP}}
