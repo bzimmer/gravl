@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/antonmedv/expr v1.9.0
 	github.com/armon/go-metrics v0.3.9
-	github.com/bzimmer/activity v0.3.3
+	github.com/bzimmer/activity v0.4.0
 	github.com/fatih/color v1.13.0
 	github.com/go-cmd/cmd v1.3.1
 	github.com/martinlindhe/unit v0.0.0-20210313160520-19b60e03648d
@@ -33,7 +33,7 @@ require (
 	github.com/twpayne/go-geom v1.4.1 // indirect
 	github.com/twpayne/go-gpx v1.2.1 // indirect
 	github.com/twpayne/go-polyline v1.0.1 // indirect
-	golang.org/x/net v0.0.0-20211019232329-c6ed85c7a12d // indirect
+	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
 	golang.org/x/sys v0.0.0-20211015200801-69063c4bb744 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
