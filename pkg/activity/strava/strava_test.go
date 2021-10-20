@@ -70,6 +70,11 @@ func TestActivity(t *testing.T) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(act))
 	})
+	mux.HandleFunc("/activities/12345/streams/", func(w http.ResponseWriter, r *http.Request) {
+		sms := &api.Streams{}
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(sms))
+	})
 
 	tests := []*internal.Harness{
 		{
@@ -81,6 +86,14 @@ func TestActivity(t *testing.T) {
 			Name: "invalid syntax",
 			Args: []string{"gravl", "strava", "activity", "12345", "54321", "abcdef"},
 			Err:  "invalid syntax",
+		},
+		{
+			Name: "no arguments",
+			Args: []string{"gravl", "strava", "activity"},
+		},
+		{
+			Name: "activity streams",
+			Args: []string{"gravl", "strava", "activity", "-s", "latlng", "12345"},
 		},
 	}
 	for _, tt := range tests {
@@ -118,8 +131,13 @@ func TestActivities(t *testing.T) {
 			Counters: map[string]int{"gravl.strava.activity": 3},
 		},
 		{
+			Name: "activities since invalid",
+			Args: []string{"gravl", "strava", "activities", "-N", "3", "--since", "72h"},
+			Err:  "invalid date range",
+		},
+		{
 			Name:     "activities since",
-			Args:     []string{"gravl", "strava", "activities", "-N", "3", "--since", "72h"},
+			Args:     []string{"gravl", "strava", "activities", "-N", "3", "--since", "2 weeks ago"},
 			Counters: map[string]int{"gravl.strava.activity": 3},
 		},
 	}

@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/martinlindhe/unit"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
@@ -93,7 +92,6 @@ func activities(c *cli.Context) error {
 			Time("date", act.StartDate.Time).
 			Int64("id", act.ID).
 			Str("name", act.Name).
-			Float64("miles", unit.Length(act.DistanceInMeters).Miles()).
 			Msg(c.Command.Name)
 		if err := pkg.Runtime(c).Encoder.Encode(act); err != nil {
 			return err

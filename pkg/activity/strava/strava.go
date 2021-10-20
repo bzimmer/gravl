@@ -2,10 +2,12 @@ package strava
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"time"
 
 	"github.com/rs/zerolog/log"
+	"github.com/tj/go-naturaldate"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/time/rate"
@@ -104,8 +106,15 @@ func activities(c *cli.Context) error {
 	var opt strava.APIOption
 	if c.IsSet("since") {
 		before := time.Now()
-		after := c.Duration("since")
-		opt = strava.WithDateRange(before, before.Add(-after))
+		after, err := naturaldate.Parse(c.String("since"), before)
+		if err != nil {
+			return err
+		}
+		log.Info().Time("before", before).Time("after", after).Msg("date range")
+		if after.After(before) {
+			return errors.New("invalid date range")
+		}
+		opt = strava.WithDateRange(before, after)
 	}
 
 	enc := pkg.Runtime(c).Encoder
@@ -168,9 +177,9 @@ func activitiesCommand() *cli.Command {
 				Aliases: []string{"B"},
 				Usage:   "Evaluate the expression on an activity and return only those results",
 			},
-			&cli.DurationFlag{
+			&cli.StringFlag{
 				Name:  "since",
-				Usage: "Return results since the duration specified",
+				Usage: "Return results since the time specified",
 			},
 		},
 		Action: activities,
