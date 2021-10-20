@@ -14,7 +14,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/activity"
 )
 
-const provider = "cyclinganalytics"
+const Provider = "cyclinganalytics"
 
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).CyclingAnalytics
@@ -24,7 +24,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	pkg.Runtime(c).Metrics.IncrCounter([]string{provider, c.Command.Name}, 1)
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	return pkg.Runtime(c).Encoder.Encode(athlete)
 }
 
@@ -89,6 +89,7 @@ func ride(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		if err := enc.Encode(ride); err != nil {
 			return err
 		}
@@ -105,12 +106,13 @@ func rideCommand() *cli.Command {
 	}
 }
 
-func streamsetsCommand() *cli.Command {
+func streamSetsCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "streamsets",
 		Usage: "Return the set of available streams for query",
 		Action: func(c *cli.Context) error {
 			client := pkg.Runtime(c).CyclingAnalytics
+			pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 			if err := pkg.Runtime(c).Encoder.Encode(client.Rides.StreamSets()); err != nil {
 				return err
 			}
@@ -141,17 +143,14 @@ func Command() *cli.Command {
 		Category:    "activity",
 		Usage:       "Query CyclingAnalytics",
 		Description: "Operations supported by the CyclingAnalytics API",
-		Flags:       append(AuthFlags(), activity.RateLimitFlags...),
+		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,
 		Subcommands: []*cli.Command{
 			activitiesCommand(),
 			athleteCommand(),
 			oauthCommand(),
 			rideCommand(),
-			streamsetsCommand(),
-			activity.UploadCommand(func(c *cli.Context) (api.Uploader, error) {
-				return pkg.Runtime(c).CyclingAnalytics.Uploader(), nil
-			}),
+			streamSetsCommand(),
 		},
 	}
 }

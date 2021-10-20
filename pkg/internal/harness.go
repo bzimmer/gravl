@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -22,10 +23,11 @@ import (
 )
 
 type Harness struct {
-	Name, Err     string
-	Args          []string
-	Counters      map[string]int
-	Before, After func(c *cli.Context) error
+	Name, Err string
+	Args      []string
+	Counters  map[string]int
+	Before    cli.BeforeFunc
+	After     cli.AfterFunc
 }
 
 func runtime(app *cli.App) *pkg.Rt {
@@ -55,9 +57,10 @@ func before(c *cli.Context) error {
 			Sink:      sink,
 			Encoder:   enc,
 			Fs:        afero.NewMemMapFs(),
-			Mapper:    antonmedv.Mapper,
 			Filterer:  antonmedv.Filterer,
 			Evaluator: antonmedv.Evaluator,
+			Exporters: make(map[string]pkg.ExporterFunc),
+			Uploaders: make(map[string]pkg.UploaderFunc),
 		},
 	}
 	return nil
@@ -100,9 +103,11 @@ func Run(t *testing.T, tt *Harness, mux *http.ServeMux, cmd func(*testing.T, str
 	defer svr.Close()
 
 	app := NewTestApp(t, tt.Name, cmd(t, svr.URL))
-
 	if tt.Before != nil {
 		app.Before = pkg.Befores(app.Before, tt.Before)
+	}
+	if tt.After != nil {
+		app.After = pkg.Afters(app.After, tt.After)
 	}
 
 	err := app.RunContext(context.Background(), tt.Args)
@@ -119,10 +124,6 @@ func Run(t *testing.T, tt *Harness, mux *http.ServeMux, cmd func(*testing.T, str
 		a.NoError(err)
 		a.Equalf(value, counter.Count, key)
 	}
-
-	if tt.After != nil {
-		app.After = pkg.Afters(app.After, tt.After)
-	}
 }
 
 func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
@@ -132,10 +133,14 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
 		Before:   before,
 		After: func(c *cli.Context) error {
 			t.Log(name)
-			switch v := runtime(c.App).Fs.(type) {
-			case *afero.MemMapFs:
-				v.List()
-			default:
+			if err := afero.Walk(runtime(c.App).Fs, "/", func(path string, info fs.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				fmt.Fprintf(c.App.ErrWriter, "%s\n", path)
+				return nil
+			}); err != nil {
+				return err
 			}
 			return pkg.Stats(c)
 		},
@@ -144,13 +149,11 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
 				Name:    "encoding",
 				Aliases: []string{"e"},
 				Value:   "",
-				Usage:   "Output encoding (eg: json, xml, geojson, gpx, spew)",
 			},
 			&cli.DurationFlag{
 				Name:    "timeout",
 				Aliases: []string{"t"},
 				Value:   time.Second * 10,
-				Usage:   "Timeout duration (eg, 1ms, 2s, 5m, 3h)",
 			}},
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {

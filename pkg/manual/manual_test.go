@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/internal"
 	"github.com/bzimmer/gravl/pkg/manual"
 	"github.com/stretchr/testify/assert"
@@ -19,20 +20,6 @@ func TestManual(t *testing.T) {
 		{
 			Name: "manual",
 			Args: []string{"gravl", "manual"},
-			Before: func(c *cli.Context) error {
-				c.App.Writer = &bytes.Buffer{}
-				return nil
-			},
-			After: func(c *cli.Context) error {
-				s := c.App.Writer.(*bytes.Buffer).String()
-				a.Greater(len(s), 0)
-				a.Contains(s, "manual")
-				return nil
-			},
-		},
-		{
-			Name: "manual",
-			Args: []string{"gravl", "man"},
 			Before: func(c *cli.Context) error {
 				c.App.Writer = &bytes.Buffer{}
 				return nil
@@ -79,12 +66,13 @@ func TestCommands(t *testing.T) {
 			Name: "commands",
 			Args: []string{"gravl", "-e", "json", "commands"},
 			Before: func(c *cli.Context) error {
-				c.App.Writer = &bytes.Buffer{}
+				c.App.Writer = bytes.NewBufferString("")
+				pkg.Runtime(c).Encoder = pkg.JSON(c.App.Writer, false)
 				return nil
 			},
 			After: func(c *cli.Context) error {
-				s := c.App.Writer.(*bytes.Buffer).String()
 				var m []string
+				s := c.App.Writer.(*bytes.Buffer).String()
 				a.NoError(json.Unmarshal([]byte(s), &m))
 				a.Greater(len(m), 0)
 				a.Contains(m, "commands commands")
@@ -95,7 +83,8 @@ func TestCommands(t *testing.T) {
 			Name: "commands relative",
 			Args: []string{"gravl", "-e", "json", "commands", "--relative"},
 			Before: func(c *cli.Context) error {
-				c.App.Writer = &bytes.Buffer{}
+				c.App.Writer = bytes.NewBufferString("")
+				pkg.Runtime(c).Encoder = pkg.JSON(c.App.Writer, false)
 				return nil
 			},
 			After: func(c *cli.Context) error {

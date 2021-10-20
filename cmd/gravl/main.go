@@ -29,8 +29,6 @@ func initRuntime() cli.BeforeFunc {
 		var enc pkg.Encoder
 		compact := c.Bool("compact")
 		switch c.String("encoding") {
-		case "spew":
-			enc = pkg.Spew(c.App.Writer)
 		case "geojson":
 			enc = pkg.GeoJSON(c.App.Writer, compact)
 		case "xml":
@@ -55,12 +53,13 @@ func initRuntime() cli.BeforeFunc {
 		c.App.Metadata[pkg.RuntimeKey] = &pkg.Rt{
 			Start:     time.Now(),
 			Encoder:   enc,
-			Mapper:    antonmedv.Mapper,
 			Filterer:  antonmedv.Filterer,
 			Evaluator: antonmedv.Evaluator,
 			Sink:      sink,
 			Metrics:   metric,
 			Fs:        afero.NewOsFs(),
+			Uploaders: make(map[string]pkg.UploaderFunc),
+			Exporters: make(map[string]pkg.ExporterFunc),
 		}
 		return nil
 	}
@@ -112,7 +111,7 @@ func flags() []cli.Flag {
 			Name:    "encoding",
 			Aliases: []string{"e"},
 			Value:   "",
-			Usage:   "Output encoding (eg: json, xml, geojson, gpx, spew)",
+			Usage:   "Output encoding (eg: json, xml, geojson, gpx)",
 		},
 		&cli.BoolFlag{
 			Name:  "http-tracing",
@@ -145,8 +144,8 @@ func run() error {
 	app := &cli.App{
 		Name:        "gravl",
 		HelpName:    "gravl",
-		Usage:       "CLI for activity related analysis, exploration, & planning",
-		Description: "Activity related analysis, exploration, & planning",
+		Usage:       "command line access to activity platforms",
+		Description: "command line access to activity platforms",
 		Flags:       flags(),
 		Commands:    commands(),
 		After: func(c *cli.Context) error {
