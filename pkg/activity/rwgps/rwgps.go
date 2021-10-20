@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
@@ -17,6 +19,8 @@ import (
 
 const Provider = "rwgps"
 
+var before sync.Once
+
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).RideWithGPS
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -25,6 +29,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	log.Info().Int64("id", int64(user.ID)).Str("username", user.Name).Msg(c.Command.Name)
 	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	err = pkg.Runtime(c).Encoder.Encode(user)
 	if err != nil {
@@ -155,17 +160,22 @@ func routeCommand() *cli.Command {
 }
 
 func Before(c *cli.Context) error {
-	client, err := rwgps.NewClient(
-		rwgps.WithClientCredentials(c.String("rwgps-client-id"), ""),
-		rwgps.WithTokenCredentials(c.String("rwgps-access-token"), "", time.Time{}),
-		rwgps.WithHTTPTracing(c.Bool("http-tracing")),
-		rwgps.WithRateLimiter(rate.NewLimiter(
-			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-	if err != nil {
-		return err
-	}
-	pkg.Runtime(c).RideWithGPS = client
-	return nil
+	var err error
+	before.Do(func() {
+		var client *rwgps.Client
+		client, err = rwgps.NewClient(
+			rwgps.WithClientCredentials(c.String("rwgps-client-id"), ""),
+			rwgps.WithTokenCredentials(c.String("rwgps-access-token"), "", time.Time{}),
+			rwgps.WithHTTPTracing(c.Bool("http-tracing")),
+			rwgps.WithRateLimiter(rate.NewLimiter(
+				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+		if err != nil {
+			return
+		}
+		pkg.Runtime(c).RideWithGPS = client
+		log.Info().Msg("created rwgps client")
+	})
+	return err
 }
 
 func Command() *cli.Command {

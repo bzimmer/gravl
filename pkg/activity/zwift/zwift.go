@@ -5,10 +5,12 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 	"golang.org/x/time/rate"
 
 	api "github.com/bzimmer/activity"
@@ -21,6 +23,8 @@ const (
 	tooSmall = 1024
 	Provider = "zwift"
 )
+
+var before sync.Once
 
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).Zwift
@@ -36,6 +40,7 @@ func athlete(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
+		log.Info().Int64("id", profile.ID).Str("username", profile.PublicID).Msg(c.Command.Name)
 		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		if err := enc.Encode(profile); err != nil {
 			return err
@@ -246,27 +251,35 @@ func AuthFlags() []cli.Flag {
 // Before configures the zwift client
 // Use this function carefully as it immediately makes an authentication request
 func Before(c *cli.Context) error {
-	client, err := zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
-	if err != nil {
-		return err
-	}
-	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-	defer cancel()
-	username, password := c.String("zwift-username"), c.String("zwift-password")
-	token, err := client.Auth.Refresh(ctx, username, password)
-	if err != nil {
-		return err
-	}
-	client, err = zwift.NewClient(
-		zwift.WithHTTPTracing(c.Bool("http-tracing")),
-		zwift.WithToken(token),
-		zwift.WithRateLimiter(rate.NewLimiter(
-			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-	if err != nil {
-		return err
-	}
-	pkg.Runtime(c).Zwift = client
-	return nil
+	var err error
+	ctx := c.Context
+	before.Do(func() {
+		var cancel func()
+		var token *oauth2.Token
+		var client *zwift.Client
+		client, err = zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
+		if err != nil {
+			return
+		}
+		ctx, cancel = context.WithTimeout(ctx, c.Duration("timeout"))
+		defer cancel()
+		username, password := c.String("zwift-username"), c.String("zwift-password")
+		token, err = client.Auth.Refresh(ctx, username, password)
+		if err != nil {
+			return
+		}
+		client, err = zwift.NewClient(
+			zwift.WithHTTPTracing(c.Bool("http-tracing")),
+			zwift.WithToken(token),
+			zwift.WithRateLimiter(rate.NewLimiter(
+				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+		if err != nil {
+			return
+		}
+		pkg.Runtime(c).Zwift = client
+		log.Info().Msg("created zwift client")
+	})
+	return err
 }
 
 func Command() *cli.Command {

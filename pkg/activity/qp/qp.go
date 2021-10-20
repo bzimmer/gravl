@@ -69,14 +69,17 @@ func (x *xfer) upload(ctx context.Context, export *api.File) (api.Upload, error)
 func (x *xfer) poll(ctx context.Context, uploadID api.UploadID) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	i := 0
 	for res := range x.poller.Poll(ctx, uploadID) {
 		if res.Err != nil {
 			return res.Err
 		}
 		x.metrics.IncrCounter([]string{"upload", "poll"}, 1)
+		log.Info().Int("iteration", i).Int64("id", int64(res.Upload.Identifier())).Msg("poll")
 		if err := x.encoder.Encode(res.Upload); err != nil {
 			return err
 		}
+		i++
 	}
 	return nil
 }
