@@ -111,10 +111,9 @@ func routesCommand() *cli.Command {
 	}
 }
 
-func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (interface{}, error)) error {
-	enc := pkg.Runtime(c).Encoder
-	client := pkg.Runtime(c).RideWithGPS
+func entity(c *cli.Context, f func(context.Context, int64) (interface{}, error)) error {
 	args := c.Args()
+	enc := pkg.Runtime(c).Encoder
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -122,10 +121,11 @@ func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (inter
 		if err != nil {
 			return err
 		}
-		v, err := f(ctx, client, x)
+		v, err := f(ctx, x)
 		if err != nil {
 			return err
 		}
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		if err := enc.Encode(v); err != nil {
 			return err
 		}
@@ -133,27 +133,39 @@ func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (inter
 	return nil
 }
 
-func activityCommand() *cli.Command {
+func activityCommand() *cli.Command { //nolint
 	return &cli.Command{
 		Name:    "activity",
 		Aliases: []string{"a"},
 		Usage:   "Query an activity from RideWithGPS",
 		Action: func(c *cli.Context) error {
-			return entity(c, func(ctx context.Context, client *rwgps.Client, id int64) (interface{}, error) {
-				return client.Trips.Trip(ctx, id)
+			client := pkg.Runtime(c).RideWithGPS
+			return entity(c, func(ctx context.Context, id int64) (interface{}, error) {
+				trip, err := client.Trips.Trip(ctx, id)
+				if err != nil {
+					return nil, err
+				}
+				log.Info().Int64("id", trip.ID).Str("name", trip.Name).Msg(c.Command.Name)
+				return trip, nil
 			})
 		},
 	}
 }
 
-func routeCommand() *cli.Command {
+func routeCommand() *cli.Command { //nolint
 	return &cli.Command{
 		Name:    "route",
 		Aliases: []string{"r"},
 		Usage:   "Query a route from RideWithGPS",
 		Action: func(c *cli.Context) error {
-			return entity(c, func(ctx context.Context, client *rwgps.Client, id int64) (interface{}, error) {
-				return client.Trips.Route(ctx, id)
+			client := pkg.Runtime(c).RideWithGPS
+			return entity(c, func(ctx context.Context, id int64) (interface{}, error) {
+				route, err := client.Trips.Route(ctx, id)
+				if err != nil {
+					return nil, err
+				}
+				log.Info().Int64("id", route.ID).Str("name", route.Name).Msg(c.Command.Name)
+				return route, nil
 			})
 		},
 	}

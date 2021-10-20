@@ -91,6 +91,7 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	for _, act := range acts {
 		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
 		log.Info().
@@ -122,7 +123,7 @@ func activitiesCommand() *cli.Command {
 	}
 }
 
-func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activity) error) error {
+func entity(c *cli.Context, f func(context.Context, *zwift.Activity) error) error {
 	if c.NArg() == 0 {
 		log.Warn().Msg("no args specified; exiting")
 		return nil
@@ -140,11 +141,12 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activi
 			return err
 		}
 		log.Info().Int64("id", x).Str("entity", c.Command.Name).Msg("querying")
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		act, err := client.Activity.Activity(ctx, profile.ID, x)
 		if err != nil {
 			return err
 		}
-		if err := f(ctx, client, act); err != nil {
+		if err := f(ctx, act); err != nil {
 			return err
 		}
 	}
@@ -158,7 +160,7 @@ func activityCommand() *cli.Command {
 		Usage:     "Query an activity from Zwift",
 		ArgsUsage: "ACTIVITY_ID (...)",
 		Action: func(c *cli.Context) error {
-			return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
+			return entity(c, func(_ context.Context, act *zwift.Activity) error {
 				return pkg.Runtime(c).Encoder.Encode(act)
 			})
 		},
@@ -269,8 +271,8 @@ func Before(c *cli.Context) error {
 			return
 		}
 		client, err = zwift.NewClient(
-			zwift.WithHTTPTracing(c.Bool("http-tracing")),
 			zwift.WithToken(token),
+			zwift.WithHTTPTracing(c.Bool("http-tracing")),
 			zwift.WithRateLimiter(rate.NewLimiter(
 				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
 		if err != nil {
