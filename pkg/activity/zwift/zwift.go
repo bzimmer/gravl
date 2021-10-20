@@ -5,10 +5,12 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 	"golang.org/x/time/rate"
 
 	api "github.com/bzimmer/activity"
@@ -21,6 +23,8 @@ const (
 	tooSmall = 1024
 	Provider = "zwift"
 )
+
+var before sync.Once
 
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).Zwift
@@ -36,6 +40,7 @@ func athlete(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
+		log.Info().Int64("id", profile.ID).Str("username", profile.PublicID).Msg(c.Command.Name)
 		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		if err := enc.Encode(profile); err != nil {
 			return err
@@ -86,6 +91,7 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	for _, act := range acts {
 		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
 		log.Info().
@@ -117,7 +123,7 @@ func activitiesCommand() *cli.Command {
 	}
 }
 
-func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activity) error) error {
+func entity(c *cli.Context, f func(context.Context, *zwift.Activity) error) error {
 	if c.NArg() == 0 {
 		log.Warn().Msg("no args specified; exiting")
 		return nil
@@ -135,11 +141,12 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Client, *zwift.Activi
 			return err
 		}
 		log.Info().Int64("id", x).Str("entity", c.Command.Name).Msg("querying")
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		act, err := client.Activity.Activity(ctx, profile.ID, x)
 		if err != nil {
 			return err
 		}
-		if err := f(ctx, client, act); err != nil {
+		if err := f(ctx, act); err != nil {
 			return err
 		}
 	}
@@ -153,7 +160,7 @@ func activityCommand() *cli.Command {
 		Usage:     "Query an activity from Zwift",
 		ArgsUsage: "ACTIVITY_ID (...)",
 		Action: func(c *cli.Context) error {
-			return entity(c, func(_ context.Context, _ *zwift.Client, act *zwift.Activity) error {
+			return entity(c, func(_ context.Context, act *zwift.Activity) error {
 				return pkg.Runtime(c).Encoder.Encode(act)
 			})
 		},
@@ -246,27 +253,35 @@ func AuthFlags() []cli.Flag {
 // Before configures the zwift client
 // Use this function carefully as it immediately makes an authentication request
 func Before(c *cli.Context) error {
-	client, err := zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
-	if err != nil {
-		return err
-	}
-	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-	defer cancel()
-	username, password := c.String("zwift-username"), c.String("zwift-password")
-	token, err := client.Auth.Refresh(ctx, username, password)
-	if err != nil {
-		return err
-	}
-	client, err = zwift.NewClient(
-		zwift.WithHTTPTracing(c.Bool("http-tracing")),
-		zwift.WithToken(token),
-		zwift.WithRateLimiter(rate.NewLimiter(
-			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-	if err != nil {
-		return err
-	}
-	pkg.Runtime(c).Zwift = client
-	return nil
+	var err error
+	ctx := c.Context
+	before.Do(func() {
+		var cancel func()
+		var token *oauth2.Token
+		var client *zwift.Client
+		client, err = zwift.NewClient(zwift.WithHTTPTracing(c.Bool("http-tracing")))
+		if err != nil {
+			return
+		}
+		ctx, cancel = context.WithTimeout(ctx, c.Duration("timeout"))
+		defer cancel()
+		username, password := c.String("zwift-username"), c.String("zwift-password")
+		token, err = client.Auth.Refresh(ctx, username, password)
+		if err != nil {
+			return
+		}
+		client, err = zwift.NewClient(
+			zwift.WithToken(token),
+			zwift.WithHTTPTracing(c.Bool("http-tracing")),
+			zwift.WithRateLimiter(rate.NewLimiter(
+				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+		if err != nil {
+			return
+		}
+		pkg.Runtime(c).Zwift = client
+		log.Info().Msg("created zwift client")
+	})
+	return err
 }
 
 func Command() *cli.Command {

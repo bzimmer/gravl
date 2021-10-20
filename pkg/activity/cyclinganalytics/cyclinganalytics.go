@@ -3,8 +3,10 @@ package cyclinganalytics
 import (
 	"context"
 	"strconv"
+	"sync"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
@@ -16,6 +18,8 @@ import (
 
 const Provider = "cyclinganalytics"
 
+var before sync.Once
+
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).CyclingAnalytics
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -24,6 +28,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	log.Info().Int64("id", int64(athlete.ID)).Str("username", athlete.Email).Msg(c.Command.Name)
 	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	return pkg.Runtime(c).Encoder.Encode(athlete)
 }
@@ -122,18 +127,23 @@ func streamSetsCommand() *cli.Command {
 }
 
 func Before(c *cli.Context) error {
-	client, err := cyclinganalytics.NewClient(
-		cyclinganalytics.WithTokenCredentials(
-			c.String("cyclinganalytics-access-token"), c.String("cyclinganalytics-refresh-token"), time.Time{}),
-		cyclinganalytics.WithAutoRefresh(c.Context),
-		cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
-		cyclinganalytics.WithRateLimiter(rate.NewLimiter(
-			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-	if err != nil {
-		return err
-	}
-	pkg.Runtime(c).CyclingAnalytics = client
-	return nil
+	var err error
+	before.Do(func() {
+		var client *cyclinganalytics.Client
+		client, err = cyclinganalytics.NewClient(
+			cyclinganalytics.WithTokenCredentials(
+				c.String("cyclinganalytics-access-token"), c.String("cyclinganalytics-refresh-token"), time.Time{}),
+			cyclinganalytics.WithAutoRefresh(c.Context),
+			cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
+			cyclinganalytics.WithRateLimiter(rate.NewLimiter(
+				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+		if err != nil {
+			return
+		}
+		pkg.Runtime(c).CyclingAnalytics = client
+		log.Info().Msg("created cyclinganalytics client")
+	})
+	return err
 }
 
 func Command() *cli.Command {

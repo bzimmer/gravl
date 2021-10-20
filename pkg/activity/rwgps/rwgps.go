@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
@@ -17,6 +19,8 @@ import (
 
 const Provider = "rwgps"
 
+var before sync.Once
+
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).RideWithGPS
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -25,6 +29,7 @@ func athlete(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	log.Info().Int64("id", int64(user.ID)).Str("username", user.Name).Msg(c.Command.Name)
 	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	err = pkg.Runtime(c).Encoder.Encode(user)
 	if err != nil {
@@ -106,10 +111,9 @@ func routesCommand() *cli.Command {
 	}
 }
 
-func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (interface{}, error)) error {
-	enc := pkg.Runtime(c).Encoder
-	client := pkg.Runtime(c).RideWithGPS
+func entity(c *cli.Context, f func(context.Context, int64) (interface{}, error)) error {
 	args := c.Args()
+	enc := pkg.Runtime(c).Encoder
 	for i := 0; i < args.Len(); i++ {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
@@ -117,10 +121,11 @@ func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (inter
 		if err != nil {
 			return err
 		}
-		v, err := f(ctx, client, x)
+		v, err := f(ctx, x)
 		if err != nil {
 			return err
 		}
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 		if err := enc.Encode(v); err != nil {
 			return err
 		}
@@ -128,44 +133,61 @@ func entity(c *cli.Context, f func(context.Context, *rwgps.Client, int64) (inter
 	return nil
 }
 
-func activityCommand() *cli.Command {
+func activityCommand() *cli.Command { //nolint
 	return &cli.Command{
 		Name:    "activity",
 		Aliases: []string{"a"},
 		Usage:   "Query an activity from RideWithGPS",
 		Action: func(c *cli.Context) error {
-			return entity(c, func(ctx context.Context, client *rwgps.Client, id int64) (interface{}, error) {
-				return client.Trips.Trip(ctx, id)
+			client := pkg.Runtime(c).RideWithGPS
+			return entity(c, func(ctx context.Context, id int64) (interface{}, error) {
+				trip, err := client.Trips.Trip(ctx, id)
+				if err != nil {
+					return nil, err
+				}
+				log.Info().Int64("id", trip.ID).Str("name", trip.Name).Msg(c.Command.Name)
+				return trip, nil
 			})
 		},
 	}
 }
 
-func routeCommand() *cli.Command {
+func routeCommand() *cli.Command { //nolint
 	return &cli.Command{
 		Name:    "route",
 		Aliases: []string{"r"},
 		Usage:   "Query a route from RideWithGPS",
 		Action: func(c *cli.Context) error {
-			return entity(c, func(ctx context.Context, client *rwgps.Client, id int64) (interface{}, error) {
-				return client.Trips.Route(ctx, id)
+			client := pkg.Runtime(c).RideWithGPS
+			return entity(c, func(ctx context.Context, id int64) (interface{}, error) {
+				route, err := client.Trips.Route(ctx, id)
+				if err != nil {
+					return nil, err
+				}
+				log.Info().Int64("id", route.ID).Str("name", route.Name).Msg(c.Command.Name)
+				return route, nil
 			})
 		},
 	}
 }
 
 func Before(c *cli.Context) error {
-	client, err := rwgps.NewClient(
-		rwgps.WithClientCredentials(c.String("rwgps-client-id"), ""),
-		rwgps.WithTokenCredentials(c.String("rwgps-access-token"), "", time.Time{}),
-		rwgps.WithHTTPTracing(c.Bool("http-tracing")),
-		rwgps.WithRateLimiter(rate.NewLimiter(
-			rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-	if err != nil {
-		return err
-	}
-	pkg.Runtime(c).RideWithGPS = client
-	return nil
+	var err error
+	before.Do(func() {
+		var client *rwgps.Client
+		client, err = rwgps.NewClient(
+			rwgps.WithClientCredentials(c.String("rwgps-client-id"), ""),
+			rwgps.WithTokenCredentials(c.String("rwgps-access-token"), "", time.Time{}),
+			rwgps.WithHTTPTracing(c.Bool("http-tracing")),
+			rwgps.WithRateLimiter(rate.NewLimiter(
+				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
+		if err != nil {
+			return
+		}
+		pkg.Runtime(c).RideWithGPS = client
+		log.Info().Msg("created rwgps client")
+	})
+	return err
 }
 
 func Command() *cli.Command {

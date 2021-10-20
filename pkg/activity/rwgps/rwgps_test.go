@@ -19,6 +19,7 @@ func command(t *testing.T, baseURL string) *cli.Command {
 	c := rwgps.Command()
 	c.Before = func(c *cli.Context) error {
 		client, err := api.NewClient(
+			api.WithHTTPTracing(c.Bool("http-tracing")),
 			api.WithTokenCredentials("foo", "bar", time.Now()),
 			api.WithBaseURL(baseURL))
 		if err != nil {
@@ -35,9 +36,12 @@ func TestAthlete(t *testing.T) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/users/current.json", func(w http.ResponseWriter, r *http.Request) {
-		ath := &api.User{}
+		type res struct {
+			User *api.User `json:"user"`
+		}
+		ath := &api.User{ID: 100, Name: "foo"}
 		enc := json.NewEncoder(w)
-		a.NoError(enc.Encode(ath))
+		a.NoError(enc.Encode(&res{User: ath}))
 	})
 
 	tests := []*internal.Harness{

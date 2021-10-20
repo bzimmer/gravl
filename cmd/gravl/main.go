@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 
+	"github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/activity/qp"
@@ -24,67 +25,87 @@ import (
 	"github.com/bzimmer/gravl/pkg/version"
 )
 
-func initRuntime() cli.BeforeFunc {
-	return func(c *cli.Context) error {
-		var enc pkg.Encoder
-		compact := c.Bool("compact")
-		switch c.String("encoding") {
-		case "geojson":
-			enc = pkg.GeoJSON(c.App.Writer, compact)
-		case "xml":
-			enc = pkg.XML(c.App.Writer, compact)
-		case "json":
-			enc = pkg.JSON(c.App.Writer, compact)
-		case "gpx":
-			enc = pkg.GPX(c.App.Writer, compact)
-		default:
-			enc = pkg.Blackhole()
+func initQP(c *cli.Context) error {
+	// strava
+	pkg.Runtime(c).Exporters[strava.Provider] = func(c *cli.Context) (activity.Exporter, error) {
+		if err := strava.Before(c); err != nil {
+			return nil, err
 		}
-
-		cfg := metrics.DefaultConfig("gravl")
-		cfg.EnableRuntimeMetrics = false
-		cfg.TimerGranularity = time.Second
-		sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)
-		metric, err := metrics.New(cfg, sink)
-		if err != nil {
-			return err
-		}
-
-		c.App.Metadata[pkg.RuntimeKey] = &pkg.Rt{
-			Start:     time.Now(),
-			Encoder:   enc,
-			Filterer:  antonmedv.Filterer,
-			Evaluator: antonmedv.Evaluator,
-			Sink:      sink,
-			Metrics:   metric,
-			Fs:        afero.NewOsFs(),
-			Uploaders: make(map[string]pkg.UploaderFunc),
-			Exporters: make(map[string]pkg.ExporterFunc),
-		}
-		return nil
+		return pkg.Runtime(c).Strava.Exporter(), nil
 	}
+	pkg.Runtime(c).Uploaders[strava.Provider] = func(c *cli.Context) (activity.Uploader, error) {
+		if err := strava.Before(c); err != nil {
+			return nil, err
+		}
+		return pkg.Runtime(c).Strava.Uploader(), nil
+	}
+	// zwift
+	pkg.Runtime(c).Exporters[zwift.Provider] = func(c *cli.Context) (activity.Exporter, error) {
+		if err := zwift.Before(c); err != nil {
+			return nil, err
+		}
+		return pkg.Runtime(c).Zwift.Exporter(), nil
+	}
+	return nil
 }
 
-func initLogging() cli.BeforeFunc {
-	return func(c *cli.Context) error {
-		monochrome := c.Bool("monochrome")
-		level, err := zerolog.ParseLevel(c.String("verbosity"))
-		if err != nil {
-			return err
-		}
-		color.NoColor = monochrome
-		zerolog.SetGlobalLevel(level)
-		zerolog.DurationFieldUnit = time.Millisecond
-		zerolog.DurationFieldInteger = false
-		log.Logger = log.Output(
-			zerolog.ConsoleWriter{
-				Out:        c.App.ErrWriter,
-				NoColor:    monochrome,
-				TimeFormat: time.RFC3339,
-			},
-		)
-		return nil
+func initRuntime(c *cli.Context) error {
+	var enc pkg.Encoder
+	compact := c.Bool("compact")
+	switch c.String("encoding") {
+	case "geojson":
+		enc = pkg.GeoJSON(c.App.Writer, compact)
+	case "xml":
+		enc = pkg.XML(c.App.Writer, compact)
+	case "json":
+		enc = pkg.JSON(c.App.Writer, compact)
+	case "gpx":
+		enc = pkg.GPX(c.App.Writer, compact)
+	default:
+		enc = pkg.Blackhole()
 	}
+
+	cfg := metrics.DefaultConfig("gravl")
+	cfg.EnableRuntimeMetrics = false
+	cfg.TimerGranularity = time.Second
+	sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)
+	metric, err := metrics.New(cfg, sink)
+	if err != nil {
+		return err
+	}
+
+	c.App.Metadata[pkg.RuntimeKey] = &pkg.Rt{
+		Start:     time.Now(),
+		Encoder:   enc,
+		Filterer:  antonmedv.Filterer,
+		Evaluator: antonmedv.Evaluator,
+		Sink:      sink,
+		Metrics:   metric,
+		Fs:        afero.NewOsFs(),
+		Uploaders: make(map[string]pkg.UploaderFunc),
+		Exporters: make(map[string]pkg.ExporterFunc),
+	}
+	return nil
+}
+
+func initLogging(c *cli.Context) error {
+	monochrome := c.Bool("monochrome")
+	level, err := zerolog.ParseLevel(c.String("verbosity"))
+	if err != nil {
+		return err
+	}
+	color.NoColor = monochrome
+	zerolog.SetGlobalLevel(level)
+	zerolog.DurationFieldUnit = time.Millisecond
+	zerolog.DurationFieldInteger = false
+	log.Logger = log.Output(
+		zerolog.ConsoleWriter{
+			Out:        c.App.ErrWriter,
+			NoColor:    monochrome,
+			TimeFormat: time.RFC3339,
+		},
+	)
+	return nil
 }
 
 func flags() []cli.Flag {
@@ -148,13 +169,13 @@ func run() error {
 		Description: "command line access to activity platforms",
 		Flags:       flags(),
 		Commands:    commands(),
+		Before:      pkg.Befores(initLogging, initRuntime, initQP),
 		After: func(c *cli.Context) error {
 			t := pkg.Runtime(c).Start
 			met := pkg.Runtime(c).Metrics
 			met.AddSample([]string{"runtime"}, float32(time.Since(t).Seconds()))
 			return pkg.Stats(c)
 		},
-		Before: pkg.Befores(initLogging(), initRuntime()),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return

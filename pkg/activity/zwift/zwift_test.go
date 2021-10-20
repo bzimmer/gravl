@@ -23,7 +23,7 @@ func command(t *testing.T, baseURL string) *cli.Command {
 	c.Before = func(c *cli.Context) error {
 		client, err := api.NewClient(
 			api.WithBaseURL(baseURL),
-			api.WithHTTPTracing(false),
+			api.WithHTTPTracing(c.Bool("http-tracing")),
 			api.WithConfig(oauth2.Config{Endpoint: endpoint}),
 			api.WithTokenCredentials("foo", "bar", time.Now().Add(time.Hour*24)))
 		if err != nil {
@@ -55,6 +55,69 @@ func TestAthlete(t *testing.T) {
 			Name: "unknown athlete",
 			Err:  http.StatusText(http.StatusNotFound),
 			Args: []string{"gravl", "zwift", "athlete", "foobar"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestActivity(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/profiles/me", func(w http.ResponseWriter, r *http.Request) {
+		ath := &api.Profile{ID: 101}
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(ath))
+	})
+	mux.HandleFunc("/api/profiles/101/activities/9001", func(w http.ResponseWriter, r *http.Request) {
+		act := &api.Activity{ID: 9001}
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(act))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "single activity",
+			Args:     []string{"gravl", "zwift", "activity", "9001"},
+			Counters: map[string]int{"gravl.zwift.activity": 1},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestActivities(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/profiles/me", func(w http.ResponseWriter, r *http.Request) {
+		ath := &api.Profile{ID: 102}
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(ath))
+	})
+	mux.HandleFunc("/api/profiles/102/activities/", func(w http.ResponseWriter, r *http.Request) {
+		acts := []*api.Activity{{ID: 9001}, {ID: 9021}, {ID: 9501}}
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(acts))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name: "two activities",
+			Args: []string{"gravl", "zwift", "activities", "-N", "2"},
+			Counters: map[string]int{
+				"gravl.zwift.activity":   2,
+				"gravl.zwift.activities": 1,
+			},
 		},
 	}
 	for _, tt := range tests {
