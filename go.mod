@@ -12,6 +12,7 @@ require (
 	github.com/rs/zerolog v1.25.0
 	github.com/spf13/afero v1.6.0
 	github.com/stretchr/testify v1.7.0
+	github.com/tj/go-naturaldate v1.3.0
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/oauth2 v0.0.0-20211005180243-6b3c2da341f1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c

@@ -222,7 +222,7 @@ $ gravl help [flags] [command]
 
 **Description**
 
-Copy activities from a source to a destination
+Copy activities from a source to a sink
 
 
 
@@ -625,7 +625,7 @@ $ gravl strava activities [flags]
 |```count```|```N```|The number of activities to query from Strava (the number returned will be <= N)|
 |```filter```|```f```|Expression for filtering activities to remove|
 |```attribute```|```B```|Evaluate the expression on an activity and return only those results|
-|```since```||Return results since the duration specified|
+|```since```||Return results since the time specified|
 
 **Example**
 

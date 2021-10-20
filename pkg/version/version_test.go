@@ -3,13 +3,26 @@ package version_test
 import (
 	"testing"
 
+	"github.com/bzimmer/gravl/pkg/internal"
 	"github.com/bzimmer/gravl/pkg/version"
-	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli/v2"
 )
 
-func TestVersion(t *testing.T) {
-	t.Parallel()
-	a := assert.New(t)
+func command(t *testing.T, baseURL string) *cli.Command {
+	return version.Command()
+}
 
-	a.Equal("development", version.BuildVersion)
+func TestVersion(t *testing.T) {
+	tests := []*internal.Harness{
+		{
+			Name: "version",
+			Args: []string{"gravl", "version"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, nil, command)
+		})
+	}
 }
