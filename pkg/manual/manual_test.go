@@ -6,11 +6,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli/v2"
+
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/internal"
 	"github.com/bzimmer/gravl/pkg/manual"
-	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli/v2"
 )
 
 func TestManual(t *testing.T) {

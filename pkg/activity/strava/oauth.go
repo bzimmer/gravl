@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
 
-	st "github.com/bzimmer/activity/strava"
+	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/web"
 )
@@ -29,7 +29,7 @@ func newRouter(c *cli.Context) (*http.ServeMux, error) {
 		ClientSecret: c.String("strava.client-secret"),
 		Scopes:       []string{"read_all,profile:read_all,activity:read_all,activity:write"},
 		RedirectURL:  fmt.Sprintf("%s/strava/auth/callback", address),
-		Endpoint:     st.Endpoint()}
+		Endpoint:     strava.Endpoint()}
 	handle := web.NewLogHandler(&log.Logger)
 	mux.Handle("/strava/auth/login", handle(web.AuthHandler(config, state)))
 	mux.Handle("/strava/auth/callback", handle(web.AuthCallbackHandler(config, state)))

@@ -150,6 +150,11 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
 				Aliases: []string{"e"},
 				Value:   "",
 			},
+			&cli.BoolFlag{
+				Name:  "http-tracing",
+				Value: false,
+				Usage: "Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)",
+			},
 			&cli.DurationFlag{
 				Name:    "timeout",
 				Aliases: []string{"t"},
