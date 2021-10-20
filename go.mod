@@ -2,8 +2,6 @@ module github.com/bzimmer/gravl
 
 go 1.17
 
-replace github.com/bzimmer/activity => ../activity
-
 require (
 	github.com/antonmedv/expr v1.9.0
 	github.com/armon/go-metrics v0.3.9
