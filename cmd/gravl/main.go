@@ -155,6 +155,7 @@ func commands() []*cli.Command {
 		cyclinganalytics.Command(),
 		manual.Command(),
 		manual.Commands(),
+		manual.Vars(),
 		qp.Command(),
 		rwgps.Command(),
 		strava.Command(),

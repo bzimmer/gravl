@@ -214,3 +214,38 @@ func Commands() *cli.Command {
 		},
 	}
 }
+
+func Vars() *cli.Command {
+	return &cli.Command{
+		Name:   "vars",
+		Hidden: true,
+		Action: func(c *cli.Context) error {
+			var vars []string
+			for _, cmd := range lineate(c.App.Commands, nil) {
+				for _, flag := range cmd.Cmd.Flags {
+					switch v := flag.(type) {
+					case *cli.StringFlag:
+						vars = append(vars, v.EnvVars...)
+					case *cli.BoolFlag:
+						vars = append(vars, v.EnvVars...)
+					case *cli.IntFlag:
+						vars = append(vars, v.EnvVars...)
+					}
+				}
+			}
+			kv := make(map[string]bool)
+			for _, env := range vars {
+				kv[env] = true
+			}
+			var k []string
+			for v := range kv {
+				k = append(k, v)
+			}
+			sort.Strings(k)
+			for _, v := range k {
+				fmt.Fprintln(c.App.Writer, v+"=")
+			}
+			return nil
+		},
+	}
+}
