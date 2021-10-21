@@ -175,11 +175,12 @@ func status(c *cli.Context) error {
 
 func statusCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "status",
-		Usage:     "Check the status of the upload",
-		ArgsUsage: "UPLOAD_ID (...)",
-		Flags:     flags(cfg{to: true, poll: true}),
-		Action:    status,
+		Name:        "status",
+		Usage:       "Check the status of the upload",
+		ArgsUsage:   "UPLOAD_ID (...)",
+		Flags:       flags(cfg{to: true, poll: true}),
+		Description: "Check the status of an upload",
+		Action:      status,
 	}
 }
 
@@ -197,9 +198,10 @@ func list(c *cli.Context) error {
 
 func listCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "list",
-		ArgsUsage: "{FILE | DIRECTORY} (...)",
-		Action:    list,
+		Name:        "list",
+		ArgsUsage:   "{FILE | DIRECTORY} (...)",
+		Description: "List the files suitable for uploading",
+		Action:      list,
 	}
 }
 
@@ -228,9 +230,10 @@ func export(c *cli.Context) error {
 
 func exportCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "export",
-		Flags:  flags(cfg{from: true, io: true}),
-		Action: export,
+		Name:        "export",
+		Flags:       flags(cfg{from: true, io: true}),
+		Description: "Export an activity from the source",
+		Action:      export,
 	}
 }
 
@@ -279,10 +282,11 @@ func qp(c *cli.Context) error {
 
 func copyCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "copy",
-		ArgsUsage: "--from <exporter> --to <uploader> id [id, ...]",
-		Flags:     flags(cfg{from: true, to: true, poll: true, io: true}),
-		Action:    qp,
+		Name:        "copy",
+		ArgsUsage:   "--from <exporter> --to <uploader> id [id, ...]",
+		Flags:       flags(cfg{from: true, to: true, poll: true, io: true}),
+		Description: "Copy an activity from a source to a destination",
+		Action:      qp,
 	}
 }
 
@@ -346,14 +350,6 @@ func flags(c cfg) []cli.Flag {
 				},
 			}...)
 	}
-	for _, q := range [][]cli.Flag{
-		cyclinganalytics.AuthFlags(),
-		rwgps.AuthFlags(),
-		strava.AuthFlags(),
-		zwift.AuthFlags(),
-	} {
-		x = append(x, q...)
-	}
 	return x
 }
 
@@ -371,8 +367,19 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:     "qp",
 		Category: "activity",
-		Usage:    "Copy activities from a source to a sink",
-		Flags:    flags(cfg{}),
+		Usage:    "Manage the flow of activity between different platforms",
+		Flags: func() []cli.Flag {
+			var x []cli.Flag
+			for _, q := range [][]cli.Flag{
+				cyclinganalytics.AuthFlags(),
+				rwgps.AuthFlags(),
+				strava.AuthFlags(),
+				zwift.AuthFlags(),
+			} {
+				x = append(x, q...)
+			}
+			return x
+		}(),
 		Subcommands: []*cli.Command{
 			copyCommand(),
 			exportCommand(),

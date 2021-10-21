@@ -170,17 +170,17 @@ func AuthFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:    "cyclinganalytics-client-id",
-			Usage:   "cyclinganalytics client id",
+			Usage:   "CyclingAnalytics client id",
 			EnvVars: []string{"CYCLINGANALYTICS_CLIENT_ID"},
 		},
 		&cli.StringFlag{
 			Name:    "cyclinganalytics-client-secret",
-			Usage:   "cyclinganalytics client secret",
+			Usage:   "CyclingAnalytics client secret",
 			EnvVars: []string{"CYCLINGANALYTICS_CLIENT_SECRET"},
 		},
 		&cli.StringFlag{
 			Name:    "cyclinganalytics-access-token",
-			Usage:   "cyclinganalytics access token",
+			Usage:   "CyclingAnalytics access token",
 			EnvVars: []string{"CYCLINGANALYTICS_ACCESS_TOKEN"},
 		},
 	}

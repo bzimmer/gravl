@@ -212,12 +212,12 @@ func AuthFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:    "rwgps-client-id",
-			Usage:   "rwgps client id",
+			Usage:   "RideWithGPS client id",
 			EnvVars: []string{"RWGPS_CLIENT_ID"},
 		},
 		&cli.StringFlag{
 			Name:    "rwgps-access-token",
-			Usage:   "rwgps access token",
+			Usage:   "RideWithGPS access token",
 			EnvVars: []string{"RWGPS_ACCESS_TOKEN"},
 		},
 	}
