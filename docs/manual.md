@@ -24,6 +24,7 @@ from Strava each query will honor the timeout value, it's not an aggregate timeo
 * [cyclinganalytics athlete](#cyclinganalytics-athlete)
 * [cyclinganalytics oauth](#cyclinganalytics-oauth)
 * [cyclinganalytics streamsets](#cyclinganalytics-streamsets)
+* [envvars](#envvars)
 * [help](#help)
 * [qp](#qp)
 * [qp copy](#qp-copy)
@@ -64,7 +65,7 @@ from Strava each query will honor the timeout value, it's not an aggregate timeo
 
 **Description**
 
-Return all possible commands
+Print all possible commands
 
 
 **Syntax**
@@ -76,9 +77,10 @@ $ gravl commands [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```relative```|```r```|Specify the command relative to the current working directory|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```description```|```d```||Print the command description as a comment|
+|```relative```|```r```||Specify the command relative to the current working directory|
 
 
 ## *cyclinganalytics*
@@ -91,14 +93,14 @@ Operations supported by the CyclingAnalytics API
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```cyclinganalytics-client-id```||cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||cyclinganalytics access token|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
 
 
 ## *cyclinganalytics activities*
@@ -117,9 +119,9 @@ $ gravl cyclinganalytics activities [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```count```|```N```|The number of activities to query from CA (the number returned will be <= N)|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```count```|```N```||The number of activities to query from CA (the number returned will be <= N)|
 
 
 ## *cyclinganalytics activity*
@@ -182,10 +184,10 @@ $ gravl cyclinganalytics oauth [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```origin```||Callback origin|
-|```port```||Port on which to listen|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```origin```|||Callback origin|
+|```port```|||Port on which to listen|
 
 
 ## *cyclinganalytics streamsets*
@@ -199,6 +201,21 @@ Return the set of available streams for query
 
 ```sh
 $ gravl cyclinganalytics streamsets [flags]
+```
+
+
+
+## *envvars*
+
+**Description**
+
+Useful for creating a .env file for all possible environment variables
+
+
+**Syntax**
+
+```sh
+$ gravl envvars [flags]
 ```
 
 
@@ -228,21 +245,21 @@ Copy activities from a source to a sink
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
-|```cyclinganalytics-client-id```||cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||cyclinganalytics access token|
-|```rwgps-client-id```||rwgps client id|
-|```rwgps-access-token```||rwgps access token|
-|```strava-client-id```||strava client id|
-|```strava-client-secret```||strava client secret|
-|```strava-refresh-token```||strava refresh token|
-|```zwift-username```||zwift username|
-|```zwift-password```||zwift password|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
+|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
+|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
+|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
+|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
+|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
+|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
+|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
+|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 
 ## *qp copy*
@@ -261,28 +278,28 @@ $ gravl qp copy [flags] --from <exporter> --to <uploader> id [id, ...]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
-|```from```||Source data provider|
-|```to```||Sink data provider|
-|```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
-|```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
-|```poll```||Continually check the status of the request until it is completed|
-|```interval```||The amount of time to wait between polling for an updated status|
-|```iterations```|```N```|The max number of polling iterations to perform|
-|```cyclinganalytics-client-id```||cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||cyclinganalytics access token|
-|```rwgps-client-id```||rwgps client id|
-|```rwgps-access-token```||rwgps access token|
-|```strava-client-id```||strava client id|
-|```strava-client-secret```||strava client secret|
-|```strava-refresh-token```||strava refresh token|
-|```zwift-username```||zwift username|
-|```zwift-password```||zwift password|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
+|```from```|||Source data provider|
+|```to```|||Sink data provider|
+|```overwrite```|```o```||Overwrite the file if it exists; fail otherwise|
+|```output```|```O```||The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
+|```poll```|||Continually check the status of the request until it is completed|
+|```interval```|||The amount of time to wait between polling for an updated status|
+|```iterations```|```N```||The max number of polling iterations to perform|
+|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
+|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
+|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
+|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
+|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
+|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
+|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
+|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 
 ## *qp export*
@@ -301,24 +318,24 @@ $ gravl qp export [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
-|```from```||Source data provider|
-|```overwrite```|```o```|Overwrite the file if it exists; fail otherwise|
-|```output```|```O```|The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
-|```cyclinganalytics-client-id```||cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||cyclinganalytics access token|
-|```rwgps-client-id```||rwgps client id|
-|```rwgps-access-token```||rwgps access token|
-|```strava-client-id```||strava client id|
-|```strava-client-secret```||strava client secret|
-|```strava-refresh-token```||strava refresh token|
-|```zwift-username```||zwift username|
-|```zwift-password```||zwift password|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
+|```from```|||Source data provider|
+|```overwrite```|```o```||Overwrite the file if it exists; fail otherwise|
+|```output```|```O```||The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
+|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
+|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
+|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
+|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
+|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
+|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
+|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
+|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 **Example**
 
@@ -359,25 +376,25 @@ $ gravl qp status [flags] UPLOAD_ID (...)
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
-|```to```||Sink data provider|
-|```poll```||Continually check the status of the request until it is completed|
-|```interval```||The amount of time to wait between polling for an updated status|
-|```iterations```|```N```|The max number of polling iterations to perform|
-|```cyclinganalytics-client-id```||cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||cyclinganalytics access token|
-|```rwgps-client-id```||rwgps client id|
-|```rwgps-access-token```||rwgps access token|
-|```strava-client-id```||strava client id|
-|```strava-client-secret```||strava client secret|
-|```strava-refresh-token```||strava refresh token|
-|```zwift-username```||zwift username|
-|```zwift-password```||zwift password|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
+|```to```|||Sink data provider|
+|```poll```|||Continually check the status of the request until it is completed|
+|```interval```|||The amount of time to wait between polling for an updated status|
+|```iterations```|```N```||The max number of polling iterations to perform|
+|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
+|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
+|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
+|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
+|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
+|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
+|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
+|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 
 ## *qp upload*
@@ -396,25 +413,25 @@ $ gravl qp upload [flags] {FILE | DIRECTORY} (...)
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
-|```to```||Sink data provider|
-|```poll```||Continually check the status of the request until it is completed|
-|```interval```||The amount of time to wait between polling for an updated status|
-|```iterations```|```N```|The max number of polling iterations to perform|
-|```cyclinganalytics-client-id```||cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||cyclinganalytics access token|
-|```rwgps-client-id```||rwgps client id|
-|```rwgps-access-token```||rwgps access token|
-|```strava-client-id```||strava client id|
-|```strava-client-secret```||strava client secret|
-|```strava-refresh-token```||strava refresh token|
-|```zwift-username```||zwift username|
-|```zwift-password```||zwift password|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
+|```to```|||Sink data provider|
+|```poll```|||Continually check the status of the request until it is completed|
+|```interval```|||The amount of time to wait between polling for an updated status|
+|```iterations```|```N```||The max number of polling iterations to perform|
+|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
+|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
+|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
+|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
+|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
+|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
+|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
+|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
+|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
+|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 
 ## *rwgps*
@@ -427,13 +444,13 @@ Operations supported by the RideWithGPS API
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```rwgps-client-id```||rwgps client id|
-|```rwgps-access-token```||rwgps access token|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
+|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
 
 
 ## *rwgps activities*
@@ -452,9 +469,9 @@ $ gravl rwgps activities [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```count```|```N```|The number of activities to query from RideWithGPS (the number returned will be <= N)|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```count```|```N```||The number of activities to query from RideWithGPS (the number returned will be <= N)|
 
 **Example**
 
@@ -570,9 +587,9 @@ $ gravl rwgps routes [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```count```|```N```|The number of routes to query from RideWithGPS (the number returned will be <= N)|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```count```|```N```||The number of routes to query from RideWithGPS (the number returned will be <= N)|
 
 
 ## *strava*
@@ -585,14 +602,14 @@ Operations supported by the Strava API
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```strava-client-id```||strava client id|
-|```strava-client-secret```||strava client secret|
-|```strava-refresh-token```||strava refresh token|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
+|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
+|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
 
 **Overview**
 
@@ -620,12 +637,12 @@ $ gravl strava activities [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```count```|```N```|The number of activities to query from Strava (the number returned will be <= N)|
-|```filter```|```f```|Expression for filtering activities to remove|
-|```attribute```|```B```|Evaluate the expression on an activity and return only those results|
-|```since```||Return results since the time specified|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```count```|```N```||The number of activities to query from Strava (the number returned will be <= N)|
+|```filter```|```f```||Expression for filtering activities to remove|
+|```attribute```|```B```||Evaluate the expression on an activity and return only those results|
+|```since```|||Return results since the time specified|
 
 **Example**
 
@@ -657,9 +674,9 @@ $ gravl strava activity [flags] ACTIVITY_ID (...)
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```stream```|```s```|Streams to include in the activity|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```stream```|```s```||Streams to include in the activity|
 
 **Example**
 
@@ -787,10 +804,10 @@ $ gravl strava oauth [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```origin```||Callback origin|
-|```port```||Port on which to listen|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```origin```|||Callback origin|
+|```port```|||Port on which to listen|
 
 
 ## *strava photos*
@@ -809,9 +826,9 @@ $ gravl strava photos [flags] ACTIVITY_ID (...)
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```size```|```s```||
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```size```|```s```|||
 
 
 ## *strava refresh*
@@ -860,9 +877,9 @@ $ gravl strava routes [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```count```|```N```|The number of routes to query from Strava (the number returned will be <= N)|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```count```|```N```||The number of routes to query from Strava (the number returned will be <= N)|
 
 
 ## *strava streams*
@@ -881,9 +898,9 @@ $ gravl strava streams [flags] ACTIVITY_ID (...)
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```stream```|```s```|Streams to include in the activity|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```stream```|```s```||Streams to include in the activity|
 
 
 ## *strava streamsets*
@@ -967,7 +984,7 @@ $ gravl strava webhook list [flags]
 
 **Description**
 
-Subscribe for webhook notications
+Subscribe for webhook notifications
 
 
 **Syntax**
@@ -979,10 +996,10 @@ $ gravl strava webhook subscribe [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```url```||Address where webhook events will be sent (max length 255 characters|
-|```verify```||String chosen by the application owner for client security|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```url```|||Address where webhook events will be sent (max length 255 characters|
+|```verify```|||String chosen by the application owner for client security|
 
 
 ## *strava webhook unsubscribe*
@@ -1025,13 +1042,13 @@ Operations supported by the Zwift API
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```zwift-username```||zwift username|
-|```zwift-password```||zwift password|
-|```rate-limit```||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```||Maximum burst size for API request events|
-|```concurrency```||Maximum concurrent API queries|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
+|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
+|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|```rate-burst```|||Maximum burst size for API request events|
+|```concurrency```|||Maximum concurrent API queries|
 
 **Overview**
 
@@ -1057,9 +1074,9 @@ $ gravl zwift activities [flags]
 
 **Flags**
 
-|Name|Aliases|Description|
-|-|-|-|
-|```count```|```N```|The number of activities to query from Zwift (the number returned will be <= N)|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```count```|```N```||The number of activities to query from Zwift (the number returned will be <= N)|
 
 
 ## *zwift activity*

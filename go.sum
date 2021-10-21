@@ -57,6 +57,8 @@ github.com/bzimmer/activity v0.4.0 h1:d43pA/41nesqe//UF4WwdK/VN6OBrHOYRWvPoNmXtZ
 github.com/bzimmer/activity v0.4.0/go.mod h1:pIHwb0n0wkqbI7hni78Sqvc3/gpgCMmTKrzcZS6RotQ=
 github.com/bzimmer/httpwares v0.0.4 h1:ttcM0AtYFpmcyISWVFMDOf2TUUAMSm4m5NUFGTdjJ2Q=
 github.com/bzimmer/httpwares v0.0.4/go.mod h1:7/J2QFL6EDur3v11kij1ZJLK7f2cs9qeNXgT7BTjm8E=
+github.com/bzimmer/manual v0.1.0 h1:bwjezUGB2iKK0kDUHYIb5IzA4+iR/UNDoBrhZ0+ijW4=
+github.com/bzimmer/manual v0.1.0/go.mod h1:RftaUkPvNcdXbGj2u3qtXDOeBvJgInJLs3lCjnTknks=
 github.com/cenkalti/backoff/v3 v3.0.0/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4rc0ij+ULvLYs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=

@@ -15,7 +15,7 @@
 
 # Documentation
 
-* [manual](docs/commands.md)
+* [manual](docs/manual.md)
 
 ## Authentication
 

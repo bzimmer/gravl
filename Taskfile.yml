@@ -2,7 +2,7 @@
 
 version: '3'
 
-dotenv: ["clean.env"]
+dotenv: [".clean.env"]
 
 vars:
   CWD:
@@ -73,10 +73,10 @@ tasks:
       - rm -rf {{.DIST}} {{.TASK}}
 
   manual:
-    desc: Generate usage documentation
+    desc: Generate the user manual
     deps: [build]
     cmds:
-      - dist/gravl manual > docs/commands.md
+      - dist/{{.APP}} manual docs/commands > docs/manual.md
 
   snapshot:
     desc: Build a snapshot
