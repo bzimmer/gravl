@@ -12,7 +12,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/web"
 )
 
-func Test_VersionHandler(t *testing.T) {
+func TestVersionHandler(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 

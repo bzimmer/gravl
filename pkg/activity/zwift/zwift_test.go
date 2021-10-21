@@ -1,6 +1,7 @@
 package zwift_test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
@@ -154,4 +155,22 @@ func TestFiles(t *testing.T) {
 			internal.Run(t, tt, nil, command)
 		})
 	}
+}
+
+func TestBefore(t *testing.T) {
+	a := assert.New(t)
+	app := &cli.App{
+		Name:   "TestBefore",
+		Before: zwift.Before,
+		Metadata: map[string]interface{}{
+			pkg.RuntimeKey: &pkg.Rt{
+				Endpoints: make(map[string]oauth2.Endpoint),
+			},
+		},
+		Action: func(c *cli.Context) error {
+			a.NotNil(pkg.Runtime(c).Zwift)
+			return nil
+		},
+	}
+	a.NoError(app.RunContext(context.Background(), []string{"test"}))
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/bzimmer/gravl/pkg/internal"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 )
 
 func command(t *testing.T, baseURL string) *cli.Command {
@@ -65,7 +66,9 @@ func TestBefore(t *testing.T) {
 		Name:   "TestBefore",
 		Before: rwgps.Before,
 		Metadata: map[string]interface{}{
-			pkg.RuntimeKey: &pkg.Rt{},
+			pkg.RuntimeKey: &pkg.Rt{
+				Endpoints: make(map[string]oauth2.Endpoint),
+			},
 		},
 		Action: func(c *cli.Context) error {
 			a.NotNil(pkg.Runtime(c).RideWithGPS)
