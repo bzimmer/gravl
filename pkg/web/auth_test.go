@@ -111,9 +111,9 @@ func TestAuthCallbackHandler(t *testing.T) {
 				w.Header().Set("Content-Type", "application/json")
 				w.Header().Set("Content-Length", strconv.Itoa(len(data)))
 				n, err := w.Write(data)
-				w.WriteHeader(http.StatusOK)
 				a.NoError(err)
 				a.Equal(n, len(data))
+				w.WriteHeader(http.StatusOK)
 			})
 
 			form := url.Values{}
@@ -124,9 +124,9 @@ func TestAuthCallbackHandler(t *testing.T) {
 
 			ctx := context.Background()
 			req, err := http.NewRequestWithContext(ctx, http.MethodPost, "/callback", body)
+			a.NoError(err)
 			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 			req.Header.Add("Content-Length", strconv.Itoa(len(data)))
-			a.NoError(err)
 
 			w := httptest.NewRecorder()
 			mux.ServeHTTP(w, req)

@@ -6,6 +6,7 @@ require (
 	github.com/antonmedv/expr v1.9.0
 	github.com/armon/go-metrics v0.3.9
 	github.com/bzimmer/activity v0.4.0
+	github.com/bzimmer/manual v0.1.0
 	github.com/fatih/color v1.13.0
 	github.com/martinlindhe/unit v0.0.0-20210313160520-19b60e03648d
 	github.com/rs/zerolog v1.25.0

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
+	"github.com/bzimmer/manual"
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -22,7 +23,6 @@ import (
 	"github.com/bzimmer/gravl/pkg/activity/strava"
 	"github.com/bzimmer/gravl/pkg/activity/zwift"
 	"github.com/bzimmer/gravl/pkg/eval/antonmedv"
-	"github.com/bzimmer/gravl/pkg/manual"
 	"github.com/bzimmer/gravl/pkg/version"
 )
 
@@ -153,8 +153,9 @@ func flags() []cli.Flag {
 func commands() []*cli.Command {
 	return []*cli.Command{
 		cyclinganalytics.Command(),
-		manual.Command(),
+		manual.Manual(),
 		manual.Commands(),
+		manual.EnvVars(),
 		qp.Command(),
 		rwgps.Command(),
 		strava.Command(),
