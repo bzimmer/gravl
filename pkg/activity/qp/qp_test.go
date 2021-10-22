@@ -33,7 +33,7 @@ func TestUpload(t *testing.T) {
 				pkg.Runtime(c).Uploaders[blackhole.Provider] = blackhole.UploaderFunc
 				a := assert.New(t)
 				fs := pkg.Runtime(c).Fs
-				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0777))
+				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0755))
 				fp, err := fs.Create("/foo/bar/Zwift/Activities/2021-10-01-08:12:13.fit")
 				a.NoError(err)
 				return fp.Close()

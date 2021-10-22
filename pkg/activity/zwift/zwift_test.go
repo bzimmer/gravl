@@ -142,7 +142,7 @@ func TestFiles(t *testing.T) {
 			Before: func(c *cli.Context) error {
 				a := assert.New(t)
 				fs := pkg.Runtime(c).Fs
-				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0777))
+				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0755))
 				fp, err := fs.Create("/foo/bar/Zwift/Activities/inProgressActivity.fit")
 				a.NoError(err)
 				return fp.Close()

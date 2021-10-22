@@ -87,7 +87,7 @@ func TestList(t *testing.T) {
 			Args: []string{"gravl", "qp", "list", "/foo/"},
 			Before: func(c *cli.Context) error {
 				fs := pkg.Runtime(c).Fs
-				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0777))
+				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0755))
 				fp, err := fs.Create("/foo/bar/Zwift/Activities/2021-10-01-08:12:13.fit")
 				a.NoError(err)
 				return fp.Close()
@@ -102,7 +102,7 @@ func TestList(t *testing.T) {
 			Args: []string{"gravl", "qp", "list", "/foo/"},
 			Before: func(c *cli.Context) error {
 				fs := pkg.Runtime(c).Fs
-				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0777))
+				a.NoError(fs.MkdirAll("/foo/bar/Zwift/Activities", 0755))
 				for _, fn := range []string{
 					"/foo/bar/Zwift/Activities/2021-10-01-08:12:13.fit",
 					"/foo/bar/baz/NotAnActivity.txt",
