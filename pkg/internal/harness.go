@@ -13,14 +13,15 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/bzimmer/gravl/pkg"
-	"github.com/bzimmer/gravl/pkg/eval/antonmedv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
+
+	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/eval/antonmedv"
 )
 
 type Harness struct {

@@ -238,12 +238,12 @@ func AuthFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:    "zwift-username",
-			Usage:   "zwift username",
+			Usage:   "Zwift username",
 			EnvVars: []string{"ZWIFT_USERNAME"},
 		},
 		&cli.StringFlag{
 			Name:    "zwift-password",
-			Usage:   "zwift password",
+			Usage:   "Zwift password",
 			EnvVars: []string{"ZWIFT_PASSWORD"},
 		},
 	}
@@ -262,6 +262,7 @@ func Before(c *cli.Context) error {
 		if err != nil {
 			return
 		}
+		pkg.Runtime(c).Endpoints[Provider] = zwift.Endpoint()
 		pkg.Runtime(c).Zwift = client
 		log.Info().Msg("created zwift client")
 	})

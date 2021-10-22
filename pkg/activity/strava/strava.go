@@ -462,17 +462,17 @@ func AuthFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:    "strava-client-id",
-			Usage:   "strava client id",
+			Usage:   "Strava client id",
 			EnvVars: []string{"STRAVA_CLIENT_ID"},
 		},
 		&cli.StringFlag{
 			Name:    "strava-client-secret",
-			Usage:   "strava client secret",
+			Usage:   "Strava client secret",
 			EnvVars: []string{"STRAVA_CLIENT_SECRET"},
 		},
 		&cli.StringFlag{
 			Name:    "strava-refresh-token",
-			Usage:   "strava refresh token",
+			Usage:   "Strava refresh token",
 			EnvVars: []string{"STRAVA_REFRESH_TOKEN"},
 		},
 	}

@@ -95,9 +95,9 @@ Operations supported by the CyclingAnalytics API
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
+|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|CyclingAnalytics client id|
+|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|CyclingAnalytics client secret|
+|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|CyclingAnalytics access token|
 |```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```|||Maximum burst size for API request events|
 |```concurrency```|||Maximum concurrent API queries|
@@ -239,7 +239,7 @@ $ gravl help [flags] [command]
 
 **Description**
 
-Copy activities from a source to a sink
+Manage the flow of activity between different platforms
 
 
 
@@ -247,26 +247,23 @@ Copy activities from a source to a sink
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
-|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
-|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
-|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
-|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
-|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
-|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
-|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
-|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
+|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|CyclingAnalytics client id|
+|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|CyclingAnalytics client secret|
+|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|CyclingAnalytics access token|
+|```rwgps-client-id```||```RWGPS_CLIENT_ID```|RideWithGPS client id|
+|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|RideWithGPS access token|
+|```strava-client-id```||```STRAVA_CLIENT_ID```|Strava client id|
+|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|Strava client secret|
+|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|Strava refresh token|
+|```zwift-username```||```ZWIFT_USERNAME```|Zwift username|
+|```zwift-password```||```ZWIFT_PASSWORD```|Zwift password|
 
 
 ## *qp copy*
 
 **Description**
 
-
+Copy an activity from a source to a destination
 
 
 **Syntax**
@@ -290,23 +287,13 @@ $ gravl qp copy [flags] --from <exporter> --to <uploader> id [id, ...]
 |```poll```|||Continually check the status of the request until it is completed|
 |```interval```|||The amount of time to wait between polling for an updated status|
 |```iterations```|```N```||The max number of polling iterations to perform|
-|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
-|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
-|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
-|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
-|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
-|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
-|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
-|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 
 ## *qp export*
 
 **Description**
 
-
+Export an activity from the source
 
 
 **Syntax**
@@ -326,16 +313,6 @@ $ gravl qp export [flags]
 |```from```|||Source data provider|
 |```overwrite```|```o```||Overwrite the file if it exists; fail otherwise|
 |```output```|```O```||The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
-|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
-|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
-|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
-|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
-|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
-|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
-|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
-|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 **Example**
 
@@ -349,7 +326,7 @@ file unless `-o` was also specified.
 
 **Description**
 
-
+List the files suitable for uploading
 
 
 **Syntax**
@@ -364,7 +341,7 @@ $ gravl qp list [flags] {FILE | DIRECTORY} (...)
 
 **Description**
 
-Check the status of the upload
+Check the status of an upload
 
 
 **Syntax**
@@ -385,16 +362,6 @@ $ gravl qp status [flags] UPLOAD_ID (...)
 |```poll```|||Continually check the status of the request until it is completed|
 |```interval```|||The amount of time to wait between polling for an updated status|
 |```iterations```|```N```||The max number of polling iterations to perform|
-|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
-|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
-|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
-|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
-|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
-|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
-|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
-|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 
 ## *qp upload*
@@ -422,16 +389,6 @@ $ gravl qp upload [flags] {FILE | DIRECTORY} (...)
 |```poll```|||Continually check the status of the request until it is completed|
 |```interval```|||The amount of time to wait between polling for an updated status|
 |```iterations```|```N```||The max number of polling iterations to perform|
-|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|cyclinganalytics client id|
-|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|cyclinganalytics client secret|
-|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|cyclinganalytics access token|
-|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
-|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
-|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
-|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
-|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
-|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
-|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
 
 
 ## *rwgps*
@@ -446,8 +403,8 @@ Operations supported by the RideWithGPS API
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```rwgps-client-id```||```RWGPS_CLIENT_ID```|rwgps client id|
-|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|rwgps access token|
+|```rwgps-client-id```||```RWGPS_CLIENT_ID```|RideWithGPS client id|
+|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|RideWithGPS access token|
 |```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```|||Maximum burst size for API request events|
 |```concurrency```|||Maximum concurrent API queries|
@@ -604,9 +561,9 @@ Operations supported by the Strava API
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```strava-client-id```||```STRAVA_CLIENT_ID```|strava client id|
-|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|strava client secret|
-|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|strava refresh token|
+|```strava-client-id```||```STRAVA_CLIENT_ID```|Strava client id|
+|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|Strava client secret|
+|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|Strava refresh token|
 |```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```|||Maximum burst size for API request events|
 |```concurrency```|||Maximum concurrent API queries|
@@ -1044,8 +1001,8 @@ Operations supported by the Zwift API
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```zwift-username```||```ZWIFT_USERNAME```|zwift username|
-|```zwift-password```||```ZWIFT_PASSWORD```|zwift password|
+|```zwift-username```||```ZWIFT_USERNAME```|Zwift username|
+|```zwift-password```||```ZWIFT_PASSWORD```|Zwift password|
 |```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |```rate-burst```|||Maximum burst size for API request events|
 |```concurrency```|||Maximum concurrent API queries|
