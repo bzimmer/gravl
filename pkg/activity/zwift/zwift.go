@@ -66,6 +66,7 @@ func refresh(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	return pkg.Runtime(c).Encoder.Encode(token)
 }
 

@@ -122,3 +122,34 @@ func TestBefore(t *testing.T) {
 	}
 	a.NoError(app.RunContext(context.Background(), []string{"test"}))
 }
+
+func TestActivities(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/me/rides", func(w http.ResponseWriter, r *http.Request) {
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(struct {
+			Rides []*api.Ride `json:"rides"`
+		}{
+			Rides: []*api.Ride{{ID: 1008}, {ID: 8001}, {ID: 1772}},
+		}))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name: "ride",
+			Args: []string{"gravl", "cyclinganalytics", "activities"},
+			Counters: map[string]int{
+				"gravl.cyclinganalytics.activity":   3,
+				"gravl.cyclinganalytics.activities": 1,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}

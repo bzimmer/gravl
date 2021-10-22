@@ -412,6 +412,14 @@ func streamSetsCommand() *cli.Command {
 	}
 }
 
+func oauthCommand() *cli.Command {
+	return activity.OAuthCommand(&activity.OAuthConfig{
+		Port:     9001,
+		Provider: Provider,
+		Scopes:   []string{"read_all,profile:read_all,activity:read_all,activity:write"},
+	})
+}
+
 func Before(c *cli.Context) error {
 	var err error
 	before.Do(func() {

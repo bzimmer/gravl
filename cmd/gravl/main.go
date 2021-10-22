@@ -26,6 +26,22 @@ import (
 	"github.com/bzimmer/gravl/pkg/version"
 )
 
+func initSignal(cancel context.CancelFunc) cli.BeforeFunc {
+	return func(c *cli.Context) error {
+		go func() {
+			sigc := make(chan os.Signal, 1)
+			signal.Notify(sigc, os.Interrupt)
+			select {
+			case <-sigc:
+				log.Info().Msg("canceling...")
+				cancel()
+			case <-c.Context.Done():
+			}
+		}()
+		return nil
+	}
+}
+
 func initQP(c *cli.Context) error {
 	// strava
 	pkg.Runtime(c).Exporters[strava.Provider] = func(c *cli.Context) (activity.Exporter, error) {
@@ -165,6 +181,9 @@ func commands() []*cli.Command {
 }
 
 func run() error {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	app := &cli.App{
 		Name:        "gravl",
 		HelpName:    "gravl",
@@ -172,7 +191,7 @@ func run() error {
 		Description: "command line access to activity platforms",
 		Flags:       flags(),
 		Commands:    commands(),
-		Before:      pkg.Befores(initLogging, initRuntime, initQP),
+		Before:      pkg.Befores(initSignal(cancel), initLogging, initRuntime, initQP),
 		After: func(c *cli.Context) error {
 			t := pkg.Runtime(c).Start
 			met := pkg.Runtime(c).Metrics
@@ -186,27 +205,6 @@ func run() error {
 			log.Error().Err(err).Msg(c.App.Name)
 		},
 	}
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		select {
-		case <-c:
-			log.Info().Msg("canceling...")
-			cancel()
-		case <-ctx.Done():
-		}
-		iterations := 1
-		log.Info().Dur("seconds", time.Duration(iterations)*time.Millisecond).Msg("time remaining")
-		for range time.Tick(time.Duration(iterations) * time.Second) {
-			iterations--
-			if iterations <= 0 {
-				os.Exit(2)
-			}
-			log.Info().Dur("seconds", time.Duration(iterations)*time.Millisecond).Msg("time remaining")
-		}
-	}()
 	return app.RunContext(ctx, os.Args)
 }
 

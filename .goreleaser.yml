@@ -1,6 +1,8 @@
 before:
   hooks:
-    - go mod tidy -compat=1.17
+    - task codecov
+    - task lint
+    - task test
 builds:
   - env:
       - CGO_ENABLED=0
