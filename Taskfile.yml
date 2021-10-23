@@ -81,4 +81,14 @@ tasks:
   snapshot:
     desc: Build a snapshot
     cmds:
-      - goreleaser release --snapshot --rm-dist
+      - goreleaser --debug release --snapshot --rm-dist
+
+  tidy:
+    desc: Run go mod tidy
+    cmds:
+      - go mod tidy -compat=1.17
+
+  codecov:
+    desc: Validate codecov configuration
+    cmds:
+      - curl --data-binary @.codecov.yml https://codecov.io/validate

@@ -22,8 +22,6 @@ jobs:
           go-version: 1.17
       - name: Install Task
         uses: arduino/setup-task@v1
-      - name: Test
-        run: task test
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:

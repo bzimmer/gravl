@@ -99,10 +99,14 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func Run(t *testing.T, tt *Harness, mux *http.ServeMux, cmd func(*testing.T, string) *cli.Command) {
+func Run(t *testing.T, tt *Harness, handler http.Handler, cmd func(*testing.T, string) *cli.Command) {
+	RunContext(context.Background(), t, tt, handler, cmd)
+}
+
+func RunContext(ctx context.Context, t *testing.T, tt *Harness, handler http.Handler, cmd func(*testing.T, string) *cli.Command) {
 	a := assert.New(t)
 
-	svr := httptest.NewServer(mux)
+	svr := httptest.NewServer(handler)
 	defer svr.Close()
 
 	app := NewTestApp(t, tt.Name, cmd(t, svr.URL))
@@ -113,7 +117,7 @@ func Run(t *testing.T, tt *Harness, mux *http.ServeMux, cmd func(*testing.T, str
 		app.After = pkg.Afters(app.After, tt.After)
 	}
 
-	err := app.RunContext(context.Background(), tt.Args)
+	err := app.RunContext(ctx, tt.Args)
 	switch tt.Err == "" {
 	case true:
 		a.NoError(err)

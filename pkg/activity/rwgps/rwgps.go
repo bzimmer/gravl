@@ -55,21 +55,31 @@ func trips(c *cli.Context, kind string) error {
 	if err != nil {
 		return err
 	}
+	var metric string
 	var trips []*rwgps.Trip
 	switch kind {
 	case "trips":
+		metric = "activity"
 		trips, err = client.Trips.Trips(ctx, user.ID, api.Pagination{Total: c.Int("count")})
 	case "routes":
+		metric = "route"
 		trips, err = client.Trips.Routes(ctx, user.ID, api.Pagination{Total: c.Int("count")})
 	default:
-		return fmt.Errorf("unknown type '%s'", kind)
+		trips, err = nil, fmt.Errorf("unknown type '%s'", kind)
 	}
 	if err != nil {
 		return err
 	}
 	enc := pkg.Runtime(c).Encoder
-	for _, trip := range trips {
-		err = enc.Encode(trip)
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
+	for i, trip := range trips {
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, metric}, 1)
+		log.Info().
+			Time("date", trip.DepartedAt).
+			Int64("id", trip.ID).
+			Str("name", trip.Name).
+			Msg(c.Command.Name)
+		err = enc.Encode([]interface{}{i, trip})
 		if err != nil {
 			return err
 		}
@@ -87,7 +97,7 @@ func activitiesCommand() *cli.Command {
 				Name:    "count",
 				Aliases: []string{"N"},
 				Value:   0,
-				Usage:   "The number of activities to query from RideWithGPS (the number returned will be <= N)",
+				Usage:   "The number of activities to query from RideWithGPS",
 			},
 		},
 		Action: func(c *cli.Context) error { return trips(c, "trips") },
@@ -104,7 +114,7 @@ func routesCommand() *cli.Command {
 				Name:    "count",
 				Aliases: []string{"N"},
 				Value:   0,
-				Usage:   "The number of routes to query from RideWithGPS (the number returned will be <= N)",
+				Usage:   "The number of routes to query from RideWithGPS",
 			},
 		},
 		Action: func(c *cli.Context) error { return trips(c, "routes") },

@@ -16,14 +16,3 @@
 # Documentation
 
 * [manual](docs/manual.md)
-
-## Authentication
-
-The package has functionality to generate access and refresh tokens for both `cyclinganalytics` and `strava` by using the `oauth` command for each after acquiring the client id from the respective sites.
-
-```sh
-$ gravl strava oauth
-2021-01-20T18:38:15-08:00 INF serving address=0.0.0.0:9001
-```
-
-Open a browser to http://localhost:9001 and you will be redirected to, in this case, Strava. Once you authorize the application the credentials will be provided in a json document in the browser. Copy the tokens to `env` configuration file.

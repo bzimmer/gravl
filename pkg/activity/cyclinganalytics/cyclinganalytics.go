@@ -50,8 +50,10 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	enc := pkg.Runtime(c).Encoder
 	for _, ride := range rides {
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
 		if err := enc.Encode(ride); err != nil {
 			return err
 		}
@@ -124,6 +126,14 @@ func streamSetsCommand() *cli.Command {
 			return nil
 		},
 	}
+}
+
+func oauthCommand() *cli.Command {
+	return activity.OAuthCommand(&activity.OAuthConfig{
+		Port:     9002,
+		Provider: Provider,
+		Scopes:   []string{"read_account,read_email,read_athlete,read_rides,create_rides"},
+	})
 }
 
 func Before(c *cli.Context) error {
