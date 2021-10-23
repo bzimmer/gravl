@@ -76,7 +76,6 @@ func oauth(c *cli.Context, cfg *OAuthConfig) error {
 	if err != nil {
 		return err
 	}
-	defer listener.Close()
 	svr := &http.Server{Handler: mux}
 	grp, ctx := errgroup.WithContext(c.Context)
 	grp.Go(func() error {
