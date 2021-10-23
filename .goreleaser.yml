@@ -1,7 +1,5 @@
 before:
   hooks:
-    - task codecov
-    - task lint
     - task test
 builds:
   - env:
