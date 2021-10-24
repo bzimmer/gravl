@@ -79,15 +79,25 @@ func CopyFile(w io.Writer, filename string) error {
 	return err
 }
 
-func findCounter(app *cli.App, name string) (metrics.SampledValue, error) {
-	sink := runtime(app).Sink
-	for i := range sink.Data() {
-		im := sink.Data()[i]
-		if sample, ok := im.Counters[name]; ok {
-			return sample, nil
+func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
+	a := assert.New(t)
+	return func(c *cli.Context) error {
+		data := pkg.Runtime(c).Sink.Data()
+		for key, value := range expected {
+			var found bool
+			for i := range data {
+				if counter, ok := data[i].Counters[key]; ok {
+					found = true
+					a.Equalf(value, counter.Count, key)
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("cannot find sample value for {%s}", key)
+			}
 		}
+		return nil
 	}
-	return metrics.SampledValue{}, fmt.Errorf("cannot find sample value for {%s}", name)
 }
 
 func TestMain(m *testing.M) {
@@ -109,7 +119,7 @@ func RunContext(ctx context.Context, t *testing.T, tt *Harness, handler http.Han
 	svr := httptest.NewServer(handler)
 	defer svr.Close()
 
-	app := NewTestApp(t, tt.Name, cmd(t, svr.URL))
+	app := NewTestApp(t, tt, cmd(t, svr.URL))
 	if tt.Before != nil {
 		app.Before = pkg.Befores(app.Before, tt.Before)
 	}
@@ -125,21 +135,15 @@ func RunContext(ctx context.Context, t *testing.T, tt *Harness, handler http.Han
 		a.Error(err)
 		a.Contains(err.Error(), tt.Err)
 	}
-
-	for key, value := range tt.Counters {
-		counter, err := findCounter(app, key)
-		a.NoError(err)
-		a.Equalf(value, counter.Count, key)
-	}
 }
 
-func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
+func NewTestApp(t *testing.T, tt *Harness, cmd *cli.Command) *cli.App {
 	return &cli.App{
-		Name:     name,
-		HelpName: name,
+		Name:     tt.Name,
+		HelpName: tt.Name,
 		Before:   before,
 		After: func(c *cli.Context) error {
-			t.Log(name)
+			t.Log(tt.Name)
 			if err := afero.Walk(runtime(c.App).Fs, "/", func(path string, info fs.FileInfo, err error) error {
 				if err != nil {
 					return err
@@ -149,7 +153,10 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command) *cli.App {
 			}); err != nil {
 				return err
 			}
-			return pkg.Stats(c)
+			if err := pkg.Stats(c); err != nil {
+				return err
+			}
+			return counters(t, tt.Counters)(c)
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
