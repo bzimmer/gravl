@@ -3,39 +3,30 @@ package inreach
 import (
 	"errors"
 	"sync"
-	"time"
 
 	"github.com/bzimmer/activity/inreach"
 	"github.com/rs/zerolog/log"
-	"github.com/tj/go-naturaldate"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg"
+	"github.com/bzimmer/gravl/pkg/activity"
 )
 
 const Provider = "inreach"
 
 var before sync.Once
 
-func since(c *cli.Context) (inreach.APIOption, error) {
-	var opt inreach.APIOption
-	if c.IsSet("since") {
-		before := time.Now()
-		after, err := naturaldate.Parse(c.String("since"), before)
-		if err != nil {
-			return nil, err
-		}
-		log.Info().Time("before", before).Time("after", after).Msg("date range")
-		if after.After(before) {
-			return nil, errors.New("invalid date range")
-		}
-		opt = inreach.WithDateRange(before, after)
+func daterange(c *cli.Context) (inreach.APIOption, error) {
+	before, after, err := activity.DateRange(c)
+	if err != nil {
+		return nil, err
 	}
-	return opt, nil
+	log.Info().Time("before", before).Time("after", after).Msg("date range")
+	return inreach.WithDateRange(before, after), nil
 }
 
 func activities(c *cli.Context) error {
-	opt, err := since(c)
+	opt, err := daterange(c)
 	if err != nil {
 		return err
 	}
@@ -65,17 +56,12 @@ func activitiesCommand() *cli.Command {
 		Name:    "activities",
 		Usage:   "Query activities for a user from InReach",
 		Aliases: []string{"A"},
-		Flags: []cli.Flag{
-			&cli.IntFlag{
-				Name:    "count",
-				Aliases: []string{"N"},
-				Value:   0,
-				Usage:   "The number of activities to query from InReach (the number returned will be <= N)",
-			},
-			&cli.StringFlag{
-				Name:  "since",
-				Usage: "Return results since the time specified",
-			},
+		Flags:   activity.DateRangeFlags(),
+		Before: func(c *cli.Context) error {
+			if c.NArg() == 0 {
+				return errors.New("no user specified")
+			}
+			return nil
 		},
 		Action: activities,
 	}
@@ -97,6 +83,7 @@ func Before(c *cli.Context) error {
 	return err
 }
 
+// Command returns a fully instantiated cli command
 func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "inreach",

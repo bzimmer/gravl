@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	github.com/bzimmer/httpwares v0.0.4 // indirect
+	github.com/bzimmer/httpwares v0.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
