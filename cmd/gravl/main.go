@@ -18,6 +18,7 @@ import (
 	"github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
+	"github.com/bzimmer/gravl/pkg/activity/inreach"
 	"github.com/bzimmer/gravl/pkg/activity/qp"
 	"github.com/bzimmer/gravl/pkg/activity/rwgps"
 	"github.com/bzimmer/gravl/pkg/activity/strava"
@@ -169,6 +170,7 @@ func flags() []cli.Flag {
 func commands() []*cli.Command {
 	return []*cli.Command{
 		cyclinganalytics.Command(),
+		inreach.Command(),
 		manual.Manual(),
 		manual.Commands(),
 		manual.EnvVars(),
