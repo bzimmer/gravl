@@ -38,13 +38,10 @@ tasks:
       - go build {{.CLI_ARGS}} {{.LDFLAGS}} -o {{.DIST}}/gravl cmd/gravl/*.go
 
   install:
-    desc: Install {{.APP}}
-    deps: [test]
+    desc: Install binary
+    deps: [snapshot]
     cmds:
-      - task: build
-        vars:
-          DIST:
-            sh: echo $GOPATH/bin
+      - cp {{.DIST}}/{{.APP}}_{{OS}}_{{ARCH}}/{{.APP}} $GOPATH/bin
 
   lint:
     desc: Runs lint
