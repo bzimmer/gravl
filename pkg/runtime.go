@@ -17,6 +17,7 @@ import (
 
 	"github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/cyclinganalytics"
+	"github.com/bzimmer/activity/inreach"
 	"github.com/bzimmer/activity/rwgps"
 	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/activity/zwift"
@@ -37,6 +38,7 @@ func Token(n int) (string, error) {
 type ExporterFunc func(c *cli.Context) (activity.Exporter, error)
 type UploaderFunc func(c *cli.Context) (activity.Uploader, error)
 
+// Rt holds the gravl runtime
 type Rt struct {
 	// Metadata
 	Start time.Time
@@ -46,6 +48,7 @@ type Rt struct {
 	Strava           *strava.Client
 	RideWithGPS      *rwgps.Client
 	CyclingAnalytics *cyclinganalytics.Client
+	InReach          *inreach.Client
 
 	// Endpoints
 	Endpoints map[string]oauth2.Endpoint

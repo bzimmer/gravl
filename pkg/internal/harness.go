@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
@@ -67,16 +66,6 @@ func before(c *cli.Context) error {
 		},
 	}
 	return nil
-}
-
-func CopyFile(w io.Writer, filename string) error {
-	fp, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer fp.Close()
-	_, err = io.Copy(w, fp)
-	return err
 }
 
 func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
