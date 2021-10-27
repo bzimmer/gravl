@@ -66,6 +66,8 @@ activities from Strava each query will honor the timeout value, it's not a deadl
 * [cyclinganalytics streamsets](#cyclinganalytics-streamsets)
 * [envvars](#envvars)
 * [help](#help)
+* [inreach](#inreach)
+* [inreach activities](#inreach-activities)
 * [qp](#qp)
 * [qp copy](#qp-copy)
 * [qp export](#qp-export)
@@ -273,6 +275,37 @@ Shows a list of commands or help for one command
 $ gravl help [flags] [command]
 ```
 
+
+
+## *inreach*
+
+**Description**
+
+Operations supported by the InReach KML API
+
+
+
+
+## *inreach activities*
+
+**Description**
+
+Query activities for a user from InReach
+
+
+**Syntax**
+
+```sh
+$ gravl inreach activities [flags]
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```after```|```since```||Return results after the time specified|
+|```before```|||Return results before the time specified|
 
 
 ## *qp*
@@ -639,7 +672,8 @@ $ gravl strava activities [flags]
 |```count```|```N```||The number of activities to query from Strava (the number returned will be <= N)|
 |```filter```|```f```||Expression for filtering activities to remove|
 |```attribute```|```B```||Evaluate the expression on an activity and return only those results|
-|```since```|||Return results since the time specified|
+|```after```|```since```||Return results after the time specified|
+|```before```|||Return results before the time specified|
 
 **Example**
 

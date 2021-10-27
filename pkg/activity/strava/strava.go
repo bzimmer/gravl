@@ -2,13 +2,11 @@ package strava
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/tj/go-naturaldate"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/time/rate"
@@ -93,21 +91,13 @@ func attributer(c *cli.Context) (func(ctx context.Context, act *strava.Activity)
 	return f, nil
 }
 
-func since(c *cli.Context) (strava.APIOption, error) {
-	var opt strava.APIOption
-	if c.IsSet("since") {
-		before := time.Now()
-		after, err := naturaldate.Parse(c.String("since"), before)
-		if err != nil {
-			return nil, err
-		}
-		log.Info().Time("before", before).Time("after", after).Msg("date range")
-		if after.After(before) {
-			return nil, errors.New("invalid date range")
-		}
-		opt = strava.WithDateRange(before, after)
+func daterange(c *cli.Context) (strava.APIOption, error) {
+	before, after, err := activity.DateRange(c)
+	if err != nil {
+		return nil, err
 	}
-	return opt, nil
+	log.Info().Time("before", before).Time("after", after).Msg("date range")
+	return strava.WithDateRange(before, after), nil
 }
 
 func activities(c *cli.Context) error {
@@ -124,7 +114,7 @@ func activities(c *cli.Context) error {
 		return err
 	}
 
-	opt, err := since(c)
+	opt, err := daterange(c)
 	if err != nil {
 		return err
 	}
@@ -172,7 +162,7 @@ func activitiesCommand() *cli.Command {
 		Name:    "activities",
 		Usage:   "Query activities for an athlete from Strava",
 		Aliases: []string{"A"},
-		Flags: []cli.Flag{
+		Flags: append([]cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
 				Aliases: []string{"N"},
@@ -189,11 +179,7 @@ func activitiesCommand() *cli.Command {
 				Aliases: []string{"B"},
 				Usage:   "Evaluate the expression on an activity and return only those results",
 			},
-			&cli.StringFlag{
-				Name:  "since",
-				Usage: "Return results since the time specified",
-			},
-		},
+		}, activity.DateRangeFlags()...),
 		Action: activities,
 	}
 }
