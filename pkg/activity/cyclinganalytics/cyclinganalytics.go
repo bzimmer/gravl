@@ -152,6 +152,7 @@ func Before(c *cli.Context) error {
 		}
 		pkg.Runtime(c).Endpoints[Provider] = cyclinganalytics.Endpoint()
 		pkg.Runtime(c).CyclingAnalytics = client
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created cyclinganalytics client")
 	})
 	return err

@@ -1,7 +1,6 @@
 package inreach_test
 
 import (
-	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -81,19 +80,29 @@ func TestActivity(t *testing.T) {
 
 func TestBefore(t *testing.T) {
 	a := assert.New(t)
-	app := &cli.App{
-		Name:   "TestBefore",
-		Before: inreach.Before,
-		Metadata: map[string]interface{}{
-			pkg.RuntimeKey: &pkg.Rt{},
-		},
-		Action: func(c *cli.Context) error {
-			a.NotNil(pkg.Runtime(c).InReach)
-			return nil
-		},
-		Commands: []*cli.Command{
-			inreach.Command(),
+	tests := []*internal.Harness{
+		{
+			Name:   "testbefore",
+			Args:   []string{"gravl", "testbefore"},
+			Before: inreach.Before,
+			Counters: map[string]int{
+				"gravl.inreach.client.created": 1,
+			},
+			Action: func(c *cli.Context) error {
+				a.NotNil(pkg.Runtime(c).InReach)
+				_, ok := pkg.Runtime(c).Endpoints[inreach.Provider]
+				a.False(ok)
+				return nil
+			},
 		},
 	}
-	a.NoError(app.RunContext(context.Background(), []string{"test"}))
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			cmd := func(t *testing.T, baseURL string) *cli.Command {
+				return &cli.Command{Name: tt.Name, Action: tt.Action}
+			}
+			internal.Run(t, tt, nil, cmd)
+		})
+	}
 }
