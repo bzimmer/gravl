@@ -67,7 +67,7 @@ activities from Strava each query will honor the timeout value, it's not a deadl
 * [envvars](#envvars)
 * [help](#help)
 * [inreach](#inreach)
-* [inreach activities](#inreach-activities)
+* [inreach feed](#inreach-feed)
 * [qp](#qp)
 * [qp copy](#qp-copy)
 * [qp export](#qp-export)
@@ -286,17 +286,17 @@ Operations supported by the InReach KML API
 
 
 
-## *inreach activities*
+## *inreach feed*
 
 **Description**
 
-Query activities for a user from InReach
+Query user feed from InReach
 
 
 **Syntax**
 
 ```sh
-$ gravl inreach activities [flags]
+$ gravl inreach feed [flags]
 ```
 
 
