@@ -91,7 +91,7 @@ type gpxEncoder struct {
 }
 
 func (g *gpxEncoder) Encode(v interface{}) error {
-	q, ok := v.(activity.GPXer)
+	q, ok := v.(activity.GPXEncoder)
 	if !ok {
 		return errors.New("encoding GPX not supported")
 	}
@@ -107,7 +107,7 @@ type geoJSONEncoder struct {
 }
 
 func (g *geoJSONEncoder) Encode(v interface{}) error {
-	q, ok := v.(activity.GeoJSONer)
+	q, ok := v.(activity.GeoJSONEncoder)
 	if !ok {
 		return errors.New("encoding GeoJSON not supported")
 	}
@@ -116,10 +116,6 @@ func (g *geoJSONEncoder) Encode(v interface{}) error {
 		return err
 	}
 	return g.enc.Encode(v)
-}
-
-func (g *geoJSONEncoder) Name() string {
-	return "geojson"
 }
 
 type jsonEncoder struct {

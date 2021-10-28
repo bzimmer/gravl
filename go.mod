@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/antonmedv/expr v1.9.0
 	github.com/armon/go-metrics v0.3.10
-	github.com/bzimmer/activity v0.5.0
+	github.com/bzimmer/activity v0.6.0
 	github.com/bzimmer/manual v0.1.0
 	github.com/fatih/color v1.13.0
 	github.com/martinlindhe/unit v0.0.0-20210313160520-19b60e03648d

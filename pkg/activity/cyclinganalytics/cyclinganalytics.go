@@ -80,9 +80,9 @@ func activitiesCommand() *cli.Command {
 
 func ride(c *cli.Context) error {
 	client := pkg.Runtime(c).CyclingAnalytics
-	opts := cyclinganalytics.RideOptions{
+	opts := cyclinganalytics.WithRideOptions(cyclinganalytics.RideOptions{
 		Streams: []string{"latitude", "longitude", "elevation"},
-	}
+	})
 	enc := pkg.Runtime(c).Encoder
 	args := c.Args()
 	for i := 0; i < args.Len(); i++ {

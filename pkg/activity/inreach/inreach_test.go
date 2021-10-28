@@ -56,18 +56,18 @@ func TestActivity(t *testing.T) {
 
 	tests := []*internal.Harness{
 		{
-			Name:     "activities",
-			Args:     []string{"gravl", "inreach", "activities", "foobar"},
-			Counters: map[string]int{"gravl.inreach.activities": 1},
+			Name:     "feed",
+			Args:     []string{"gravl", "inreach", "feed", "foobar"},
+			Counters: map[string]int{"gravl.inreach.feed": 1},
 		},
 		{
-			Name:     "activities since",
-			Args:     []string{"gravl", "inreach", "activities", "--since", "72 hours ago", "datetimer"},
-			Counters: map[string]int{"gravl.inreach.activities": 1},
+			Name:     "feed since",
+			Args:     []string{"gravl", "inreach", "feed", "--since", "72 hours ago", "datetimer"},
+			Counters: map[string]int{"gravl.inreach.feed": 1},
 		},
 		{
-			Name: "activities since invalid",
-			Args: []string{"gravl", "inreach", "activities", "--since", "72h", "datetimer"},
+			Name: "feed since invalid",
+			Args: []string{"gravl", "inreach", "feed", "--since", "72h", "datetimer"},
 			Err:  "invalid date range",
 		},
 	}

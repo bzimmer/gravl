@@ -25,7 +25,7 @@ func daterange(c *cli.Context) (inreach.APIOption, error) {
 	return inreach.WithDateRange(before, after), nil
 }
 
-func activities(c *cli.Context) error {
+func feed(c *cli.Context) error {
 	opt, err := daterange(c)
 	if err != nil {
 		return err
@@ -35,11 +35,11 @@ func activities(c *cli.Context) error {
 	client := pkg.Runtime(c).InReach
 	for i := 0; i < c.NArg(); i++ {
 		arg := c.Args().Get(i)
-		feed, err := client.Feed.Feed(c.Context, arg, opt)
+		f, err := client.Feed.Feed(c.Context, arg, opt)
 		if err != nil {
 			return err
 		}
-		collection, err := feed.GeoJSON()
+		collection, err := f.GeoJSON()
 		if err != nil {
 			return err
 		}
@@ -51,19 +51,18 @@ func activities(c *cli.Context) error {
 	return nil
 }
 
-func activitiesCommand() *cli.Command {
+func feedCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activities",
-		Usage:   "Query activities for a user from InReach",
-		Aliases: []string{"A"},
-		Flags:   activity.DateRangeFlags(),
+		Name:  "feed",
+		Usage: "Query user feed from InReach",
+		Flags: activity.DateRangeFlags(),
 		Before: func(c *cli.Context) error {
 			if c.NArg() == 0 {
 				return errors.New("no user specified")
 			}
 			return nil
 		},
-		Action: activities,
+		Action: feed,
 	}
 }
 
@@ -88,11 +87,11 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "inreach",
 		Category:    "activity",
-		Usage:       "Query InReach for activities",
+		Usage:       "Query InReach for messages",
 		Description: "Operations supported by the InReach KML API",
 		Before:      Before,
 		Subcommands: []*cli.Command{
-			activitiesCommand(),
+			feedCommand(),
 		},
 	}
 }
