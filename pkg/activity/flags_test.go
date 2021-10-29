@@ -22,19 +22,12 @@ func TestDateRangeFlags(t *testing.T) {
 	a.Equal(2, len(flags))
 }
 
-type Harness struct {
-	*internal.Harness
-	Action cli.ActionFunc
-}
-
 func TestDateRange(t *testing.T) {
 	a := assert.New(t)
-	tests := []*Harness{
+	tests := []*internal.Harness{
 		{
-			Harness: &internal.Harness{
-				Name: "noflags",
-				Args: []string{"gravl", "noflags"},
-			},
+			Name: "noflags",
+			Args: []string{"gravl", "noflags"},
 			Action: func(c *cli.Context) error {
 				before, after, err := activity.DateRange(c)
 				a.NoError(err)
@@ -44,10 +37,9 @@ func TestDateRange(t *testing.T) {
 			},
 		},
 		{
-			Harness: &internal.Harness{
-				Name: "before",
-				Args: []string{"gravl", "before", "--before", "yesterday"},
-			},
+			Name: "before",
+			Args: []string{"gravl", "before", "--before", "yesterday"},
+
 			Action: func(c *cli.Context) error {
 				before, after, err := activity.DateRange(c)
 				a.NoError(err)
@@ -57,10 +49,8 @@ func TestDateRange(t *testing.T) {
 			},
 		},
 		{
-			Harness: &internal.Harness{
-				Name: "after",
-				Args: []string{"gravl", "after", "--after", "yesterday"},
-			},
+			Name: "after",
+			Args: []string{"gravl", "after", "--after", "yesterday"},
 			Action: func(c *cli.Context) error {
 				before, after, err := activity.DateRange(c)
 				a.NoError(err)
@@ -70,10 +60,8 @@ func TestDateRange(t *testing.T) {
 			},
 		},
 		{
-			Harness: &internal.Harness{
-				Name: "both",
-				Args: []string{"gravl", "both", "--after", "two weeks ago", "--before", "yesterday"},
-			},
+			Name: "both",
+			Args: []string{"gravl", "both", "--after", "two weeks ago", "--before", "yesterday"},
 			Action: func(c *cli.Context) error {
 				before, after, err := activity.DateRange(c)
 				a.NoError(err)
@@ -83,10 +71,8 @@ func TestDateRange(t *testing.T) {
 			},
 		},
 		{
-			Harness: &internal.Harness{
-				Name: "err",
-				Args: []string{"gravl", "err", "--before", "two weeks ago", "--after", "yesterday"},
-			},
+			Name: "err",
+			Args: []string{"gravl", "err", "--before", "two weeks ago", "--after", "yesterday"},
 			Action: func(c *cli.Context) error {
 				before, after, err := activity.DateRange(c)
 				a.Error(err)
@@ -106,7 +92,7 @@ func TestDateRange(t *testing.T) {
 					Action: tt.Action,
 				}
 			}
-			internal.Run(t, tt.Harness, nil, command)
+			internal.Run(t, tt, nil, command)
 		})
 	}
 }

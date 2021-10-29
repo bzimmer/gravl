@@ -1,19 +1,19 @@
 package cyclinganalytics_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
+
 	api "github.com/bzimmer/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg/internal"
-	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli/v2"
-	"golang.org/x/oauth2"
 )
 
 func command(t *testing.T, baseURL string) *cli.Command {
@@ -106,21 +106,30 @@ func TestActivity(t *testing.T) {
 
 func TestBefore(t *testing.T) {
 	a := assert.New(t)
-	app := &cli.App{
-		Name:   "TestBefore",
-		Before: cyclinganalytics.Before,
-		Metadata: map[string]interface{}{
-			pkg.RuntimeKey: &pkg.Rt{
-				Endpoints: make(map[string]oauth2.Endpoint),
+	tests := []*internal.Harness{
+		{
+			Name:   "testbefore",
+			Args:   []string{"gravl", "testbefore"},
+			Before: cyclinganalytics.Before,
+			Counters: map[string]int{
+				"gravl.cyclinganalytics.client.created": 1,
+			},
+			Action: func(c *cli.Context) error {
+				a.NotNil(pkg.Runtime(c).CyclingAnalytics)
+				a.NotNil(pkg.Runtime(c).Endpoints[cyclinganalytics.Provider])
+				return nil
 			},
 		},
-		Action: func(c *cli.Context) error {
-			a.NotNil(pkg.Runtime(c).CyclingAnalytics)
-			a.NotNil(pkg.Runtime(c).Endpoints[cyclinganalytics.Provider])
-			return nil
-		},
 	}
-	a.NoError(app.RunContext(context.Background(), []string{"test"}))
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			cmd := func(t *testing.T, baseURL string) *cli.Command {
+				return &cli.Command{Name: tt.Name, Flags: cyclinganalytics.AuthFlags(), Action: tt.Action}
+			}
+			internal.Run(t, tt, nil, cmd)
+		})
+	}
 }
 
 func TestActivities(t *testing.T) {

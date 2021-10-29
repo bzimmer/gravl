@@ -195,6 +195,7 @@ func Before(c *cli.Context) error {
 			return
 		}
 		pkg.Runtime(c).RideWithGPS = client
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created rwgps client")
 	})
 	return err

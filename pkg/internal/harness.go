@@ -29,13 +29,14 @@ type Harness struct {
 	Counters  map[string]int
 	Before    cli.BeforeFunc
 	After     cli.AfterFunc
+	Action    cli.ActionFunc
 }
 
 func runtime(app *cli.App) *pkg.Rt {
 	return app.Metadata[pkg.RuntimeKey].(*pkg.Rt)
 }
 
-func before(c *cli.Context) error {
+func initRuntime(c *cli.Context) error {
 	var enc pkg.Encoder
 	cfg := metrics.DefaultConfig("gravl")
 	cfg.EnableRuntimeMetrics = false
@@ -65,6 +66,7 @@ func before(c *cli.Context) error {
 			Endpoints: make(map[string]oauth2.Endpoint),
 		},
 	}
+	log.Info().Msg("initiated Runtime")
 	return nil
 }
 
@@ -89,6 +91,16 @@ func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
 	}
 }
 
+func walkfs(c *cli.Context) error {
+	return afero.Walk(runtime(c.App).Fs, "/", func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(c.App.ErrWriter, "%s\n", path)
+		return nil
+	})
+}
+
 func TestMain(m *testing.M) {
 	// hijack the `go test` verbose flag to manage logging
 	verbose := flag.CommandLine.Lookup("test.v")
@@ -109,13 +121,6 @@ func RunContext(ctx context.Context, t *testing.T, tt *Harness, handler http.Han
 	defer svr.Close()
 
 	app := NewTestApp(t, tt, cmd(t, svr.URL))
-	if tt.Before != nil {
-		app.Before = pkg.Befores(app.Before, tt.Before)
-	}
-	if tt.After != nil {
-		app.After = pkg.Afters(app.After, tt.After)
-	}
-
 	err := app.RunContext(ctx, tt.Args)
 	switch tt.Err == "" {
 	case true:
@@ -130,23 +135,8 @@ func NewTestApp(t *testing.T, tt *Harness, cmd *cli.Command) *cli.App {
 	return &cli.App{
 		Name:     tt.Name,
 		HelpName: tt.Name,
-		Before:   before,
-		After: func(c *cli.Context) error {
-			t.Log(tt.Name)
-			if err := afero.Walk(runtime(c.App).Fs, "/", func(path string, info fs.FileInfo, err error) error {
-				if err != nil {
-					return err
-				}
-				fmt.Fprintf(c.App.ErrWriter, "%s\n", path)
-				return nil
-			}); err != nil {
-				return err
-			}
-			if err := pkg.Stats(c); err != nil {
-				return err
-			}
-			return counters(t, tt.Counters)(c)
-		},
+		Before:   pkg.Befores(initRuntime, tt.Before),
+		After:    pkg.Afters(tt.After, walkfs, pkg.Stats, counters(t, tt.Counters)),
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "encoding",
@@ -163,12 +153,6 @@ func NewTestApp(t *testing.T, tt *Harness, cmd *cli.Command) *cli.App {
 				Aliases: []string{"t"},
 				Value:   time.Second * 10,
 			}},
-		ExitErrHandler: func(c *cli.Context, err error) {
-			if err == nil {
-				return
-			}
-			log.Error().Err(err).Msg(c.App.Name)
-		},
 		Commands: []*cli.Command{cmd},
 	}
 }

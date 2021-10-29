@@ -57,6 +57,13 @@ func initQP(c *cli.Context) error {
 		}
 		return pkg.Runtime(c).Strava.Uploader(), nil
 	}
+	// cyclinganalytics
+	pkg.Runtime(c).Uploaders[cyclinganalytics.Provider] = func(c *cli.Context) (activity.Uploader, error) {
+		if err := cyclinganalytics.Before(c); err != nil {
+			return nil, err
+		}
+		return pkg.Runtime(c).CyclingAnalytics.Uploader(), nil
+	}
 	// zwift
 	pkg.Runtime(c).Exporters[zwift.Provider] = func(c *cli.Context) (activity.Exporter, error) {
 		if err := zwift.Before(c); err != nil {

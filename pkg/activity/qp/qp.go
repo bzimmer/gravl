@@ -43,6 +43,30 @@ func uploader(c *cli.Context, name string) (api.Uploader, error) {
 	return nil, errors.New("unknown uploader")
 }
 
+func providers(c *cli.Context) error {
+	type available struct {
+		Exporters []string `json:"exporters"`
+		Uploaders []string `json:"uploaders"`
+	}
+	res := new(available)
+	for key := range pkg.Runtime(c).Exporters {
+		res.Exporters = append(res.Exporters, key)
+	}
+	for key := range pkg.Runtime(c).Uploaders {
+		res.Uploaders = append(res.Uploaders, key)
+	}
+	log.Info().Strs("exporters", res.Exporters).Strs("uploaders", res.Uploaders).Msg(c.Command.Name)
+	return pkg.Runtime(c).Encoder.Encode(res)
+}
+
+func providersCommand() *cli.Command {
+	return &cli.Command{
+		Name:        "providers",
+		Description: "Return the set of active exporters and uploaders",
+		Action:      providers,
+	}
+}
+
 type xfer struct {
 	metrics  *metrics.Metrics
 	uploader api.Uploader
@@ -386,6 +410,7 @@ func Command() *cli.Command {
 			listCommand(),
 			statusCommand(),
 			uploadCommand(),
+			providersCommand(),
 		},
 	}
 }

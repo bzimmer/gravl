@@ -77,6 +77,7 @@ func Before(c *cli.Context) error {
 			return
 		}
 		pkg.Runtime(c).InReach = client
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created inreach client")
 	})
 	return err

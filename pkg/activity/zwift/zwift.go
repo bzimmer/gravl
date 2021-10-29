@@ -265,6 +265,7 @@ func Before(c *cli.Context) error {
 		}
 		pkg.Runtime(c).Endpoints[Provider] = zwift.Endpoint()
 		pkg.Runtime(c).Zwift = client
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created zwift client")
 	})
 	return err

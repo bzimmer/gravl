@@ -1,7 +1,6 @@
 package zwift_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
@@ -159,18 +158,28 @@ func TestFiles(t *testing.T) {
 
 func TestBefore(t *testing.T) {
 	a := assert.New(t)
-	app := &cli.App{
-		Name:   "TestBefore",
-		Before: zwift.Before,
-		Metadata: map[string]interface{}{
-			pkg.RuntimeKey: &pkg.Rt{
-				Endpoints: make(map[string]oauth2.Endpoint),
+	tests := []*internal.Harness{
+		{
+			Name:   "testbefore",
+			Args:   []string{"gravl", "testbefore"},
+			Before: zwift.Before,
+			Counters: map[string]int{
+				"gravl.zwift.client.created": 1,
+			},
+			Action: func(c *cli.Context) error {
+				a.NotNil(pkg.Runtime(c).Zwift)
+				a.NotNil(pkg.Runtime(c).Endpoints[zwift.Provider])
+				return nil
 			},
 		},
-		Action: func(c *cli.Context) error {
-			a.NotNil(pkg.Runtime(c).Zwift)
-			return nil
-		},
 	}
-	a.NoError(app.RunContext(context.Background(), []string{"test"}))
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			cmd := func(t *testing.T, baseURL string) *cli.Command {
+				return &cli.Command{Name: tt.Name, Flags: zwift.AuthFlags(), Action: tt.Action}
+			}
+			internal.Run(t, tt, nil, cmd)
+		})
+	}
 }

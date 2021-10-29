@@ -423,6 +423,7 @@ func Before(c *cli.Context) error {
 		}
 		pkg.Runtime(c).Endpoints[Provider] = strava.Endpoint()
 		pkg.Runtime(c).Strava = client
+		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created strava client")
 	})
 	return err
