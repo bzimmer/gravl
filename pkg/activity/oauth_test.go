@@ -60,7 +60,7 @@ func TestOAuth(t *testing.T) {
 				case <-ctx.Done():
 					return ctx.Err()
 				case u := <-started:
-					req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+					req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), http.NoBody)
 					if err != nil {
 						return err
 					}

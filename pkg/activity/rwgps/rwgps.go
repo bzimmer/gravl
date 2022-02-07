@@ -125,18 +125,24 @@ func entity(c *cli.Context, f func(context.Context, int64) (interface{}, error))
 	args := c.Args()
 	enc := pkg.Runtime(c).Encoder
 	for i := 0; i < args.Len(); i++ {
-		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-		defer cancel()
-		x, err := strconv.ParseInt(args.Get(i), 0, 0)
+		err := func() error {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			x, err := strconv.ParseInt(args.Get(i), 0, 0)
+			if err != nil {
+				return err
+			}
+			v, err := f(ctx, x)
+			if err != nil {
+				return err
+			}
+			pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
+			if err := enc.Encode(v); err != nil {
+				return err
+			}
+			return nil
+		}()
 		if err != nil {
-			return err
-		}
-		v, err := f(ctx, x)
-		if err != nil {
-			return err
-		}
-		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-		if err := enc.Encode(v); err != nil {
 			return err
 		}
 	}

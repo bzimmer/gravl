@@ -86,18 +86,24 @@ func ride(c *cli.Context) error {
 	enc := pkg.Runtime(c).Encoder
 	args := c.Args()
 	for i := 0; i < args.Len(); i++ {
-		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-		defer cancel()
-		rideID, err := strconv.ParseInt(args.Get(i), 0, 64)
+		err := func() error {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			rideID, err := strconv.ParseInt(args.Get(i), 0, 64)
+			if err != nil {
+				return err
+			}
+			ride, err := client.Rides.Ride(ctx, rideID, opts)
+			if err != nil {
+				return err
+			}
+			pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
+			if err := enc.Encode(ride); err != nil {
+				return err
+			}
+			return nil
+		}()
 		if err != nil {
-			return err
-		}
-		ride, err := client.Rides.Ride(ctx, rideID, opts)
-		if err != nil {
-			return err
-		}
-		pkg.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-		if err := enc.Encode(ride); err != nil {
 			return err
 		}
 	}
