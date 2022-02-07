@@ -184,13 +184,19 @@ func status(c *cli.Context) error {
 		metrics: pkg.Runtime(c).Metrics,
 	}
 	for i := 0; i < args.Len(); i++ {
-		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
-		defer cancel()
-		uploadID, err := strconv.ParseInt(args.Get(i), 0, 64)
+		err := func() error {
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+			uploadID, err := strconv.ParseInt(args.Get(i), 0, 64)
+			if err != nil {
+				return err
+			}
+			if err := x.poll(ctx, api.UploadID(uploadID)); err != nil {
+				return err
+			}
+			return nil
+		}()
 		if err != nil {
-			return err
-		}
-		if err := x.poll(ctx, api.UploadID(uploadID)); err != nil {
 			return err
 		}
 	}

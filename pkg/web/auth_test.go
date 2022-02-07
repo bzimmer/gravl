@@ -31,7 +31,7 @@ func TestAuthHandler(t *testing.T) {
 	}
 	mux.HandleFunc("/auth", web.AuthHandler(cfg, "foo-state-bar"))
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/auth", nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/auth", http.NoBody)
 	a.NoError(err)
 
 	w := httptest.NewRecorder()

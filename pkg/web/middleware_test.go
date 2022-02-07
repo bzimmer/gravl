@@ -37,7 +37,7 @@ func TestLogHandler(t *testing.T) {
 	mux.Handle("/token", logger(new(tokenhandler)))
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/token", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/token", http.NoBody)
 	mux.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 }
