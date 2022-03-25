@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
+	api "github.com/bzimmer/activity"
+	"github.com/bzimmer/activity/strava"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/time/rate"
 
-	api "github.com/bzimmer/activity"
-	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity"
 	"github.com/bzimmer/gravl/pkg/eval"
@@ -22,7 +22,7 @@ const Provider = "strava"
 
 var before sync.Once
 
-type entityFunc func(context.Context, *strava.Client, int64) (interface{}, error)
+type entityFunc func(context.Context, *strava.Client, int64) (any, error)
 
 func athlete(c *cli.Context) error {
 	client := pkg.Runtime(c).Strava
@@ -65,30 +65,38 @@ func refreshCommand() *cli.Command {
 	}
 }
 
-func filter(c *cli.Context) (func(ctx context.Context, act *strava.Activity) (bool, error), error) {
-	f := func(ctx context.Context, act *strava.Activity) (bool, error) { return true, nil }
-	if c.IsSet("filter") {
-		var evaluator eval.Evaluator
-		evaluator, err := pkg.Runtime(c).Evaluator(c.String("filter"))
+func evaluator(c *cli.Context, evaluation string) (eval.Evaluator, error) {
+	if c.IsSet(evaluation) {
+		var ev eval.Evaluator
+		ev, err := pkg.Runtime(c).Evaluator(c.String(evaluation))
 		if err != nil {
 			return nil, err
 		}
-		f = evaluator.Bool
+		return ev, nil
 	}
-	return f, nil
+	return nil, nil
 }
 
-func attributer(c *cli.Context) (func(ctx context.Context, act *strava.Activity) (interface{}, error), error) {
-	f := func(ctx context.Context, act *strava.Activity) (interface{}, error) { return act, nil }
-	if c.IsSet("attribute") {
-		var evaluator eval.Evaluator
-		evaluator, err := pkg.Runtime(c).Evaluator(c.String("attribute"))
-		if err != nil {
-			return nil, err
-		}
-		f = evaluator.Eval
+func filter(c *cli.Context) (func(ctx context.Context, act *strava.Activity) (bool, error), error) {
+	ev, err := evaluator(c, "filter")
+	if err != nil {
+		return nil, err
 	}
-	return f, nil
+	if ev == nil {
+		return func(ctx context.Context, act *strava.Activity) (bool, error) { return true, nil }, nil
+	}
+	return ev.Bool, nil
+}
+
+func attributer(c *cli.Context) (func(ctx context.Context, act *strava.Activity) (any, error), error) {
+	ev, err := evaluator(c, "attribute")
+	if err != nil {
+		return nil, err
+	}
+	if ev == nil {
+		return func(ctx context.Context, act *strava.Activity) (any, error) { return act, nil }, nil
+	}
+	return ev.Eval, nil
 }
 
 func daterange(c *cli.Context) (strava.APIOption, error) {
@@ -307,7 +315,7 @@ func activityCommand() *cli.Command {
 			for stream := range s {
 				streams = append(streams, stream)
 			}
-			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				act, err := client.Activity.Activity(ctx, id, streams...)
 				if err != nil {
 					return nil, err
@@ -341,7 +349,7 @@ func streamsCommand() *cli.Command {
 				streams = append(streams, stream)
 			}
 			log.Info().Strs("streams", streams).Msg(c.Command.Name)
-			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				return client.Activity.Streams(ctx, id, streams...)
 			})
 		},
@@ -355,7 +363,7 @@ func routeCommand() *cli.Command {
 		Usage:     "Query a route from Strava",
 		ArgsUsage: "ROUTE_ID (...)",
 		Action: func(c *cli.Context) error {
-			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				return client.Route.Route(ctx, id)
 			})
 		},
@@ -376,7 +384,7 @@ func photosCommand() *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				return client.Activity.Photos(ctx, id, c.Int("size"))
 			})
 		},

@@ -32,3 +32,17 @@ changelog:
       - '^Merge pull request'
 announce:
   skip: "true"
+
+brews:
+  - name: gravl
+    homepage: https://github.com/bzimmer/gravl
+    description: Command line clients for activity-related services
+    license: MIT
+    commit_author:
+      name: bzimmer
+      email: bzimmer@ziclix.com
+    tap:
+      owner: bzimmer
+      name: homebrew-tap
+    skip_upload: auto
+    install: bin.install "gravl"

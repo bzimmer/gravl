@@ -2,9 +2,11 @@ package version
 
 import (
 	"fmt"
+	"runtime/debug"
+
+	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl/pkg"
-	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -21,11 +23,15 @@ func Command() *cli.Command {
 		Name:  "version",
 		Usage: "Version",
 		Action: func(c *cli.Context) error {
-			return pkg.Runtime(c).Encoder.Encode(map[string]string{
+			m := map[string]string{
 				"version":    BuildVersion,
 				"timestamp":  BuildTime,
 				"user-agent": UserAgent,
-			})
+			}
+			if info, ok := debug.ReadBuildInfo(); ok {
+				m["go"] = info.GoVersion
+			}
+			return pkg.Runtime(c).Encoder.Encode(m)
 		},
 	}
 }

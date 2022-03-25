@@ -44,8 +44,8 @@ func fahrenheit(c float64) float64 {
 	return unit.FromCelsius(c).Fahrenheit()
 }
 
-func env(acts []*strava.Activity) map[string]interface{} {
-	return map[string]interface{}{
+func env(acts ...*strava.Activity) map[string]any {
+	return map[string]any{
 		"Activities": acts,
 		"isoweek":    isoweek,
 		"F":          fahrenheit,
@@ -57,7 +57,7 @@ type evaluator struct {
 }
 
 func compile(q string) (*evaluator, error) {
-	pgm, err := expr.Compile(q, expr.Env(env(nil)))
+	pgm, err := expr.Compile(q, expr.Env(env()))
 	if err != nil {
 		return nil, err
 	}
@@ -76,16 +76,16 @@ func Evaluator(q string) (eval.Evaluator, error) {
 	return compile(fmt.Sprintf("map(Activities, %s)", closure(q)))
 }
 
-func (x *evaluator) run(acts []*strava.Activity) ([]interface{}, error) {
-	out, err := expr.Run(x.program, env(acts))
+func (x *evaluator) run(acts ...*strava.Activity) ([]any, error) {
+	out, err := expr.Run(x.program, env(acts...))
 	if err != nil {
 		return nil, err
 	}
-	return out.([]interface{}), nil
+	return out.([]any), nil
 }
 
 func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
-	res, err := x.run(acts)
+	res, err := x.run(acts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +96,8 @@ func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*str
 	return p, nil
 }
 
-func (x *evaluator) Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error) {
-	return x.run(acts)
+func (x *evaluator) Map(ctx context.Context, acts []*strava.Activity) ([]any, error) {
+	return x.run(acts...)
 }
 
 func (x *evaluator) Bool(ctx context.Context, act *strava.Activity) (bool, error) {
@@ -113,8 +113,8 @@ func (x *evaluator) Bool(ctx context.Context, act *strava.Activity) (bool, error
 	}
 }
 
-func (x *evaluator) Eval(ctx context.Context, act *strava.Activity) (interface{}, error) {
-	res, err := x.run([]*strava.Activity{act})
+func (x *evaluator) Eval(ctx context.Context, act *strava.Activity) (any, error) {
+	res, err := x.run(act)
 	if err != nil {
 		return nil, err
 	}

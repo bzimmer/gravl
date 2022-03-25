@@ -6,18 +6,18 @@ import (
 	"path/filepath"
 
 	"github.com/armon/go-metrics"
+	"github.com/bzimmer/activity"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl/pkg"
 )
 
-// Write the contents of the export to a file if `output` is specified, else `stdout`
+// write the contents of the export to a file if `output` is specified, else `stdout`
 // If the file is written to `output` then the metadata is written to `stdout`, else
 // only the file is written to `stdout`.
-func Write(c *cli.Context, exp *activity.Export) error {
+func write(c *cli.Context, exp *activity.Export) error {
 	if exp == nil || exp.Reader == nil {
 		return nil
 	}
