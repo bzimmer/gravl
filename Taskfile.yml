@@ -10,7 +10,7 @@ vars:
   APP:
     sh: basename $PWD
   PKG:
-    github.com/bzimmer/gravl/pkg/version
+    github.com/bzimmer/gravl/version
   DIST:
     "{{.CWD}}/dist"
   TASK:
@@ -20,7 +20,7 @@ vars:
   VERSION:
     sh: git rev-parse --short HEAD
   LDFLAGS:
-    -ldflags "-X {{.PKG}}.BuildVersion={{.VERSION}} -X {{.PKG}}.BuildTime="{{now | date "2006-01-02T15:04:05Z07:00"}}""
+    -ldflags "-X {{.PKG}}.BuildVersion={{.VERSION}} -X {{.PKG}}.BuildTime={{now | date "2006-01-02T15:04:05Z07:00"}}"
 
 tasks:
   default:

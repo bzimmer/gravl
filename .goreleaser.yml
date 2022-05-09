@@ -4,7 +4,7 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-      - PKG=github.com/bzimmer/gravl/pkg/version
+      - PKG=github.com/bzimmer/gravl/version
     goos:
       - linux
       - windows

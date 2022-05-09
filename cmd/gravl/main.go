@@ -16,15 +16,15 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/bzimmer/activity"
-	"github.com/bzimmer/gravl/pkg"
-	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
-	"github.com/bzimmer/gravl/pkg/activity/inreach"
-	"github.com/bzimmer/gravl/pkg/activity/qp"
-	"github.com/bzimmer/gravl/pkg/activity/rwgps"
-	"github.com/bzimmer/gravl/pkg/activity/strava"
-	"github.com/bzimmer/gravl/pkg/activity/zwift"
-	"github.com/bzimmer/gravl/pkg/eval/antonmedv"
-	"github.com/bzimmer/gravl/pkg/version"
+	"github.com/bzimmer/gravl"
+	"github.com/bzimmer/gravl/activity/cyclinganalytics"
+	"github.com/bzimmer/gravl/activity/inreach"
+	"github.com/bzimmer/gravl/activity/qp"
+	"github.com/bzimmer/gravl/activity/rwgps"
+	"github.com/bzimmer/gravl/activity/strava"
+	"github.com/bzimmer/gravl/activity/zwift"
+	"github.com/bzimmer/gravl/eval/antonmedv"
+	"github.com/bzimmer/gravl/version"
 )
 
 func initSignal(cancel context.CancelFunc) cli.BeforeFunc {
@@ -45,49 +45,49 @@ func initSignal(cancel context.CancelFunc) cli.BeforeFunc {
 
 func initQP(c *cli.Context) error {
 	// strava
-	pkg.Runtime(c).Exporters[strava.Provider] = func(c *cli.Context) (activity.Exporter, error) {
+	gravl.Runtime(c).Exporters[strava.Provider] = func(c *cli.Context) (activity.Exporter, error) {
 		if err := strava.Before(c); err != nil {
 			return nil, err
 		}
-		return pkg.Runtime(c).Strava.Exporter(), nil
+		return gravl.Runtime(c).Strava.Exporter(), nil
 	}
-	pkg.Runtime(c).Uploaders[strava.Provider] = func(c *cli.Context) (activity.Uploader, error) {
+	gravl.Runtime(c).Uploaders[strava.Provider] = func(c *cli.Context) (activity.Uploader, error) {
 		if err := strava.Before(c); err != nil {
 			return nil, err
 		}
-		return pkg.Runtime(c).Strava.Uploader(), nil
+		return gravl.Runtime(c).Strava.Uploader(), nil
 	}
 	// cyclinganalytics
-	pkg.Runtime(c).Uploaders[cyclinganalytics.Provider] = func(c *cli.Context) (activity.Uploader, error) {
+	gravl.Runtime(c).Uploaders[cyclinganalytics.Provider] = func(c *cli.Context) (activity.Uploader, error) {
 		if err := cyclinganalytics.Before(c); err != nil {
 			return nil, err
 		}
-		return pkg.Runtime(c).CyclingAnalytics.Uploader(), nil
+		return gravl.Runtime(c).CyclingAnalytics.Uploader(), nil
 	}
 	// zwift
-	pkg.Runtime(c).Exporters[zwift.Provider] = func(c *cli.Context) (activity.Exporter, error) {
+	gravl.Runtime(c).Exporters[zwift.Provider] = func(c *cli.Context) (activity.Exporter, error) {
 		if err := zwift.Before(c); err != nil {
 			return nil, err
 		}
-		return pkg.Runtime(c).Zwift.Exporter(), nil
+		return gravl.Runtime(c).Zwift.Exporter(), nil
 	}
 	return nil
 }
 
 func initRuntime(c *cli.Context) error {
-	var enc pkg.Encoder
+	var enc gravl.Encoder
 	compact := c.Bool("compact")
 	switch c.String("encoding") {
 	case "geojson":
-		enc = pkg.GeoJSON(c.App.Writer, compact)
+		enc = gravl.GeoJSON(c.App.Writer, compact)
 	case "xml":
-		enc = pkg.XML(c.App.Writer, compact)
+		enc = gravl.XML(c.App.Writer, compact)
 	case "json":
-		enc = pkg.JSON(c.App.Writer, compact)
+		enc = gravl.JSON(c.App.Writer, compact)
 	case "gpx":
-		enc = pkg.GPX(c.App.Writer, compact)
+		enc = gravl.GPX(c.App.Writer, compact)
 	default:
-		enc = pkg.Blackhole()
+		enc = gravl.Blackhole()
 	}
 
 	cfg := metrics.DefaultConfig(c.App.Name)
@@ -99,7 +99,7 @@ func initRuntime(c *cli.Context) error {
 		return err
 	}
 
-	c.App.Metadata[pkg.RuntimeKey] = &pkg.Rt{
+	c.App.Metadata[gravl.RuntimeKey] = &gravl.Rt{
 		Start:     time.Now(),
 		Encoder:   enc,
 		Filterer:  antonmedv.Filterer,
@@ -107,8 +107,8 @@ func initRuntime(c *cli.Context) error {
 		Sink:      sink,
 		Metrics:   metric,
 		Fs:        afero.NewOsFs(),
-		Uploaders: make(map[string]pkg.UploaderFunc),
-		Exporters: make(map[string]pkg.ExporterFunc),
+		Uploaders: make(map[string]gravl.UploaderFunc),
+		Exporters: make(map[string]gravl.ExporterFunc),
 		Endpoints: make(map[string]oauth2.Endpoint),
 	}
 	return nil
@@ -200,12 +200,12 @@ func run() error {
 		Description: "command line access to activity platforms",
 		Flags:       flags(),
 		Commands:    commands(),
-		Before:      pkg.Befores(initSignal(cancel), initLogging, initRuntime, initQP),
+		Before:      gravl.Befores(initSignal(cancel), initLogging, initRuntime, initQP),
 		After: func(c *cli.Context) error {
-			t := pkg.Runtime(c).Start
-			met := pkg.Runtime(c).Metrics
+			t := gravl.Runtime(c).Start
+			met := gravl.Runtime(c).Metrics
 			met.AddSample([]string{"runtime"}, float32(time.Since(t).Seconds()))
-			return pkg.Stats(c)
+			return gravl.Stats(c)
 		},
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
