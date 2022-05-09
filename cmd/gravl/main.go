@@ -90,7 +90,7 @@ func initRuntime(c *cli.Context) error {
 		enc = pkg.Blackhole()
 	}
 
-	cfg := metrics.DefaultConfig("gravl")
+	cfg := metrics.DefaultConfig(c.App.Name)
 	cfg.EnableRuntimeMetrics = false
 	cfg.TimerGranularity = time.Second
 	sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)

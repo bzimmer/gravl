@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
+	api "github.com/bzimmer/activity"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 
-	api "github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity"
 	"github.com/bzimmer/gravl/pkg/activity/cyclinganalytics"
@@ -251,7 +251,7 @@ func export(c *cli.Context) error {
 			return err
 		}
 		met.IncrCounter([]string{"export", "success"}, 1)
-		if err := Write(c, exp); err != nil {
+		if err := write(c, exp); err != nil {
 			return err
 		}
 	}

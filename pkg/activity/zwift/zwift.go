@@ -7,13 +7,13 @@ import (
 	"strconv"
 	"sync"
 
+	api "github.com/bzimmer/activity"
+	"github.com/bzimmer/activity/zwift"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
-	api "github.com/bzimmer/activity"
-	"github.com/bzimmer/activity/zwift"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity"
 )

@@ -15,7 +15,7 @@ type Filterer interface {
 // Mapper performs activity mapping
 type Mapper interface {
 	// Map over the collection of activities producing a slice of expression evaluation values
-	Map(ctx context.Context, acts []*strava.Activity) ([]interface{}, error)
+	Map(ctx context.Context, acts []*strava.Activity) ([]any, error)
 }
 
 // Evalutor performs evaluations on activities
@@ -24,5 +24,5 @@ type Evaluator interface {
 	Bool(ctx context.Context, act *strava.Activity) (bool, error)
 
 	// Eval performs an evaluation on an activity with an arbitrary result
-	Eval(ctx context.Context, act *strava.Activity) (interface{}, error)
+	Eval(ctx context.Context, act *strava.Activity) (any, error)
 }

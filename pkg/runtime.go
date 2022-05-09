@@ -10,17 +10,17 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/rs/zerolog/log"
-	"github.com/spf13/afero"
-	"github.com/urfave/cli/v2"
-	"golang.org/x/oauth2"
-
 	"github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/cyclinganalytics"
 	"github.com/bzimmer/activity/inreach"
 	"github.com/bzimmer/activity/rwgps"
 	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/activity/zwift"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
+	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
+
 	"github.com/bzimmer/gravl/pkg/eval"
 )
 
@@ -77,12 +77,12 @@ func Runtime(c *cli.Context) *Rt {
 var ErrUnknownEncoder = errors.New("unknown encoder")
 
 type Encoder interface {
-	Encode(v interface{}) error
+	Encode(v any) error
 }
 
 type blackhole struct{}
 
-func (b *blackhole) Encode(v interface{}) error {
+func (b *blackhole) Encode(v any) error {
 	return nil
 }
 
@@ -90,7 +90,7 @@ type gpxEncoder struct {
 	enc Encoder
 }
 
-func (g *gpxEncoder) Encode(v interface{}) error {
+func (g *gpxEncoder) Encode(v any) error {
 	q, ok := v.(activity.GPXEncoder)
 	if !ok {
 		return errors.New("encoding GPX not supported")
@@ -106,7 +106,7 @@ type geoJSONEncoder struct {
 	enc Encoder
 }
 
-func (g *geoJSONEncoder) Encode(v interface{}) error {
+func (g *geoJSONEncoder) Encode(v any) error {
 	q, ok := v.(activity.GeoJSONEncoder)
 	if !ok {
 		return errors.New("encoding GeoJSON not supported")
@@ -122,7 +122,7 @@ type jsonEncoder struct {
 	enc *json.Encoder
 }
 
-func (j *jsonEncoder) Encode(v interface{}) error {
+func (j *jsonEncoder) Encode(v any) error {
 	return j.enc.Encode(v)
 }
 
@@ -130,7 +130,7 @@ type xmlEncoder struct {
 	enc *xml.Encoder
 }
 
-func (x *xmlEncoder) Encode(v interface{}) error {
+func (x *xmlEncoder) Encode(v any) error {
 	return x.enc.Encode(v)
 }
 

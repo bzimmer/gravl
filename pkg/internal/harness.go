@@ -52,7 +52,7 @@ func initRuntime(c *cli.Context) error {
 	default:
 		enc = pkg.Blackhole()
 	}
-	c.App.Metadata = map[string]interface{}{
+	c.App.Metadata = map[string]any{
 		pkg.RuntimeKey: &pkg.Rt{
 			Start:     time.Now(),
 			Metrics:   metric,

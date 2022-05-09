@@ -5,7 +5,7 @@
 
 <img src="docs/images/gravl.png" width="150" alt="gravl logo" align="right">
 
-**gravl** package provides clients for activity-related services.
+**gravl** command line clients for activity-related services
 
 ## Activity clients
 * [Strava](https://strava.com)

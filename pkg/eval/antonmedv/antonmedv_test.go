@@ -126,5 +126,5 @@ func TestEvaluator(t *testing.T) {
 	a.NoError(err)
 	yal, err = q.Eval(context.Background(), acts[0])
 	a.NoError(err)
-	a.Equal([]interface{}{"Hike", unit.Length(100000)}, yal)
+	a.Equal([]any{"Hike", unit.Length(100000)}, yal)
 }

@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
+	api "github.com/bzimmer/activity"
+	"github.com/bzimmer/activity/cyclinganalytics"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
-	api "github.com/bzimmer/activity"
-	"github.com/bzimmer/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity"
 )

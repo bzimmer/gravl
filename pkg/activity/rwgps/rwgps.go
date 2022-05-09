@@ -13,6 +13,7 @@ import (
 
 	api "github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/rwgps"
+
 	"github.com/bzimmer/gravl/pkg"
 	"github.com/bzimmer/gravl/pkg/activity"
 )
@@ -79,7 +80,7 @@ func trips(c *cli.Context, kind string) error {
 			Int64("id", trip.ID).
 			Str("name", trip.Name).
 			Msg(c.Command.Name)
-		err = enc.Encode([]interface{}{i, trip})
+		err = enc.Encode([]any{i, trip})
 		if err != nil {
 			return err
 		}
@@ -121,7 +122,7 @@ func routesCommand() *cli.Command {
 	}
 }
 
-func entity(c *cli.Context, f func(context.Context, int64) (interface{}, error)) error {
+func entity(c *cli.Context, f func(context.Context, int64) (any, error)) error {
 	args := c.Args()
 	enc := pkg.Runtime(c).Encoder
 	for i := 0; i < args.Len(); i++ {
@@ -149,14 +150,14 @@ func entity(c *cli.Context, f func(context.Context, int64) (interface{}, error))
 	return nil
 }
 
-func activityCommand() *cli.Command { //nolint
+func activityCommand() *cli.Command { //nolint:dupl
 	return &cli.Command{
 		Name:    "activity",
 		Aliases: []string{"a"},
 		Usage:   "Query an activity from RideWithGPS",
 		Action: func(c *cli.Context) error {
 			client := pkg.Runtime(c).RideWithGPS
-			return entity(c, func(ctx context.Context, id int64) (interface{}, error) {
+			return entity(c, func(ctx context.Context, id int64) (any, error) {
 				trip, err := client.Trips.Trip(ctx, id)
 				if err != nil {
 					return nil, err
@@ -168,14 +169,14 @@ func activityCommand() *cli.Command { //nolint
 	}
 }
 
-func routeCommand() *cli.Command { //nolint
+func routeCommand() *cli.Command { //nolint:dupl
 	return &cli.Command{
 		Name:    "route",
 		Aliases: []string{"r"},
 		Usage:   "Query a route from RideWithGPS",
 		Action: func(c *cli.Context) error {
 			client := pkg.Runtime(c).RideWithGPS
-			return entity(c, func(ctx context.Context, id int64) (interface{}, error) {
+			return entity(c, func(ctx context.Context, id int64) (any, error) {
 				route, err := client.Trips.Route(ctx, id)
 				if err != nil {
 					return nil, err

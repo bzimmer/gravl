@@ -4,10 +4,10 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/bzimmer/activity/strava"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/gravl/pkg"
 )
 
@@ -60,7 +60,7 @@ func whunsubscribe(c *cli.Context) error {
 		log.Info().Msg("no active subscriptions")
 		return nil
 	}
-	return entityWithArgs(c, func(ctx context.Context, client *strava.Client, id int64) (interface{}, error) {
+	return entityWithArgs(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 		log.Info().Int64("id", id).Msg("unsubscribing")
 		return id, client.Webhook.Unsubscribe(ctx, id)
 	}, args)

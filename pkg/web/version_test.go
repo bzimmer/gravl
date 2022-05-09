@@ -24,7 +24,7 @@ func TestVersionHandler(t *testing.T) {
 	mux.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 
-	var version map[string]interface{}
+	var version map[string]any
 	decoder := json.NewDecoder(w.Body)
 	err := decoder.Decode(&version)
 	a.NoError(err)
