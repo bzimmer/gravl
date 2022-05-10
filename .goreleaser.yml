@@ -11,7 +11,7 @@ builds:
       - darwin
     main: ./cmd/gravl
     ldflags:
-      - -s -w -X {{.Env.PKG}}.BuildVersion={{.Version}} -X {{.Env.PKG}}.BuildTime="{{.Date}}"
+      - -s -w -X {{.Env.PKG}}.BuildVersion={{.Version}} -X {{.Env.PKG}}.BuildTime={{.Date}}
 archives:
   - replacements:
       darwin: Darwin
