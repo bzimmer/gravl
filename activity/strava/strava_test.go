@@ -332,3 +332,119 @@ func TestRefresh(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdate(t *testing.T) { //nolint:funlen
+	a := assert.New(t)
+
+	var decoder = func(r *http.Request) *api.UpdatableActivity {
+		var act api.UpdatableActivity
+		dec := json.NewDecoder(r.Body)
+		a.NoError(dec.Decode(&act))
+		return &act
+	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/activities/101", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		act := decoder(r)
+		a.True(*act.Hidden)
+	})
+	mux.HandleFunc("/activities/102", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		act := decoder(r)
+		a.False(*act.Hidden)
+	})
+	mux.HandleFunc("/activities/103", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		act := decoder(r)
+		a.Equal("foobar", *act.Description)
+	})
+	mux.HandleFunc("/activities/104", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		act := decoder(r)
+		a.Equal("foobaz", *act.Name)
+	})
+	mux.HandleFunc("/activities/105", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		act := decoder(r)
+		a.Equal("gravel", *act.SportType)
+		a.Equal("99181", *act.GearID)
+	})
+	mux.HandleFunc("/activities/106", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		act := decoder(r)
+		a.True(*act.Commute)
+		a.True(*act.Trainer)
+	})
+	mux.HandleFunc("/activities/107", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		act := decoder(r)
+		a.False(*act.Commute)
+		a.False(*act.Trainer)
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name: "update help",
+			Args: []string{"gravl", "strava", "update", "--help"},
+		},
+		{
+			Name: "update hidden",
+			Args: []string{"gravl", "strava", "update", "--hidden", "101"},
+		},
+		{
+			Name: "update no-hidden",
+			Args: []string{"gravl", "strava", "update", "--no-hidden", "102"},
+		},
+		{
+			Name: "update description",
+			Args: []string{"gravl", "strava", "update", "--description", "foobar", "103"},
+		},
+		{
+			Name: "update name",
+			Args: []string{"gravl", "strava", "update", "--name", "foobaz", "104"},
+			Counters: map[string]int{
+				"gravl.strava.update":      1,
+				"gravl.strava.update.name": 1,
+			},
+		},
+		{
+			Name: "update sport & gear",
+			Args: []string{"gravl", "strava", "update", "--gear", "99181", "--sport", "gravel", "105"},
+		},
+		{
+			Name: "set trainer and commute",
+			Args: []string{"gravl", "strava", "update", "--trainer", "--commute", "106"},
+			Counters: map[string]int{
+				"gravl.strava.update":         1,
+				"gravl.strava.update.trainer": 1,
+				"gravl.strava.update.commute": 1,
+			},
+		},
+		{
+			Name: "unset trainer and commute",
+			Args: []string{"gravl", "strava", "update", "--no-trainer", "--no-commute", "107"},
+		},
+		{
+			Name: "invalid hidden",
+			Args: []string{"gravl", "strava", "update", "--hidden", "--no-hidden", "9001"},
+			Err:  "only one of hidden or no-hidden can be specified",
+		},
+		{
+			Name: "invalid trainer",
+			Args: []string{"gravl", "strava", "update", "--trainer", "--no-trainer", "9001"},
+			Err:  "only one of trainer or no-trainer can be specified",
+		},
+		{
+			Name: "invalid commute",
+			Args: []string{"gravl", "strava", "update", "--commute", "--no-commute", "9001"},
+			Err:  "only one of commute or no-commute can be specified",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}

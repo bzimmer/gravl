@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -76,7 +77,12 @@ func oauth(c *cli.Context, cfg *OAuthConfig) error {
 	if err != nil {
 		return err
 	}
-	svr := &http.Server{Handler: mux}
+	svr := &http.Server{
+		Handler:           mux,
+		ReadTimeout:       5 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
 	grp, ctx := errgroup.WithContext(c.Context)
 	grp.Go(func() error {
 		if err := svr.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
