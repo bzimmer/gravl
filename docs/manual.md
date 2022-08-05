@@ -92,6 +92,7 @@ activities from Strava each query will honor the timeout value, it's not a deadl
 * [strava routes](#strava-routes)
 * [strava streams](#strava-streams)
 * [strava streamsets](#strava-streamsets)
+* [strava update](#strava-update)
 * [strava webhook](#strava-webhook)
 * [strava webhook list](#strava-webhook-list)
 * [strava webhook subscribe](#strava-webhook-subscribe)
@@ -1051,6 +1052,36 @@ time
 velocity_smooth
 watts
 ```
+
+
+## *strava update*
+
+**Description**
+
+
+
+
+**Syntax**
+
+```sh
+$ gravl strava update [flags] ACTIVITY_ID (...)
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```name```|||Set the name for the activity|
+|```gear```|||Set the gear id for the activity|
+|```sport```|||Set the sport for the activity|
+|```description```|||Set the description for the activity|
+|```hidden```|||Hide the activity from the home dashboard|
+|```no-hidden```|||Display the activity on the home dashboard|
+|```commute```|||The activity is a commute|
+|```no-commute```|||The activity is not a commute|
+|```trainer```|||The activity was completed on a trainer|
+|```no-trainer```|||The activity was not completed on a trainer|
 
 
 ## *strava webhook*

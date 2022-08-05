@@ -2,6 +2,7 @@ package strava
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"sync"
 	"time"
@@ -250,8 +251,11 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
 		concurrency = 1
 	}
 
+	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+	defer cancel()
+
 	argc := make(chan int64)
-	grp, ctx := errgroup.WithContext(c.Context)
+	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
 		defer close(argc)
 		for _, arg := range args {
@@ -259,22 +263,24 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
 			if err != nil {
 				return err
 			}
-			argc <- x
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case argc <- x:
+			}
 		}
 		return nil
 	})
 	for i := 0; i < concurrency; i++ {
 		grp.Go(func() error {
-			gtx, cancel := context.WithTimeout(ctx, c.Duration("timeout"))
-			defer cancel()
 			for x := range argc {
 				t := time.Now()
-				log.Info().Int64("id", x).Str("entity", c.Command.Name).Msg("querying")
-				v, err := f(gtx, client, x)
+				log.Info().Int64("id", x).Str("command", c.Command.Name).Msg("executing")
+				v, err := f(ctx, client, x)
 				if err != nil {
 					return err
 				}
-				gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name}, 1)
 				if err := enc.Encode(v); err != nil {
 					return err
 				}
@@ -327,6 +333,106 @@ func activityCommand() *cli.Command {
 					Str("type", act.Type).
 					Msg("activity")
 				return act, nil
+			})
+		},
+	}
+}
+
+func updateFlags() []cli.Flag {
+	var flags []cli.Flag
+	var pairs = [][]string{
+		{"name", "Set the name for the activity"},
+		{"gear", "Set the gear id for the activity"},
+		{"sport", "Set the sport for the activity"},
+		{"description", "Set the description for the activity"},
+	}
+	for i := range pairs {
+		name := pairs[i][0]
+		usage := pairs[i][1]
+		flags = append(flags, &cli.StringFlag{Name: name, Usage: usage})
+	}
+	pairs = [][]string{
+		{"hidden", "Hide the activity from the home dashboard"},
+		{"no-hidden", "Display the activity on the home dashboard"},
+		{"commute", "The activity is a commute"},
+		{"no-commute", "The activity is not a commute"},
+		{"trainer", "The activity was completed on a trainer"},
+		{"no-trainer", "The activity was not completed on a trainer"},
+	}
+	for i := range pairs {
+		name := pairs[i][0]
+		usage := pairs[i][1]
+		flags = append(flags, &cli.BoolFlag{Name: name, Usage: usage})
+	}
+	return flags
+}
+
+func updateCommand() *cli.Command { //nolint:gocyclo
+	return &cli.Command{
+		Name:      "update",
+		ArgsUsage: "ACTIVITY_ID (...)",
+		Flags:     updateFlags(),
+		Action: func(c *cli.Context) error {
+			met := gravl.Runtime(c).Metrics
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
+				update := &strava.UpdatableActivity{ID: id}
+				if c.IsSet("name") {
+					val := c.String("name")
+					update.Name = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "name"}, 1)
+				}
+				if c.IsSet("sport") {
+					val := c.String("sport")
+					update.SportType = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "sport"}, 1)
+				}
+				if c.IsSet("gear") {
+					val := c.String("gear")
+					update.GearID = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "gear"}, 1)
+				}
+				if c.IsSet("description") {
+					val := c.String("description")
+					update.Description = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "description"}, 1)
+				}
+				switch {
+				case c.IsSet("hidden") && c.IsSet("no-hidden"):
+					return nil, errors.New("only one of hidden or no-hidden can be specified")
+				case c.IsSet("hidden"):
+					val := true
+					update.Hidden = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "hidden"}, 1)
+				case c.IsSet("no-hidden"):
+					val := false
+					update.Hidden = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "no-hidden"}, 1)
+				}
+				switch {
+				case c.IsSet("commute") && c.IsSet("no-commute"):
+					return nil, errors.New("only one of commute or no-commute can be specified")
+				case c.IsSet("commute"):
+					val := true
+					update.Commute = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "commute"}, 1)
+				case c.IsSet("no-commute"):
+					val := false
+					update.Commute = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "no-commute"}, 1)
+				}
+				switch {
+				case c.IsSet("trainer") && c.IsSet("no-trainer"):
+					return nil, errors.New("only one of trainer or no-trainer can be specified")
+				case c.IsSet("trainer"):
+					val := true
+					update.Trainer = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "trainer"}, 1)
+				case c.IsSet("no-trainer"):
+					val := false
+					update.Trainer = &val
+					met.IncrCounter([]string{Provider, c.Command.Name, "no-trainer"}, 1)
+				}
+				return client.Activity.Update(ctx, update)
 			})
 		},
 	}
@@ -456,6 +562,7 @@ func Command() *cli.Command {
 			routesCommand(),
 			streamsCommand(),
 			streamSetsCommand(),
+			updateCommand(),
 			webhookCommand(),
 		},
 	}
