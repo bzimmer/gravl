@@ -74,7 +74,7 @@ func formatWalkFunc(met *metrics.Metrics, path string, info os.FileInfo) bool {
 
 // walk identifies data files ready for uploading to an activity service
 // Only files of the format FIT, GPX, or TCX will be considered for uploading
-func walk(c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult {
+func walk(c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult { //nolint:gocognit
 	ctx := c.Context
 	met := gravl.Runtime(c).Metrics
 	files := make(chan *walkResult)

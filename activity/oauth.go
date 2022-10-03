@@ -85,7 +85,7 @@ func oauth(c *cli.Context, cfg *OAuthConfig) error {
 	}
 	grp, ctx := errgroup.WithContext(c.Context)
 	grp.Go(func() error {
-		if err := svr.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
+		if err = svr.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
 			log.Info().Err(err).Msg("closed")
 			return err
 		}
@@ -99,7 +99,8 @@ func oauth(c *cli.Context, cfg *OAuthConfig) error {
 		if cfg.Started == nil {
 			return nil
 		}
-		u, err := url.Parse("http://" + listener.Addr().String())
+		var u *url.URL
+		u, err = url.Parse("http://" + listener.Addr().String())
 		if err != nil {
 			return err
 		}
@@ -111,8 +112,8 @@ func oauth(c *cli.Context, cfg *OAuthConfig) error {
 			return nil
 		}
 	})
-	if err := grp.Wait(); err != nil {
-		if err == context.Canceled {
+	if err = grp.Wait(); err != nil {
+		if errors.Is(err, context.Canceled) {
 			return nil
 		}
 		return err

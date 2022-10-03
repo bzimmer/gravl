@@ -21,7 +21,7 @@ import (
 
 const Provider = "strava"
 
-var before sync.Once
+var before sync.Once //nolint:gochecknoglobals
 
 type entityFunc func(context.Context, *strava.Client, int64) (any, error)
 
@@ -139,7 +139,8 @@ func activities(c *cli.Context) error {
 	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int("count")}, opt)
 	return strava.ActivitiesIter(acts, func(act *strava.Activity) (bool, error) {
 		// filter
-		ok, err := f(ctx, act)
+		var ok bool
+		ok, err = f(ctx, act)
 		if err != nil {
 			return false, err
 		}
@@ -147,7 +148,8 @@ func activities(c *cli.Context) error {
 			return true, nil
 		}
 		// extract
-		ext, err := g(ctx, act)
+		var ext any
+		ext, err = g(ctx, act)
 		if err != nil {
 			return false, err
 		}
@@ -159,7 +161,7 @@ func activities(c *cli.Context) error {
 			Str("type", act.Type).
 			Msg(c.Command.Name)
 		// encode
-		if err := enc.Encode(ext); err != nil {
+		if err = enc.Encode(ext); err != nil {
 			return false, err
 		}
 		return true, nil
@@ -210,7 +212,7 @@ func routes(c *cli.Context) error {
 	met.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	for _, route := range routes {
 		met.IncrCounter([]string{Provider, "route"}, 1)
-		if err := enc.Encode(route); err != nil {
+		if err = enc.Encode(route); err != nil {
 			return err
 		}
 	}
@@ -234,7 +236,7 @@ func routesCommand() *cli.Command {
 	}
 }
 
-func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
+func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolint:gocognit
 	if len(args) == 0 {
 		log.Info().Str("entity", c.Command.Name).Msg("no arguments provided")
 		return nil
@@ -281,7 +283,7 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error {
 					return err
 				}
 				met.IncrCounter([]string{Provider, c.Command.Name}, 1)
-				if err := enc.Encode(v); err != nil {
+				if err = enc.Encode(v); err != nil {
 					return err
 				}
 				met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
@@ -367,7 +369,7 @@ func updateFlags() []cli.Flag {
 	return flags
 }
 
-func updateCommand() *cli.Command { //nolint:gocyclo
+func updateCommand() *cli.Command { //nolint:gocognit
 	return &cli.Command{
 		Name:      "update",
 		ArgsUsage: "ACTIVITY_ID (...)",

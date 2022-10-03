@@ -333,7 +333,7 @@ func TestRefresh(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) { //nolint:funlen
+func TestUpdate(t *testing.T) {
 	a := assert.New(t)
 
 	var decoder = func(r *http.Request) *api.UpdatableActivity {

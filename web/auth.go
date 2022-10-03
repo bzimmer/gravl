@@ -43,7 +43,7 @@ func AuthCallbackHandler(c *oauth2.Config, state string) http.HandlerFunc {
 
 		enc := json.NewEncoder(w)
 		enc.SetIndent("", "  ")
-		if err := enc.Encode(*token); err != nil {
+		if err = enc.Encode(*token); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

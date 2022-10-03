@@ -86,6 +86,7 @@ func TestAuthCallbackHandler(t *testing.T) {
 	for i := range tests {
 		tt := tests[i]
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			mux := http.NewServeMux()
 			svr := httptest.NewServer(mux)
 			defer svr.Close()

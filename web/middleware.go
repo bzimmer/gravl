@@ -13,7 +13,7 @@ type respwriter struct {
 	status int
 }
 
-func (w *respwriter) Write(p []byte) (n int, err error) {
+func (w *respwriter) Write(p []byte) (int, error) {
 	if !w.wrote {
 		w.WriteHeader(http.StatusOK)
 	}

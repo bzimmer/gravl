@@ -20,7 +20,7 @@ func list(c *cli.Context, f func(sub *strava.WebhookSubscription) error) error {
 		return err
 	}
 	for _, sub := range subs {
-		if err := f(sub); err != nil {
+		if err = f(sub); err != nil {
 			return err
 		}
 		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "webhook", c.Command.Name}, 1)
@@ -31,11 +31,10 @@ func list(c *cli.Context, f func(sub *strava.WebhookSubscription) error) error {
 
 func whlist(c *cli.Context) error {
 	active := false
-	err := list(c, func(sub *strava.WebhookSubscription) error {
+	if err := list(c, func(sub *strava.WebhookSubscription) error {
 		active = true
 		return gravl.Runtime(c).Encoder.Encode(sub)
-	})
-	if err != nil {
+	}); err != nil {
 		return err
 	}
 	if !active {
@@ -48,11 +47,10 @@ func whunsubscribe(c *cli.Context) error {
 	args := c.Args().Slice()
 	if len(args) == 0 {
 		log.Info().Msg("querying active subscriptions")
-		err := list(c, func(sub *strava.WebhookSubscription) error {
+		if err := list(c, func(sub *strava.WebhookSubscription) error {
 			args = append(args, strconv.FormatInt(sub.ID, 10))
 			return nil
-		})
-		if err != nil {
+		}); err != nil {
 			return err
 		}
 	}

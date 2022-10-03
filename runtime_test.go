@@ -67,11 +67,11 @@ func TestRuntime(t *testing.T) {
 						return err
 					}
 					enc := gravl.JSON(c.App.Writer, false)
-					if err := enc.Encode(t); err != nil {
+					if err = enc.Encode(t); err != nil {
 						return err
 					}
 					enc = gravl.XML(c.App.Writer, false)
-					if err := enc.Encode(t); err != nil {
+					if err = enc.Encode(t); err != nil {
 						return err
 					}
 					gravl.Runtime(c).Metrics.IncrCounter([]string{"befores", "test"}, 1)
