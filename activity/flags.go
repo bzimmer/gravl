@@ -45,12 +45,14 @@ func DateRangeFlags() []cli.Flag {
 }
 
 // DateRange returns the date range specified in the command line flags
-func DateRange(c *cli.Context) (before, after time.Time, err error) {
+func DateRange(c *cli.Context) (time.Time, time.Time, error) {
+	var err error
+	var before, after time.Time
 	if c.IsSet("before") {
 		before, err = naturaldate.Parse(c.String("before"), time.Now())
 		if err != nil {
 			before, after = time.Time{}, time.Time{}
-			return
+			return before, after, err
 		}
 	}
 	if c.IsSet("after") {
@@ -60,13 +62,12 @@ func DateRange(c *cli.Context) (before, after time.Time, err error) {
 		after, err = naturaldate.Parse(c.String("after"), time.Now())
 		if err != nil {
 			before, after = time.Time{}, time.Time{}
-			return
+			return before, after, err
 		}
 		if after.After(before) {
-			err = errors.New("invalid date range")
 			before, after = time.Time{}, time.Time{}
-			return
+			return before, after, errors.New("invalid date range")
 		}
 	}
-	return
+	return before, after, nil
 }

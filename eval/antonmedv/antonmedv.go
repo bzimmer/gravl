@@ -91,7 +91,12 @@ func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*str
 	}
 	p := make([]*strava.Activity, len(res))
 	for i := range res {
-		p[i] = res[i].(*strava.Activity)
+		switch v := (res[i]).(type) {
+		case *strava.Activity:
+			p[i] = v
+		default:
+			return nil, fmt.Errorf("expected type `*strava.Activity` found `%z`", v)
+		}
 	}
 	return p, nil
 }

@@ -12,15 +12,6 @@ import (
 	"github.com/bzimmer/gravl/eval/antonmedv"
 )
 
-var acts = []*strava.Activity{
-	{ID: 1, Type: "Hike", Distance: 100000, ElevationGain: 30, StartDateLocal: time.Date(2009, time.November, 10, 8, 0, 0, 0, time.UTC)},
-	{ID: 2, Type: "Ride", Distance: 200000, ElevationGain: 60, StartDateLocal: time.Date(2010, time.December, 10, 8, 0, 0, 0, time.UTC)},
-	{ID: 3, Type: "Ride", Distance: 300000, ElevationGain: 90, StartDateLocal: time.Date(2009, time.January, 10, 8, 0, 0, 0, time.UTC)},
-	{ID: 4, Type: "Hike", Distance: 400000, ElevationGain: 120, StartDateLocal: time.Date(2010, time.March, 10, 8, 0, 0, 0, time.UTC)},
-	{ID: 5, Type: "Ride", Distance: 500000, ElevationGain: 150, StartDateLocal: time.Date(2009, time.April, 10, 8, 0, 0, 0, time.UTC)},
-	{ID: 6, Type: "Run", Distance: 600000, ElevationGain: 180, StartDateLocal: time.Date(2011, time.May, 10, 8, 0, 0, 0, time.UTC)},
-}
-
 func TestInvalidExpression(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
@@ -37,10 +28,22 @@ func TestInvalidExpression(t *testing.T) {
 	}
 }
 
+func activities() []*strava.Activity {
+	return []*strava.Activity{
+		{ID: 1, Type: "Hike", Distance: 100000, ElevationGain: 30, StartDateLocal: time.Date(2009, time.November, 10, 8, 0, 0, 0, time.UTC)},
+		{ID: 2, Type: "Ride", Distance: 200000, ElevationGain: 60, StartDateLocal: time.Date(2010, time.December, 10, 8, 0, 0, 0, time.UTC)},
+		{ID: 3, Type: "Ride", Distance: 300000, ElevationGain: 90, StartDateLocal: time.Date(2009, time.January, 10, 8, 0, 0, 0, time.UTC)},
+		{ID: 4, Type: "Hike", Distance: 400000, ElevationGain: 120, StartDateLocal: time.Date(2010, time.March, 10, 8, 0, 0, 0, time.UTC)},
+		{ID: 5, Type: "Ride", Distance: 500000, ElevationGain: 150, StartDateLocal: time.Date(2009, time.April, 10, 8, 0, 0, 0, time.UTC)},
+		{ID: 6, Type: "Run", Distance: 600000, ElevationGain: 180, StartDateLocal: time.Date(2011, time.May, 10, 8, 0, 0, 0, time.UTC)},
+	}
+}
+
 func TestUserFunctions(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
+	acts := activities()
 	a.Equal(6, len(acts))
 
 	q, err := antonmedv.Mapper("isoweek(.StartDateLocal)")
@@ -65,6 +68,7 @@ func TestFilterer(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
+	acts := activities()
 	a.Equal(6, len(acts))
 
 	q, err := antonmedv.Filterer(`.Type == "Ride"`)
@@ -86,6 +90,7 @@ func TestMapper(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
+	acts := activities()
 	a.Equal(6, len(acts))
 
 	q, err := antonmedv.Mapper(".Type")
@@ -102,6 +107,7 @@ func TestEvaluator(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
+	acts := activities()
 	a.Equal(6, len(acts))
 
 	q, err := antonmedv.Evaluator(`.Type == 'Hike'`)

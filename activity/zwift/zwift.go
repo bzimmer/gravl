@@ -23,7 +23,7 @@ const (
 	Provider = "zwift"
 )
 
-var before sync.Once
+var before sync.Once //nolint:gochecknoglobals
 
 func athlete(c *cli.Context) error {
 	client := gravl.Runtime(c).Zwift
@@ -41,7 +41,7 @@ func athlete(c *cli.Context) error {
 		}
 		log.Info().Int64("id", profile.ID).Str("username", profile.PublicID).Msg(c.Command.Name)
 		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-		if err := enc.Encode(profile); err != nil {
+		if err = enc.Encode(profile); err != nil {
 			return err
 		}
 	}
@@ -99,7 +99,7 @@ func activities(c *cli.Context) error {
 			Int64("id", act.ID).
 			Str("name", act.Name).
 			Msg(c.Command.Name)
-		if err := gravl.Runtime(c).Encoder.Encode(act); err != nil {
+		if err = gravl.Runtime(c).Encoder.Encode(act); err != nil {
 			return err
 		}
 	}
@@ -136,17 +136,19 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Activity) error) erro
 		return err
 	}
 	for _, arg := range c.Args().Slice() {
-		x, err := strconv.ParseInt(arg, 0, 64)
+		var x int64
+		var act *zwift.Activity
+		x, err = strconv.ParseInt(arg, 0, 64)
 		if err != nil {
 			return err
 		}
 		log.Info().Int64("id", x).Str("entity", c.Command.Name).Msg("querying")
 		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-		act, err := client.Activity.Activity(ctx, profile.ID, x)
+		act, err = client.Activity.Activity(ctx, profile.ID, x)
 		if err != nil {
 			return err
 		}
-		if err := f(ctx, act); err != nil {
+		if err = f(ctx, act); err != nil {
 			return err
 		}
 	}
@@ -170,7 +172,7 @@ func activityCommand() *cli.Command {
 // Primary use case has been uploading fit files from a local Zwift directory
 // Filters small files (584 bytes) and files named "inProgressActivity.fit"
 // If no arguments are specified will try to default to the Zwift Activities directory
-func files(c *cli.Context) error {
+func files(c *cli.Context) error { //nolint:gocognit
 	args := c.Args().Slice()
 	if len(args) == 0 {
 		home, err := os.UserHomeDir()

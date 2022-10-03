@@ -4,21 +4,21 @@ go 1.18
 
 require (
 	github.com/antonmedv/expr v1.9.0
-	github.com/armon/go-metrics v0.4.0
-	github.com/bzimmer/activity v0.7.0
+	github.com/armon/go-metrics v0.4.1
+	github.com/bzimmer/activity v0.8.0
 	github.com/bzimmer/manual v0.1.0
 	github.com/fatih/color v1.13.0
-	github.com/martinlindhe/unit v0.0.0-20210313160520-19b60e03648d
-	github.com/rs/zerolog v1.27.0
+	github.com/martinlindhe/unit v0.0.0-20220817221856-f7b595b5f97e
+	github.com/rs/zerolog v1.28.0
 	github.com/spf13/afero v1.9.2
 	github.com/stretchr/testify v1.8.0
 	github.com/tj/go-naturaldate v1.3.0
-	github.com/twpayne/go-geom v1.4.2
+	github.com/twpayne/go-geom v1.4.3
 	github.com/twpayne/go-gpx v1.2.1
-	github.com/urfave/cli/v2 v2.11.1
-	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
-	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9
+	github.com/urfave/cli/v2 v2.17.1
+	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
+	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
+	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af
 )
 
 require (
@@ -28,14 +28,14 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/twpayne/go-polyline v1.1.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	golang.org/x/net v0.0.0-20220805013720-a33c5aa5df48 // indirect
-	golang.org/x/sys v0.0.0-20220804214406-8e32c043e418 // indirect
+	golang.org/x/net v0.0.0-20221002022538-bcab6841153b // indirect
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

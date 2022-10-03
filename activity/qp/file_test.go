@@ -2,6 +2,7 @@ package qp_test
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"testing"
 
@@ -25,7 +26,10 @@ func TestWrite(t *testing.T) {
 				return nil
 			},
 			After: func(c *cli.Context) error {
-				bs := c.App.Writer.(*bytes.Buffer)
+				bs, ok := c.App.Writer.(*bytes.Buffer)
+				if !ok {
+					return errors.New("failure")
+				}
 				a.Equal(blackhole.Data, bs.String())
 				return nil
 			},
@@ -39,7 +43,7 @@ func TestWrite(t *testing.T) {
 				return nil
 			},
 			After: func(c *cli.Context) error {
-				bs := c.App.Writer.(*bytes.Buffer)
+				bs := c.App.Writer.(*bytes.Buffer) //nolint:errcheck
 				a.Equal(bs.String(), "")
 				stat, err := gravl.Runtime(c).Fs.Stat("/tmp/Foo.gpx")
 				a.NoError(err)

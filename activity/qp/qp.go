@@ -12,6 +12,7 @@ import (
 	"github.com/armon/go-metrics"
 	api "github.com/bzimmer/activity"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 
@@ -126,7 +127,8 @@ func upload(c *cli.Context) error {
 	up := func(res *walkResult) error {
 		ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 		defer cancel()
-		fp, err := fs.Open(res.path)
+		var fp afero.File
+		fp, err = fs.Open(res.path)
 		if err != nil {
 			return err
 		}
@@ -137,7 +139,8 @@ func upload(c *cli.Context) error {
 			Reader:   fp,
 			Format:   api.ToFormat(filepath.Ext(res.path)),
 		}
-		u, err := x.upload(ctx, file)
+		var u api.Upload
+		u, err = x.upload(ctx, file)
 		if err != nil {
 			return err
 		}
@@ -155,7 +158,7 @@ func upload(c *cli.Context) error {
 				return res.err
 			}
 			log.Info().Str("file", res.path).Msg("uploading")
-			if err := up(res); err != nil {
+			if err = up(res); err != nil {
 				return err
 			}
 		}
@@ -184,14 +187,15 @@ func status(c *cli.Context) error {
 		metrics: gravl.Runtime(c).Metrics,
 	}
 	for i := 0; i < args.Len(); i++ {
-		err := func() error {
+		err = func() error {
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
-			uploadID, err := strconv.ParseInt(args.Get(i), 0, 64)
+			var uploadID int64
+			uploadID, err = strconv.ParseInt(args.Get(i), 0, 64)
 			if err != nil {
 				return err
 			}
-			if err := x.poll(ctx, api.UploadID(uploadID)); err != nil {
+			if err = x.poll(ctx, api.UploadID(uploadID)); err != nil {
 				return err
 			}
 			return nil
@@ -242,16 +246,18 @@ func export(c *cli.Context) error {
 	}
 	met := gravl.Runtime(c).Metrics
 	for i := 0; i < c.NArg(); i++ {
-		activityID, err := strconv.ParseInt(c.Args().Get(i), 10, 64)
+		var exp *api.Export
+		var activityID int64
+		activityID, err = strconv.ParseInt(c.Args().Get(i), 10, 64)
 		if err != nil {
 			return err
 		}
-		exp, err := expr.Export(c.Context, activityID)
+		exp, err = expr.Export(c.Context, activityID)
 		if err != nil {
 			return err
 		}
 		met.IncrCounter([]string{"export", "success"}, 1)
-		if err := write(c, exp); err != nil {
+		if err = write(c, exp); err != nil {
 			return err
 		}
 	}
@@ -287,7 +293,8 @@ func qp(c *cli.Context) error {
 	dur := c.Duration("timeout")
 	grp, ctx := errgroup.WithContext(c.Context)
 	for i := 0; i < c.NArg(); i++ {
-		activityID, err := strconv.ParseInt(c.Args().Get(i), 10, 64)
+		var activityID int64
+		activityID, err = strconv.ParseInt(c.Args().Get(i), 10, 64)
 		if err != nil {
 			return err
 		}
@@ -295,12 +302,14 @@ func qp(c *cli.Context) error {
 			var cancel func()
 			ctx, cancel = context.WithTimeout(ctx, dur)
 			defer cancel()
-			exp, err := expr.Export(ctx, activityID)
+			var u api.Upload
+			var exp *api.Export
+			exp, err = expr.Export(ctx, activityID)
 			if err != nil {
 				return err
 			}
 			log.Info().Int64("id", activityID).Str("exp", exp.Name).Msg("export")
-			u, err := x.upload(ctx, exp.File)
+			u, err = x.upload(ctx, exp.File)
 			if err != nil {
 				return err
 			}

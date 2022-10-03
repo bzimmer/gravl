@@ -15,12 +15,6 @@ import (
 	"github.com/bzimmer/gravl/internal"
 )
 
-func command(cfg *activity.OAuthConfig) func(t *testing.T, baseURL string) *cli.Command {
-	return func(t *testing.T, baseURL string) *cli.Command {
-		return activity.OAuthCommand(cfg)
-	}
-}
-
 func TestOAuth(t *testing.T) {
 	a := assert.New(t)
 	tests := []*internal.Harness{
@@ -79,7 +73,9 @@ func TestOAuth(t *testing.T) {
 				}
 			})
 			grp.Go(func() error {
-				internal.RunContext(ctx, t, tt, nil, command(cfg))
+				internal.RunContext(ctx, t, tt, nil, func(_ *testing.T, baseURL string) *cli.Command {
+					return activity.OAuthCommand(cfg)
+				})
 				return nil
 			})
 			a.NoError(grp.Wait())

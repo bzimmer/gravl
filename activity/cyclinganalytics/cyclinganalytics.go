@@ -18,7 +18,7 @@ import (
 
 const Provider = "cyclinganalytics"
 
-var before sync.Once
+var before sync.Once //nolint:gochecknoglobals
 
 func athlete(c *cli.Context) error {
 	client := gravl.Runtime(c).CyclingAnalytics
@@ -54,7 +54,7 @@ func activities(c *cli.Context) error {
 	enc := gravl.Runtime(c).Encoder
 	for _, ride := range rides {
 		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
-		if err := enc.Encode(ride); err != nil {
+		if err = enc.Encode(ride); err != nil {
 			return err
 		}
 	}
@@ -98,7 +98,7 @@ func ride(c *cli.Context) error {
 				return err
 			}
 			gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-			if err := enc.Encode(ride); err != nil {
+			if err = enc.Encode(ride); err != nil {
 				return err
 			}
 			return nil
