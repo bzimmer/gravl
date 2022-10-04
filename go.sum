@@ -60,6 +60,8 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bzimmer/activity v0.8.0 h1:SDv0UBAIGlD+iKdaSFhtoXPL1Ho8HvAmh6x3j074EiM=
 github.com/bzimmer/activity v0.8.0/go.mod h1:Mi6YUt2S+A5hQszLTZgdjOQ5aiY7G3Chn5m26FpiBMw=
+github.com/bzimmer/activity v0.8.2 h1:wDQUlEEjroaHfHwoYrt0He+ifPn26mc+GXO6V/lWrTA=
+github.com/bzimmer/activity v0.8.2/go.mod h1:Mi6YUt2S+A5hQszLTZgdjOQ5aiY7G3Chn5m26FpiBMw=
 github.com/bzimmer/httpwares v0.1.0 h1:ZaMJ51JXKNqJRsx1vtgQGVa7Qz3yZJOzvyhGrQYEPTk=
 github.com/bzimmer/httpwares v0.1.0/go.mod h1:d7haVrcuMW9I+4Ha/V54JtyqGbu0raahd0NqqQSr2p0=
 github.com/bzimmer/manual v0.1.0 h1:bwjezUGB2iKK0kDUHYIb5IzA4+iR/UNDoBrhZ0+ijW4=
@@ -384,6 +386,8 @@ golang.org/x/net v0.0.0-20210226172049-e18ecbb05110/go.mod h1:m0MpNAwzfU5UDzcl9v
 golang.org/x/net v0.0.0-20210410081132-afb366fc7cd1/go.mod h1:9tjilg8BloeKEkVJvy7fQ90B1CfIiPueXVOjqfkSzI8=
 golang.org/x/net v0.0.0-20221002022538-bcab6841153b h1:6e93nYa3hNqAvLr0pD4PN1fFS+gKzp2zAXqrnTCstqU=
 golang.org/x/net v0.0.0-20221002022538-bcab6841153b/go.mod h1:YDH+HFinaLZZlnHAfSS6ZXJJ9M9t4Dl22yv3iI2vPwk=
+golang.org/x/net v0.0.0-20221004154528-8021a29435af h1:wv66FM3rLZGPdxpYL+ApnDe2HzHcTFta3z5nsc13wI4=
+golang.org/x/net v0.0.0-20221004154528-8021a29435af/go.mod h1:YDH+HFinaLZZlnHAfSS6ZXJJ9M9t4Dl22yv3iI2vPwk=
 golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be/go.mod h1:N/0e6XlmueqKjAGxoOufVs8QHGRruUQn6yWY3a++T0U=
 golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
