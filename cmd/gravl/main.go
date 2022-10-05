@@ -200,6 +200,10 @@ func run() error {
 		Commands:    commands(),
 		Before:      gravl.Befores(initSignal(cancel), initLogging, initRuntime, initQP),
 		After: func(c *cli.Context) error {
+			// if `--help`, the runtime is not created
+			if len(c.App.Metadata) == 0 {
+				return nil
+			}
 			t := gravl.Runtime(c).Start
 			met := gravl.Runtime(c).Metrics
 			met.AddSample([]string{"runtime"}, float32(time.Since(t).Seconds()))
