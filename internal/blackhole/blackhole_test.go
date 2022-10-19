@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/bzimmer/activity"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl/internal/blackhole"
 )
 

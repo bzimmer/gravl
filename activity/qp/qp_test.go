@@ -3,12 +3,13 @@ package qp_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli/v2"
+
 	"github.com/bzimmer/gravl"
 	"github.com/bzimmer/gravl/activity/qp"
 	"github.com/bzimmer/gravl/internal"
 	"github.com/bzimmer/gravl/internal/blackhole"
-	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli/v2"
 )
 
 func command(t *testing.T, baseURL string) *cli.Command {

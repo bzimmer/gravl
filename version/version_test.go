@@ -3,9 +3,10 @@ package version_test
 import (
 	"testing"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/bzimmer/gravl/internal"
 	"github.com/bzimmer/gravl/version"
-	"github.com/urfave/cli/v2"
 )
 
 func command(t *testing.T, baseURL string) *cli.Command {

@@ -7,11 +7,12 @@ import (
 	"time"
 
 	api "github.com/bzimmer/activity/rwgps"
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli/v2"
+
 	"github.com/bzimmer/gravl"
 	"github.com/bzimmer/gravl/activity/rwgps"
 	"github.com/bzimmer/gravl/internal"
-	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli/v2"
 )
 
 func command(t *testing.T, baseURL string) *cli.Command {

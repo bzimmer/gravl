@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bzimmer/activity/strava"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/gravl/internal"
 )
 
