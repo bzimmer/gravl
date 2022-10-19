@@ -90,3 +90,11 @@ tasks:
     desc: Validate codecov configuration
     cmds:
       - curl --data-binary @.codecov.yml https://codecov.io/validate
+
+  goimports:
+    desc: Run goimports
+    vars:
+      Module:
+        sh: go mod edit -json | jq -r .Module.Path
+    cmds:
+      - goimports -w -local "{{.Module}}" .

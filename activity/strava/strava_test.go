@@ -7,12 +7,13 @@ import (
 	"time"
 
 	api "github.com/bzimmer/activity/strava"
-	"github.com/bzimmer/gravl"
-	"github.com/bzimmer/gravl/activity/strava"
-	"github.com/bzimmer/gravl/internal"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
+
+	"github.com/bzimmer/gravl"
+	"github.com/bzimmer/gravl/activity/strava"
+	"github.com/bzimmer/gravl/internal"
 )
 
 func command(t *testing.T, baseURL string) *cli.Command {

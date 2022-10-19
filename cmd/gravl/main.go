@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
+	"github.com/bzimmer/activity"
 	"github.com/bzimmer/manual"
 	"github.com/fatih/color"
 	"github.com/rs/zerolog"
@@ -15,7 +16,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
 
-	"github.com/bzimmer/activity"
 	"github.com/bzimmer/gravl"
 	"github.com/bzimmer/gravl/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/activity/qp"

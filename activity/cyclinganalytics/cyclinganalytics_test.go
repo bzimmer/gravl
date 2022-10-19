@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
+	api "github.com/bzimmer/activity/cyclinganalytics"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
 
-	api "github.com/bzimmer/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl"
 	"github.com/bzimmer/gravl/activity/cyclinganalytics"
 	"github.com/bzimmer/gravl/internal"
