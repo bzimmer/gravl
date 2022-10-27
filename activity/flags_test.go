@@ -71,6 +71,39 @@ func TestDateRange(t *testing.T) {
 			},
 		},
 		{
+			Name: "araddon",
+			Args: []string{"gravl", "araddon", "--after", "2001-12-31", "--before", "two weeks ago"},
+			Action: func(c *cli.Context) error {
+				before, after, err := activity.DateRange(c, activity.AraddonParse, activity.NaturalParse)
+				a.NoError(err)
+				a.NotZero(before)
+				a.NotZero(after)
+				return nil
+			},
+		},
+		{
+			Name: "araddonerrorbefore",
+			Args: []string{"gravl", "araddonerrorbefore", "--after", "2001-12-31", "--before", "2001-122-31"},
+			Action: func(c *cli.Context) error {
+				before, after, err := activity.DateRange(c, activity.AraddonParse)
+				a.Error(err)
+				a.Zero(before)
+				a.Zero(after)
+				return nil
+			},
+		},
+		{
+			Name: "araddonerrorafter",
+			Args: []string{"gravl", "araddonerrorafter", "--after", "2001-12-311", "--before", "2001-12-31"},
+			Action: func(c *cli.Context) error {
+				before, after, err := activity.DateRange(c, activity.AraddonParse)
+				a.Error(err)
+				a.Zero(before)
+				a.Zero(after)
+				return nil
+			},
+		},
+		{
 			Name: "err",
 			Args: []string{"gravl", "err", "--before", "two weeks ago", "--after", "yesterday"},
 			Action: func(c *cli.Context) error {

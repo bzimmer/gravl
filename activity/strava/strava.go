@@ -101,7 +101,7 @@ func attributer(c *cli.Context) (func(ctx context.Context, act *strava.Activity)
 }
 
 func daterange(c *cli.Context) (strava.APIOption, error) {
-	before, after, err := activity.DateRange(c)
+	before, after, err := activity.DateRange(c, activity.NaturalParse, activity.AraddonParse)
 	if err != nil {
 		return nil, err
 	}
