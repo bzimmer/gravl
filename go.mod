@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/antonmedv/expr v1.9.0
+	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/armon/go-metrics v0.4.1
 	github.com/bzimmer/activity v0.8.2
 	github.com/bzimmer/manual v0.1.0

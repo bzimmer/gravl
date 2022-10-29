@@ -2,8 +2,11 @@ package activity
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/araddon/dateparse"
+	"github.com/rs/zerolog/log"
 	"github.com/tj/go-naturaldate"
 	"github.com/urfave/cli/v2"
 )
@@ -44,12 +47,36 @@ func DateRangeFlags() []cli.Flag {
 	}
 }
 
+type DateParserFunc func(string) (time.Time, error)
+
+func NaturalParse(pattern string) (time.Time, error) {
+	return naturaldate.Parse(pattern, time.Now())
+}
+
+func AraddonParse(pattern string) (time.Time, error) {
+	return dateparse.ParseStrict(pattern)
+}
+
+func parse(pattern string, parsers []DateParserFunc) (time.Time, error) {
+	for i := range parsers {
+		date, err := parsers[i](pattern)
+		if err == nil {
+			return date.In(time.UTC), nil
+		}
+		log.Debug().Err(err).Msg("parse")
+	}
+	return time.Time{}, fmt.Errorf("failed to parse: %s", pattern)
+}
+
 // DateRange returns the date range specified in the command line flags
-func DateRange(c *cli.Context) (time.Time, time.Time, error) {
+func DateRange(c *cli.Context, parsers ...DateParserFunc) (time.Time, time.Time, error) {
 	var err error
 	var before, after time.Time
+	if len(parsers) == 0 {
+		return DateRange(c, NaturalParse)
+	}
 	if c.IsSet("before") {
-		before, err = naturaldate.Parse(c.String("before"), time.Now())
+		before, err = parse(c.String("before"), parsers)
 		if err != nil {
 			before, after = time.Time{}, time.Time{}
 			return before, after, err
@@ -59,7 +86,7 @@ func DateRange(c *cli.Context) (time.Time, time.Time, error) {
 		if before.IsZero() {
 			before = time.Now()
 		}
-		after, err = naturaldate.Parse(c.String("after"), time.Now())
+		after, err = parse(c.String("after"), parsers)
 		if err != nil {
 			before, after = time.Time{}, time.Time{}
 			return before, after, err
