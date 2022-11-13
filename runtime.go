@@ -4,8 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"encoding/xml"
-	"errors"
 	"io"
 	"time"
 
@@ -72,8 +70,6 @@ func Runtime(c *cli.Context) *Rt {
 	return c.App.Metadata[RuntimeKey].(*Rt)
 }
 
-var ErrUnknownEncoder = errors.New("unknown encoder")
-
 type Encoder interface {
 	Encode(v any) error
 }
@@ -84,52 +80,12 @@ func (b *blackhole) Encode(v any) error {
 	return nil
 }
 
-type gpxEncoder struct {
-	enc Encoder
-}
-
-func (g *gpxEncoder) Encode(v any) error {
-	q, ok := v.(activity.GPXEncoder)
-	if !ok {
-		return errors.New("encoding GPX not supported")
-	}
-	v, err := q.GPX()
-	if err != nil {
-		return err
-	}
-	return g.enc.Encode(v)
-}
-
-type geoJSONEncoder struct {
-	enc Encoder
-}
-
-func (g *geoJSONEncoder) Encode(v any) error {
-	q, ok := v.(activity.GeoJSONEncoder)
-	if !ok {
-		return errors.New("encoding GeoJSON not supported")
-	}
-	v, err := q.GeoJSON()
-	if err != nil {
-		return err
-	}
-	return g.enc.Encode(v)
-}
-
 type jsonEncoder struct {
 	enc *json.Encoder
 }
 
 func (j *jsonEncoder) Encode(v any) error {
 	return j.enc.Encode(v)
-}
-
-type xmlEncoder struct {
-	enc *xml.Encoder
-}
-
-func (x *xmlEncoder) Encode(v any) error {
-	return x.enc.Encode(v)
 }
 
 func JSON(writer io.Writer, compact bool) Encoder {
@@ -139,22 +95,6 @@ func JSON(writer io.Writer, compact bool) Encoder {
 	}
 	enc.SetEscapeHTML(false)
 	return &jsonEncoder{enc: enc}
-}
-
-func XML(writer io.Writer, compact bool) Encoder {
-	enc := xml.NewEncoder(writer)
-	if !compact {
-		enc.Indent("", " ")
-	}
-	return &xmlEncoder{enc: enc}
-}
-
-func GeoJSON(writer io.Writer, compact bool) Encoder {
-	return &geoJSONEncoder{enc: JSON(writer, compact)}
-}
-
-func GPX(writer io.Writer, compact bool) Encoder {
-	return &gpxEncoder{enc: XML(writer, compact)}
 }
 
 func Blackhole() Encoder {
