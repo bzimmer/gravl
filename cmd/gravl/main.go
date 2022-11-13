@@ -74,19 +74,9 @@ func initQP(c *cli.Context) error {
 }
 
 func initRuntime(c *cli.Context) error {
-	var enc gravl.Encoder
-	compact := c.Bool("compact")
-	switch c.String("encoding") {
-	case "geojson":
-		enc = gravl.GeoJSON(c.App.Writer, compact)
-	case "xml":
-		enc = gravl.XML(c.App.Writer, compact)
-	case "json":
-		enc = gravl.JSON(c.App.Writer, compact)
-	case "gpx":
-		enc = gravl.GPX(c.App.Writer, compact)
-	default:
-		enc = gravl.Blackhole()
+	enc := gravl.Blackhole()
+	if c.Bool("json") {
+		enc = gravl.JSON(c.App.Writer, c.Bool("compact"))
 	}
 
 	cfg := metrics.DefaultConfig(c.App.Name)
@@ -153,11 +143,12 @@ func flags() []cli.Flag {
 			Value:   false,
 			Usage:   "Use compact JSON output",
 		},
-		&cli.StringFlag{
-			Name:    "encoding",
-			Aliases: []string{"e"},
-			Value:   "",
-			Usage:   "Output encoding (eg: json, xml, geojson, gpx)",
+		&cli.BoolFlag{
+			Name:     "json",
+			Aliases:  []string{"j"},
+			Usage:    "Emit all results as JSON and print to stdout",
+			Value:    false,
+			Required: false,
 		},
 		&cli.BoolFlag{
 			Name:  "http-tracing",
