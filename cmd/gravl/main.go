@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"time"
@@ -74,9 +78,9 @@ func initQP(c *cli.Context) error {
 }
 
 func initRuntime(c *cli.Context) error {
-	enc := gravl.Blackhole()
+	writer := io.Discard
 	if c.Bool("json") {
-		enc = gravl.JSON(c.App.Writer, c.Bool("compact"))
+		writer = c.App.Writer
 	}
 
 	cfg := metrics.DefaultConfig(c.App.Name)
@@ -90,7 +94,7 @@ func initRuntime(c *cli.Context) error {
 
 	c.App.Metadata[gravl.RuntimeKey] = &gravl.Rt{
 		Start:     time.Now(),
-		Encoder:   enc,
+		Encoder:   json.NewEncoder(writer),
 		Filterer:  antonmedv.Filterer,
 		Evaluator: antonmedv.Evaluator,
 		Sink:      sink,
@@ -138,12 +142,6 @@ func flags() []cli.Flag {
 			Usage:   "Use monochrome logging, color enabled by default",
 		},
 		&cli.BoolFlag{
-			Name:    "compact",
-			Aliases: []string{"c"},
-			Value:   false,
-			Usage:   "Use compact JSON output",
-		},
-		&cli.BoolFlag{
 			Name:     "json",
 			Aliases:  []string{"j"},
 			Usage:    "Emit all results as JSON and print to stdout",
@@ -178,7 +176,7 @@ func commands() []*cli.Command {
 	}
 }
 
-func run() error {
+func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -191,28 +189,30 @@ func run() error {
 		Commands:    commands(),
 		Before:      gravl.Befores(initSignal(cancel), initLogging, initRuntime, initQP),
 		After: func(c *cli.Context) error {
-			// if `--help`, the runtime is not created
-			if len(c.App.Metadata) == 0 {
-				return nil
-			}
 			t := gravl.Runtime(c).Start
 			met := gravl.Runtime(c).Metrics
 			met.AddSample([]string{"runtime"}, float32(time.Since(t).Seconds()))
 			return gravl.Stats(c)
 		},
-		ExitErrHandler: func(c *cli.Context, err error) {
-			if err == nil {
-				return
+	}
+	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			switch v := r.(type) {
+			case error:
+				log.Error().Err(v).Msg(app.Name)
+			case string:
+				log.Error().Err(errors.New(v)).Msg(app.Name)
+			default:
+				log.Error().Err(fmt.Errorf("%v", v)).Msg(app.Name)
 			}
-			log.Error().Err(err).Msg(c.App.Name)
-		},
-	}
-	return app.RunContext(ctx, os.Args)
-}
-
-func main() {
-	if err := run(); err != nil {
-		os.Exit(1)
-	}
-	os.Exit(0)
+			os.Exit(1)
+		}
+		if err != nil {
+			log.Error().Err(err).Msg(app.Name)
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}()
+	err = app.RunContext(ctx, os.Args)
 }

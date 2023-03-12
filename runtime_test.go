@@ -1,6 +1,7 @@
 package gravl_test
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -52,7 +53,7 @@ func TestRuntime(t *testing.T) {
 					if err != nil {
 						return err
 					}
-					enc := gravl.JSON(c.App.Writer, false)
+					enc := json.NewEncoder(c.App.Writer)
 					if err = enc.Encode(t); err != nil {
 						return err
 					}

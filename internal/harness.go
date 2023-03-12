@@ -2,8 +2,10 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
@@ -37,7 +39,6 @@ func runtime(app *cli.App) *gravl.Rt {
 }
 
 func initRuntime(c *cli.Context) error {
-	var enc gravl.Encoder
 	cfg := metrics.DefaultConfig("gravl")
 	cfg.EnableRuntimeMetrics = false
 	cfg.TimerGranularity = time.Second
@@ -46,18 +47,16 @@ func initRuntime(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	switch c.String("encoding") {
-	case "json":
-		enc = gravl.JSON(c.App.Writer, false)
-	default:
-		enc = gravl.Blackhole()
+	writer := io.Discard
+	if c.Bool("json") {
+		writer = c.App.Writer
 	}
 	c.App.Metadata = map[string]any{
 		gravl.RuntimeKey: &gravl.Rt{
 			Start:     time.Now(),
 			Metrics:   metric,
 			Sink:      sink,
-			Encoder:   enc,
+			Encoder:   json.NewEncoder(writer),
 			Fs:        afero.NewMemMapFs(),
 			Filterer:  antonmedv.Filterer,
 			Evaluator: antonmedv.Evaluator,
@@ -138,10 +137,10 @@ func NewTestApp(t *testing.T, tt *Harness, cmd *cli.Command) *cli.App {
 		Before:   gravl.Befores(initRuntime, tt.Before),
 		After:    gravl.Afters(tt.After, walkfs, gravl.Stats, counters(t, tt.Counters)),
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "encoding",
-				Aliases: []string{"e"},
-				Value:   "",
+			&cli.BoolFlag{
+				Name:    "json",
+				Aliases: []string{"j"},
+				Value:   false,
 			},
 			&cli.BoolFlag{
 				Name:  "http-tracing",
