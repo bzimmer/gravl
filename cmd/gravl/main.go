@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/signal"
 	"sync"
@@ -83,6 +82,9 @@ type encoder struct {
 }
 
 func (enc encoder) Encode(v any) error {
+	if enc.pool == nil {
+		return nil
+	}
 	x, ok := enc.pool.Get().(*json.Encoder)
 	if !ok {
 		return errors.New("did not receive encoder from pool")
@@ -92,11 +94,10 @@ func (enc encoder) Encode(v any) error {
 }
 
 func initRuntime(c *cli.Context) error {
-	writer := io.Discard
+	var pool *sync.Pool
 	if c.Bool("json") {
-		writer = c.App.Writer
+		pool = &sync.Pool{New: func() any { return json.NewEncoder(c.App.Writer) }}
 	}
-	pool := &sync.Pool{New: func() any { return json.NewEncoder(writer) }}
 
 	cfg := metrics.DefaultConfig(c.App.Name)
 	cfg.EnableRuntimeMetrics = false

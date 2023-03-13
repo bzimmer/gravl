@@ -49,13 +49,19 @@ func providers(c *cli.Context) error {
 		Exporters []string `json:"exporters"`
 		Uploaders []string `json:"uploaders"`
 	}
-	res := new(available)
+	res := &available{
+		Exporters: []string{},
+		Uploaders: []string{},
+	}
 	for key := range gravl.Runtime(c).Exporters {
 		res.Exporters = append(res.Exporters, key)
 	}
 	for key := range gravl.Runtime(c).Uploaders {
 		res.Uploaders = append(res.Uploaders, key)
 	}
+	met := gravl.Runtime(c).Metrics
+	met.IncrCounter([]string{c.Command.Name, "exporters"}, float32(len(res.Exporters)))
+	met.IncrCounter([]string{c.Command.Name, "uploaders"}, float32(len(res.Uploaders)))
 	log.Info().Strs("exporters", res.Exporters).Strs("uploaders", res.Uploaders).Msg(c.Command.Name)
 	return gravl.Runtime(c).Encoder.Encode(res)
 }

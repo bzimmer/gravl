@@ -3,13 +3,14 @@ package internal
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -38,6 +39,22 @@ func runtime(app *cli.App) *gravl.Rt {
 	return app.Metadata[gravl.RuntimeKey].(*gravl.Rt)
 }
 
+type encoder struct {
+	pool *sync.Pool
+}
+
+func (enc encoder) Encode(v any) error {
+	if enc.pool == nil {
+		return nil
+	}
+	x, ok := enc.pool.Get().(*json.Encoder)
+	if !ok {
+		return errors.New("did not receive encoder from pool")
+	}
+	defer enc.pool.Put(x)
+	return x.Encode(v)
+}
+
 func initRuntime(c *cli.Context) error {
 	cfg := metrics.DefaultConfig("gravl")
 	cfg.EnableRuntimeMetrics = false
@@ -47,16 +64,16 @@ func initRuntime(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	writer := io.Discard
+	var pool *sync.Pool
 	if c.Bool("json") {
-		writer = c.App.Writer
+		pool = &sync.Pool{New: func() any { return json.NewEncoder(c.App.Writer) }}
 	}
 	c.App.Metadata = map[string]any{
 		gravl.RuntimeKey: &gravl.Rt{
 			Start:     time.Now(),
 			Metrics:   metric,
 			Sink:      sink,
-			Encoder:   json.NewEncoder(writer),
+			Encoder:   &encoder{pool: pool},
 			Fs:        afero.NewMemMapFs(),
 			Filterer:  antonmedv.Filterer,
 			Evaluator: antonmedv.Evaluator,
