@@ -2,12 +2,15 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -36,8 +39,23 @@ func runtime(app *cli.App) *gravl.Rt {
 	return app.Metadata[gravl.RuntimeKey].(*gravl.Rt)
 }
 
+type encoder struct {
+	pool *sync.Pool
+}
+
+func (enc encoder) Encode(v any) error {
+	if enc.pool == nil {
+		return nil
+	}
+	x, ok := enc.pool.Get().(*json.Encoder)
+	if !ok {
+		return errors.New("did not receive encoder from pool")
+	}
+	defer enc.pool.Put(x)
+	return x.Encode(v)
+}
+
 func initRuntime(c *cli.Context) error {
-	var enc gravl.Encoder
 	cfg := metrics.DefaultConfig("gravl")
 	cfg.EnableRuntimeMetrics = false
 	cfg.TimerGranularity = time.Second
@@ -46,18 +64,16 @@ func initRuntime(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	switch c.String("encoding") {
-	case "json":
-		enc = gravl.JSON(c.App.Writer, false)
-	default:
-		enc = gravl.Blackhole()
+	var pool *sync.Pool
+	if c.Bool("json") {
+		pool = &sync.Pool{New: func() any { return json.NewEncoder(c.App.Writer) }}
 	}
 	c.App.Metadata = map[string]any{
 		gravl.RuntimeKey: &gravl.Rt{
 			Start:     time.Now(),
 			Metrics:   metric,
 			Sink:      sink,
-			Encoder:   enc,
+			Encoder:   &encoder{pool: pool},
 			Fs:        afero.NewMemMapFs(),
 			Filterer:  antonmedv.Filterer,
 			Evaluator: antonmedv.Evaluator,
@@ -138,10 +154,10 @@ func NewTestApp(t *testing.T, tt *Harness, cmd *cli.Command) *cli.App {
 		Before:   gravl.Befores(initRuntime, tt.Before),
 		After:    gravl.Afters(tt.After, walkfs, gravl.Stats, counters(t, tt.Counters)),
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "encoding",
-				Aliases: []string{"e"},
-				Value:   "",
+			&cli.BoolFlag{
+				Name:    "json",
+				Aliases: []string{"j"},
+				Value:   false,
 			},
 			&cli.BoolFlag{
 				Name:  "http-tracing",

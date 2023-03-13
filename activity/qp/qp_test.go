@@ -1,6 +1,9 @@
 package qp_test
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -121,6 +124,38 @@ func TestCopy(t *testing.T) {
 			Counters: map[string]int{
 				"gravl.upload.file.success": 1,
 				"gravl.upload.poll":         1,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, nil, command)
+		})
+	}
+}
+
+func TestProviders(t *testing.T) {
+	a := assert.New(t)
+	tests := []*internal.Harness{
+		{
+			Name: "providers",
+			Args: []string{"gravl", "-j", "qp", "providers"},
+			Before: func(c *cli.Context) error {
+				c.App.Writer = new(bytes.Buffer)
+				gravl.Runtime(c).Exporters[blackhole.Provider] = blackhole.ExporterFunc
+				gravl.Runtime(c).Uploaders[blackhole.Provider] = blackhole.UploaderFunc
+				return nil
+			},
+			After: func(c *cli.Context) error {
+				reader, ok := c.App.Writer.(io.Reader)
+				a.True(ok)
+				var res map[string][]string
+				dec := json.NewDecoder(reader)
+				err := dec.Decode(&res)
+				a.NoError(err)
+				a.Equal(map[string][]string{"exporters": {"blackhole"}, "uploaders": {"blackhole"}}, res)
+				return nil
 			},
 		},
 	}

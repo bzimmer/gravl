@@ -84,7 +84,7 @@ tasks:
   tidy:
     desc: Run go mod tidy
     cmds:
-      - go mod tidy -compat=1.18
+      - go mod tidy
 
   codecov:
     desc: Validate codecov configuration

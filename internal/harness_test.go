@@ -49,7 +49,7 @@ func TestHarness(t *testing.T) {
 		},
 		{
 			Name:     "harness with err",
-			Args:     []string{"gravl", "-e", "json", "foo"},
+			Args:     []string{"gravl", "--json", "foo"},
 			Err:      "foo err bar",
 			Counters: map[string]int{},
 			Before: func(c *cli.Context) error {
@@ -62,7 +62,7 @@ func TestHarness(t *testing.T) {
 		},
 		{
 			Name: "harness no sample value",
-			Args: []string{"gravl", "-e", "json", "foo"},
+			Args: []string{"gravl", "--json", "foo"},
 			Err:  "cannot find sample",
 			Counters: map[string]int{
 				"does.not.exist": 1,

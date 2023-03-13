@@ -50,8 +50,7 @@ activities from Strava each query will honor the timeout value, it's not a deadl
 |-|-|-|
 |```verbosity```|```v```|Log level (trace, debug, info, warn, error, fatal, panic)|
 |```monochrome```|```m```|Use monochrome logging, color enabled by default|
-|```compact```|```c```|Use compact JSON output|
-|```encoding```|```e```|Output encoding (eg: json, xml, geojson, gpx)|
+|```json```|```j```|Emit all results as JSON and print to stdout|
 |```http-tracing```||Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)|
 |```timeout```|```t```|Timeout duration (eg, 1ms, 2s, 5m, 3h)|
 |```help```|```h```|show help|

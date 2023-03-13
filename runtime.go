@@ -3,8 +3,6 @@ package gravl
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/json"
-	"io"
 	"time"
 
 	"github.com/armon/go-metrics"
@@ -72,33 +70,6 @@ func Runtime(c *cli.Context) *Rt {
 
 type Encoder interface {
 	Encode(v any) error
-}
-
-type blackhole struct{}
-
-func (b *blackhole) Encode(v any) error {
-	return nil
-}
-
-type jsonEncoder struct {
-	enc *json.Encoder
-}
-
-func (j *jsonEncoder) Encode(v any) error {
-	return j.enc.Encode(v)
-}
-
-func JSON(writer io.Writer, compact bool) Encoder {
-	enc := json.NewEncoder(writer)
-	if !compact {
-		enc.SetIndent("", " ")
-	}
-	enc.SetEscapeHTML(false)
-	return &jsonEncoder{enc: enc}
-}
-
-func Blackhole() Encoder {
-	return &blackhole{}
 }
 
 // Afters combines multiple `cli.AfterFunc`s into a single `cli.AfterFunc`
