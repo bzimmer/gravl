@@ -130,7 +130,8 @@ func Run(t *testing.T, tt *Harness, handler http.Handler, cmd func(*testing.T, s
 	RunContext(context.Background(), t, tt, handler, cmd)
 }
 
-func RunContext(ctx context.Context, t *testing.T, tt *Harness, handler http.Handler, cmd func(*testing.T, string) *cli.Command) {
+func RunContext(
+	ctx context.Context, t *testing.T, tt *Harness, handler http.Handler, cmd func(*testing.T, string) *cli.Command) {
 	a := assert.New(t)
 
 	svr := httptest.NewServer(handler)

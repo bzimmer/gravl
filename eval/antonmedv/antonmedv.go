@@ -84,7 +84,7 @@ func (x *evaluator) run(acts ...*strava.Activity) ([]any, error) {
 	return out.([]any), nil
 }
 
-func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
+func (x *evaluator) Filter(_ context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
 	res, err := x.run(acts...)
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (x *evaluator) Filter(ctx context.Context, acts []*strava.Activity) ([]*str
 	return p, nil
 }
 
-func (x *evaluator) Map(ctx context.Context, acts []*strava.Activity) ([]any, error) {
+func (x *evaluator) Map(_ context.Context, acts []*strava.Activity) ([]any, error) {
 	return x.run(acts...)
 }
 
@@ -118,7 +118,7 @@ func (x *evaluator) Bool(ctx context.Context, act *strava.Activity) (bool, error
 	}
 }
 
-func (x *evaluator) Eval(ctx context.Context, act *strava.Activity) (any, error) {
+func (x *evaluator) Eval(_ context.Context, act *strava.Activity) (any, error) {
 	res, err := x.run(act)
 	if err != nil {
 		return nil, err

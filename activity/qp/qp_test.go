@@ -15,7 +15,7 @@ import (
 	"github.com/bzimmer/gravl/internal/blackhole"
 )
 
-func command(t *testing.T, baseURL string) *cli.Command {
+func command(_ *testing.T, _ string) *cli.Command {
 	return qp.Command()
 }
 

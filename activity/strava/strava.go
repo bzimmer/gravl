@@ -21,7 +21,7 @@ import (
 
 const Provider = "strava"
 
-var before sync.Once //nolint:gochecknoglobals
+var before sync.Once //nolint:gochecknoglobals // once
 
 type entityFunc func(context.Context, *strava.Client, int64) (any, error)
 
@@ -506,10 +506,7 @@ func streamSetsCommand() *cli.Command {
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).Strava
 			gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-			if err := gravl.Runtime(c).Encoder.Encode(client.Activity.StreamSets()); err != nil {
-				return err
-			}
-			return nil
+			return gravl.Runtime(c).Encoder.Encode(client.Activity.StreamSets())
 		},
 	}
 }

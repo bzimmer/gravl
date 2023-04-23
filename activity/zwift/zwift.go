@@ -23,7 +23,7 @@ const (
 	Provider = "zwift"
 )
 
-var before sync.Once //nolint:gochecknoglobals
+var before sync.Once //nolint:gochecknoglobals // once
 
 func athlete(c *cli.Context) error {
 	client := gravl.Runtime(c).Zwift

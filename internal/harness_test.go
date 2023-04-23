@@ -10,7 +10,7 @@ import (
 	"github.com/bzimmer/gravl/internal"
 )
 
-func command(t *testing.T, baseURL string) *cli.Command {
+func command(_ *testing.T, _ string) *cli.Command {
 	return &cli.Command{
 		Name: "foo",
 		Before: func(c *cli.Context) error {

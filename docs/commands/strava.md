@@ -1,5 +1,5 @@
 The Strava client is comprised of general [API](https://developers.strava.com/) access supporting
-activites, routes, and streams.
+activities, routes, and streams.
 
 Additionally, there's full support for implementing `webhooks` but only only webhook management is
 available via the commandline (eg [`strava webhook list`](#strava-webhook-list),

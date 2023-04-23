@@ -18,7 +18,7 @@ import (
 
 const Provider = "cyclinganalytics"
 
-var before sync.Once //nolint:gochecknoglobals
+var before sync.Once //nolint:gochecknoglobals // once
 
 func athlete(c *cli.Context) error {
 	client := gravl.Runtime(c).CyclingAnalytics
@@ -98,10 +98,7 @@ func ride(c *cli.Context) error {
 				return err
 			}
 			gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-			if err = enc.Encode(ride); err != nil {
-				return err
-			}
-			return nil
+			return enc.Encode(ride)
 		}()
 		if err != nil {
 			return err
@@ -126,10 +123,7 @@ func streamSetsCommand() *cli.Command {
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).CyclingAnalytics
 			gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-			if err := gravl.Runtime(c).Encoder.Encode(client.Rides.StreamSets()); err != nil {
-				return err
-			}
-			return nil
+			return gravl.Runtime(c).Encoder.Encode(client.Rides.StreamSets())
 		},
 	}
 }
