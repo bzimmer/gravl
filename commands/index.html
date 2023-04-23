@@ -1,0 +1,2562 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://bzimmer.github.io/gravl/commands/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.6">
+    
+    
+      
+        <title>Commands - gravl</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../css/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#commands" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="gravl" class="md-header__button md-logo" aria-label="gravl" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            gravl
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Commands
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bzimmer/gravl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  <li class="md-tabs__item">
+    <a href="./" class="md-tabs__link md-tabs__link--active">
+      Commands
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="gravl" class="md-nav__button md-logo" aria-label="gravl" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    gravl
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bzimmer/gravl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Commands
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Commands
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-flags" class="md-nav__link">
+    Global Flags
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands_1" class="md-nav__link">
+    Commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics" class="md-nav__link">
+    cyclinganalytics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-activities" class="md-nav__link">
+    cyclinganalytics activities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-activity" class="md-nav__link">
+    cyclinganalytics activity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-athlete" class="md-nav__link">
+    cyclinganalytics athlete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-oauth" class="md-nav__link">
+    cyclinganalytics oauth
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-streamsets" class="md-nav__link">
+    cyclinganalytics streamsets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#envvars" class="md-nav__link">
+    envvars
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    help
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp" class="md-nav__link">
+    qp
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-copy" class="md-nav__link">
+    qp copy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-export" class="md-nav__link">
+    qp export
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-list" class="md-nav__link">
+    qp list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-providers" class="md-nav__link">
+    qp providers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-status" class="md-nav__link">
+    qp status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-upload" class="md-nav__link">
+    qp upload
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps" class="md-nav__link">
+    rwgps
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-activities" class="md-nav__link">
+    rwgps activities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-activity" class="md-nav__link">
+    rwgps activity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-athlete" class="md-nav__link">
+    rwgps athlete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-route" class="md-nav__link">
+    rwgps route
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-routes" class="md-nav__link">
+    rwgps routes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava" class="md-nav__link">
+    strava
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-activities" class="md-nav__link">
+    strava activities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-activity" class="md-nav__link">
+    strava activity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-athlete" class="md-nav__link">
+    strava athlete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-oauth" class="md-nav__link">
+    strava oauth
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-photos" class="md-nav__link">
+    strava photos
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-refresh" class="md-nav__link">
+    strava refresh
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-route" class="md-nav__link">
+    strava route
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-routes" class="md-nav__link">
+    strava routes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-streams" class="md-nav__link">
+    strava streams
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-streamsets" class="md-nav__link">
+    strava streamsets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-update" class="md-nav__link">
+    strava update
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-webhook" class="md-nav__link">
+    strava webhook
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-webhook-list" class="md-nav__link">
+    strava webhook list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-webhook-subscribe" class="md-nav__link">
+    strava webhook subscribe
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-webhook-unsubscribe" class="md-nav__link">
+    strava webhook unsubscribe
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version" class="md-nav__link">
+    version
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift" class="md-nav__link">
+    zwift
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-activities" class="md-nav__link">
+    zwift activities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-activity" class="md-nav__link">
+    zwift activity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-athlete" class="md-nav__link">
+    zwift athlete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-files" class="md-nav__link">
+    zwift files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-refresh" class="md-nav__link">
+    zwift refresh
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-flags" class="md-nav__link">
+    Global Flags
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands_1" class="md-nav__link">
+    Commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics" class="md-nav__link">
+    cyclinganalytics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-activities" class="md-nav__link">
+    cyclinganalytics activities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-activity" class="md-nav__link">
+    cyclinganalytics activity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-athlete" class="md-nav__link">
+    cyclinganalytics athlete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-oauth" class="md-nav__link">
+    cyclinganalytics oauth
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cyclinganalytics-streamsets" class="md-nav__link">
+    cyclinganalytics streamsets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#envvars" class="md-nav__link">
+    envvars
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    help
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp" class="md-nav__link">
+    qp
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-copy" class="md-nav__link">
+    qp copy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-export" class="md-nav__link">
+    qp export
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-list" class="md-nav__link">
+    qp list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-providers" class="md-nav__link">
+    qp providers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-status" class="md-nav__link">
+    qp status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qp-upload" class="md-nav__link">
+    qp upload
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps" class="md-nav__link">
+    rwgps
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-activities" class="md-nav__link">
+    rwgps activities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-activity" class="md-nav__link">
+    rwgps activity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-athlete" class="md-nav__link">
+    rwgps athlete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-route" class="md-nav__link">
+    rwgps route
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rwgps-routes" class="md-nav__link">
+    rwgps routes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava" class="md-nav__link">
+    strava
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-activities" class="md-nav__link">
+    strava activities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-activity" class="md-nav__link">
+    strava activity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-athlete" class="md-nav__link">
+    strava athlete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-oauth" class="md-nav__link">
+    strava oauth
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-photos" class="md-nav__link">
+    strava photos
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-refresh" class="md-nav__link">
+    strava refresh
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-route" class="md-nav__link">
+    strava route
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-routes" class="md-nav__link">
+    strava routes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-streams" class="md-nav__link">
+    strava streams
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-streamsets" class="md-nav__link">
+    strava streamsets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-update" class="md-nav__link">
+    strava update
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-webhook" class="md-nav__link">
+    strava webhook
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-webhook-list" class="md-nav__link">
+    strava webhook list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-webhook-subscribe" class="md-nav__link">
+    strava webhook subscribe
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strava-webhook-unsubscribe" class="md-nav__link">
+    strava webhook unsubscribe
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version" class="md-nav__link">
+    version
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift" class="md-nav__link">
+    zwift
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-activities" class="md-nav__link">
+    zwift activities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-activity" class="md-nav__link">
+    zwift activity
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-athlete" class="md-nav__link">
+    zwift athlete
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-files" class="md-nav__link">
+    zwift files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zwift-refresh" class="md-nav__link">
+    zwift refresh
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+
+
+
+  
+  
+
+
+<h1 id="commands">Commands</h1>
+<h2 id="global-flags">Global Flags</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>verbosity</td>
+<td>v</td>
+<td></td>
+<td>Log level (trace, debug, info, warn, error, fatal, panic)</td>
+</tr>
+<tr>
+<td>monochrome</td>
+<td>m</td>
+<td></td>
+<td>Use monochrome logging, color enabled by default</td>
+</tr>
+<tr>
+<td>json</td>
+<td>j</td>
+<td></td>
+<td>Emit all results as JSON and print to stdout</td>
+</tr>
+<tr>
+<td>http-tracing</td>
+<td></td>
+<td></td>
+<td>Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>t</td>
+<td></td>
+<td>Timeout duration (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>help</td>
+<td>h</td>
+<td></td>
+<td>show help</td>
+</tr>
+</tbody>
+</table>
+<h2 id="commands_1">Commands</h2>
+<ul>
+<li><a href="#cyclinganalytics">cyclinganalytics</a></li>
+<li><a href="#cyclinganalytics-activities">cyclinganalytics activities</a></li>
+<li><a href="#cyclinganalytics-activity">cyclinganalytics activity</a></li>
+<li><a href="#cyclinganalytics-athlete">cyclinganalytics athlete</a></li>
+<li><a href="#cyclinganalytics-oauth">cyclinganalytics oauth</a></li>
+<li><a href="#cyclinganalytics-streamsets">cyclinganalytics streamsets</a></li>
+<li><a href="#envvars">envvars</a></li>
+<li><a href="#help">help</a></li>
+<li><a href="#qp">qp</a></li>
+<li><a href="#qp-copy">qp copy</a></li>
+<li><a href="#qp-export">qp export</a></li>
+<li><a href="#qp-list">qp list</a></li>
+<li><a href="#qp-providers">qp providers</a></li>
+<li><a href="#qp-status">qp status</a></li>
+<li><a href="#qp-upload">qp upload</a></li>
+<li><a href="#rwgps">rwgps</a></li>
+<li><a href="#rwgps-activities">rwgps activities</a></li>
+<li><a href="#rwgps-activity">rwgps activity</a></li>
+<li><a href="#rwgps-athlete">rwgps athlete</a></li>
+<li><a href="#rwgps-route">rwgps route</a></li>
+<li><a href="#rwgps-routes">rwgps routes</a></li>
+<li><a href="#strava">strava</a></li>
+<li><a href="#strava-activities">strava activities</a></li>
+<li><a href="#strava-activity">strava activity</a></li>
+<li><a href="#strava-athlete">strava athlete</a></li>
+<li><a href="#strava-oauth">strava oauth</a></li>
+<li><a href="#strava-photos">strava photos</a></li>
+<li><a href="#strava-refresh">strava refresh</a></li>
+<li><a href="#strava-route">strava route</a></li>
+<li><a href="#strava-routes">strava routes</a></li>
+<li><a href="#strava-streams">strava streams</a></li>
+<li><a href="#strava-streamsets">strava streamsets</a></li>
+<li><a href="#strava-update">strava update</a></li>
+<li><a href="#strava-webhook">strava webhook</a></li>
+<li><a href="#strava-webhook-list">strava webhook list</a></li>
+<li><a href="#strava-webhook-subscribe">strava webhook subscribe</a></li>
+<li><a href="#strava-webhook-unsubscribe">strava webhook unsubscribe</a></li>
+<li><a href="#version">version</a></li>
+<li><a href="#zwift">zwift</a></li>
+<li><a href="#zwift-activities">zwift activities</a></li>
+<li><a href="#zwift-activity">zwift activity</a></li>
+<li><a href="#zwift-athlete">zwift athlete</a></li>
+<li><a href="#zwift-files">zwift files</a></li>
+<li><a href="#zwift-refresh">zwift refresh</a></li>
+</ul>
+<h3 id="cyclinganalytics"><em>cyclinganalytics</em></h3>
+<p><strong>Description</strong></p>
+<p>Operations supported by the CyclingAnalytics API</p>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cyclinganalytics-client-id</td>
+<td></td>
+<td>CYCLINGANALYTICS_CLIENT_ID</td>
+<td>CyclingAnalytics client id</td>
+</tr>
+<tr>
+<td>cyclinganalytics-client-secret</td>
+<td></td>
+<td>CYCLINGANALYTICS_CLIENT_SECRET</td>
+<td>CyclingAnalytics client secret</td>
+</tr>
+<tr>
+<td>cyclinganalytics-access-token</td>
+<td></td>
+<td>CYCLINGANALYTICS_ACCESS_TOKEN</td>
+<td>CyclingAnalytics access token</td>
+</tr>
+<tr>
+<td>rate-limit</td>
+<td></td>
+<td></td>
+<td>Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>rate-burst</td>
+<td></td>
+<td></td>
+<td>Maximum burst size for API request events</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td></td>
+<td></td>
+<td>Maximum concurrent API queries</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cyclinganalytics-activities"><em>cyclinganalytics activities</em></h3>
+<p><strong>Description</strong></p>
+<p>Query activities for the authenticated athlete</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>N</td>
+<td></td>
+<td>The number of activities to query from CA (the number returned will be &lt;= N)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cyclinganalytics-activity"><em>cyclinganalytics activity</em></h3>
+<p><strong>Description</strong></p>
+<p>Query an activity for the authenticated athlete</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="cyclinganalytics-athlete"><em>cyclinganalytics athlete</em></h3>
+<p><strong>Description</strong></p>
+<p>Query for the authenticated athlete</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Example</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>ca<span class="w"> </span>t
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="o">{</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w"> </span><span class="s2">&quot;email&quot;</span>:<span class="w"> </span><span class="s2">&quot;me@example.com&quot;</span>,
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w"> </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">88827722</span>,
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w"> </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;That Guy&quot;</span>,
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w"> </span><span class="s2">&quot;sex&quot;</span>:<span class="w"> </span><span class="s2">&quot;male&quot;</span>,
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w"> </span><span class="s2">&quot;timezone&quot;</span>:<span class="w"> </span><span class="s2">&quot;America/Los_Angeles&quot;</span>,
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w"> </span><span class="s2">&quot;units&quot;</span>:<span class="w"> </span><span class="s2">&quot;us&quot;</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="o">}</span>
+</span></code></pre></div>
+<h3 id="cyclinganalytics-oauth"><em>cyclinganalytics oauth</em></h3>
+<p><strong>Description</strong></p>
+<p>Authentication endpoints for access and refresh tokens</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>oauth<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>origin</td>
+<td></td>
+<td></td>
+<td>Callback origin</td>
+</tr>
+<tr>
+<td>port</td>
+<td></td>
+<td></td>
+<td>Port on which to listen</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cyclinganalytics-streamsets"><em>cyclinganalytics streamsets</em></h3>
+<p><strong>Description</strong></p>
+<p>Return the set of available streams for query</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>streamsets<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="envvars"><em>envvars</em></h3>
+<p><strong>Description</strong></p>
+<p>Useful for creating a .env file for all possible environment variables</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>envvars<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="help"><em>help</em></h3>
+<p><strong>Description</strong></p>
+<p>Shows a list of commands or help for one command</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>$<span class="w"> </span>gravl<span class="w"> </span><span class="nb">help</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span><span class="o">[</span>command<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="qp"><em>qp</em></h3>
+<p><strong>Description</strong></p>
+<p>Manage the flow of activity between different platforms</p>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cyclinganalytics-client-id</td>
+<td></td>
+<td>CYCLINGANALYTICS_CLIENT_ID</td>
+<td>CyclingAnalytics client id</td>
+</tr>
+<tr>
+<td>cyclinganalytics-client-secret</td>
+<td></td>
+<td>CYCLINGANALYTICS_CLIENT_SECRET</td>
+<td>CyclingAnalytics client secret</td>
+</tr>
+<tr>
+<td>cyclinganalytics-access-token</td>
+<td></td>
+<td>CYCLINGANALYTICS_ACCESS_TOKEN</td>
+<td>CyclingAnalytics access token</td>
+</tr>
+<tr>
+<td>rwgps-client-id</td>
+<td></td>
+<td>RWGPS_CLIENT_ID</td>
+<td>RideWithGPS client id</td>
+</tr>
+<tr>
+<td>rwgps-access-token</td>
+<td></td>
+<td>RWGPS_ACCESS_TOKEN</td>
+<td>RideWithGPS access token</td>
+</tr>
+<tr>
+<td>strava-client-id</td>
+<td></td>
+<td>STRAVA_CLIENT_ID</td>
+<td>Strava client id</td>
+</tr>
+<tr>
+<td>strava-client-secret</td>
+<td></td>
+<td>STRAVA_CLIENT_SECRET</td>
+<td>Strava client secret</td>
+</tr>
+<tr>
+<td>strava-refresh-token</td>
+<td></td>
+<td>STRAVA_REFRESH_TOKEN</td>
+<td>Strava refresh token</td>
+</tr>
+<tr>
+<td>zwift-username</td>
+<td></td>
+<td>ZWIFT_USERNAME</td>
+<td>Zwift username</td>
+</tr>
+<tr>
+<td>zwift-password</td>
+<td></td>
+<td>ZWIFT_PASSWORD</td>
+<td>Zwift password</td>
+</tr>
+</tbody>
+</table>
+<h3 id="qp-copy"><em>qp copy</em></h3>
+<p><strong>Description</strong></p>
+<p>Copy an activity from a source to a destination</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span>copy<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>--from<span class="w"> </span>&lt;exporter&gt;<span class="w"> </span>--to<span class="w"> </span>&lt;uploader&gt;<span class="w"> </span>id<span class="w"> </span><span class="o">[</span>id,<span class="w"> </span>...<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rate-limit</td>
+<td></td>
+<td></td>
+<td>Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>rate-burst</td>
+<td></td>
+<td></td>
+<td>Maximum burst size for API request events</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td></td>
+<td></td>
+<td>Maximum concurrent API queries</td>
+</tr>
+<tr>
+<td>from</td>
+<td></td>
+<td></td>
+<td>Source data provider</td>
+</tr>
+<tr>
+<td>to</td>
+<td></td>
+<td></td>
+<td>Sink data provider</td>
+</tr>
+<tr>
+<td>overwrite</td>
+<td>o</td>
+<td></td>
+<td>Overwrite the file if it exists; fail otherwise</td>
+</tr>
+<tr>
+<td>output</td>
+<td>O</td>
+<td></td>
+<td>The filename to use for writing the contents of the export,</td>
+</tr>
+<tr>
+<td>if not specified the contents are streamed to stdout</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>poll</td>
+<td></td>
+<td></td>
+<td>Continually check the status of the request until it is completed</td>
+</tr>
+<tr>
+<td>interval</td>
+<td></td>
+<td></td>
+<td>The amount of time to wait between polling for an updated status</td>
+</tr>
+<tr>
+<td>iterations</td>
+<td>N</td>
+<td></td>
+<td>The max number of polling iterations to perform</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span>copy<span class="w"> </span>--from<span class="w"> </span>zwift<span class="w"> </span>--to<span class="w"> </span>cyclinganalytics<span class="w"> </span><span class="m">934398333398662432</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="m">2021</span>-10-28T06:25:55-07:00<span class="w"> </span>INF<span class="w"> </span>created<span class="w"> </span>zwift<span class="w"> </span>client
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="m">2021</span>-10-28T06:25:55-07:00<span class="w"> </span>INF<span class="w"> </span>created<span class="w"> </span>cyclinganalytics<span class="w"> </span>client
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="m">2021</span>-10-28T06:25:56-07:00<span class="w"> </span>INF<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">exp</span><span class="o">=</span><span class="m">2021</span>-10-26-18-19-39.fit<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="m">934398333398662432</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="m">2021</span>-10-28T06:25:57-07:00<span class="w"> </span>INF<span class="w"> </span>poll<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="m">1067278367</span><span class="w"> </span><span class="nv">iteration</span><span class="o">=</span><span class="m">0</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="m">2021</span>-10-28T06:26:00-07:00<span class="w"> </span>INF<span class="w"> </span>poll<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="m">1067278367</span><span class="w"> </span><span class="nv">iteration</span><span class="o">=</span><span class="m">1</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="m">2021</span>-10-28T06:26:00-07:00<span class="w"> </span>INF<span class="w"> </span>counters<span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">metric</span><span class="o">=</span>gravl.upload.file.success
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="m">2021</span>-10-28T06:26:00-07:00<span class="w"> </span>INF<span class="w"> </span>counters<span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="nv">metric</span><span class="o">=</span>gravl.upload.poll
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="m">2021</span>-10-28T06:26:00-07:00<span class="w"> </span>INF<span class="w"> </span>samples<span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">max</span><span class="o">=</span><span class="m">4</span>.181048393249512<span class="w"> </span><span class="nv">mean</span><span class="o">=</span><span class="m">4</span>.181048393249512<span class="w"> </span><span class="nv">metric</span><span class="o">=</span>gravl.runtime<span class="w"> </span><span class="nv">min</span><span class="o">=</span><span class="m">4</span>.181048393249512<span class="w"> </span><span class="nv">stddev</span><span class="o">=</span><span class="m">0</span>
+</span></code></pre></div>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span>copy<span class="w"> </span>--from<span class="w"> </span>zwift<span class="w"> </span>--to<span class="w"> </span>cyclinganalytics<span class="w"> </span><span class="m">934398333398662432</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="m">2021</span>-10-28T06:34:06-07:00<span class="w"> </span>INF<span class="w"> </span>created<span class="w"> </span>zwift<span class="w"> </span>client
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="m">2021</span>-10-28T06:34:06-07:00<span class="w"> </span>INF<span class="w"> </span>created<span class="w"> </span>cyclinganalytics<span class="w"> </span>client
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="m">2021</span>-10-28T06:34:07-07:00<span class="w"> </span>INF<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">exp</span><span class="o">=</span><span class="m">2021</span>-10-26-18-19-39.fit<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="m">934398333398662432</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="m">2021</span>-10-28T06:34:08-07:00<span class="w"> </span>INF<span class="w"> </span>poll<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="m">9819686356</span><span class="w"> </span><span class="nv">iteration</span><span class="o">=</span><span class="m">0</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="o">{</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w"> </span><span class="s2">&quot;upload_id&quot;</span>:<span class="w"> </span><span class="m">9819686356</span>,
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w"> </span><span class="s2">&quot;status&quot;</span>:<span class="w"> </span><span class="s2">&quot;processing&quot;</span>,
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w"> </span><span class="s2">&quot;ride_id&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w"> </span><span class="s2">&quot;user_id&quot;</span>:<span class="w"> </span><span class="m">1603544</span>,
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w"> </span><span class="s2">&quot;format&quot;</span>:<span class="w"> </span><span class="s2">&quot;fit&quot;</span>,
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w"> </span><span class="s2">&quot;datetime&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-10-28T13:34:09&quot;</span>,
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w"> </span><span class="s2">&quot;filename&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-10-26-18-19-39.fit&quot;</span>,
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w"> </span><span class="s2">&quot;size&quot;</span>:<span class="w"> </span><span class="m">113324</span>,
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w"> </span><span class="s2">&quot;error&quot;</span>:<span class="w"> </span><span class="s2">&quot;&quot;</span>,
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w"> </span><span class="s2">&quot;error_code&quot;</span>:<span class="w"> </span><span class="s2">&quot;&quot;</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="o">}</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="m">2021</span>-10-28T06:34:10-07:00<span class="w"> </span>INF<span class="w"> </span>poll<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="m">9819686356</span><span class="w"> </span><span class="nv">iteration</span><span class="o">=</span><span class="m">1</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="o">{</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="w"> </span><span class="s2">&quot;upload_id&quot;</span>:<span class="w"> </span><span class="m">9819686356</span>,
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w"> </span><span class="s2">&quot;status&quot;</span>:<span class="w"> </span><span class="s2">&quot;error&quot;</span>,
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a><span class="w"> </span><span class="s2">&quot;ride_id&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="w"> </span><span class="s2">&quot;user_id&quot;</span>:<span class="w"> </span><span class="m">1603544</span>,
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="w"> </span><span class="s2">&quot;format&quot;</span>:<span class="w"> </span><span class="s2">&quot;fit&quot;</span>,
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="w"> </span><span class="s2">&quot;datetime&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-10-28T13:34:09&quot;</span>,
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="w"> </span><span class="s2">&quot;filename&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-10-26-18-19-39.fit&quot;</span>,
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="w"> </span><span class="s2">&quot;size&quot;</span>:<span class="w"> </span><span class="m">113324</span>,
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="w"> </span><span class="s2">&quot;error&quot;</span>:<span class="w"> </span><span class="s2">&quot;The ride already exists: 894091983723&quot;</span>,
+</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="w"> </span><span class="s2">&quot;error_code&quot;</span>:<span class="w"> </span><span class="s2">&quot;duplicate_ride&quot;</span>
+</span><span id="__span-10-30"><a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="o">}</span>
+</span><span id="__span-10-31"><a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="m">2021</span>-10-28T06:34:10-07:00<span class="w"> </span>INF<span class="w"> </span>counters<span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="nv">metric</span><span class="o">=</span>gravl.upload.poll
+</span><span id="__span-10-32"><a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a><span class="m">2021</span>-10-28T06:34:10-07:00<span class="w"> </span>INF<span class="w"> </span>counters<span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">metric</span><span class="o">=</span>gravl.upload.file.success
+</span><span id="__span-10-33"><a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a><span class="m">2021</span>-10-28T06:34:10-07:00<span class="w"> </span>INF<span class="w"> </span>samples<span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">max</span><span class="o">=</span><span class="m">3</span>.807884454727173<span class="w"> </span><span class="nv">mean</span><span class="o">=</span><span class="m">3</span>.807884454727173<span class="w"> </span><span class="nv">metric</span><span class="o">=</span>gravl.runtime<span class="w"> </span><span class="nv">min</span><span class="o">=</span><span class="m">3</span>.807884454727173<span class="w"> </span><span class="nv">stddev</span><span class="o">=</span><span class="m">0</span>
+</span></code></pre></div>
+<h3 id="qp-export"><em>qp export</em></h3>
+<p><strong>Description</strong></p>
+<p>Export an activity from the source</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rate-limit</td>
+<td></td>
+<td></td>
+<td>Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>rate-burst</td>
+<td></td>
+<td></td>
+<td>Maximum burst size for API request events</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td></td>
+<td></td>
+<td>Maximum concurrent API queries</td>
+</tr>
+<tr>
+<td>from</td>
+<td></td>
+<td></td>
+<td>Source data provider</td>
+</tr>
+<tr>
+<td>overwrite</td>
+<td>o</td>
+<td></td>
+<td>Overwrite the file if it exists; fail otherwise</td>
+</tr>
+<tr>
+<td>output</td>
+<td>O</td>
+<td></td>
+<td>The filename to use for writing the contents of the export,</td>
+</tr>
+<tr>
+<td>if not specified the contents are streamed to stdout</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example</strong></p>
+<p>If neither <code>-o</code> or <code>-O</code> are specified the contents of the file are written to stdout.
+If <code>-o</code> is specified, the file will be written to disk using the name provided by Strava, even if it already exists locally.
+If <code>-O</code> is specified, the file will be written to disk using the name provided by the flag. It will not overwrite an existing
+file unless <code>-o</code> was also specified.</p>
+<h3 id="qp-list"><em>qp list</em></h3>
+<p><strong>Description</strong></p>
+<p>List the files suitable for uploading</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span><span class="o">{</span>FILE<span class="w"> </span><span class="p">|</span><span class="w"> </span>DIRECTORY<span class="o">}</span><span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<h3 id="qp-providers"><em>qp providers</em></h3>
+<p><strong>Description</strong></p>
+<p>Return the set of active exporters and uploaders</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span>providers<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="qp-status"><em>qp status</em></h3>
+<p><strong>Description</strong></p>
+<p>Check the status of an upload</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span>status<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>UPLOAD_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rate-limit</td>
+<td></td>
+<td></td>
+<td>Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>rate-burst</td>
+<td></td>
+<td></td>
+<td>Maximum burst size for API request events</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td></td>
+<td></td>
+<td>Maximum concurrent API queries</td>
+</tr>
+<tr>
+<td>to</td>
+<td></td>
+<td></td>
+<td>Sink data provider</td>
+</tr>
+<tr>
+<td>poll</td>
+<td></td>
+<td></td>
+<td>Continually check the status of the request until it is completed</td>
+</tr>
+<tr>
+<td>interval</td>
+<td></td>
+<td></td>
+<td>The amount of time to wait between polling for an updated status</td>
+</tr>
+<tr>
+<td>iterations</td>
+<td>N</td>
+<td></td>
+<td>The max number of polling iterations to perform</td>
+</tr>
+</tbody>
+</table>
+<h3 id="qp-upload"><em>qp upload</em></h3>
+<p><strong>Description</strong></p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span>upload<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span><span class="o">{</span>FILE<span class="w"> </span><span class="p">|</span><span class="w"> </span>DIRECTORY<span class="o">}</span><span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rate-limit</td>
+<td></td>
+<td></td>
+<td>Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>rate-burst</td>
+<td></td>
+<td></td>
+<td>Maximum burst size for API request events</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td></td>
+<td></td>
+<td>Maximum concurrent API queries</td>
+</tr>
+<tr>
+<td>to</td>
+<td></td>
+<td></td>
+<td>Sink data provider</td>
+</tr>
+<tr>
+<td>poll</td>
+<td></td>
+<td></td>
+<td>Continually check the status of the request until it is completed</td>
+</tr>
+<tr>
+<td>interval</td>
+<td></td>
+<td></td>
+<td>The amount of time to wait between polling for an updated status</td>
+</tr>
+<tr>
+<td>iterations</td>
+<td>N</td>
+<td></td>
+<td>The max number of polling iterations to perform</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rwgps"><em>rwgps</em></h3>
+<p><strong>Description</strong></p>
+<p>Operations supported by the RideWithGPS API</p>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rwgps-client-id</td>
+<td></td>
+<td>RWGPS_CLIENT_ID</td>
+<td>RideWithGPS client id</td>
+</tr>
+<tr>
+<td>rwgps-access-token</td>
+<td></td>
+<td>RWGPS_ACCESS_TOKEN</td>
+<td>RideWithGPS access token</td>
+</tr>
+<tr>
+<td>rate-limit</td>
+<td></td>
+<td></td>
+<td>Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>rate-burst</td>
+<td></td>
+<td></td>
+<td>Maximum burst size for API request events</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td></td>
+<td></td>
+<td>Maximum concurrent API queries</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rwgps-activities"><em>rwgps activities</em></h3>
+<p><strong>Description</strong></p>
+<p>Query activities for the authenticated athlete</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>N</td>
+<td></td>
+<td>The number of activities to query from RideWithGPS</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example</strong></p>
+<p>Query RideWithGPS activities with an optional count. The order of the activities is not guaranteed but generally they are returned most recent first.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>activities<span class="w"> </span>-N<span class="w"> </span><span class="m">10</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="m">2021</span>-02-20T14:31:23-08:00<span class="w"> </span>INF<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nv">all</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="nv">n</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">start</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">total</span><span class="o">=</span><span class="m">10</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="m">2021</span>-02-20T14:31:23-08:00<span class="w"> </span>INF<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nv">all</span><span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="nv">n</span><span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="nv">start</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">total</span><span class="o">=</span><span class="m">10</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="o">{</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w"> </span><span class="s2">&quot;created_at&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-02-20T20:12:49Z&quot;</span>,
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w"> </span><span class="s2">&quot;departed_at&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-02-20T18:39:22Z&quot;</span>,
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w"> </span><span class="s2">&quot;description&quot;</span>:<span class="w"> </span><span class="s2">&quot;&quot;</span>,
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w"> </span><span class="s2">&quot;distance&quot;</span>:<span class="w"> </span><span class="m">30741</span>.9,
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w"> </span><span class="s2">&quot;duration&quot;</span>:<span class="w"> </span><span class="m">5593</span>,
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w"> </span><span class="s2">&quot;elevation_gain&quot;</span>:<span class="w"> </span><span class="m">516</span>.281,
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w"> </span><span class="s2">&quot;elevation_loss&quot;</span>:<span class="w"> </span><span class="m">521</span>.453,
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w"> </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">62829442</span>,
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w"> </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021/02/20&quot;</span>,
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w"> </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;&quot;</span>,
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="w"> </span><span class="s2">&quot;track_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;60316d406b34d7693a3f015b&quot;</span>,
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="w"> </span><span class="s2">&quot;updated_at&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-02-20T20:12:49Z&quot;</span>,
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="w"> </span><span class="s2">&quot;user_id&quot;</span>:<span class="w"> </span><span class="m">836</span>,
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="w"> </span><span class="s2">&quot;visibility&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="w"> </span><span class="s2">&quot;first_lat&quot;</span>:<span class="w"> </span><span class="m">47</span>.502655,
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="w"> </span><span class="s2">&quot;first_lng&quot;</span>:<span class="w"> </span>-122.602798,
+</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="w"> </span><span class="s2">&quot;last_lat&quot;</span>:<span class="w"> </span><span class="m">47</span>.502655,
+</span><span id="__span-17-22"><a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="w"> </span><span class="s2">&quot;last_lng&quot;</span>:<span class="w"> </span>-122.602798
+</span><span id="__span-17-23"><a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="o">}</span>
+</span><span id="__span-17-24"><a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>...
+</span><span id="__span-17-25"><a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="o">{</span>
+</span><span id="__span-17-26"><a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a><span class="w"> </span><span class="s2">&quot;created_at&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-01-26T00:38:58Z&quot;</span>,
+</span><span id="__span-17-27"><a id="__codelineno-17-27" name="__codelineno-17-27" href="#__codelineno-17-27"></a><span class="w"> </span><span class="s2">&quot;departed_at&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-01-25T23:34:32Z&quot;</span>,
+</span><span id="__span-17-28"><a id="__codelineno-17-28" name="__codelineno-17-28" href="#__codelineno-17-28"></a><span class="w"> </span><span class="s2">&quot;description&quot;</span>:<span class="w"> </span><span class="s2">&quot;&quot;</span>,
+</span><span id="__span-17-29"><a id="__codelineno-17-29" name="__codelineno-17-29" href="#__codelineno-17-29"></a><span class="w"> </span><span class="s2">&quot;distance&quot;</span>:<span class="w"> </span><span class="m">25356</span>,
+</span><span id="__span-17-30"><a id="__codelineno-17-30" name="__codelineno-17-30" href="#__codelineno-17-30"></a><span class="w"> </span><span class="s2">&quot;duration&quot;</span>:<span class="w"> </span><span class="m">3851</span>,
+</span><span id="__span-17-31"><a id="__codelineno-17-31" name="__codelineno-17-31" href="#__codelineno-17-31"></a><span class="w"> </span><span class="s2">&quot;elevation_gain&quot;</span>:<span class="w"> </span><span class="m">403</span>.445,
+</span><span id="__span-17-32"><a id="__codelineno-17-32" name="__codelineno-17-32" href="#__codelineno-17-32"></a><span class="w"> </span><span class="s2">&quot;elevation_loss&quot;</span>:<span class="w"> </span><span class="m">400</span>.121,
+</span><span id="__span-17-33"><a id="__codelineno-17-33" name="__codelineno-17-33" href="#__codelineno-17-33"></a><span class="w"> </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">61904776</span>,
+</span><span id="__span-17-34"><a id="__codelineno-17-34" name="__codelineno-17-34" href="#__codelineno-17-34"></a><span class="w"> </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021/01/25&quot;</span>,
+</span><span id="__span-17-35"><a id="__codelineno-17-35" name="__codelineno-17-35" href="#__codelineno-17-35"></a><span class="w"> </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;&quot;</span>,
+</span><span id="__span-17-36"><a id="__codelineno-17-36" name="__codelineno-17-36" href="#__codelineno-17-36"></a><span class="w"> </span><span class="s2">&quot;track_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;600f64a2fa348e8e23e2d546&quot;</span>,
+</span><span id="__span-17-37"><a id="__codelineno-17-37" name="__codelineno-17-37" href="#__codelineno-17-37"></a><span class="w"> </span><span class="s2">&quot;updated_at&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-01-26T00:38:58Z&quot;</span>,
+</span><span id="__span-17-38"><a id="__codelineno-17-38" name="__codelineno-17-38" href="#__codelineno-17-38"></a><span class="w"> </span><span class="s2">&quot;user_id&quot;</span>:<span class="w"> </span><span class="m">836</span>,
+</span><span id="__span-17-39"><a id="__codelineno-17-39" name="__codelineno-17-39" href="#__codelineno-17-39"></a><span class="w"> </span><span class="s2">&quot;visibility&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+</span><span id="__span-17-40"><a id="__codelineno-17-40" name="__codelineno-17-40" href="#__codelineno-17-40"></a><span class="w"> </span><span class="s2">&quot;first_lat&quot;</span>:<span class="w"> </span><span class="m">47</span>.502655,
+</span><span id="__span-17-41"><a id="__codelineno-17-41" name="__codelineno-17-41" href="#__codelineno-17-41"></a><span class="w"> </span><span class="s2">&quot;first_lng&quot;</span>:<span class="w"> </span>-122.602798,
+</span><span id="__span-17-42"><a id="__codelineno-17-42" name="__codelineno-17-42" href="#__codelineno-17-42"></a><span class="w"> </span><span class="s2">&quot;last_lat&quot;</span>:<span class="w"> </span><span class="m">47</span>.502655,
+</span><span id="__span-17-43"><a id="__codelineno-17-43" name="__codelineno-17-43" href="#__codelineno-17-43"></a><span class="w"> </span><span class="s2">&quot;last_lng&quot;</span>:<span class="w"> </span>-122.602798
+</span><span id="__span-17-44"><a id="__codelineno-17-44" name="__codelineno-17-44" href="#__codelineno-17-44"></a><span class="o">}</span>
+</span></code></pre></div>
+<h3 id="rwgps-activity"><em>rwgps activity</em></h3>
+<p><strong>Description</strong></p>
+<p>Query an activity from RideWithGPS</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="rwgps-athlete"><em>rwgps athlete</em></h3>
+<p><strong>Description</strong></p>
+<p>Query for the authenticated athlete</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="rwgps-route"><em>rwgps route</em></h3>
+<p><strong>Description</strong></p>
+<p>Query a route from RideWithGPS</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>route<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="rwgps-routes"><em>rwgps routes</em></h3>
+<p><strong>Description</strong></p>
+<p>Query routes for an athlete from RideWithGPS</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>routes<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>N</td>
+<td></td>
+<td>The number of routes to query from RideWithGPS</td>
+</tr>
+</tbody>
+</table>
+<h3 id="strava"><em>strava</em></h3>
+<p><strong>Description</strong></p>
+<p>Operations supported by the Strava API</p>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>strava-client-id</td>
+<td></td>
+<td>STRAVA_CLIENT_ID</td>
+<td>Strava client id</td>
+</tr>
+<tr>
+<td>strava-client-secret</td>
+<td></td>
+<td>STRAVA_CLIENT_SECRET</td>
+<td>Strava client secret</td>
+</tr>
+<tr>
+<td>strava-refresh-token</td>
+<td></td>
+<td>STRAVA_REFRESH_TOKEN</td>
+<td>Strava refresh token</td>
+</tr>
+<tr>
+<td>rate-limit</td>
+<td></td>
+<td></td>
+<td>Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>rate-burst</td>
+<td></td>
+<td></td>
+<td>Maximum burst size for API request events</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td></td>
+<td></td>
+<td>Maximum concurrent API queries</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overview</strong></p>
+<p>The Strava client is comprised of general <a href="https://developers.strava.com/">API</a> access supporting
+activities, routes, and streams.</p>
+<p>Additionally, there's full support for implementing <code>webhooks</code> but only only webhook management is
+available via the commandline (eg <a href="#strava-webhook-list"><code>strava webhook list</code></a>,
+<a href="#strava-webhook-subscribe"><code>strava webhook subscribe</code></a>, and <a href="#strava-webhook-unsubscribe"><code>strava webhook unsubscribe</code></a>).</p>
+<h3 id="strava-activities"><em>strava activities</em></h3>
+<p><strong>Description</strong></p>
+<p>Query activities for an athlete from Strava</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>N</td>
+<td></td>
+<td>The number of activities to query from Strava (the number returned will be &lt;= N)</td>
+</tr>
+<tr>
+<td>filter</td>
+<td>f</td>
+<td></td>
+<td>Expression for filtering activities to remove</td>
+</tr>
+<tr>
+<td>attribute</td>
+<td>B</td>
+<td></td>
+<td>Evaluate the expression on an activity and return only those results</td>
+</tr>
+<tr>
+<td>after</td>
+<td>since</td>
+<td></td>
+<td>Return results after the time specified</td>
+</tr>
+<tr>
+<td>before</td>
+<td></td>
+<td></td>
+<td>Return results before the time specified</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example</strong></p>
+<p>List all <code>VirtualRides</code> in the last 20 activities and display their <code>ID</code>, <code>Name</code>, <code>StartDate</code>, and their <code>Distance</code> in miles</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>-c<span class="w"> </span>--timeout<span class="w"> </span>1m<span class="w"> </span>strava<span class="w"> </span>activities<span class="w"> </span>-N<span class="w"> </span><span class="m">20</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;.Type == &#39;VirtualRide&#39;&quot;</span><span class="w"> </span>-B<span class="w"> </span><span class="s2">&quot;.ID, .Name, .StartDateLocal, .Distance.Miles()&quot;</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="m">2021</span>-02-20T08:50:32-08:00<span class="w"> </span>INF<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nv">all</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">20</span><span class="w"> </span><span class="nv">n</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">start</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">total</span><span class="o">=</span><span class="m">20</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="m">2021</span>-02-20T08:50:34-08:00<span class="w"> </span>INF<span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nv">all</span><span class="o">=</span><span class="m">20</span><span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">20</span><span class="w"> </span><span class="nv">n</span><span class="o">=</span><span class="m">20</span><span class="w"> </span><span class="nv">start</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">total</span><span class="o">=</span><span class="m">20</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="o">[</span><span class="m">4807285657</span>,<span class="s2">&quot;Yorkshire - Jon&#39;s Short Mix&quot;</span>,<span class="s2">&quot;2021-02-18T06:56:20Z&quot;</span>,10.702124592380498<span class="o">]</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="o">[</span><span class="m">4802094087</span>,<span class="s2">&quot;London&quot;</span>,<span class="s2">&quot;2021-02-17T06:55:39Z&quot;</span>,12.95105334844508<span class="o">]</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="o">[</span><span class="m">4741552384</span>,<span class="s2">&quot;2004&quot;</span>,<span class="s2">&quot;2021-02-05T18:15:27Z&quot;</span>,17.51514902966675<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="strava-activity"><em>strava activity</em></h3>
+<p><strong>Description</strong></p>
+<p>Query an activity from Strava</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>stream</td>
+<td>s</td>
+<td></td>
+<td>Streams to include in the activity</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example</strong></p>
+<p>To query a specific activity:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>activity<span class="w"> </span><span class="m">4802094087</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="o">{</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w"> </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">4802094087</span>,
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w"> </span><span class="s2">&quot;resource_state&quot;</span>:<span class="w"> </span><span class="m">3</span>,
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w"> </span><span class="s2">&quot;external_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;zwift-activity-752165469668926976.fit&quot;</span>,
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w"> </span><span class="s2">&quot;upload_id&quot;</span>:<span class="w"> </span><span class="m">5123870639</span>,
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>...
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="w"> </span><span class="s2">&quot;gear&quot;</span>:<span class="w"> </span><span class="o">{</span>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="w">  </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="s2">&quot;b6713218&quot;</span>,
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="w">  </span><span class="s2">&quot;primary&quot;</span>:<span class="w"> </span>false,
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="w">  </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;Smart Trainer&quot;</span>,
+</span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="w">  </span><span class="s2">&quot;resource_state&quot;</span>:<span class="w"> </span><span class="m">2</span>,
+</span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="w">  </span><span class="s2">&quot;distance&quot;</span>:<span class="w"> </span><span class="m">711026</span>,
+</span><span id="__span-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a><span class="w">  </span><span class="s2">&quot;athlete_id&quot;</span>:<span class="w"> </span><span class="m">0</span>
+</span><span id="__span-25-15"><a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a><span class="w"> </span><span class="o">}</span>,
+</span><span id="__span-25-16"><a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a><span class="w"> </span>...
+</span><span id="__span-25-17"><a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a><span class="w"> </span><span class="s2">&quot;device_name&quot;</span>:<span class="w"> </span><span class="s2">&quot;Zwift&quot;</span>,
+</span><span id="__span-25-18"><a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a><span class="w"> </span><span class="s2">&quot;segment_leaderboard_opt_out&quot;</span>:<span class="w"> </span>false,
+</span><span id="__span-25-19"><a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a><span class="w"> </span><span class="s2">&quot;leaderboard_opt_out&quot;</span>:<span class="w"> </span>false,
+</span><span id="__span-25-20"><a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a><span class="w"> </span><span class="s2">&quot;perceived_exertion&quot;</span>:<span class="w"> </span><span class="m">6</span>,
+</span><span id="__span-25-21"><a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a><span class="w"> </span><span class="s2">&quot;prefer_perceived_exertion&quot;</span>:<span class="w"> </span><span class="nb">false</span>
+</span><span id="__span-25-22"><a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a><span class="o">}</span>
+</span></code></pre></div>
+<p>To include stream data use the <code>-s</code> flag:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>activity<span class="w"> </span>-s<span class="w"> </span>watts<span class="w"> </span><span class="m">4802094087</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="o">{</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w"> </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="m">4802094087</span>,
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w"> </span><span class="s2">&quot;resource_state&quot;</span>:<span class="w"> </span><span class="m">3</span>,
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w"> </span><span class="s2">&quot;external_id&quot;</span>:<span class="w"> </span><span class="s2">&quot;zwift-activity-752165469668926976.fit&quot;</span>,
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w"> </span><span class="s2">&quot;upload_id&quot;</span>:<span class="w"> </span><span class="m">5123870639</span>,
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w"> </span>...
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w"> </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;London&quot;</span>,
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w"> </span><span class="s2">&quot;distance&quot;</span>:<span class="w"> </span><span class="m">20842</span>.7,
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w"> </span><span class="s2">&quot;moving_time&quot;</span>:<span class="w"> </span><span class="m">2463</span>,
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w"> </span><span class="s2">&quot;elapsed_time&quot;</span>:<span class="w"> </span><span class="m">2463</span>,
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="w"> </span><span class="s2">&quot;total_elevation_gain&quot;</span>:<span class="w"> </span><span class="m">216</span>,
+</span><span id="__span-26-13"><a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="w"> </span><span class="s2">&quot;type&quot;</span>:<span class="w"> </span><span class="s2">&quot;VirtualRide&quot;</span>,
+</span><span id="__span-26-14"><a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a><span class="w"> </span><span class="s2">&quot;start_date&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-02-17T14:55:39Z&quot;</span>,
+</span><span id="__span-26-15"><a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="w"> </span><span class="s2">&quot;start_date_local&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-02-17T06:55:39Z&quot;</span>,
+</span><span id="__span-26-16"><a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a><span class="w"> </span>...
+</span><span id="__span-26-17"><a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a><span class="w"> </span><span class="s2">&quot;streams&quot;</span>:<span class="w"> </span><span class="o">{</span>
+</span><span id="__span-26-18"><a id="__codelineno-26-18" name="__codelineno-26-18" href="#__codelineno-26-18"></a><span class="w">  </span><span class="s2">&quot;activity_id&quot;</span>:<span class="w"> </span><span class="m">4802094087</span>,
+</span><span id="__span-26-19"><a id="__codelineno-26-19" name="__codelineno-26-19" href="#__codelineno-26-19"></a><span class="w">  </span><span class="s2">&quot;distance&quot;</span>:<span class="w"> </span><span class="o">{</span>
+</span><span id="__span-26-20"><a id="__codelineno-26-20" name="__codelineno-26-20" href="#__codelineno-26-20"></a><span class="w">   </span><span class="s2">&quot;original_size&quot;</span>:<span class="w"> </span><span class="m">2464</span>,
+</span><span id="__span-26-21"><a id="__codelineno-26-21" name="__codelineno-26-21" href="#__codelineno-26-21"></a><span class="w">   </span><span class="s2">&quot;resolution&quot;</span>:<span class="w"> </span><span class="s2">&quot;high&quot;</span>,
+</span><span id="__span-26-22"><a id="__codelineno-26-22" name="__codelineno-26-22" href="#__codelineno-26-22"></a><span class="w">   </span><span class="s2">&quot;series_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;distance&quot;</span>,
+</span><span id="__span-26-23"><a id="__codelineno-26-23" name="__codelineno-26-23" href="#__codelineno-26-23"></a><span class="w">   </span><span class="s2">&quot;data&quot;</span>:<span class="w"> </span><span class="o">[</span>
+</span><span id="__span-26-24"><a id="__codelineno-26-24" name="__codelineno-26-24" href="#__codelineno-26-24"></a><span class="w">    </span><span class="m">2</span>.5,
+</span><span id="__span-26-25"><a id="__codelineno-26-25" name="__codelineno-26-25" href="#__codelineno-26-25"></a><span class="w">    </span><span class="m">4</span>.3,
+</span><span id="__span-26-26"><a id="__codelineno-26-26" name="__codelineno-26-26" href="#__codelineno-26-26"></a><span class="w">    </span><span class="m">6</span>.6,
+</span><span id="__span-26-27"><a id="__codelineno-26-27" name="__codelineno-26-27" href="#__codelineno-26-27"></a><span class="w">    </span><span class="m">9</span>.2,
+</span><span id="__span-26-28"><a id="__codelineno-26-28" name="__codelineno-26-28" href="#__codelineno-26-28"></a><span class="w">    </span>...
+</span><span id="__span-26-29"><a id="__codelineno-26-29" name="__codelineno-26-29" href="#__codelineno-26-29"></a><span class="w">    </span><span class="m">20829</span>.9,
+</span><span id="__span-26-30"><a id="__codelineno-26-30" name="__codelineno-26-30" href="#__codelineno-26-30"></a><span class="w">    </span><span class="m">20835</span>.3,
+</span><span id="__span-26-31"><a id="__codelineno-26-31" name="__codelineno-26-31" href="#__codelineno-26-31"></a><span class="w">    </span><span class="m">20840</span>.2,
+</span><span id="__span-26-32"><a id="__codelineno-26-32" name="__codelineno-26-32" href="#__codelineno-26-32"></a><span class="w">    </span><span class="m">20845</span>.2
+</span><span id="__span-26-33"><a id="__codelineno-26-33" name="__codelineno-26-33" href="#__codelineno-26-33"></a><span class="w">   </span><span class="o">]</span>
+</span><span id="__span-26-34"><a id="__codelineno-26-34" name="__codelineno-26-34" href="#__codelineno-26-34"></a><span class="w">  </span><span class="o">}</span>,
+</span><span id="__span-26-35"><a id="__codelineno-26-35" name="__codelineno-26-35" href="#__codelineno-26-35"></a><span class="w">  </span><span class="s2">&quot;watts&quot;</span>:<span class="w"> </span><span class="o">{</span>
+</span><span id="__span-26-36"><a id="__codelineno-26-36" name="__codelineno-26-36" href="#__codelineno-26-36"></a><span class="w">   </span><span class="s2">&quot;original_size&quot;</span>:<span class="w"> </span><span class="m">2464</span>,
+</span><span id="__span-26-37"><a id="__codelineno-26-37" name="__codelineno-26-37" href="#__codelineno-26-37"></a><span class="w">   </span><span class="s2">&quot;resolution&quot;</span>:<span class="w"> </span><span class="s2">&quot;high&quot;</span>,
+</span><span id="__span-26-38"><a id="__codelineno-26-38" name="__codelineno-26-38" href="#__codelineno-26-38"></a><span class="w">   </span><span class="s2">&quot;series_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;distance&quot;</span>,
+</span><span id="__span-26-39"><a id="__codelineno-26-39" name="__codelineno-26-39" href="#__codelineno-26-39"></a><span class="w">   </span><span class="s2">&quot;data&quot;</span>:<span class="w"> </span><span class="o">[</span>
+</span><span id="__span-26-40"><a id="__codelineno-26-40" name="__codelineno-26-40" href="#__codelineno-26-40"></a><span class="w">    </span><span class="m">89</span>,
+</span><span id="__span-26-41"><a id="__codelineno-26-41" name="__codelineno-26-41" href="#__codelineno-26-41"></a><span class="w">    </span><span class="m">105</span>,
+</span><span id="__span-26-42"><a id="__codelineno-26-42" name="__codelineno-26-42" href="#__codelineno-26-42"></a><span class="w">    </span><span class="m">105</span>,
+</span><span id="__span-26-43"><a id="__codelineno-26-43" name="__codelineno-26-43" href="#__codelineno-26-43"></a><span class="w">    </span><span class="m">105</span>,
+</span><span id="__span-26-44"><a id="__codelineno-26-44" name="__codelineno-26-44" href="#__codelineno-26-44"></a><span class="w">    </span>...
+</span><span id="__span-26-45"><a id="__codelineno-26-45" name="__codelineno-26-45" href="#__codelineno-26-45"></a><span class="w">    </span><span class="m">367</span>,
+</span><span id="__span-26-46"><a id="__codelineno-26-46" name="__codelineno-26-46" href="#__codelineno-26-46"></a><span class="w">    </span><span class="m">368</span>,
+</span><span id="__span-26-47"><a id="__codelineno-26-47" name="__codelineno-26-47" href="#__codelineno-26-47"></a><span class="w">    </span><span class="m">376</span>,
+</span><span id="__span-26-48"><a id="__codelineno-26-48" name="__codelineno-26-48" href="#__codelineno-26-48"></a><span class="w">    </span><span class="m">408</span>,
+</span><span id="__span-26-49"><a id="__codelineno-26-49" name="__codelineno-26-49" href="#__codelineno-26-49"></a><span class="w">    </span><span class="m">406</span>,
+</span><span id="__span-26-50"><a id="__codelineno-26-50" name="__codelineno-26-50" href="#__codelineno-26-50"></a><span class="w">    </span><span class="m">396</span>,
+</span><span id="__span-26-51"><a id="__codelineno-26-51" name="__codelineno-26-51" href="#__codelineno-26-51"></a><span class="w">    </span><span class="m">396</span>,
+</span><span id="__span-26-52"><a id="__codelineno-26-52" name="__codelineno-26-52" href="#__codelineno-26-52"></a><span class="w">    </span><span class="m">408</span>,
+</span><span id="__span-26-53"><a id="__codelineno-26-53" name="__codelineno-26-53" href="#__codelineno-26-53"></a><span class="w">    </span><span class="m">412</span>,
+</span><span id="__span-26-54"><a id="__codelineno-26-54" name="__codelineno-26-54" href="#__codelineno-26-54"></a><span class="w">    </span><span class="m">361</span>,
+</span><span id="__span-26-55"><a id="__codelineno-26-55" name="__codelineno-26-55" href="#__codelineno-26-55"></a><span class="w">    </span><span class="m">400</span>,
+</span><span id="__span-26-56"><a id="__codelineno-26-56" name="__codelineno-26-56" href="#__codelineno-26-56"></a><span class="w">    </span>...
+</span><span id="__span-26-57"><a id="__codelineno-26-57" name="__codelineno-26-57" href="#__codelineno-26-57"></a><span class="w">   </span><span class="o">]</span>
+</span><span id="__span-26-58"><a id="__codelineno-26-58" name="__codelineno-26-58" href="#__codelineno-26-58"></a><span class="w">  </span><span class="o">}</span>
+</span><span id="__span-26-59"><a id="__codelineno-26-59" name="__codelineno-26-59" href="#__codelineno-26-59"></a><span class="w"> </span><span class="o">}</span>
+</span><span id="__span-26-60"><a id="__codelineno-26-60" name="__codelineno-26-60" href="#__codelineno-26-60"></a><span class="o">}</span>
+</span></code></pre></div>
+<h3 id="strava-athlete"><em>strava athlete</em></h3>
+<p><strong>Description</strong></p>
+<p>Query an athlete from Strava</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="strava-oauth"><em>strava oauth</em></h3>
+<p><strong>Description</strong></p>
+<p>Authentication endpoints for access and refresh tokens</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>oauth<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>origin</td>
+<td></td>
+<td></td>
+<td>Callback origin</td>
+</tr>
+<tr>
+<td>port</td>
+<td></td>
+<td></td>
+<td>Port on which to listen</td>
+</tr>
+</tbody>
+</table>
+<h3 id="strava-photos"><em>strava photos</em></h3>
+<p><strong>Description</strong></p>
+<p>Query photos from Strava</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>photos<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>size</td>
+<td>s</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="strava-refresh"><em>strava refresh</em></h3>
+<p><strong>Description</strong></p>
+<p>Acquire a new refresh token</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>refresh<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="strava-route"><em>strava route</em></h3>
+<p><strong>Description</strong></p>
+<p>Query a route from Strava</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>route<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ROUTE_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<h3 id="strava-routes"><em>strava routes</em></h3>
+<p><strong>Description</strong></p>
+<p>Query routes for an athlete from Strava</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>routes<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>N</td>
+<td></td>
+<td>The number of routes to query from Strava (the number returned will be &lt;= N)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="strava-streams"><em>strava streams</em></h3>
+<p><strong>Description</strong></p>
+<p>Query streams for an activity from Strava</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streams<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>stream</td>
+<td>s</td>
+<td></td>
+<td>Streams to include in the activity</td>
+</tr>
+</tbody>
+</table>
+<h3 id="strava-streamsets"><em>strava streamsets</em></h3>
+<p><strong>Description</strong></p>
+<p>Return the set of available streams for query</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Example</strong></p>
+<p>Query the available streams for query with <code>activity</code>.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets
+</span><span id="__span-35-2"><a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="o">{</span>
+</span><span id="__span-35-3"><a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="w"> </span><span class="s2">&quot;altitude&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of altitude values for this stream, in meters [float]&quot;</span>,
+</span><span id="__span-35-4"><a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="w"> </span><span class="s2">&quot;cadence&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of cadence values for this stream, in rotations per minute [integer]&quot;</span>,
+</span><span id="__span-35-5"><a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a><span class="w"> </span><span class="s2">&quot;distance&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of distance values for this stream, in meters [float]&quot;</span>,
+</span><span id="__span-35-6"><a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a><span class="w"> </span><span class="s2">&quot;grade_smooth&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of grade values for this stream, as percents of a grade [float]&quot;</span>,
+</span><span id="__span-35-7"><a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a><span class="w"> </span><span class="s2">&quot;heartrate&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of heart rate values for this stream, in beats per minute [integer]&quot;</span>,
+</span><span id="__span-35-8"><a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a><span class="w"> </span><span class="s2">&quot;latlng&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of lat/long values for this stream [float, float]&quot;</span>,
+</span><span id="__span-35-9"><a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a><span class="w"> </span><span class="s2">&quot;moving&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of moving values for this stream, as boolean values [boolean]&quot;</span>,
+</span><span id="__span-35-10"><a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a><span class="w"> </span><span class="s2">&quot;temp&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of temperature values for this stream, in celsius degrees [float]&quot;</span>,
+</span><span id="__span-35-11"><a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a><span class="w"> </span><span class="s2">&quot;time&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of time values for this stream, in seconds [integer]&quot;</span>,
+</span><span id="__span-35-12"><a id="__codelineno-35-12" name="__codelineno-35-12" href="#__codelineno-35-12"></a><span class="w"> </span><span class="s2">&quot;velocity_smooth&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of velocity values for this stream, in meters per second [float]&quot;</span>,
+</span><span id="__span-35-13"><a id="__codelineno-35-13" name="__codelineno-35-13" href="#__codelineno-35-13"></a><span class="w"> </span><span class="s2">&quot;watts&quot;</span>:<span class="w"> </span><span class="s2">&quot;The sequence of power values for this stream, in watts [integer]&quot;</span>
+</span><span id="__span-35-14"><a id="__codelineno-35-14" name="__codelineno-35-14" href="#__codelineno-35-14"></a><span class="o">}</span>
+</span></code></pre></div>
+<p>To get just the stream names:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;keys | .[]&quot;</span>
+</span><span id="__span-36-2"><a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>altitude
+</span><span id="__span-36-3"><a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>cadence
+</span><span id="__span-36-4"><a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a>distance
+</span><span id="__span-36-5"><a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a>grade_smooth
+</span><span id="__span-36-6"><a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a>heartrate
+</span><span id="__span-36-7"><a id="__codelineno-36-7" name="__codelineno-36-7" href="#__codelineno-36-7"></a>latlng
+</span><span id="__span-36-8"><a id="__codelineno-36-8" name="__codelineno-36-8" href="#__codelineno-36-8"></a>moving
+</span><span id="__span-36-9"><a id="__codelineno-36-9" name="__codelineno-36-9" href="#__codelineno-36-9"></a>temp
+</span><span id="__span-36-10"><a id="__codelineno-36-10" name="__codelineno-36-10" href="#__codelineno-36-10"></a><span class="nb">time</span>
+</span><span id="__span-36-11"><a id="__codelineno-36-11" name="__codelineno-36-11" href="#__codelineno-36-11"></a>velocity_smooth
+</span><span id="__span-36-12"><a id="__codelineno-36-12" name="__codelineno-36-12" href="#__codelineno-36-12"></a>watts
+</span></code></pre></div>
+<h3 id="strava-update"><em>strava update</em></h3>
+<p><strong>Description</strong></p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>update<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td></td>
+<td></td>
+<td>Set the name for the activity</td>
+</tr>
+<tr>
+<td>gear</td>
+<td></td>
+<td></td>
+<td>Set the gear id for the activity</td>
+</tr>
+<tr>
+<td>sport</td>
+<td></td>
+<td></td>
+<td>Set the sport for the activity</td>
+</tr>
+<tr>
+<td>description</td>
+<td></td>
+<td></td>
+<td>Set the description for the activity</td>
+</tr>
+<tr>
+<td>hidden</td>
+<td></td>
+<td></td>
+<td>Hide the activity from the home dashboard</td>
+</tr>
+<tr>
+<td>no-hidden</td>
+<td></td>
+<td></td>
+<td>Display the activity on the home dashboard</td>
+</tr>
+<tr>
+<td>commute</td>
+<td></td>
+<td></td>
+<td>The activity is a commute</td>
+</tr>
+<tr>
+<td>no-commute</td>
+<td></td>
+<td></td>
+<td>The activity is not a commute</td>
+</tr>
+<tr>
+<td>trainer</td>
+<td></td>
+<td></td>
+<td>The activity was completed on a trainer</td>
+</tr>
+<tr>
+<td>no-trainer</td>
+<td></td>
+<td></td>
+<td>The activity was not completed on a trainer</td>
+</tr>
+</tbody>
+</table>
+<h3 id="strava-webhook"><em>strava webhook</em></h3>
+<p><strong>Description</strong></p>
+<p>Manage webhook subscriptions</p>
+<h3 id="strava-webhook-list"><em>strava webhook list</em></h3>
+<p><strong>Description</strong></p>
+<p>List all active webhook subscriptions</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="strava-webhook-subscribe"><em>strava webhook subscribe</em></h3>
+<p><strong>Description</strong></p>
+<p>Subscribe for webhook notifications</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>subscribe<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>url</td>
+<td></td>
+<td></td>
+<td>Address where webhook events will be sent (max length 255 characters</td>
+</tr>
+<tr>
+<td>verify</td>
+<td></td>
+<td></td>
+<td>String chosen by the application owner for client security</td>
+</tr>
+</tbody>
+</table>
+<h3 id="strava-webhook-unsubscribe"><em>strava webhook unsubscribe</em></h3>
+<p><strong>Description</strong></p>
+<p>Unsubscribe an active webhook subscription (or all if specified)</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>unsubscribe<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="version"><em>version</em></h3>
+<p><strong>Description</strong></p>
+<p>Version</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>version<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="zwift"><em>zwift</em></h3>
+<p><strong>Description</strong></p>
+<p>Operations supported by the Zwift API</p>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>zwift-username</td>
+<td></td>
+<td>ZWIFT_USERNAME</td>
+<td>Zwift username</td>
+</tr>
+<tr>
+<td>zwift-password</td>
+<td></td>
+<td>ZWIFT_PASSWORD</td>
+<td>Zwift password</td>
+</tr>
+<tr>
+<td>rate-limit</td>
+<td></td>
+<td></td>
+<td>Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)</td>
+</tr>
+<tr>
+<td>rate-burst</td>
+<td></td>
+<td></td>
+<td>Maximum burst size for API request events</td>
+</tr>
+<tr>
+<td>concurrency</td>
+<td></td>
+<td></td>
+<td>Maximum concurrent API queries</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overview</strong></p>
+<p>The Zwift client was heavily inspired by <a href="https://github.com/jsmits/zwift-client">zwift-client</a>.</p>
+<p>The command <a href="#zwift-files"><code>files</code></a> is useful for uploading local files to services without direct
+integration such as <a href="#cyclinganalytics">Cycling Analytics</a>.</p>
+<h3 id="zwift-activities"><em>zwift activities</em></h3>
+<p><strong>Description</strong></p>
+<p>Query activities for an athlete from Zwift</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>N</td>
+<td></td>
+<td>The number of activities to query from Zwift (the number returned will be &lt;= N)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zwift-activity"><em>zwift activity</em></h3>
+<p><strong>Description</strong></p>
+<p>Query an activity from Zwift</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+</span></code></pre></div>
+<h3 id="zwift-athlete"><em>zwift athlete</em></h3>
+<p><strong>Description</strong></p>
+<p>Query the athlete profile from Zwift</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="zwift-files"><em>zwift files</em></h3>
+<p><strong>Description</strong></p>
+<p>List all local Zwift files</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Example</strong></p>
+<p>List all local files from the Zwift app's directory. Any files less than 1K in size or named <code>inProgressActivity.fit</code> will be ignored.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files
+</span><span id="__span-46-2"><a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-39-52.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
+</span><span id="__span-46-3"><a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-14-13.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
+</span><span id="__span-46-4"><a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>activity<span class="w"> </span><span class="k">in</span><span class="w"> </span>progress<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/inProgressActivity.fit
+</span><span id="__span-46-5"><a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a><span class="o">[</span>
+</span><span id="__span-46-6"><a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a><span class="w"> </span><span class="s2">&quot;/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-40-53.fit&quot;</span>,
+</span><span id="__span-46-7"><a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a><span class="w"> </span><span class="s2">&quot;/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-15-16.fit&quot;</span>
+</span><span id="__span-46-8"><a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a><span class="o">]</span>
+</span></code></pre></div>
+<p>This command can be easily combined with <code>jq</code> to upload files to CyclingAnalytics, Strava, or any other site.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;.[]&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>upload<span class="w"> </span>-n
+</span><span id="__span-47-2"><a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-39-52.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
+</span><span id="__span-47-3"><a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-14-13.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
+</span><span id="__span-47-4"><a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>activity<span class="w"> </span><span class="k">in</span><span class="w"> </span>progress<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/inProgressActivity.fit
+</span><span id="__span-47-5"><a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>collecting<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-40-53.fit
+</span><span id="__span-47-6"><a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>uploading<span class="w"> </span><span class="nv">dryrun</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">file</span><span class="o">=</span><span class="m">2021</span>-01-12-18-40-53.fit
+</span><span id="__span-47-7"><a id="__codelineno-47-7" name="__codelineno-47-7" href="#__codelineno-47-7"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>collecting<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-15-16.fit
+</span><span id="__span-47-8"><a id="__codelineno-47-8" name="__codelineno-47-8" href="#__codelineno-47-8"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>uploading<span class="w"> </span><span class="nv">dryrun</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">file</span><span class="o">=</span><span class="m">2021</span>-01-26-18-15-16.fit
+</span></code></pre></div>
+<h3 id="zwift-refresh"><em>zwift refresh</em></h3>
+<p><strong>Description</strong></p>
+<p>Acquire a new refresh token</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>refresh<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
+<p><strong>Example</strong></p>
+<p>Query for a new refresh token from Zwift.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>refresh
+</span><span id="__span-49-2"><a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="o">{</span>
+</span><span id="__span-49-3"><a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="w">    </span><span class="s2">&quot;access_token&quot;</span>:<span class="w"> </span><span class="s2">&quot;12345&quot;</span>,
+</span><span id="__span-49-4"><a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="w">    </span><span class="s2">&quot;token_type&quot;</span>:<span class="w"> </span><span class="s2">&quot;bearer&quot;</span>,
+</span><span id="__span-49-5"><a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a><span class="w">    </span><span class="s2">&quot;refresh_token&quot;</span>:<span class="w"> </span><span class="s2">&quot;67890&quot;</span>,
+</span><span id="__span-49-6"><a id="__codelineno-49-6" name="__codelineno-49-6" href="#__codelineno-49-6"></a><span class="w">    </span><span class="s2">&quot;expiry&quot;</span>:<span class="w"> </span><span class="s2">&quot;2021-02-20T01:29:05.964572-08:00&quot;</span>
+</span><span id="__span-49-7"><a id="__codelineno-49-7" name="__codelineno-49-7" href="#__codelineno-49-7"></a><span class="o">}</span>
+</span></code></pre></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">April 23, 2023</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "content.code.select", "navigation.top", "navigation.instant", "navigation.expand", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
+      
+        <script src="https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js"></script>
+      
+        <script src="../js/tablesort.js"></script>
+      
+    
+  </body>
+</html>
