@@ -107,7 +107,6 @@ tasks:
 
   docs:serve:
     desc: Serve the documentation
-    deps: [docs:generate]
     cmds:
       - "{{.ROOT_DIR}}/env/bin/mkdocs serve"
 
