@@ -15,4 +15,4 @@
 
 # Documentation
 
-* [manual](docs/manual.md)
+* [manual](https://bzimmer.github.io/gravl/)
