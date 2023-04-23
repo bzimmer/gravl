@@ -18,7 +18,7 @@ type Mapper interface {
 	Map(ctx context.Context, acts []*strava.Activity) ([]any, error)
 }
 
-// Evalutor performs evaluations on activities
+// Evaluator performs evaluations on activities
 type Evaluator interface {
 	// Bool performs an evaluation resulting in a boolean value
 	Bool(ctx context.Context, act *strava.Activity) (bool, error)

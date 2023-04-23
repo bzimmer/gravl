@@ -44,7 +44,8 @@ func TestWrite(t *testing.T) {
 				return nil
 			},
 			After: func(c *cli.Context) error {
-				bs := c.App.Writer.(*bytes.Buffer) //nolint:errcheck
+				bs, ok := c.App.Writer.(*bytes.Buffer)
+				a.True(ok)
 				a.Equal(bs.String(), "")
 				stat, err := gravl.Runtime(c).Fs.Stat("/tmp/Foo.gpx")
 				a.NoError(err)

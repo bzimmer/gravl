@@ -1,3 +1,10 @@
+# gravl - command line access to activity platforms
+
+## Installation
+
+```shell
+$ brew install bzimmer/tap/gravl
+```
 
 ## Configuration
 
@@ -41,3 +48,7 @@ commands.
 
 _For most commands the timeout value is reset on each query. For example, if you query 12
 activities from Strava each query will honor the timeout value, it's not a deadline._
+
+## Usage
+
+See the [manual](https://bzimmer.github.io/gravl/commands) for an overview of all the commands.

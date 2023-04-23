@@ -39,17 +39,17 @@ func NewExporter() activity.Exporter {
 }
 
 // Upload uploads a file
-func (b *blackhole) Upload(ctx context.Context, file *activity.File) (activity.Upload, error) {
+func (b *blackhole) Upload(_ context.Context, _ *activity.File) (activity.Upload, error) {
 	return &uploadable{}, nil
 }
 
 // Status returns the processing status of a file
-func (b *blackhole) Status(ctx context.Context, id activity.UploadID) (activity.Upload, error) {
+func (b *blackhole) Status(_ context.Context, id activity.UploadID) (activity.Upload, error) {
 	defer func() { b.statuscnt++ }()
 	return &uploadable{id: id, done: b.status == b.statuscnt}, nil
 }
 
-func (b *blackhole) Export(ctx context.Context, activityID int64) (*activity.Export, error) {
+func (b *blackhole) Export(_ context.Context, activityID int64) (*activity.Export, error) {
 	return &activity.Export{
 		ID: activityID,
 		File: &activity.File{
@@ -61,14 +61,14 @@ func (b *blackhole) Export(ctx context.Context, activityID int64) (*activity.Exp
 	}, nil
 }
 
-func Before(c *cli.Context) error {
+func Before(_ *cli.Context) error {
 	return nil
 }
 
-func UploaderFunc(c *cli.Context) (activity.Uploader, error) {
+func UploaderFunc(_ *cli.Context) (activity.Uploader, error) {
 	return &blackhole{}, nil
 }
 
-func ExporterFunc(c *cli.Context) (activity.Exporter, error) {
+func ExporterFunc(_ *cli.Context) (activity.Exporter, error) {
 	return &blackhole{}, nil
 }

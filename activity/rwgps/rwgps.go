@@ -19,7 +19,7 @@ import (
 
 const Provider = "rwgps"
 
-var before sync.Once //nolint:gochecknoglobals
+var before sync.Once //nolint:gochecknoglobals // once
 
 func athlete(c *cli.Context) error {
 	client := gravl.Runtime(c).RideWithGPS
@@ -137,10 +137,7 @@ func entity(c *cli.Context, f func(context.Context, int64) (any, error)) error {
 				return err
 			}
 			gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-			if err = enc.Encode(v); err != nil {
-				return err
-			}
-			return nil
+			return enc.Encode(v)
 		}()
 		if err != nil {
 			return err

@@ -1,0 +1,10 @@
+# https://github.com/crate-ci/typos
+
+[files]
+extend-exclude = [
+  "testdata/*",
+]
+
+[default.extend-words]
+Befores="Befores"
+als="als"

@@ -9,7 +9,7 @@ import (
 	"github.com/bzimmer/gravl/version"
 )
 
-func command(t *testing.T, baseURL string) *cli.Command {
+func command(_ *testing.T, _ string) *cli.Command {
 	return version.Command()
 }
 

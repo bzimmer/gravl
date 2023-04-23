@@ -1,5 +1,7 @@
 package main
 
+//go:generate go run main.go manual -o ../../docs/commands.md ../../docs/commands
+
 import (
 	"context"
 	"encoding/json"
@@ -182,7 +184,6 @@ func commands() []*cli.Command {
 	return []*cli.Command{
 		cyclinganalytics.Command(),
 		manual.Manual(),
-		manual.Commands(),
 		manual.EnvVars(),
 		qp.Command(),
 		rwgps.Command(),

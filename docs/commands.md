@@ -1,62 +1,18 @@
-# gravl - command line access to activity platforms
+# Commands
 
-
-## Configuration
-
-All necessary credentials are read from environment variables or command-line flags. To
-create a template `.env` file, run the `envvars` command:
-
-```sh
-~/Development/src/github.com/bzimmer/gravl (oauth) > ./dist/gravl envvars
-CYCLINGANALYTICS_ACCESS_TOKEN=
-CYCLINGANALYTICS_CLIENT_ID=
-CYCLINGANALYTICS_CLIENT_SECRET=
-RWGPS_ACCESS_TOKEN=
-RWGPS_CLIENT_ID=
-STRAVA_CLIENT_ID=
-STRAVA_CLIENT_SECRET=
-STRAVA_REFRESH_TOKEN=
-ZWIFT_PASSWORD=
-ZWIFT_USERNAME=
-```
-
-Save these to a file, add your own credentials, and then source the file (or use whatever
-environment variable mechanism suits your setup).
-
-## Authentication
-
-The package has functionality to generate access and refresh tokens for both
-`cyclinganalytics` and `strava` by using the `oauth` command for each after acquiring the
-client id from the respective sites.
-
-```sh
-~/Development/src/github.com/bzimmer/gravl (oauth) > ./dist/gravl strava oauth
-2021-10-22T07:38:38-07:00 INF created strava client
-2021-10-22T07:38:38-07:00 INF oauth redirect=http://localhost:9001/strava/auth/callback
-2021-10-22T07:38:38-07:00 INF serving address=http://localhost:9001
-```
-
-Open a browser to http://localhost:9001 and you will be redirected to, in this case,
-Strava. Once you authorize the application the credentials will be provided in a json
-document in the browser. Copy the tokens to your `env` configuration file and try some
-commands.
-
-_For most commands the timeout value is reset on each query. For example, if you query 12
-activities from Strava each query will honor the timeout value, it's not a deadline._
 
 
 ## Global Flags
-|Name|Aliases|Description|
-|-|-|-|
-|```verbosity```|```v```|Log level (trace, debug, info, warn, error, fatal, panic)|
-|```monochrome```|```m```|Use monochrome logging, color enabled by default|
-|```json```|```j```|Emit all results as JSON and print to stdout|
-|```http-tracing```||Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)|
-|```timeout```|```t```|Timeout duration (eg, 1ms, 2s, 5m, 3h)|
-|```help```|```h```|show help|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|verbosity|v||Log level (trace, debug, info, warn, error, fatal, panic)|
+|monochrome|m||Use monochrome logging, color enabled by default|
+|json|j||Emit all results as JSON and print to stdout|
+|http-tracing|||Log all http calls (warning: no effort is made to mask log ids, keys, and other sensitive information)|
+|timeout|t||Timeout duration (eg, 1ms, 2s, 5m, 3h)|
+|help|h||show help|
 
 ## Commands
-* [commands](#commands)
 * [cyclinganalytics](#cyclinganalytics)
 * [cyclinganalytics activities](#cyclinganalytics-activities)
 * [cyclinganalytics activity](#cyclinganalytics-activity)
@@ -102,29 +58,7 @@ activities from Strava each query will honor the timeout value, it's not a deadl
 * [zwift files](#zwift-files)
 * [zwift refresh](#zwift-refresh)
 
-## *commands*
-
-**Description**
-
-Print all possible commands
-
-
-**Syntax**
-
-```sh
-$ gravl commands [flags]
-```
-
-
-**Flags**
-
-|Name|Aliases|EnvVars|Description|
-|-|-|-|-|
-|```description```|```d```||Print the command description as a comment|
-|```relative```|```r```||Specify the command relative to the current working directory|
-
-
-## *cyclinganalytics*
+### *cyclinganalytics*
 
 **Description**
 
@@ -136,19 +70,20 @@ Operations supported by the CyclingAnalytics API
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|CyclingAnalytics client id|
-|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|CyclingAnalytics client secret|
-|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|CyclingAnalytics access token|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
+|cyclinganalytics-client-id||CYCLINGANALYTICS_CLIENT_ID|CyclingAnalytics client id|
+|cyclinganalytics-client-secret||CYCLINGANALYTICS_CLIENT_SECRET|CyclingAnalytics client secret|
+|cyclinganalytics-access-token||CYCLINGANALYTICS_ACCESS_TOKEN|CyclingAnalytics access token|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
 
 
-## *cyclinganalytics activities*
+### *cyclinganalytics activities*
 
 **Description**
 
 Query activities for the authenticated athlete
+
 
 
 **Syntax**
@@ -162,14 +97,15 @@ $ gravl cyclinganalytics activities [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```count```|```N```||The number of activities to query from CA (the number returned will be <= N)|
+|count|N||The number of activities to query from CA (the number returned will be <= N)|
 
 
-## *cyclinganalytics activity*
+### *cyclinganalytics activity*
 
 **Description**
 
 Query an activity for the authenticated athlete
+
 
 
 **Syntax**
@@ -180,11 +116,12 @@ $ gravl cyclinganalytics activity [flags]
 
 
 
-## *cyclinganalytics athlete*
+### *cyclinganalytics athlete*
 
 **Description**
 
 Query for the authenticated athlete
+
 
 
 **Syntax**
@@ -209,11 +146,12 @@ $ gravl ca t
 ```
 
 
-## *cyclinganalytics oauth*
+### *cyclinganalytics oauth*
 
 **Description**
 
 Authentication endpoints for access and refresh tokens
+
 
 
 **Syntax**
@@ -227,15 +165,16 @@ $ gravl cyclinganalytics oauth [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```origin```|||Callback origin|
-|```port```|||Port on which to listen|
+|origin|||Callback origin|
+|port|||Port on which to listen|
 
 
-## *cyclinganalytics streamsets*
+### *cyclinganalytics streamsets*
 
 **Description**
 
 Return the set of available streams for query
+
 
 
 **Syntax**
@@ -246,11 +185,12 @@ $ gravl cyclinganalytics streamsets [flags]
 
 
 
-## *envvars*
+### *envvars*
 
 **Description**
 
 Useful for creating a .env file for all possible environment variables
+
 
 
 **Syntax**
@@ -261,11 +201,12 @@ $ gravl envvars [flags]
 
 
 
-## *help*
+### *help*
 
 **Description**
 
 Shows a list of commands or help for one command
+
 
 
 **Syntax**
@@ -276,7 +217,7 @@ $ gravl help [flags] [command]
 
 
 
-## *qp*
+### *qp*
 
 **Description**
 
@@ -288,23 +229,24 @@ Manage the flow of activity between different platforms
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```cyclinganalytics-client-id```||```CYCLINGANALYTICS_CLIENT_ID```|CyclingAnalytics client id|
-|```cyclinganalytics-client-secret```||```CYCLINGANALYTICS_CLIENT_SECRET```|CyclingAnalytics client secret|
-|```cyclinganalytics-access-token```||```CYCLINGANALYTICS_ACCESS_TOKEN```|CyclingAnalytics access token|
-|```rwgps-client-id```||```RWGPS_CLIENT_ID```|RideWithGPS client id|
-|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|RideWithGPS access token|
-|```strava-client-id```||```STRAVA_CLIENT_ID```|Strava client id|
-|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|Strava client secret|
-|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|Strava refresh token|
-|```zwift-username```||```ZWIFT_USERNAME```|Zwift username|
-|```zwift-password```||```ZWIFT_PASSWORD```|Zwift password|
+|cyclinganalytics-client-id||CYCLINGANALYTICS_CLIENT_ID|CyclingAnalytics client id|
+|cyclinganalytics-client-secret||CYCLINGANALYTICS_CLIENT_SECRET|CyclingAnalytics client secret|
+|cyclinganalytics-access-token||CYCLINGANALYTICS_ACCESS_TOKEN|CyclingAnalytics access token|
+|rwgps-client-id||RWGPS_CLIENT_ID|RideWithGPS client id|
+|rwgps-access-token||RWGPS_ACCESS_TOKEN|RideWithGPS access token|
+|strava-client-id||STRAVA_CLIENT_ID|Strava client id|
+|strava-client-secret||STRAVA_CLIENT_SECRET|Strava client secret|
+|strava-refresh-token||STRAVA_REFRESH_TOKEN|Strava refresh token|
+|zwift-username||ZWIFT_USERNAME|Zwift username|
+|zwift-password||ZWIFT_PASSWORD|Zwift password|
 
 
-## *qp copy*
+### *qp copy*
 
 **Description**
 
 Copy an activity from a source to a destination
+
 
 
 **Syntax**
@@ -318,16 +260,17 @@ $ gravl qp copy [flags] --from <exporter> --to <uploader> id [id, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
-|```from```|||Source data provider|
-|```to```|||Sink data provider|
-|```overwrite```|```o```||Overwrite the file if it exists; fail otherwise|
-|```output```|```O```||The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
-|```poll```|||Continually check the status of the request until it is completed|
-|```interval```|||The amount of time to wait between polling for an updated status|
-|```iterations```|```N```||The max number of polling iterations to perform|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
+|from|||Source data provider|
+|to|||Sink data provider|
+|overwrite|o||Overwrite the file if it exists; fail otherwise|
+|output|O||The filename to use for writing the contents of the export,
+if not specified the contents are streamed to stdout|
+|poll|||Continually check the status of the request until it is completed|
+|interval|||The amount of time to wait between polling for an updated status|
+|iterations|N||The max number of polling iterations to perform|
 
 **Example**
 
@@ -380,11 +323,12 @@ $ gravl qp copy --from zwift --to cyclinganalytics 934398333398662432
 ```
 
 
-## *qp export*
+### *qp export*
 
 **Description**
 
 Export an activity from the source
+
 
 
 **Syntax**
@@ -398,12 +342,13 @@ $ gravl qp export [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
-|```from```|||Source data provider|
-|```overwrite```|```o```||Overwrite the file if it exists; fail otherwise|
-|```output```|```O```||The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
+|from|||Source data provider|
+|overwrite|o||Overwrite the file if it exists; fail otherwise|
+|output|O||The filename to use for writing the contents of the export,
+if not specified the contents are streamed to stdout|
 
 **Example**
 
@@ -413,11 +358,12 @@ If `-O` is specified, the file will be written to disk using the name provided b
 file unless `-o` was also specified.
 
 
-## *qp list*
+### *qp list*
 
 **Description**
 
 List the files suitable for uploading
+
 
 
 **Syntax**
@@ -428,11 +374,12 @@ $ gravl qp list [flags] {FILE | DIRECTORY} (...)
 
 
 
-## *qp providers*
+### *qp providers*
 
 **Description**
 
 Return the set of active exporters and uploaders
+
 
 
 **Syntax**
@@ -443,11 +390,12 @@ $ gravl qp providers [flags]
 
 
 
-## *qp status*
+### *qp status*
 
 **Description**
 
 Check the status of an upload
+
 
 
 **Syntax**
@@ -461,18 +409,19 @@ $ gravl qp status [flags] UPLOAD_ID (...)
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
-|```to```|||Sink data provider|
-|```poll```|||Continually check the status of the request until it is completed|
-|```interval```|||The amount of time to wait between polling for an updated status|
-|```iterations```|```N```||The max number of polling iterations to perform|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
+|to|||Sink data provider|
+|poll|||Continually check the status of the request until it is completed|
+|interval|||The amount of time to wait between polling for an updated status|
+|iterations|N||The max number of polling iterations to perform|
 
 
-## *qp upload*
+### *qp upload*
 
 **Description**
+
 
 
 
@@ -488,16 +437,16 @@ $ gravl qp upload [flags] {FILE | DIRECTORY} (...)
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
-|```to```|||Sink data provider|
-|```poll```|||Continually check the status of the request until it is completed|
-|```interval```|||The amount of time to wait between polling for an updated status|
-|```iterations```|```N```||The max number of polling iterations to perform|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
+|to|||Sink data provider|
+|poll|||Continually check the status of the request until it is completed|
+|interval|||The amount of time to wait between polling for an updated status|
+|iterations|N||The max number of polling iterations to perform|
 
 
-## *rwgps*
+### *rwgps*
 
 **Description**
 
@@ -509,18 +458,19 @@ Operations supported by the RideWithGPS API
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```rwgps-client-id```||```RWGPS_CLIENT_ID```|RideWithGPS client id|
-|```rwgps-access-token```||```RWGPS_ACCESS_TOKEN```|RideWithGPS access token|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
+|rwgps-client-id||RWGPS_CLIENT_ID|RideWithGPS client id|
+|rwgps-access-token||RWGPS_ACCESS_TOKEN|RideWithGPS access token|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
 
 
-## *rwgps activities*
+### *rwgps activities*
 
 **Description**
 
 Query activities for the authenticated athlete
+
 
 
 **Syntax**
@@ -534,7 +484,7 @@ $ gravl rwgps activities [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```count```|```N```||The number of activities to query from RideWithGPS|
+|count|N||The number of activities to query from RideWithGPS|
 
 **Example**
 
@@ -589,11 +539,12 @@ $ gravl rwgps activities -N 10
 ```
 
 
-## *rwgps activity*
+### *rwgps activity*
 
 **Description**
 
 Query an activity from RideWithGPS
+
 
 
 **Syntax**
@@ -604,11 +555,12 @@ $ gravl rwgps activity [flags]
 
 
 
-## *rwgps athlete*
+### *rwgps athlete*
 
 **Description**
 
 Query for the authenticated athlete
+
 
 
 **Syntax**
@@ -619,11 +571,12 @@ $ gravl rwgps athlete [flags]
 
 
 
-## *rwgps route*
+### *rwgps route*
 
 **Description**
 
 Query a route from RideWithGPS
+
 
 
 **Syntax**
@@ -634,11 +587,12 @@ $ gravl rwgps route [flags]
 
 
 
-## *rwgps routes*
+### *rwgps routes*
 
 **Description**
 
 Query routes for an athlete from RideWithGPS
+
 
 
 **Syntax**
@@ -652,10 +606,10 @@ $ gravl rwgps routes [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```count```|```N```||The number of routes to query from RideWithGPS|
+|count|N||The number of routes to query from RideWithGPS|
 
 
-## *strava*
+### *strava*
 
 **Description**
 
@@ -667,28 +621,29 @@ Operations supported by the Strava API
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```strava-client-id```||```STRAVA_CLIENT_ID```|Strava client id|
-|```strava-client-secret```||```STRAVA_CLIENT_SECRET```|Strava client secret|
-|```strava-refresh-token```||```STRAVA_REFRESH_TOKEN```|Strava refresh token|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
+|strava-client-id||STRAVA_CLIENT_ID|Strava client id|
+|strava-client-secret||STRAVA_CLIENT_SECRET|Strava client secret|
+|strava-refresh-token||STRAVA_REFRESH_TOKEN|Strava refresh token|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
 
 **Overview**
 
 The Strava client is comprised of general [API](https://developers.strava.com/) access supporting
-activites, routes, and streams.
+activities, routes, and streams.
 
 Additionally, there's full support for implementing `webhooks` but only only webhook management is
 available via the commandline (eg [`strava webhook list`](#strava-webhook-list),
 [`strava webhook subscribe`](#strava-webhook-subscribe), and [`strava webhook unsubscribe`](#strava-webhook-unsubscribe)).
 
 
-## *strava activities*
+### *strava activities*
 
 **Description**
 
 Query activities for an athlete from Strava
+
 
 
 **Syntax**
@@ -702,11 +657,11 @@ $ gravl strava activities [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```count```|```N```||The number of activities to query from Strava (the number returned will be <= N)|
-|```filter```|```f```||Expression for filtering activities to remove|
-|```attribute```|```B```||Evaluate the expression on an activity and return only those results|
-|```after```|```since```||Return results after the time specified|
-|```before```|||Return results before the time specified|
+|count|N||The number of activities to query from Strava (the number returned will be <= N)|
+|filter|f||Expression for filtering activities to remove|
+|attribute|B||Evaluate the expression on an activity and return only those results|
+|after|since||Return results after the time specified|
+|before|||Return results before the time specified|
 
 **Example**
 
@@ -722,11 +677,12 @@ $ gravl -c --timeout 1m strava activities -N 20 -f ".Type == 'VirtualRide'" -B "
 ```
 
 
-## *strava activity*
+### *strava activity*
 
 **Description**
 
 Query an activity from Strava
+
 
 
 **Syntax**
@@ -740,7 +696,7 @@ $ gravl strava activity [flags] ACTIVITY_ID (...)
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```stream```|```s```||Streams to include in the activity|
+|stream|s||Streams to include in the activity|
 
 **Example**
 
@@ -837,11 +793,12 @@ $ gravl strava activity -s watts 4802094087
 ```
 
 
-## *strava athlete*
+### *strava athlete*
 
 **Description**
 
 Query an athlete from Strava
+
 
 
 **Syntax**
@@ -852,11 +809,12 @@ $ gravl strava athlete [flags]
 
 
 
-## *strava oauth*
+### *strava oauth*
 
 **Description**
 
 Authentication endpoints for access and refresh tokens
+
 
 
 **Syntax**
@@ -870,15 +828,16 @@ $ gravl strava oauth [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```origin```|||Callback origin|
-|```port```|||Port on which to listen|
+|origin|||Callback origin|
+|port|||Port on which to listen|
 
 
-## *strava photos*
+### *strava photos*
 
 **Description**
 
 Query photos from Strava
+
 
 
 **Syntax**
@@ -892,14 +851,15 @@ $ gravl strava photos [flags] ACTIVITY_ID (...)
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```size```|```s```|||
+|size|s|||
 
 
-## *strava refresh*
+### *strava refresh*
 
 **Description**
 
 Acquire a new refresh token
+
 
 
 **Syntax**
@@ -910,11 +870,12 @@ $ gravl strava refresh [flags]
 
 
 
-## *strava route*
+### *strava route*
 
 **Description**
 
 Query a route from Strava
+
 
 
 **Syntax**
@@ -925,11 +886,12 @@ $ gravl strava route [flags] ROUTE_ID (...)
 
 
 
-## *strava routes*
+### *strava routes*
 
 **Description**
 
 Query routes for an athlete from Strava
+
 
 
 **Syntax**
@@ -943,14 +905,15 @@ $ gravl strava routes [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```count```|```N```||The number of routes to query from Strava (the number returned will be <= N)|
+|count|N||The number of routes to query from Strava (the number returned will be <= N)|
 
 
-## *strava streams*
+### *strava streams*
 
 **Description**
 
 Query streams for an activity from Strava
+
 
 
 **Syntax**
@@ -964,14 +927,15 @@ $ gravl strava streams [flags] ACTIVITY_ID (...)
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```stream```|```s```||Streams to include in the activity|
+|stream|s||Streams to include in the activity|
 
 
-## *strava streamsets*
+### *strava streamsets*
 
 **Description**
 
 Return the set of available streams for query
+
 
 
 **Syntax**
@@ -1020,9 +984,10 @@ watts
 ```
 
 
-## *strava update*
+### *strava update*
 
 **Description**
+
 
 
 
@@ -1038,19 +1003,19 @@ $ gravl strava update [flags] ACTIVITY_ID (...)
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```name```|||Set the name for the activity|
-|```gear```|||Set the gear id for the activity|
-|```sport```|||Set the sport for the activity|
-|```description```|||Set the description for the activity|
-|```hidden```|||Hide the activity from the home dashboard|
-|```no-hidden```|||Display the activity on the home dashboard|
-|```commute```|||The activity is a commute|
-|```no-commute```|||The activity is not a commute|
-|```trainer```|||The activity was completed on a trainer|
-|```no-trainer```|||The activity was not completed on a trainer|
+|name|||Set the name for the activity|
+|gear|||Set the gear id for the activity|
+|sport|||Set the sport for the activity|
+|description|||Set the description for the activity|
+|hidden|||Hide the activity from the home dashboard|
+|no-hidden|||Display the activity on the home dashboard|
+|commute|||The activity is a commute|
+|no-commute|||The activity is not a commute|
+|trainer|||The activity was completed on a trainer|
+|no-trainer|||The activity was not completed on a trainer|
 
 
-## *strava webhook*
+### *strava webhook*
 
 **Description**
 
@@ -1059,11 +1024,12 @@ Manage webhook subscriptions
 
 
 
-## *strava webhook list*
+### *strava webhook list*
 
 **Description**
 
 List all active webhook subscriptions
+
 
 
 **Syntax**
@@ -1074,11 +1040,12 @@ $ gravl strava webhook list [flags]
 
 
 
-## *strava webhook subscribe*
+### *strava webhook subscribe*
 
 **Description**
 
 Subscribe for webhook notifications
+
 
 
 **Syntax**
@@ -1092,15 +1059,16 @@ $ gravl strava webhook subscribe [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```url```|||Address where webhook events will be sent (max length 255 characters|
-|```verify```|||String chosen by the application owner for client security|
+|url|||Address where webhook events will be sent (max length 255 characters|
+|verify|||String chosen by the application owner for client security|
 
 
-## *strava webhook unsubscribe*
+### *strava webhook unsubscribe*
 
 **Description**
 
 Unsubscribe an active webhook subscription (or all if specified)
+
 
 
 **Syntax**
@@ -1111,11 +1079,12 @@ $ gravl strava webhook unsubscribe [flags]
 
 
 
-## *version*
+### *version*
 
 **Description**
 
 Version
+
 
 
 **Syntax**
@@ -1126,7 +1095,7 @@ $ gravl version [flags]
 
 
 
-## *zwift*
+### *zwift*
 
 **Description**
 
@@ -1138,11 +1107,11 @@ Operations supported by the Zwift API
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```zwift-username```||```ZWIFT_USERNAME```|Zwift username|
-|```zwift-password```||```ZWIFT_PASSWORD```|Zwift password|
-|```rate-limit```|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
-|```rate-burst```|||Maximum burst size for API request events|
-|```concurrency```|||Maximum concurrent API queries|
+|zwift-username||ZWIFT_USERNAME|Zwift username|
+|zwift-password||ZWIFT_PASSWORD|Zwift password|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
 
 **Overview**
 
@@ -1152,11 +1121,12 @@ The command [`files`](#zwift-files) is useful for uploading local files to servi
 integration such as [Cycling Analytics](#cyclinganalytics).
 
 
-## *zwift activities*
+### *zwift activities*
 
 **Description**
 
 Query activities for an athlete from Zwift
+
 
 
 **Syntax**
@@ -1170,14 +1140,15 @@ $ gravl zwift activities [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```count```|```N```||The number of activities to query from Zwift (the number returned will be <= N)|
+|count|N||The number of activities to query from Zwift (the number returned will be <= N)|
 
 
-## *zwift activity*
+### *zwift activity*
 
 **Description**
 
 Query an activity from Zwift
+
 
 
 **Syntax**
@@ -1188,11 +1159,12 @@ $ gravl zwift activity [flags] ACTIVITY_ID (...)
 
 
 
-## *zwift athlete*
+### *zwift athlete*
 
 **Description**
 
 Query the athlete profile from Zwift
+
 
 
 **Syntax**
@@ -1203,11 +1175,12 @@ $ gravl zwift athlete [flags]
 
 
 
-## *zwift files*
+### *zwift files*
 
 **Description**
 
 List all local Zwift files
+
 
 
 **Syntax**
@@ -1246,11 +1219,12 @@ $ gravl zwift files | jq -r ".[]" | xargs gravl strava upload -n
 ```
 
 
-## *zwift refresh*
+### *zwift refresh*
 
 **Description**
 
 Acquire a new refresh token
+
 
 
 **Syntax**

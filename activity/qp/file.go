@@ -59,7 +59,7 @@ type walkResult struct {
 // walkFunc returns true if the file should be uploaded, false otherwise
 type walkFunc func(met *metrics.Metrics, path string, info os.FileInfo) bool
 
-func formatWalkFunc(met *metrics.Metrics, path string, info os.FileInfo) bool {
+func formatWalkFunc(met *metrics.Metrics, path string, _ os.FileInfo) bool {
 	format := activity.ToFormat(filepath.Ext(path))
 	switch format {
 	case activity.FormatFIT, activity.FormatGPX, activity.FormatTCX:

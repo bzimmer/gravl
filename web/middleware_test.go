@@ -14,7 +14,7 @@ import (
 
 type tokenhandler struct{}
 
-func (t *tokenhandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *tokenhandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	_, err := w.Write([]byte(`{
 		"access_token":"99881100332255",
 		"token_type":"bearer",

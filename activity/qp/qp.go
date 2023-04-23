@@ -201,10 +201,7 @@ func status(c *cli.Context) error {
 			if err != nil {
 				return err
 			}
-			if err = x.poll(ctx, api.UploadID(uploadID)); err != nil {
-				return err
-			}
-			return nil
+			return x.poll(ctx, api.UploadID(uploadID))
 		}()
 		if err != nil {
 			return err
@@ -369,7 +366,8 @@ func flags(c cfg) []cli.Flag {
 					Name:    "output",
 					Aliases: []string{"O"},
 					Value:   "",
-					Usage:   "The filename to use for writing the contents of the export, if not specified the contents are streamed to stdout",
+					Usage: `The filename to use for writing the contents of the export,
+if not specified the contents are streamed to stdout`,
 				},
 			}...,
 		)
