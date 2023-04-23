@@ -4,32 +4,25 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-      - PKG=github.com/bzimmer/gravl/version
+      - PKG={{.ModulePath}}/version
     goos:
       - linux
       - windows
       - darwin
     main: ./cmd/gravl
     ldflags:
-      - -s -w -X {{.Env.PKG}}.BuildVersion={{.Version}} -X {{.Env.PKG}}.BuildTime={{.Date}}
-archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+      - -s -w -X {{.Env.PKG}}.BuildVersion={{.Version}} -X {{.Env.PKG}}.BuildCommit={{.ShortCommit}} -X {{.Env.PKG}}.BuildTime={{.Date}} -X {{.Env.PKG}}.BuildBuilder=goreleaser
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-      - '^Merge pull request'
+      - "^docs:"
+      - "^test:"
+      - "^Merge pull request"
 announce:
   skip: "true"
 
