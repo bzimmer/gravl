@@ -35,7 +35,7 @@ func TestAthlete(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/users/current.json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/users/current.json", func(w http.ResponseWriter, _ *http.Request) {
 		type res struct {
 			User *api.User `json:"user"`
 		}
@@ -80,7 +80,7 @@ func TestBefore(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
-			cmd := func(t *testing.T, baseURL string) *cli.Command {
+			cmd := func(_ *testing.T, _ string) *cli.Command {
 				return &cli.Command{Name: tt.Name, Flags: rwgps.AuthFlags(), Action: tt.Action}
 			}
 			internal.Run(t, tt, nil, cmd)
@@ -92,7 +92,7 @@ func TestTrip(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/routes/90288724.json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routes/90288724.json", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(struct {
 			Type  string    `json:"type"`
@@ -104,7 +104,7 @@ func TestTrip(t *testing.T) {
 			},
 		}))
 	})
-	mux.HandleFunc("/trips/7728201.json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/trips/7728201.json", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(struct {
 			Type string    `json:"type"`
@@ -141,7 +141,7 @@ func TestTrips(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/users/current.json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/users/current.json", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(struct {
 			User *api.User `json:"user"`
@@ -149,7 +149,7 @@ func TestTrips(t *testing.T) {
 			User: &api.User{ID: 82877292},
 		}))
 	})
-	mux.HandleFunc("/users/82877292/trips.json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/users/82877292/trips.json", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(struct {
 			Results      []*api.Trip `json:"results"`
@@ -162,7 +162,7 @@ func TestTrips(t *testing.T) {
 			ResultsCount: 2,
 		}))
 	})
-	mux.HandleFunc("/users/82877292/routes.json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/users/82877292/routes.json", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(struct {
 			Results      []*api.Trip `json:"results"`

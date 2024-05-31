@@ -73,7 +73,7 @@ func TestOAuth(t *testing.T) {
 				}
 			})
 			grp.Go(func() error {
-				internal.RunContext(ctx, t, tt, nil, func(_ *testing.T, baseURL string) *cli.Command {
+				internal.RunContext(ctx, t, tt, nil, func(_ *testing.T, _ string) *cli.Command {
 					return activity.OAuthCommand(cfg)
 				})
 				return nil

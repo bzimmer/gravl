@@ -41,7 +41,7 @@ func TestAthlete(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/athlete", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/athlete", func(w http.ResponseWriter, _ *http.Request) {
 		ath := &api.Athlete{}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(ath))
@@ -66,12 +66,12 @@ func TestActivity(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/activities/12345", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/12345", func(w http.ResponseWriter, _ *http.Request) {
 		act := &api.Activity{}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(act))
 	})
-	mux.HandleFunc("/activities/12345/streams/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/12345/streams/", func(w http.ResponseWriter, _ *http.Request) {
 		sms := &api.Streams{}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(sms))
@@ -109,7 +109,7 @@ func TestActivities(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/athlete/activities", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/athlete/activities", func(w http.ResponseWriter, _ *http.Request) {
 		acts := []*api.Activity{{Type: "Hike"}, {Type: "Run"}, {Type: "Hike"}}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(acts))
@@ -170,7 +170,7 @@ func TestRoute(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/routes/77282721", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routes/77282721", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(api.Route{}))
 	})
@@ -194,7 +194,7 @@ func TestStreams(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/activities/77282721/streams/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/77282721/streams/", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(api.Streams{}))
 	})
@@ -223,7 +223,7 @@ func TestPhotos(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/activities/26627201/photos", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/26627201/photos", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode([]*api.Photo{{}, {}}))
 	})
@@ -247,12 +247,12 @@ func TestRoutes(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/athlete", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/athlete", func(w http.ResponseWriter, _ *http.Request) {
 		ath := &api.Athlete{ID: 8542982}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(ath))
 	})
-	mux.HandleFunc("/athletes/8542982/routes", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/athletes/8542982/routes", func(w http.ResponseWriter, _ *http.Request) {
 		rtes := []*api.Route{{}, {}, {}}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(rtes))
@@ -296,7 +296,7 @@ func TestBefore(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
-			cmd := func(t *testing.T, baseURL string) *cli.Command {
+			cmd := func(_ *testing.T, _ string) *cli.Command {
 				return &cli.Command{Name: tt.Name, Flags: strava.AuthFlags(), Action: tt.Action}
 			}
 			internal.Run(t, tt, nil, cmd)
@@ -308,7 +308,7 @@ func TestRefresh(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/token", func(w http.ResponseWriter, _ *http.Request) {
 		n, err := w.Write([]byte(`{
 			"access_token":"90d64460d14870c08c81352a05dedd3465940a7c",
 			"token_type":"bearer",
@@ -345,39 +345,39 @@ func TestUpdate(t *testing.T) {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/activities/101", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/101", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		act := decoder(r)
 		a.True(*act.Hidden)
 	})
-	mux.HandleFunc("/activities/102", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/102", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		act := decoder(r)
 		a.False(*act.Hidden)
 	})
-	mux.HandleFunc("/activities/103", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/103", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		act := decoder(r)
 		a.Equal("foobar", *act.Description)
 	})
-	mux.HandleFunc("/activities/104", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/104", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		act := decoder(r)
 		a.Equal("foobaz", *act.Name)
 	})
-	mux.HandleFunc("/activities/105", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/105", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		act := decoder(r)
 		a.Equal("gravel", *act.SportType)
 		a.Equal("99181", *act.GearID)
 	})
-	mux.HandleFunc("/activities/106", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/106", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		act := decoder(r)
 		a.True(*act.Commute)
 		a.True(*act.Trainer)
 	})
-	mux.HandleFunc("/activities/107", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/activities/107", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		act := decoder(r)
 		a.False(*act.Commute)

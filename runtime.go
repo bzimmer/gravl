@@ -5,12 +5,12 @@ import (
 	"encoding/base64"
 	"time"
 
-	"github.com/armon/go-metrics"
 	"github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/cyclinganalytics"
 	"github.com/bzimmer/activity/rwgps"
 	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/activity/zwift"
+	"github.com/hashicorp/go-metrics"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"

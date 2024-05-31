@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/armon/go-metrics"
+	"github.com/hashicorp/go-metrics"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
@@ -108,7 +108,7 @@ func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
 }
 
 func walkfs(c *cli.Context) error {
-	return afero.Walk(runtime(c.App).Fs, "/", func(path string, info fs.FileInfo, err error) error {
+	return afero.Walk(runtime(c.App).Fs, "/", func(path string, _ fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

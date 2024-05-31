@@ -40,7 +40,7 @@ func TestAthlete(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/me", func(w http.ResponseWriter, _ *http.Request) {
 		ath := &api.User{}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(ath))
@@ -81,7 +81,7 @@ func TestActivity(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/ride/77282721", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/ride/77282721", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(api.Ride{
 			LocalDatetime: api.Datetime{Time: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.Local)},
@@ -124,7 +124,7 @@ func TestBefore(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
-			cmd := func(t *testing.T, baseURL string) *cli.Command {
+			cmd := func(_ *testing.T, _ string) *cli.Command {
 				return &cli.Command{Name: tt.Name, Flags: cyclinganalytics.AuthFlags(), Action: tt.Action}
 			}
 			internal.Run(t, tt, nil, cmd)
@@ -136,7 +136,7 @@ func TestActivities(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/me/rides", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/me/rides", func(w http.ResponseWriter, _ *http.Request) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(struct {
 			Rides []*api.Ride `json:"rides"`

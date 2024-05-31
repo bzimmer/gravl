@@ -118,7 +118,7 @@ func TestDateRange(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
-			command := func(t *testing.T, baseURL string) *cli.Command {
+			command := func(_ *testing.T, _ string) *cli.Command {
 				return &cli.Command{
 					Name:   tt.Name,
 					Flags:  activity.DateRangeFlags(),

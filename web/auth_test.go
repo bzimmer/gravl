@@ -98,7 +98,7 @@ func TestAuthCallbackHandler(t *testing.T) {
 				RedirectURL: svr.URL + "/callback",
 			}
 			mux.HandleFunc("/callback", web.AuthCallbackHandler(cfg, "foo-state-bar"))
-			mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+			mux.HandleFunc("/token", func(w http.ResponseWriter, _ *http.Request) {
 				var data []byte
 				if tt.json {
 					data = []byte("garbage")

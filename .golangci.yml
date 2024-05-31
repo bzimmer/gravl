@@ -198,7 +198,6 @@ linters:
     - durationcheck # checks for two durations multiplied together
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
-    - execinquery # checks query string in Query function which reads your Go src files and warning it finds
     - exhaustive # checks exhaustiveness of enum switch statements
     - exportloopref # checks for pointers to enclosing loop variables
     - forbidigo # forbids identifiers
@@ -242,6 +241,7 @@ linters:
     - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
     - unconvert # removes unnecessary type conversions
     - unparam # reports unused function parameters
+    - unused # checks unused constants, variables, functions and types
     - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
     - wastedassign # finds wasted assignment statements
     - whitespace # detects leading and trailing whitespace

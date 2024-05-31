@@ -50,19 +50,19 @@ func TestWebhookUnsubscribe(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/push_subscriptions/334455", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/push_subscriptions/334455", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodDelete, r.Method)
 		// no response
 	})
-	mux.HandleFunc("/push_subscriptions/10", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/push_subscriptions/10", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodDelete, r.Method)
 		// no response
 	})
-	mux.HandleFunc("/push_subscriptions/20", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/push_subscriptions/20", func(_ http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodDelete, r.Method)
 		// no response
 	})
-	mux.HandleFunc("/push_subscriptions", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/push_subscriptions", func(w http.ResponseWriter, _ *http.Request) {
 		res := []*strava.WebhookSubscription{{ID: 10}, {ID: 20}}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(res))
