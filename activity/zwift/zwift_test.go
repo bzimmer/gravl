@@ -40,7 +40,7 @@ func TestAthlete(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/profiles/me", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/profiles/me", func(w http.ResponseWriter, _ *http.Request) {
 		ath := &api.Profile{}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(ath))
@@ -70,12 +70,12 @@ func TestActivity(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/profiles/me", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/profiles/me", func(w http.ResponseWriter, _ *http.Request) {
 		ath := &api.Profile{ID: 101}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(ath))
 	})
-	mux.HandleFunc("/api/profiles/101/activities/9001", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/profiles/101/activities/9001", func(w http.ResponseWriter, _ *http.Request) {
 		act := &api.Activity{ID: 9001}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(act))
@@ -100,12 +100,12 @@ func TestActivities(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/profiles/me", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/profiles/me", func(w http.ResponseWriter, _ *http.Request) {
 		ath := &api.Profile{ID: 102}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(ath))
 	})
-	mux.HandleFunc("/api/profiles/102/activities/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/profiles/102/activities/", func(w http.ResponseWriter, _ *http.Request) {
 		acts := []*api.Activity{{ID: 9001}, {ID: 9021}, {ID: 9501}}
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(acts))
@@ -177,7 +177,7 @@ func TestBefore(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
-			cmd := func(t *testing.T, baseURL string) *cli.Command {
+			cmd := func(_ *testing.T, _ string) *cli.Command {
 				return &cli.Command{Name: tt.Name, Flags: zwift.AuthFlags(), Action: tt.Action}
 			}
 			internal.Run(t, tt, nil, cmd)

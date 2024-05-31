@@ -43,7 +43,7 @@ func TestHarness(t *testing.T) {
 				gravl.Runtime(c).Metrics.IncrCounter([]string{"app", "before", "tt"}, 1)
 				return nil
 			},
-			After: func(c *cli.Context) error {
+			After: func(_ *cli.Context) error {
 				return nil
 			},
 		},
@@ -56,7 +56,7 @@ func TestHarness(t *testing.T) {
 				gravl.Runtime(c).Metrics.IncrCounter([]string{"app", "before", "tt"}, 1)
 				return nil
 			},
-			After: func(c *cli.Context) error {
+			After: func(_ *cli.Context) error {
 				return errors.New("foo err bar")
 			},
 		},

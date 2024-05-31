@@ -75,6 +75,7 @@ func evaluator(c *cli.Context, evaluation string) (eval.Evaluator, error) {
 		}
 		return ev, nil
 	}
+	//nolint:nilnil // no evaluation
 	return nil, nil
 }
 
@@ -84,7 +85,7 @@ func filter(c *cli.Context) (func(ctx context.Context, act *strava.Activity) (bo
 		return nil, err
 	}
 	if ev == nil {
-		return func(ctx context.Context, act *strava.Activity) (bool, error) { return true, nil }, nil
+		return func(_ context.Context, _ *strava.Activity) (bool, error) { return true, nil }, nil
 	}
 	return ev.Bool, nil
 }
@@ -95,7 +96,7 @@ func attributer(c *cli.Context) (func(ctx context.Context, act *strava.Activity)
 		return nil, err
 	}
 	if ev == nil {
-		return func(ctx context.Context, act *strava.Activity) (any, error) { return act, nil }, nil
+		return func(_ context.Context, act *strava.Activity) (any, error) { return act, nil }, nil
 	}
 	return ev.Eval, nil
 }

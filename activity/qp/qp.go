@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/armon/go-metrics"
 	api "github.com/bzimmer/activity"
+	"github.com/hashicorp/go-metrics"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"

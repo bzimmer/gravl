@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/antonmedv/expr"
-	"github.com/antonmedv/expr/vm"
 	"github.com/bzimmer/activity/strava"
+	"github.com/expr-lang/expr"
+	"github.com/expr-lang/expr/vm"
 	"github.com/martinlindhe/unit"
 
 	"github.com/bzimmer/gravl/eval"
