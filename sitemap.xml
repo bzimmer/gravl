@@ -2,72 +2,72 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://bzimmer.github.io/gravl/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/examples/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/cyclinganalytics-athlete/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/qp-copy/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/qp-export/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/rwgps-activities/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/strava-activities/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/strava-activity/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/strava-streamsets/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/strava/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/zwift-files/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/zwift-refresh/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://bzimmer.github.io/gravl/commands/zwift/</loc>
-         <lastmod>2024-05-31</lastmod>
+         <lastmod>2024-07-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
