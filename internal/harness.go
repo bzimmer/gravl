@@ -36,7 +36,7 @@ type Harness struct {
 }
 
 func runtime(app *cli.App) *gravl.Rt {
-	return app.Metadata[gravl.RuntimeKey].(*gravl.Rt)
+	return app.Metadata[gravl.RuntimeKey].(*gravl.Rt) //nolint:errcheck // cannot happen
 }
 
 type encoder struct {

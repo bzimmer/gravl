@@ -81,7 +81,12 @@ func (x *evaluator) run(acts ...*strava.Activity) ([]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	return out.([]any), nil
+	switch z := out.(type) {
+	case []any:
+		return z, nil
+	default:
+		return nil, fmt.Errorf("expected type `[]any]` found `%z`", z)
+	}
 }
 
 func (x *evaluator) Filter(_ context.Context, acts []*strava.Activity) ([]*strava.Activity, error) {
@@ -112,7 +117,7 @@ func (x *evaluator) Bool(ctx context.Context, act *strava.Activity) (bool, error
 	}
 	switch z := res.(type) {
 	case bool:
-		return res.(bool), nil
+		return z, nil
 	default:
 		return false, fmt.Errorf("expected type `bool` found `%z`", z)
 	}

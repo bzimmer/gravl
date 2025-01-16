@@ -65,7 +65,7 @@ type Rt struct {
 }
 
 func Runtime(c *cli.Context) *Rt {
-	return c.App.Metadata[RuntimeKey].(*Rt)
+	return c.App.Metadata[RuntimeKey].(*Rt) //nolint:errcheck // cannot happen
 }
 
 type Encoder interface {
