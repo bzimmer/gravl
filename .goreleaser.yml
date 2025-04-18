@@ -7,7 +7,6 @@ builds:
       - PKG={{.ModulePath}}/version
     goos:
       - linux
-      - windows
       - darwin
     main: ./cmd/gravl
     ldflags:

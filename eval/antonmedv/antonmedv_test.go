@@ -1,7 +1,6 @@
 package antonmedv_test
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 func TestInvalidExpression(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
-	for _, expr := range []string{".Typ == 'Hike'", ""} {
+	for _, expr := range []string{".Typo == 'Hike'", ""} {
 		f, err := antonmedv.Filterer(expr)
 		a.Nil(f)
 		a.Error(err)
@@ -54,7 +53,7 @@ func TestUserFunctions(t *testing.T) {
 
 	q, err := antonmedv.Mapper("isoweek(.StartDateLocal)")
 	a.NoError(err)
-	vals, err := q.Map(context.Background(), acts)
+	vals, err := q.Map(t.Context(), acts)
 	a.NotNil(vals)
 	a.NoError(err)
 	a.Equal(6, len(vals))
@@ -64,7 +63,7 @@ func TestUserFunctions(t *testing.T) {
 	act := &strava.Activity{ID: 100, Type: "Hike", AverageTemperature: 1.3}
 	v, err := antonmedv.Evaluator("F(.AverageTemperature)")
 	a.NoError(err)
-	u, err := v.Eval(context.Background(), act)
+	u, err := v.Eval(t.Context(), act)
 	a.NotNil(u)
 	a.NoError(err)
 	a.InEpsilon(unit.FromCelsius(1.3).Fahrenheit(), u, 0.1)
@@ -79,14 +78,14 @@ func TestFilterer(t *testing.T) {
 
 	q, err := antonmedv.Filterer(`.Type == "Ride"`)
 	a.NoError(err)
-	vals, err := q.Filter(context.Background(), acts)
+	vals, err := q.Filter(t.Context(), acts)
 	a.NotNil(vals)
 	a.NoError(err)
 	a.Equal(3, len(vals))
 
 	q, err = antonmedv.Filterer(`.Type == "Ride" && .StartDateLocal.Year() == 2010`)
 	a.NoError(err)
-	vals, err = q.Filter(context.Background(), acts)
+	vals, err = q.Filter(t.Context(), acts)
 	a.NotNil(vals)
 	a.NoError(err)
 	a.Equal(1, len(vals))
@@ -101,7 +100,7 @@ func TestMapper(t *testing.T) {
 
 	q, err := antonmedv.Mapper(".Type")
 	a.NoError(err)
-	vals, err := q.Map(context.Background(), acts)
+	vals, err := q.Map(t.Context(), acts)
 	a.NotNil(vals)
 	a.NoError(err)
 	a.Equal(6, len(vals))
@@ -118,25 +117,25 @@ func TestEvaluator(t *testing.T) {
 
 	q, err := antonmedv.Evaluator(`.Type == 'Hike'`)
 	a.NoError(err)
-	val, err := q.Bool(context.Background(), acts[0])
+	val, err := q.Bool(t.Context(), acts[0])
 	a.NoError(err)
 	a.True(val)
 
 	q, err = antonmedv.Evaluator(`.Type`)
 	a.NoError(err)
-	val, err = q.Bool(context.Background(), acts[0])
+	val, err = q.Bool(t.Context(), acts[0])
 	a.Error(err)
 	a.False(val)
 
 	q, err = antonmedv.Evaluator(`.Type`)
 	a.NoError(err)
-	yal, err := q.Eval(context.Background(), acts[0])
+	yal, err := q.Eval(t.Context(), acts[0])
 	a.NoError(err)
 	a.Equal("Hike", yal)
 
 	q, err = antonmedv.Evaluator(`[.Type, .Distance]`)
 	a.NoError(err)
-	yal, err = q.Eval(context.Background(), acts[0])
+	yal, err = q.Eval(t.Context(), acts[0])
 	a.NoError(err)
 	a.Equal([]any{"Hike", unit.Length(100000)}, yal)
 }

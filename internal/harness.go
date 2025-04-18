@@ -127,7 +127,7 @@ func TestMain(m *testing.M) {
 }
 
 func Run(t *testing.T, tt *Harness, handler http.Handler, cmd func(*testing.T, string) *cli.Command) {
-	RunContext(context.Background(), t, tt, handler, cmd)
+	RunContext(t.Context(), t, tt, handler, cmd)
 }
 
 func RunContext(
