@@ -1,7 +1,6 @@
 package web_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -31,7 +30,7 @@ func TestAuthHandler(t *testing.T) {
 	}
 	mux.HandleFunc("/auth", web.AuthHandler(cfg, "foo-state-bar"))
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/auth", http.NoBody)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "/auth", http.NoBody)
 	a.NoError(err)
 
 	w := httptest.NewRecorder()
@@ -123,7 +122,7 @@ func TestAuthCallbackHandler(t *testing.T) {
 			data := form.Encode()
 			body := strings.NewReader(data)
 
-			ctx := context.Background()
+			ctx := t.Context()
 			req, err := http.NewRequestWithContext(ctx, http.MethodPost, "/callback", body)
 			a.NoError(err)
 			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

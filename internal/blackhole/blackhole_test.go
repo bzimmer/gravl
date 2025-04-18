@@ -1,7 +1,6 @@
 package blackhole_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/bzimmer/activity"
@@ -14,17 +13,17 @@ import (
 func TestBlackhole(t *testing.T) {
 	a := assert.New(t)
 	exporter := blackhole.NewExporter()
-	exp, err := exporter.Export(context.Background(), 1234)
+	exp, err := exporter.Export(t.Context(), 1234)
 	a.NoError(err)
 	a.NotNil(exp)
 
 	uploader := blackhole.NewUploader()
 	file := &activity.File{}
-	upload, err := uploader.Upload(context.Background(), file)
+	upload, err := uploader.Upload(t.Context(), file)
 	a.NoError(err)
 	a.NotNil(upload)
 
-	upload, err = uploader.Status(context.Background(), upload.Identifier())
+	upload, err = uploader.Status(t.Context(), upload.Identifier())
 	a.NoError(err)
 	a.NotNil(upload)
 	a.True(upload.Done())

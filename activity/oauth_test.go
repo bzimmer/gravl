@@ -38,7 +38,7 @@ func TestOAuth(t *testing.T) {
 				ends the goroutine at which time the context is canceled and the http
 				server started within the cli.Command will shutdown (if all goes well!).
 			*/
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			ctx, cancel := context.WithTimeout(t.Context(), time.Second)
 			defer cancel()
 			started := make(chan *url.URL, 1)
 			defer close(started)

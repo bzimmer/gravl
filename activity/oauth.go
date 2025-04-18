@@ -106,8 +106,8 @@ func oauth(c *cli.Context, cfg *OAuthConfig) error {
 		}
 		log.Info().Str("address", u.String()).Msg("serving")
 		select {
-		case <-c.Context.Done():
-			return c.Context.Err()
+		case <-c.Done():
+			return c.Err()
 		case cfg.Started <- u:
 			return nil
 		}

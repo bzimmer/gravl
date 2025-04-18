@@ -41,7 +41,7 @@ func initSignal(cancel context.CancelFunc) cli.BeforeFunc {
 			case <-sigc:
 				log.Info().Msg("canceling...")
 				cancel()
-			case <-c.Context.Done():
+			case <-c.Done():
 			}
 		}()
 		return nil

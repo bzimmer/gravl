@@ -1,7 +1,6 @@
 package web_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -20,7 +19,7 @@ func TestVersionHandler(t *testing.T) {
 	mux.HandleFunc("/version", web.VersionHandler())
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequestWithContext(context.TODO(), http.MethodGet, "/version", http.NoBody)
+	req, _ := http.NewRequestWithContext(t.Context(), http.MethodGet, "/version", http.NoBody)
 	mux.ServeHTTP(w, req)
 	a.Equal(http.StatusOK, w.Code)
 
