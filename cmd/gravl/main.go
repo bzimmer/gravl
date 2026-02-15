@@ -96,10 +96,7 @@ func (enc encoder) Encode(v any) error {
 }
 
 func initRuntime(c *cli.Context) error {
-	var pool *sync.Pool
-	if c.Bool("json") {
-		pool = &sync.Pool{New: func() any { return json.NewEncoder(c.App.Writer) }}
-	}
+	var pool = &sync.Pool{New: func() any { return json.NewEncoder(c.App.Writer) }}
 
 	cfg := metrics.DefaultConfig(c.App.Name)
 	cfg.EnableRuntimeMetrics = false
@@ -150,7 +147,7 @@ func flags() []cli.Flag {
 		&cli.StringFlag{
 			Name:    "verbosity",
 			Aliases: []string{"v"},
-			Value:   "info",
+			Value:   "warn",
 			Usage:   "Log level (trace, debug, info, warn, error, fatal, panic)",
 		},
 		&cli.BoolFlag{
