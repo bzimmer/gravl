@@ -67,7 +67,6 @@ func TestRuntime(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			internal.Run(t, tt, nil, func(_ *testing.T, _ string) *cli.Command {
 				return &cli.Command{Name: tt.Name, Action: tt.Action}

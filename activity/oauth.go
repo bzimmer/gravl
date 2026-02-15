@@ -61,7 +61,8 @@ func newHandler(c *cli.Context, cfg *OAuthConfig) (http.Handler, error) {
 }
 
 func newListener(cfg *OAuthConfig) (net.Listener, error) {
-	listener, err := net.Listen("tcp4", fmt.Sprintf("127.0.0.1:%d", cfg.Port))
+	var lc net.ListenConfig
+	listener, err := lc.Listen(context.Background(), "tcp4", fmt.Sprintf("127.0.0.1:%d", cfg.Port))
 	if err != nil {
 		return nil, err
 	}

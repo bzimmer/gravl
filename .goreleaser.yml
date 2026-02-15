@@ -1,6 +1,8 @@
+version: 2
 before:
   hooks:
     - task test
+    - task build:clean
 builds:
   - env:
       - CGO_ENABLED=0
@@ -14,7 +16,7 @@ builds:
 checksum:
   name_template: "checksums.txt"
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
@@ -25,7 +27,7 @@ changelog:
 announce:
   skip: "true"
 
-brews:
+homebrew_casks:
   - name: gravl
     homepage: https://github.com/bzimmer/gravl
     description: Command line clients for activity-related services
@@ -33,8 +35,13 @@ brews:
     commit_author:
       name: bzimmer
       email: bzimmer@ziclix.com
-    tap:
+    repository:
       owner: bzimmer
       name: homebrew-tap
     skip_upload: auto
-    install: bin.install "gravl"
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/gravl"]
+          end
