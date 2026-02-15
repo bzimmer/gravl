@@ -27,7 +27,7 @@ changelog:
 announce:
   skip: "true"
 
-brews:
+homebrew_casks:
   - name: gravl
     homepage: https://github.com/bzimmer/gravl
     description: Command line clients for activity-related services
