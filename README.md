@@ -13,6 +13,35 @@
 * [Ride with GPS](https://ridewithgps.com)
 * [Zwift](https://zwift.com)
 
+# Installation
+
+## Docker
+
+gravl is available as a Docker image on GitHub Container Registry:
+
+```dockerfile
+# Minimal image (just the binary)
+FROM ghcr.io/bzimmer/gravl:latest AS gravl
+FROM scratch
+COPY --from=gravl /usr/bin/gravl /usr/bin/gravl
+ENTRYPOINT ["/usr/bin/gravl"]
+
+# Or with a base distro if you need shell access
+FROM ghcr.io/bzimmer/gravl:latest AS gravl
+FROM debian:bookworm-slim
+COPY --from=gravl /usr/bin/gravl /usr/bin/gravl
+```
+
+Available image tags:
+- `ghcr.io/bzimmer/gravl:latest` - latest stable release
+- `ghcr.io/bzimmer/gravl:v1.2.3` - specific version
+
+## Homebrew
+
+```bash
+brew install bzimmer/tap/gravl
+```
+
 # Documentation
 
 * [manual](https://bzimmer.github.io/gravl/)

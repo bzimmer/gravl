@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+docs/
+*.md
+
+# Build artifacts
+dist/
+tmp/
+.venv/
+
+# CI/CD
+.github/
+
+# Development files
+*.test
+*.out
+.task/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+pyproject.toml
+
+# Dependencies
+vendor/

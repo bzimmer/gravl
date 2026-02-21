@@ -1,0 +1,8 @@
+FROM alpine:latest AS certs
+RUN apk --no-cache add ca-certificates
+
+FROM scratch
+ARG TARGETPLATFORM
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY $TARGETPLATFORM/gravl /usr/bin/gravl
+ENTRYPOINT ["/usr/bin/gravl"]
