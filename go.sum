@@ -15,8 +15,10 @@ github.com/armon/go-metrics v0.4.1/go.mod h1:E6amYzXo6aW1tqzoZGT755KkbgrJsSdpwZ+
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/bzimmer/activity v0.11.0 h1:nBP4OLAOuyI+lzPKQltvTDisdhR6gdWb1E29lElJHr0=
-github.com/bzimmer/activity v0.11.0/go.mod h1:Nj+Fth2FgCdQPMtG7BTg7OlQqt7oH9zVLDSQ5ZEY/Dg=
+github.com/bzimmer/activity v0.12.1 h1:5ZSDhfP0JBAGkycJ+3Q5ImB+KAT7oMPUPj+2lJD0eVo=
+github.com/bzimmer/activity v0.12.1/go.mod h1:zFqHlqFrx7pPfJgvajAqgwVb1+h2yAtFB3sEKRdjJtM=
+github.com/bzimmer/activity v0.12.3 h1:UahXSVVpgzOesVZEQkMRO0Dv1FuAGOqAGl5zH89iXUQ=
+github.com/bzimmer/activity v0.12.3/go.mod h1:zFqHlqFrx7pPfJgvajAqgwVb1+h2yAtFB3sEKRdjJtM=
 github.com/bzimmer/httpwares v0.1.3 h1:Haw1fGBRW51iv7O2NIkIZyuUt3XLZZG+ePd6NEwbD5Q=
 github.com/bzimmer/httpwares v0.1.3/go.mod h1:8pi184rxXR7Pbn7cNL8uMPeqYA8+DbQSl4oOQE5q4Vk=
 github.com/bzimmer/manual v0.1.5 h1:K/MQTTCO6r2HUhwReCAQOUAgbudl6ku6id1ZJpN0O9Y=

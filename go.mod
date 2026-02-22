@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bzimmer/activity v0.11.0
+	github.com/bzimmer/activity v0.12.3
 	github.com/bzimmer/manual v0.1.5
 	github.com/expr-lang/expr v1.17.8
 	github.com/fatih/color v1.18.0
