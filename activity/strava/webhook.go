@@ -100,7 +100,7 @@ func whsubscribeCommand() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "url",
-				Usage: "Address where webhook events will be sent (max length 255 characters"},
+				Usage: "Address where webhook events will be sent (max length 255 characters)"},
 			&cli.StringFlag{
 				Name:  "verify",
 				Usage: "String chosen by the application owner for client security"},
