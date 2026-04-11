@@ -43,10 +43,11 @@ func athlete(c *cli.Context) error {
 
 func athleteCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "athlete",
-		Aliases: []string{"t"},
-		Usage:   "Query for the authenticated athlete",
-		Action:  athlete,
+		Name:        "athlete",
+		Aliases:     []string{"t"},
+		Usage:       "Query for the authenticated athlete",
+		Description: "Query the RideWithGPS API for the authenticated athlete's profile and display their account information",
+		Action:      athlete,
 	}
 }
 
@@ -92,9 +93,10 @@ func trips(c *cli.Context, kind string) error {
 
 func activitiesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activities",
-		Aliases: []string{"A"},
-		Usage:   "Query activities for the authenticated athlete",
+		Name:        "activities",
+		Aliases:     []string{"A"},
+		Usage:       "Query activities for the authenticated athlete",
+		Description: "Query the RideWithGPS API for a list of trips for the authenticated athlete",
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -109,9 +111,10 @@ func activitiesCommand() *cli.Command {
 
 func routesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "routes",
-		Usage:   "Query routes for an athlete from RideWithGPS",
-		Aliases: []string{"R"},
+		Name:        "routes",
+		Usage:       "Query routes for an athlete from RideWithGPS",
+		Description: "Query the RideWithGPS API for a list of planned routes for the authenticated athlete",
+		Aliases:     []string{"R"},
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -151,9 +154,10 @@ func entity(c *cli.Context, f func(context.Context, int64) (any, error)) error {
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name:    metricActivity,
-		Aliases: []string{"a"},
-		Usage:   "Query an activity from RideWithGPS",
+		Name:        metricActivity,
+		Aliases:     []string{"a"},
+		Usage:       "Query an activity from RideWithGPS",
+		Description: "Query the RideWithGPS API for a specific trip by its ID",
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).RideWithGPS
 			return entity(c, func(ctx context.Context, id int64) (any, error) {
@@ -170,9 +174,10 @@ func activityCommand() *cli.Command {
 
 func routeCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "route",
-		Aliases: []string{"r"},
-		Usage:   "Query a route from RideWithGPS",
+		Name:        "route",
+		Aliases:     []string{"r"},
+		Usage:       "Query a route from RideWithGPS",
+		Description: "Query the RideWithGPS API for a specific route by its ID",
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).RideWithGPS
 			return entity(c, func(ctx context.Context, id int64) (any, error) {

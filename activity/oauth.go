@@ -124,8 +124,9 @@ func oauth(c *cli.Context, cfg *OAuthConfig) error {
 
 func OAuthCommand(cfg *OAuthConfig) *cli.Command {
 	return &cli.Command{
-		Name:  "oauth",
-		Usage: "Authentication endpoints for access and refresh tokens",
+		Name:        "oauth",
+		Usage:       "Authentication endpoints for access and refresh tokens",
+		Description: "Start a local OAuth server to acquire access and refresh tokens for the specified provider",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "origin",

@@ -52,10 +52,11 @@ func athlete(c *cli.Context) error {
 
 func athleteCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "athlete",
-		Usage:   "Query the athlete profile from Zwift",
-		Aliases: []string{"t"},
-		Action:  athlete,
+		Name:        "athlete",
+		Usage:       "Query the athlete profile from Zwift",
+		Description: "Query the Zwift API for an athlete profile; defaults to the authenticated user if no username is specified",
+		Aliases:     []string{"t"},
+		Action:      athlete,
 	}
 }
 
@@ -74,9 +75,10 @@ func refresh(c *cli.Context) error {
 
 func refreshCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "refresh",
-		Usage:  "Acquire a new refresh token",
-		Action: refresh,
+		Name:        "refresh",
+		Usage:       "Acquire a new refresh token",
+		Description: "Acquire a new access token by authenticating with Zwift credentials",
+		Action:      refresh,
 	}
 }
 
@@ -110,9 +112,10 @@ func activities(c *cli.Context) error {
 
 func activitiesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activities",
-		Usage:   "Query activities for an athlete from Zwift",
-		Aliases: []string{"A"},
+		Name:        "activities",
+		Usage:       "Query activities for an athlete from Zwift",
+		Description: "Query the Zwift API for a list of activities for the authenticated athlete",
+		Aliases:     []string{"A"},
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -159,10 +162,11 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Activity) error) erro
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name:      metricActivity,
-		Aliases:   []string{"a"},
-		Usage:     "Query an activity from Zwift",
-		ArgsUsage: "ACTIVITY_ID (...)",
+		Name:        metricActivity,
+		Aliases:     []string{"a"},
+		Usage:       "Query an activity from Zwift",
+		Description: "Query the Zwift API for a specific activity by its ID",
+		ArgsUsage:   "ACTIVITY_ID (...)",
 		Action: func(c *cli.Context) error {
 			return entity(c, func(_ context.Context, act *zwift.Activity) error {
 				return gravl.Runtime(c).Encoder.Encode(act)
@@ -233,9 +237,10 @@ func files(c *cli.Context) error { //nolint:gocognit
 
 func filesCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "files",
-		Usage:  "List all local Zwift files",
-		Action: files,
+		Name:        "files",
+		Usage:       "List all local Zwift files",
+		Description: "List all local Zwift FIT files; if no directories are specified, defaults to the standard Zwift Activities directory",
+		Action:      files,
 	}
 }
 

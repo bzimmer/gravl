@@ -44,10 +44,11 @@ func athlete(c *cli.Context) error {
 
 func athleteCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "athlete",
-		Usage:   "Query an athlete from Strava",
-		Aliases: []string{"t"},
-		Action:  athlete,
+		Name:        "athlete",
+		Usage:       "Query an athlete from Strava",
+		Description: "Query the Strava API for the authenticated athlete's profile and display their account information",
+		Aliases:     []string{"t"},
+		Action:      athlete,
 	}
 }
 
@@ -64,9 +65,10 @@ func refresh(c *cli.Context) error {
 
 func refreshCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "refresh",
-		Usage:  "Acquire a new refresh token",
-		Action: refresh,
+		Name:        "refresh",
+		Usage:       "Acquire a new refresh token",
+		Description: "Exchange the existing refresh token for a new access and refresh token pair",
+		Action:      refresh,
 	}
 }
 
@@ -175,9 +177,10 @@ func activities(c *cli.Context) error {
 
 func activitiesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activities",
-		Usage:   "Query activities for an athlete from Strava",
-		Aliases: []string{"A"},
+		Name:        "activities",
+		Usage:       "Query activities for an athlete from Strava",
+		Description: "Query the Strava API for a list of activities for the authenticated athlete, with optional date range filtering and expression-based attribute extraction",
+		Aliases:     []string{"A"},
 		Flags: append([]cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -226,9 +229,10 @@ func routes(c *cli.Context) error {
 
 func routesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "routes",
-		Usage:   "Query routes for an athlete from Strava",
-		Aliases: []string{"R"},
+		Name:        "routes",
+		Usage:       "Query routes for an athlete from Strava",
+		Description: "Query the Strava API for a list of planned routes for the authenticated athlete",
+		Aliases:     []string{"R"},
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -314,10 +318,11 @@ func streamFlag(streams ...string) cli.Flag {
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name:      metricActivity,
-		Aliases:   []string{"a"},
-		Usage:     "Query an activity from Strava",
-		ArgsUsage: activityArgsUsage,
+		Name:        metricActivity,
+		Aliases:     []string{"a"},
+		Usage:       "Query an activity from Strava",
+		Description: "Query the Strava API for a specific activity by its ID, optionally including data streams",
+		ArgsUsage:   activityArgsUsage,
 		Flags:     []cli.Flag{streamFlag()},
 		Action: func(c *cli.Context) error {
 			s := make(map[string]bool)
@@ -376,8 +381,10 @@ func updateFlags() []cli.Flag {
 
 func updateCommand() *cli.Command { //nolint:gocognit
 	return &cli.Command{
-		Name:      "update",
-		ArgsUsage: activityArgsUsage,
+		Name:        "update",
+		Usage:       "Update an activity on Strava",
+		Description: "Update attributes of a specific Strava activity such as name, sport type, gear, description, commute status, trainer status, and visibility",
+		ArgsUsage:   activityArgsUsage,
 		Flags:     updateFlags(),
 		Action: func(c *cli.Context) error {
 			met := gravl.Runtime(c).Metrics
@@ -447,10 +454,11 @@ func updateCommand() *cli.Command { //nolint:gocognit
 
 func streamsCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "streams",
-		Aliases:   []string{"s"},
-		Usage:     "Query streams for an activity from Strava",
-		ArgsUsage: activityArgsUsage,
+		Name:        "streams",
+		Aliases:     []string{"s"},
+		Usage:       "Query streams for an activity from Strava",
+		Description: "Query the Strava API for the data streams of a specific activity, such as GPS coordinates, altitude, and time",
+		ArgsUsage:   activityArgsUsage,
 		Flags:     []cli.Flag{streamFlag("latlng", "altitude", "time")},
 		Action: func(c *cli.Context) error {
 			s := make(map[string]bool)
@@ -471,10 +479,11 @@ func streamsCommand() *cli.Command {
 
 func routeCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "route",
-		Aliases:   []string{"r"},
-		Usage:     "Query a route from Strava",
-		ArgsUsage: "ROUTE_ID (...)",
+		Name:        "route",
+		Aliases:     []string{"r"},
+		Usage:       "Query a route from Strava",
+		Description: "Query the Strava API for a specific route by its ID",
+		ArgsUsage:   "ROUTE_ID (...)",
 		Action: func(c *cli.Context) error {
 			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				return client.Route.Route(ctx, id)
@@ -485,10 +494,11 @@ func routeCommand() *cli.Command {
 
 func photosCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "photos",
-		Aliases:   []string{""},
-		Usage:     "Query photos from Strava",
-		ArgsUsage: activityArgsUsage,
+		Name:        "photos",
+		Aliases:     []string{""},
+		Usage:       "Query photos from Strava",
+		Description: "Query the Strava API for the photos associated with a specific activity",
+		ArgsUsage:   activityArgsUsage,
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "size",
@@ -506,8 +516,9 @@ func photosCommand() *cli.Command {
 
 func streamSetsCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "streamsets",
-		Usage: "Return the set of available streams for query",
+		Name:        "streamsets",
+		Usage:       "Return the set of available streams for query",
+		Description: "Query the Strava API for the set of available data streams that can be requested for an activity",
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).Strava
 			gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
