@@ -179,8 +179,8 @@ func uploadCommand() *cli.Command {
 		Usage:       "Upload files to an activity platform",
 		Description: "Upload one or more activity files (FIT, GPX, TCX) to the specified platform",
 		ArgsUsage:   "{FILE | DIRECTORY} (...)",
-		Flags:     flags(cfg{to: true, poll: true}),
-		Action:    upload,
+		Flags:       flags(cfg{to: true, poll: true}),
+		Action:      upload,
 	}
 }
 

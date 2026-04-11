@@ -18,6 +18,7 @@ func AuthHandler(c *oauth2.Config, state string) http.HandlerFunc {
 // AuthCallback receives the callback from the oauth provider with the credentials
 func AuthCallbackHandler(c *oauth2.Config, state string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

@@ -323,7 +323,7 @@ func activityCommand() *cli.Command {
 		Usage:       "Query an activity from Strava",
 		Description: "Query the Strava API for a specific activity by its ID, optionally including data streams",
 		ArgsUsage:   activityArgsUsage,
-		Flags:     []cli.Flag{streamFlag()},
+		Flags:       []cli.Flag{streamFlag()},
 		Action: func(c *cli.Context) error {
 			s := make(map[string]bool)
 			for _, x := range c.StringSlice("stream") {
@@ -385,7 +385,7 @@ func updateCommand() *cli.Command { //nolint:gocognit
 		Usage:       "Update an activity on Strava",
 		Description: "Update attributes of a specific Strava activity such as name, sport type, gear, description, commute status, trainer status, and visibility",
 		ArgsUsage:   activityArgsUsage,
-		Flags:     updateFlags(),
+		Flags:       updateFlags(),
 		Action: func(c *cli.Context) error {
 			met := gravl.Runtime(c).Metrics
 			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
@@ -459,7 +459,7 @@ func streamsCommand() *cli.Command {
 		Usage:       "Query streams for an activity from Strava",
 		Description: "Query the Strava API for the data streams of a specific activity, such as GPS coordinates, altitude, and time",
 		ArgsUsage:   activityArgsUsage,
-		Flags:     []cli.Flag{streamFlag("latlng", "altitude", "time")},
+		Flags:       []cli.Flag{streamFlag("latlng", "altitude", "time")},
 		Action: func(c *cli.Context) error {
 			s := make(map[string]bool)
 			for _, x := range c.StringSlice("stream") {
