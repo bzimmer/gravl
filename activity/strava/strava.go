@@ -254,9 +254,18 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolin
 	met := gravl.Runtime(c).Metrics
 	client := gravl.Runtime(c).Strava
 
+	ids := make([]int64, len(args))
+	for i, arg := range args {
+		x, err := strconv.ParseInt(arg, 0, 64)
+		if err != nil {
+			return err
+		}
+		ids[i] = x
+	}
+
 	concurrency := c.Int("concurrency")
-	if len(args) < concurrency {
-		concurrency = len(args)
+	if len(ids) < concurrency {
+		concurrency = len(ids)
 	}
 	if concurrency <= 0 {
 		concurrency = 1
@@ -269,11 +278,7 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolin
 	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
 		defer close(argc)
-		for _, arg := range args {
-			x, err := strconv.ParseInt(arg, 0, 64)
-			if err != nil {
-				return err
-			}
+		for _, x := range ids {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
