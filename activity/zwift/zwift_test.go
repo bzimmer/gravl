@@ -174,9 +174,9 @@ func TestFiles(t *testing.T) {
 			Name: "files non-FIT format",
 			Args: []string{"gravl", "zwift", "files", "/foo/gpx"},
 			Counters: map[string]int{
-				"gravl.zwift.files.found":         2,
-				"gravl.zwift.files.directory":     1,
-				"gravl.zwift.files.skipping.gpx":  1,
+				"gravl.zwift.files.found":        2,
+				"gravl.zwift.files.directory":    1,
+				"gravl.zwift.files.skipping.gpx": 1,
 			},
 			Before: func(c *cli.Context) error {
 				a := assert.New(t)

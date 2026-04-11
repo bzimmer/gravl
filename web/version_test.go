@@ -36,8 +36,8 @@ type errorWriter struct {
 	rec *httptest.ResponseRecorder
 }
 
-func (e *errorWriter) Header() http.Header          { return e.rec.Header() }
-func (e *errorWriter) WriteHeader(code int)         { e.rec.WriteHeader(code) }
+func (e *errorWriter) Header() http.Header         { return e.rec.Header() }
+func (e *errorWriter) WriteHeader(code int)        { e.rec.WriteHeader(code) }
 func (e *errorWriter) Write(_ []byte) (int, error) { return 0, errors.New("forced write error") }
 
 func TestVersionHandler_WriteError(t *testing.T) {
