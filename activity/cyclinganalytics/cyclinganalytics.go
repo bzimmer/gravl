@@ -16,7 +16,10 @@ import (
 	"github.com/bzimmer/gravl/activity"
 )
 
-const Provider = "cyclinganalytics"
+const (
+	Provider       = "cyclinganalytics"
+	metricActivity = "activity"
+)
 
 var before sync.Once //nolint:gochecknoglobals // once
 
@@ -35,10 +38,11 @@ func athlete(c *cli.Context) error {
 
 func athleteCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "athlete",
-		Aliases: []string{"t"},
-		Usage:   "Query for the authenticated athlete",
-		Action:  athlete,
+		Name:        "athlete",
+		Aliases:     []string{"t"},
+		Usage:       "Query for the authenticated athlete",
+		Description: "Query the CyclingAnalytics API for the authenticated athlete's profile and display their account information",
+		Action:      athlete,
 	}
 }
 
@@ -53,7 +57,7 @@ func activities(c *cli.Context) error {
 	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	enc := gravl.Runtime(c).Encoder
 	for _, ride := range rides {
-		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
+		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metricActivity}, 1)
 		if err = enc.Encode(ride); err != nil {
 			return err
 		}
@@ -63,9 +67,10 @@ func activities(c *cli.Context) error {
 
 func activitiesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activities",
-		Aliases: []string{"A"},
-		Usage:   "Query activities for the authenticated athlete",
+		Name:        "activities",
+		Aliases:     []string{"A"},
+		Usage:       "Query activities for the authenticated athlete",
+		Description: "Query the CyclingAnalytics API for a list of rides for the authenticated athlete",
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -109,17 +114,19 @@ func ride(c *cli.Context) error {
 
 func rideCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activity",
-		Aliases: []string{"a"},
-		Usage:   "Query an activity for the authenticated athlete",
-		Action:  ride,
+		Name:        metricActivity,
+		Aliases:     []string{"a"},
+		Usage:       "Query an activity for the authenticated athlete",
+		Description: "Query the CyclingAnalytics API for the details of a specific ride for the authenticated athlete",
+		Action:      ride,
 	}
 }
 
 func streamSetsCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "streamsets",
-		Usage: "Return the set of available streams for query",
+		Name:        "streamsets",
+		Usage:       "Return the set of available streams for query",
+		Description: "Query the CyclingAnalytics API for the set of available data streams that can be requested for a ride",
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).CyclingAnalytics
 			gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
@@ -162,7 +169,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "cyclinganalytics",
 		Aliases:     []string{"ca"},
-		Category:    "activity",
+		Category:    metricActivity,
 		Usage:       "Query CyclingAnalytics",
 		Description: "Operations supported by the CyclingAnalytics API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),

@@ -11,6 +11,8 @@ import (
 	"github.com/bzimmer/gravl"
 )
 
+const metricWebhook = "webhook"
+
 func list(c *cli.Context, f func(sub *strava.WebhookSubscription) error) error {
 	client := gravl.Runtime(c).Strava
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -23,8 +25,8 @@ func list(c *cli.Context, f func(sub *strava.WebhookSubscription) error) error {
 		if err = f(sub); err != nil {
 			return err
 		}
-		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "webhook", c.Command.Name}, 1)
-		log.Info().Time("created", sub.CreatedAt).Str("url", sub.CallbackURL).Int64("id", sub.ID).Msg("webhook")
+		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metricWebhook, c.Command.Name}, 1)
+		log.Info().Time("created", sub.CreatedAt).Str("url", sub.CallbackURL).Int64("id", sub.ID).Msg(metricWebhook)
 	}
 	return nil
 }
@@ -72,31 +74,34 @@ func whsubscribe(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "webhook", c.Command.Name}, 1)
+	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metricWebhook, c.Command.Name}, 1)
 	return gravl.Runtime(c).Encoder.Encode(ack)
 }
 
 func whlistCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "list",
-		Usage:  "List all active webhook subscriptions",
-		Action: whlist,
+		Name:        "list",
+		Usage:       "List all active webhook subscriptions",
+		Description: "List all active Strava webhook subscriptions for the authenticated application",
+		Action:      whlist,
 	}
 }
 
 func whunsubscribeCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "unsubscribe",
-		Aliases: []string{"delete", "remove"},
-		Usage:   "Unsubscribe an active webhook subscription (or all if specified)",
-		Action:  whunsubscribe,
+		Name:        "unsubscribe",
+		Aliases:     []string{"delete", "remove"},
+		Usage:       "Unsubscribe an active webhook subscription (or all if specified)",
+		Description: "Unsubscribe from Strava webhook notifications; if no subscription ID is provided, all active subscriptions will be removed",
+		Action:      whunsubscribe,
 	}
 }
 
 func whsubscribeCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "subscribe",
-		Usage: "Subscribe for webhook notifications",
+		Name:        "subscribe",
+		Usage:       "Subscribe for webhook notifications",
+		Description: "Subscribe the application to receive Strava webhook event notifications at the specified callback URL",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "url",
@@ -111,8 +116,9 @@ func whsubscribeCommand() *cli.Command {
 
 func webhookCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "webhook",
-		Usage: "Manage webhook subscriptions",
+		Name:        metricWebhook,
+		Usage:       "Manage webhook subscriptions",
+		Description: "Manage Strava webhook subscriptions for receiving event notifications",
 		Subcommands: []*cli.Command{
 			whlistCommand(),
 			whsubscribeCommand(),

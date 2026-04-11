@@ -82,7 +82,7 @@ Operations supported by the CyclingAnalytics API
 
 **Description**
 
-Query activities for the authenticated athlete
+Query the CyclingAnalytics API for a list of rides for the authenticated athlete
 
 
 
@@ -104,7 +104,7 @@ $ gravl cyclinganalytics activities [flags]
 
 **Description**
 
-Query an activity for the authenticated athlete
+Query the CyclingAnalytics API for the details of a specific ride for the authenticated athlete
 
 
 
@@ -120,7 +120,7 @@ $ gravl cyclinganalytics activity [flags]
 
 **Description**
 
-Query for the authenticated athlete
+Query the CyclingAnalytics API for the authenticated athlete's profile and display their account information
 
 
 
@@ -150,7 +150,7 @@ $ gravl ca t
 
 **Description**
 
-Authentication endpoints for access and refresh tokens
+Start a local OAuth server to acquire access and refresh tokens for the specified provider
 
 
 
@@ -173,7 +173,7 @@ $ gravl cyclinganalytics oauth [flags]
 
 **Description**
 
-Return the set of available streams for query
+Query the CyclingAnalytics API for the set of available data streams that can be requested for a ride
 
 
 
@@ -221,7 +221,7 @@ $ gravl help [flags] [command]
 
 **Description**
 
-Manage the flow of activity between different platforms
+Copy and synchronize activities between different activity platforms
 
 
 
@@ -422,7 +422,7 @@ $ gravl qp status [flags] UPLOAD_ID (...)
 
 **Description**
 
-
+Upload one or more activity files (FIT, GPX, TCX) to the specified platform
 
 
 
@@ -469,7 +469,7 @@ Operations supported by the RideWithGPS API
 
 **Description**
 
-Query activities for the authenticated athlete
+Query the RideWithGPS API for a list of trips for the authenticated athlete
 
 
 
@@ -543,7 +543,7 @@ $ gravl rwgps activities -N 10
 
 **Description**
 
-Query an activity from RideWithGPS
+Query the RideWithGPS API for a specific trip by its ID
 
 
 
@@ -559,7 +559,7 @@ $ gravl rwgps activity [flags]
 
 **Description**
 
-Query for the authenticated athlete
+Query the RideWithGPS API for the authenticated athlete's profile and display their account information
 
 
 
@@ -575,7 +575,7 @@ $ gravl rwgps athlete [flags]
 
 **Description**
 
-Query a route from RideWithGPS
+Query the RideWithGPS API for a specific route by its ID
 
 
 
@@ -591,7 +591,7 @@ $ gravl rwgps route [flags]
 
 **Description**
 
-Query routes for an athlete from RideWithGPS
+Query the RideWithGPS API for a list of planned routes for the authenticated athlete
 
 
 
@@ -642,7 +642,7 @@ available via the commandline (eg [`strava webhook list`](#strava-webhook-list),
 
 **Description**
 
-Query activities for an athlete from Strava
+Query the Strava API for a list of activities for the authenticated athlete, with optional date range filtering and expression-based attribute extraction
 
 
 
@@ -681,7 +681,7 @@ $ gravl -c --timeout 1m strava activities -N 20 -f ".Type == 'VirtualRide'" -B "
 
 **Description**
 
-Query an activity from Strava
+Query the Strava API for a specific activity by its ID, optionally including data streams
 
 
 
@@ -797,7 +797,7 @@ $ gravl strava activity -s watts 4802094087
 
 **Description**
 
-Query an athlete from Strava
+Query the Strava API for the authenticated athlete's profile and display their account information
 
 
 
@@ -813,7 +813,7 @@ $ gravl strava athlete [flags]
 
 **Description**
 
-Authentication endpoints for access and refresh tokens
+Start a local OAuth server to acquire access and refresh tokens for the specified provider
 
 
 
@@ -836,7 +836,7 @@ $ gravl strava oauth [flags]
 
 **Description**
 
-Query photos from Strava
+Query the Strava API for the photos associated with a specific activity
 
 
 
@@ -851,14 +851,14 @@ $ gravl strava photos [flags] ACTIVITY_ID (...)
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|size|s|||
+|size|s||Maximum size in pixels of the photos to return|
 
 
 ### *strava refresh*
 
 **Description**
 
-Acquire a new refresh token
+Exchange the existing refresh token for a new access and refresh token pair
 
 
 
@@ -874,7 +874,7 @@ $ gravl strava refresh [flags]
 
 **Description**
 
-Query a route from Strava
+Query the Strava API for a specific route by its ID
 
 
 
@@ -890,7 +890,7 @@ $ gravl strava route [flags] ROUTE_ID (...)
 
 **Description**
 
-Query routes for an athlete from Strava
+Query the Strava API for a list of planned routes for the authenticated athlete
 
 
 
@@ -912,7 +912,7 @@ $ gravl strava routes [flags]
 
 **Description**
 
-Query streams for an activity from Strava
+Query the Strava API for the data streams of a specific activity, such as GPS coordinates, altitude, and time
 
 
 
@@ -934,7 +934,7 @@ $ gravl strava streams [flags] ACTIVITY_ID (...)
 
 **Description**
 
-Return the set of available streams for query
+Query the Strava API for the set of available data streams that can be requested for an activity
 
 
 
@@ -988,7 +988,7 @@ watts
 
 **Description**
 
-
+Update attributes of a specific Strava activity such as name, sport type, gear, description, commute status, trainer status, and visibility
 
 
 
@@ -1019,7 +1019,7 @@ $ gravl strava update [flags] ACTIVITY_ID (...)
 
 **Description**
 
-Manage webhook subscriptions
+Manage Strava webhook subscriptions for receiving event notifications
 
 
 
@@ -1028,7 +1028,7 @@ Manage webhook subscriptions
 
 **Description**
 
-List all active webhook subscriptions
+List all active Strava webhook subscriptions for the authenticated application
 
 
 
@@ -1044,7 +1044,7 @@ $ gravl strava webhook list [flags]
 
 **Description**
 
-Subscribe for webhook notifications
+Subscribe the application to receive Strava webhook event notifications at the specified callback URL
 
 
 
@@ -1059,7 +1059,7 @@ $ gravl strava webhook subscribe [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|url|||Address where webhook events will be sent (max length 255 characters|
+|url|||Address where webhook events will be sent (max length 255 characters)|
 |verify|||String chosen by the application owner for client security|
 
 
@@ -1067,7 +1067,7 @@ $ gravl strava webhook subscribe [flags]
 
 **Description**
 
-Unsubscribe an active webhook subscription (or all if specified)
+Unsubscribe from Strava webhook notifications; if no subscription ID is provided, all active subscriptions will be removed
 
 
 
@@ -1083,7 +1083,7 @@ $ gravl strava webhook unsubscribe [flags]
 
 **Description**
 
-Version
+Display the build version, commit hash, build time, and other build information for gravl
 
 
 
@@ -1125,7 +1125,7 @@ integration such as [Cycling Analytics](#cyclinganalytics).
 
 **Description**
 
-Query activities for an athlete from Zwift
+Query the Zwift API for a list of activities for the authenticated athlete
 
 
 
@@ -1147,7 +1147,7 @@ $ gravl zwift activities [flags]
 
 **Description**
 
-Query an activity from Zwift
+Query the Zwift API for a specific activity by its ID
 
 
 
@@ -1163,7 +1163,7 @@ $ gravl zwift activity [flags] ACTIVITY_ID (...)
 
 **Description**
 
-Query the athlete profile from Zwift
+Query the Zwift API for an athlete profile; defaults to the authenticated user if no username is specified
 
 
 
@@ -1179,7 +1179,7 @@ $ gravl zwift athlete [flags]
 
 **Description**
 
-List all local Zwift files
+List all local Zwift FIT files; if no directories are specified, defaults to the standard Zwift Activities directory
 
 
 
@@ -1223,7 +1223,7 @@ $ gravl zwift files | jq -r ".[]" | xargs gravl strava upload -n
 
 **Description**
 
-Acquire a new refresh token
+Acquire a new access token by authenticating with Zwift credentials
 
 
 

@@ -19,7 +19,11 @@ import (
 	"github.com/bzimmer/gravl/eval"
 )
 
-const Provider = "strava"
+const (
+	Provider          = "strava"
+	metricActivity    = "activity"
+	activityArgsUsage = "ACTIVITY_ID (...)"
+)
 
 var before sync.Once //nolint:gochecknoglobals // once
 
@@ -40,10 +44,11 @@ func athlete(c *cli.Context) error {
 
 func athleteCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "athlete",
-		Usage:   "Query an athlete from Strava",
-		Aliases: []string{"t"},
-		Action:  athlete,
+		Name:        "athlete",
+		Usage:       "Query an athlete from Strava",
+		Description: "Query the Strava API for the authenticated athlete's profile and display their account information",
+		Aliases:     []string{"t"},
+		Action:      athlete,
 	}
 }
 
@@ -60,9 +65,10 @@ func refresh(c *cli.Context) error {
 
 func refreshCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "refresh",
-		Usage:  "Acquire a new refresh token",
-		Action: refresh,
+		Name:        "refresh",
+		Usage:       "Acquire a new refresh token",
+		Description: "Exchange the existing refresh token for a new access and refresh token pair",
+		Action:      refresh,
 	}
 }
 
@@ -154,7 +160,7 @@ func activities(c *cli.Context) error {
 		if err != nil {
 			return false, err
 		}
-		met.IncrCounter([]string{Provider, "activity"}, 1)
+		met.IncrCounter([]string{Provider, metricActivity}, 1)
 		log.Info().
 			Time("date", act.StartDateLocal).
 			Int64("id", act.ID).
@@ -171,9 +177,10 @@ func activities(c *cli.Context) error {
 
 func activitiesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activities",
-		Usage:   "Query activities for an athlete from Strava",
-		Aliases: []string{"A"},
+		Name:        "activities",
+		Usage:       "Query activities for an athlete from Strava",
+		Description: "Query the Strava API for a list of activities for the authenticated athlete, with optional date range filtering and expression-based attribute extraction",
+		Aliases:     []string{"A"},
 		Flags: append([]cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -222,9 +229,10 @@ func routes(c *cli.Context) error {
 
 func routesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "routes",
-		Usage:   "Query routes for an athlete from Strava",
-		Aliases: []string{"R"},
+		Name:        "routes",
+		Usage:       "Query routes for an athlete from Strava",
+		Description: "Query the Strava API for a list of planned routes for the authenticated athlete",
+		Aliases:     []string{"R"},
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -246,10 +254,17 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolin
 	met := gravl.Runtime(c).Metrics
 	client := gravl.Runtime(c).Strava
 
-	concurrency := c.Int("concurrency")
-	if len(args) < concurrency {
-		concurrency = len(args)
+	ids := make([]int64, len(args))
+	for i, arg := range args {
+		x, err := strconv.ParseInt(arg, 0, 64)
+		if err != nil {
+			return err
+		}
+		ids[i] = x
 	}
+
+	concurrency := c.Int("concurrency")
+	concurrency = min(len(ids), concurrency)
 	if concurrency <= 0 {
 		concurrency = 1
 	}
@@ -261,11 +276,7 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolin
 	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
 		defer close(argc)
-		for _, arg := range args {
-			x, err := strconv.ParseInt(arg, 0, 64)
-			if err != nil {
-				return err
-			}
+		for _, x := range ids {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -310,11 +321,12 @@ func streamFlag(streams ...string) cli.Flag {
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "activity",
-		Aliases:   []string{"a"},
-		Usage:     "Query an activity from Strava",
-		ArgsUsage: "ACTIVITY_ID (...)",
-		Flags:     []cli.Flag{streamFlag()},
+		Name:        metricActivity,
+		Aliases:     []string{"a"},
+		Usage:       "Query an activity from Strava",
+		Description: "Query the Strava API for a specific activity by its ID, optionally including data streams",
+		ArgsUsage:   activityArgsUsage,
+		Flags:       []cli.Flag{streamFlag()},
 		Action: func(c *cli.Context) error {
 			s := make(map[string]bool)
 			for _, x := range c.StringSlice("stream") {
@@ -334,7 +346,7 @@ func activityCommand() *cli.Command {
 					Int64("id", act.ID).
 					Str("name", act.Name).
 					Str("type", act.Type).
-					Msg("activity")
+					Msg(metricActivity)
 				return act, nil
 			})
 		},
@@ -372,9 +384,11 @@ func updateFlags() []cli.Flag {
 
 func updateCommand() *cli.Command { //nolint:gocognit
 	return &cli.Command{
-		Name:      "update",
-		ArgsUsage: "ACTIVITY_ID (...)",
-		Flags:     updateFlags(),
+		Name:        "update",
+		Usage:       "Update an activity on Strava",
+		Description: "Update attributes of a specific Strava activity such as name, sport type, gear, description, commute status, trainer status, and visibility",
+		ArgsUsage:   activityArgsUsage,
+		Flags:       updateFlags(),
 		Action: func(c *cli.Context) error {
 			met := gravl.Runtime(c).Metrics
 			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
@@ -443,11 +457,12 @@ func updateCommand() *cli.Command { //nolint:gocognit
 
 func streamsCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "streams",
-		Aliases:   []string{"s"},
-		Usage:     "Query streams for an activity from Strava",
-		ArgsUsage: "ACTIVITY_ID (...)",
-		Flags:     []cli.Flag{streamFlag("latlng", "altitude", "time")},
+		Name:        "streams",
+		Aliases:     []string{"s"},
+		Usage:       "Query streams for an activity from Strava",
+		Description: "Query the Strava API for the data streams of a specific activity, such as GPS coordinates, altitude, and time",
+		ArgsUsage:   activityArgsUsage,
+		Flags:       []cli.Flag{streamFlag("latlng", "altitude", "time")},
 		Action: func(c *cli.Context) error {
 			s := make(map[string]bool)
 			for _, x := range c.StringSlice("stream") {
@@ -467,10 +482,11 @@ func streamsCommand() *cli.Command {
 
 func routeCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "route",
-		Aliases:   []string{"r"},
-		Usage:     "Query a route from Strava",
-		ArgsUsage: "ROUTE_ID (...)",
+		Name:        "route",
+		Aliases:     []string{"r"},
+		Usage:       "Query a route from Strava",
+		Description: "Query the Strava API for a specific route by its ID",
+		ArgsUsage:   "ROUTE_ID (...)",
 		Action: func(c *cli.Context) error {
 			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				return client.Route.Route(ctx, id)
@@ -481,15 +497,17 @@ func routeCommand() *cli.Command {
 
 func photosCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "photos",
-		Aliases:   []string{""},
-		Usage:     "Query photos from Strava",
-		ArgsUsage: "ACTIVITY_ID (...)",
+		Name:        "photos",
+		Aliases:     []string{""},
+		Usage:       "Query photos from Strava",
+		Description: "Query the Strava API for the photos associated with a specific activity",
+		ArgsUsage:   activityArgsUsage,
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "size",
 				Aliases: []string{"s"},
 				Value:   2048,
+				Usage:   "Maximum size in pixels of the photos to return",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -502,8 +520,9 @@ func photosCommand() *cli.Command {
 
 func streamSetsCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "streamsets",
-		Usage: "Return the set of available streams for query",
+		Name:        "streamsets",
+		Usage:       "Return the set of available streams for query",
+		Description: "Query the Strava API for the set of available data streams that can be requested for an activity",
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).Strava
 			gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
@@ -546,7 +565,7 @@ func Before(c *cli.Context) error {
 func Command() *cli.Command {
 	return &cli.Command{
 		Name:        Provider,
-		Category:    "activity",
+		Category:    metricActivity,
 		Usage:       "Query Strava for rides and routes",
 		Description: "Operations supported by the Strava API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),

@@ -19,8 +19,10 @@ import (
 )
 
 const (
-	tooSmall = 1024
-	Provider = "zwift"
+	tooSmall       = 1024
+	Provider       = "zwift"
+	metricActivity = "activity"
+	metricSkipping = "skipping"
 )
 
 var before sync.Once //nolint:gochecknoglobals // once
@@ -50,10 +52,11 @@ func athlete(c *cli.Context) error {
 
 func athleteCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "athlete",
-		Usage:   "Query the athlete profile from Zwift",
-		Aliases: []string{"t"},
-		Action:  athlete,
+		Name:        "athlete",
+		Usage:       "Query the athlete profile from Zwift",
+		Description: "Query the Zwift API for an athlete profile; defaults to the authenticated user if no username is specified",
+		Aliases:     []string{"t"},
+		Action:      athlete,
 	}
 }
 
@@ -72,9 +75,10 @@ func refresh(c *cli.Context) error {
 
 func refreshCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "refresh",
-		Usage:  "Acquire a new refresh token",
-		Action: refresh,
+		Name:        "refresh",
+		Usage:       "Acquire a new refresh token",
+		Description: "Acquire a new access token by authenticating with Zwift credentials",
+		Action:      refresh,
 	}
 }
 
@@ -93,7 +97,7 @@ func activities(c *cli.Context) error {
 	}
 	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	for _, act := range acts {
-		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
+		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metricActivity}, 1)
 		log.Info().
 			Time("date", act.StartDate.Time).
 			Int64("id", act.ID).
@@ -108,9 +112,10 @@ func activities(c *cli.Context) error {
 
 func activitiesCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activities",
-		Usage:   "Query activities for an athlete from Zwift",
-		Aliases: []string{"A"},
+		Name:        "activities",
+		Usage:       "Query activities for an athlete from Zwift",
+		Description: "Query the Zwift API for a list of activities for the authenticated athlete",
+		Aliases:     []string{"A"},
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
@@ -157,10 +162,11 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Activity) error) erro
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "activity",
-		Aliases:   []string{"a"},
-		Usage:     "Query an activity from Zwift",
-		ArgsUsage: "ACTIVITY_ID (...)",
+		Name:        metricActivity,
+		Aliases:     []string{"a"},
+		Usage:       "Query an activity from Zwift",
+		Description: "Query the Zwift API for a specific activity by its ID",
+		ArgsUsage:   "ACTIVITY_ID (...)",
 		Action: func(c *cli.Context) error {
 			return entity(c, func(_ context.Context, act *zwift.Activity) error {
 				return gravl.Runtime(c).Encoder.Encode(act)
@@ -191,7 +197,7 @@ func files(c *cli.Context) error { //nolint:gocognit
 		err := afero.Walk(fs, arg, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				if os.IsNotExist(err) {
-					met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "does-not-exist"}, 1)
+					met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "does-not-exist"}, 1)
 					log.Warn().Str("file", path).Msg("path does not exist")
 					return nil
 				}
@@ -204,18 +210,18 @@ func files(c *cli.Context) error { //nolint:gocognit
 			}
 			base := filepath.Base(path)
 			if base == "inProgressActivity.fit" {
-				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "in-progress"}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "in-progress"}, 1)
 				log.Warn().Str("file", path).Msg("skipping, activity in progress")
 				return nil
 			}
 			if info.Size() <= tooSmall {
-				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "too-small"}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "too-small"}, 1)
 				log.Warn().Int64("size", info.Size()).Str("file", path).Msg("skipping, too small")
 				return nil
 			}
 			format := api.ToFormat(filepath.Ext(path))
 			if format != api.FormatFIT {
-				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", format.String()}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, format.String()}, 1)
 				log.Info().Str("file", path).Msg("skipping, not a FIT file")
 				return nil
 			}
@@ -231,9 +237,10 @@ func files(c *cli.Context) error { //nolint:gocognit
 
 func filesCommand() *cli.Command {
 	return &cli.Command{
-		Name:   "files",
-		Usage:  "List all local Zwift files",
-		Action: files,
+		Name:        "files",
+		Usage:       "List all local Zwift files",
+		Description: "List all local Zwift FIT files; if no directories are specified, defaults to the standard Zwift Activities directory",
+		Action:      files,
 	}
 }
 
@@ -276,7 +283,7 @@ func Before(c *cli.Context) error {
 func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "zwift",
-		Category:    "activity",
+		Category:    metricActivity,
 		Usage:       "Query Zwift for activities",
 		Description: "Operations supported by the Zwift API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),

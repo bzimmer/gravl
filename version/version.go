@@ -1,4 +1,4 @@
-package version //nolint:revive // legacy package name
+package version
 
 import (
 	"fmt"
@@ -24,8 +24,9 @@ var (
 
 func Command() *cli.Command {
 	return &cli.Command{
-		Name:  "version",
-		Usage: "Version",
+		Name:        "version",
+		Usage:       "Version",
+		Description: "Display the build version, commit hash, build time, and other build information for gravl",
 		Action: func(c *cli.Context) error {
 			m := map[string]string{
 				"builder":    BuildBuilder,

@@ -69,6 +69,7 @@ func providers(c *cli.Context) error {
 func providersCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "providers",
+		Usage:       "Return active exporters and uploaders",
 		Description: "Return the set of active exporters and uploaders",
 		Action:      providers,
 	}
@@ -93,7 +94,7 @@ func (x *xfer) upload(ctx context.Context, export *api.File) (api.Upload, error)
 	if err != nil {
 		return nil, err
 	}
-	x.metrics.IncrCounter([]string{"upload", "file", "success"}, 1)
+	x.metrics.IncrCounter([]string{metricUpload, metricFile, metricSuccess}, 1)
 	return u, nil
 }
 
@@ -105,7 +106,7 @@ func (x *xfer) poll(ctx context.Context, uploadID api.UploadID) error {
 		if res.Err != nil {
 			return res.Err
 		}
-		x.metrics.IncrCounter([]string{"upload", "poll"}, 1)
+		x.metrics.IncrCounter([]string{metricUpload, "poll"}, 1)
 		log.Info().Int("iteration", i).Int64("id", int64(res.Upload.Identifier())).Msg("poll")
 		if err := x.encoder.Encode(res.Upload); err != nil {
 			return err
@@ -174,10 +175,12 @@ func upload(c *cli.Context) error {
 
 func uploadCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "upload",
-		ArgsUsage: "{FILE | DIRECTORY} (...)",
-		Flags:     flags(cfg{to: true, poll: true}),
-		Action:    upload,
+		Name:        metricUpload,
+		Usage:       "Upload files to an activity platform",
+		Description: "Upload one or more activity files (FIT, GPX, TCX) to the specified platform",
+		ArgsUsage:   "{FILE | DIRECTORY} (...)",
+		Flags:       flags(cfg{to: true, poll: true}),
+		Action:      upload,
 	}
 }
 
@@ -236,6 +239,7 @@ func list(c *cli.Context) error {
 func listCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "list",
+		Usage:       "List files suitable for uploading",
 		ArgsUsage:   "{FILE | DIRECTORY} (...)",
 		Description: "List the files suitable for uploading",
 		Action:      list,
@@ -270,6 +274,7 @@ func export(c *cli.Context) error {
 func exportCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "export",
+		Usage:       "Export an activity from the source",
 		Flags:       flags(cfg{from: true, io: true}),
 		Description: "Export an activity from the source",
 		Action:      export,
@@ -325,6 +330,7 @@ func qp(c *cli.Context) error {
 func copyCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "copy",
+		Usage:       "Copy an activity from a source to a destination",
 		ArgsUsage:   "--from <exporter> --to <uploader> id [id, ...]",
 		Flags:       flags(cfg{from: true, to: true, poll: true, io: true}),
 		Description: "Copy an activity from a source to a destination",
@@ -408,9 +414,10 @@ gravl qp status --from <exporter> (ids)...
 
 func Command() *cli.Command {
 	return &cli.Command{
-		Name:     "qp",
-		Category: "activity",
-		Usage:    "Manage the flow of activity between different platforms",
+		Name:        "qp",
+		Category:    "activity",
+		Usage:       "Manage the flow of activity between different platforms",
+		Description: "Copy and synchronize activities between different activity platforms",
 		Flags: func() []cli.Flag {
 			var x []cli.Flag
 			for _, q := range [][]cli.Flag{

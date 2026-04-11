@@ -76,3 +76,26 @@ func TestHarness(t *testing.T) {
 		})
 	}
 }
+
+func TestEncodeJSON(t *testing.T) {
+	tests := []*internal.Harness{
+		{
+			Name:     "json encode",
+			Args:     []string{"gravl", "--json", "encode"},
+			Counters: map[string]int{},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, nil, func(_ *testing.T, _ string) *cli.Command {
+				return &cli.Command{
+					Name: "encode",
+					Action: func(c *cli.Context) error {
+						return gravl.Runtime(c).Encoder.Encode(map[string]string{"hello": "world"})
+					},
+				}
+			})
+		})
+	}
+}

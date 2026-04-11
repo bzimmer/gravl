@@ -145,6 +145,9 @@ linters:
           - lll
         source: ^//\s*go:generate\s
       - linters:
+          - lll
+        source: "^\\s+Description:"
+      - linters:
           - godot
         source: (noinspection|TODO)
       - linters:
