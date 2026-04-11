@@ -151,7 +151,9 @@ func entity(c *cli.Context, f func(context.Context, int64) (any, error)) error {
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name: metricActivity,
+		Name:    metricActivity,
+		Aliases: []string{"a"},
+		Usage:   "Query an activity from RideWithGPS",
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).RideWithGPS
 			return entity(c, func(ctx context.Context, id int64) (any, error) {
@@ -209,6 +211,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "rwgps",
 		Category:    metricActivity,
+		Usage:       "Query RideWithGPS for rides and routes",
 		Description: "Operations supported by the RideWithGPS API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,

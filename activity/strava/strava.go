@@ -551,6 +551,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:        Provider,
 		Category:    metricActivity,
+		Usage:       "Query Strava for rides and routes",
 		Description: "Operations supported by the Strava API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,

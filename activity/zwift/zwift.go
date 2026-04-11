@@ -279,6 +279,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "zwift",
 		Category:    metricActivity,
+		Usage:       "Query Zwift for activities",
 		Description: "Operations supported by the Zwift API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,
