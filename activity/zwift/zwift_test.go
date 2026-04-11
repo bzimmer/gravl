@@ -229,8 +229,10 @@ func TestFiles(t *testing.T) {
 func TestRefresh(t *testing.T) {
 	a := assert.New(t)
 
+	var tokenCalls int
 	mux := http.NewServeMux()
 	mux.HandleFunc("/token", func(w http.ResponseWriter, _ *http.Request) {
+		tokenCalls++
 		data := []byte(`{"access_token":"abc123","token_type":"bearer","expires_in":3600,"refresh_token":"def456"}`)
 		w.Header().Set("Content-Type", "application/json")
 		_, err := w.Write(data)
@@ -248,6 +250,7 @@ func TestRefresh(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			internal.Run(t, tt, mux, command)
+			a.Equal(1, tokenCalls, "expected /token endpoint to be called once")
 		})
 	}
 }
