@@ -504,6 +504,7 @@ func photosCommand() *cli.Command {
 				Name:    "size",
 				Aliases: []string{"s"},
 				Value:   2048,
+				Usage:   "Maximum size in pixels of the photos to return",
 			},
 		},
 		Action: func(c *cli.Context) error {
