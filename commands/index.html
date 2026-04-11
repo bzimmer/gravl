@@ -1624,7 +1624,7 @@
 </table>
 <h3 id="cyclinganalytics-activities"><em>cyclinganalytics activities</em></h3>
 <p><strong>Description</strong></p>
-<p>Query activities for the authenticated athlete</p>
+<p>Query the CyclingAnalytics API for a list of rides for the authenticated athlete</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -1649,13 +1649,13 @@
 </table>
 <h3 id="cyclinganalytics-activity"><em>cyclinganalytics activity</em></h3>
 <p><strong>Description</strong></p>
-<p>Query an activity for the authenticated athlete</p>
+<p>Query the CyclingAnalytics API for the details of a specific ride for the authenticated athlete</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="cyclinganalytics-athlete"><em>cyclinganalytics athlete</em></h3>
 <p><strong>Description</strong></p>
-<p>Query for the authenticated athlete</p>
+<p>Query the CyclingAnalytics API for the authenticated athlete's profile and display their account information</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -1672,7 +1672,7 @@
 </span></code></pre></div>
 <h3 id="cyclinganalytics-oauth"><em>cyclinganalytics oauth</em></h3>
 <p><strong>Description</strong></p>
-<p>Authentication endpoints for access and refresh tokens</p>
+<p>Start a local OAuth server to acquire access and refresh tokens for the specified provider</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>oauth<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -1703,7 +1703,7 @@
 </table>
 <h3 id="cyclinganalytics-streamsets"><em>cyclinganalytics streamsets</em></h3>
 <p><strong>Description</strong></p>
-<p>Return the set of available streams for query</p>
+<p>Query the CyclingAnalytics API for the set of available data streams that can be requested for a ride</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>cyclinganalytics<span class="w"> </span>streamsets<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -1721,7 +1721,7 @@
 </span></code></pre></div>
 <h3 id="qp"><em>qp</em></h3>
 <p><strong>Description</strong></p>
-<p>Manage the flow of activity between different platforms</p>
+<p>Copy and synchronize activities between different activity platforms</p>
 <p><strong>Flags</strong></p>
 <table>
 <thead>
@@ -2066,6 +2066,7 @@ file unless <code>-o</code> was also specified.</p>
 </table>
 <h3 id="qp-upload"><em>qp upload</em></h3>
 <p><strong>Description</strong></p>
+<p>Upload one or more activity files (FIT, GPX, TCX) to the specified platform</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>qp<span class="w"> </span>upload<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span><span class="o">{</span>FILE<span class="w"> </span><span class="p">|</span><span class="w"> </span>DIRECTORY<span class="o">}</span><span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
 </span></code></pre></div>
@@ -2172,7 +2173,7 @@ file unless <code>-o</code> was also specified.</p>
 </table>
 <h3 id="rwgps-activities"><em>rwgps activities</em></h3>
 <p><strong>Description</strong></p>
-<p>Query activities for the authenticated athlete</p>
+<p>Query the RideWithGPS API for a list of trips for the authenticated athlete</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2244,25 +2245,25 @@ file unless <code>-o</code> was also specified.</p>
 </span></code></pre></div>
 <h3 id="rwgps-activity"><em>rwgps activity</em></h3>
 <p><strong>Description</strong></p>
-<p>Query an activity from RideWithGPS</p>
+<p>Query the RideWithGPS API for a specific trip by its ID</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="rwgps-athlete"><em>rwgps athlete</em></h3>
 <p><strong>Description</strong></p>
-<p>Query for the authenticated athlete</p>
+<p>Query the RideWithGPS API for the authenticated athlete's profile and display their account information</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="rwgps-route"><em>rwgps route</em></h3>
 <p><strong>Description</strong></p>
-<p>Query a route from RideWithGPS</p>
+<p>Query the RideWithGPS API for a specific route by its ID</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>route<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="rwgps-routes"><em>rwgps routes</em></h3>
 <p><strong>Description</strong></p>
-<p>Query routes for an athlete from RideWithGPS</p>
+<p>Query the RideWithGPS API for a list of planned routes for the authenticated athlete</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>rwgps<span class="w"> </span>routes<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2345,7 +2346,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <a href="#strava-webhook-subscribe"><code>strava webhook subscribe</code></a>, and <a href="#strava-webhook-unsubscribe"><code>strava webhook unsubscribe</code></a>).</p>
 <h3 id="strava-activities"><em>strava activities</em></h3>
 <p><strong>Description</strong></p>
-<p>Query activities for an athlete from Strava</p>
+<p>Query the Strava API for a list of activities for the authenticated athlete, with optional date range filtering and expression-based attribute extraction</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2403,7 +2404,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 </span></code></pre></div>
 <h3 id="strava-activity"><em>strava activity</em></h3>
 <p><strong>Description</strong></p>
-<p>Query an activity from Strava</p>
+<p>Query the Strava API for a specific activity by its ID, optionally including data streams</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
 </span></code></pre></div>
@@ -2515,13 +2516,13 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 </span></code></pre></div>
 <h3 id="strava-athlete"><em>strava athlete</em></h3>
 <p><strong>Description</strong></p>
-<p>Query an athlete from Strava</p>
+<p>Query the Strava API for the authenticated athlete's profile and display their account information</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="strava-oauth"><em>strava oauth</em></h3>
 <p><strong>Description</strong></p>
-<p>Authentication endpoints for access and refresh tokens</p>
+<p>Start a local OAuth server to acquire access and refresh tokens for the specified provider</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>oauth<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2552,7 +2553,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 </table>
 <h3 id="strava-photos"><em>strava photos</em></h3>
 <p><strong>Description</strong></p>
-<p>Query photos from Strava</p>
+<p>Query the Strava API for the photos associated with a specific activity</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>photos<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
 </span></code></pre></div>
@@ -2571,25 +2572,25 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <td>size</td>
 <td>s</td>
 <td></td>
-<td></td>
+<td>Maximum size in pixels of the photos to return</td>
 </tr>
 </tbody>
 </table>
 <h3 id="strava-refresh"><em>strava refresh</em></h3>
 <p><strong>Description</strong></p>
-<p>Acquire a new refresh token</p>
+<p>Exchange the existing refresh token for a new access and refresh token pair</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>refresh<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="strava-route"><em>strava route</em></h3>
 <p><strong>Description</strong></p>
-<p>Query a route from Strava</p>
+<p>Query the Strava API for a specific route by its ID</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>route<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ROUTE_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
 </span></code></pre></div>
 <h3 id="strava-routes"><em>strava routes</em></h3>
 <p><strong>Description</strong></p>
-<p>Query routes for an athlete from Strava</p>
+<p>Query the Strava API for a list of planned routes for the authenticated athlete</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>routes<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2614,7 +2615,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 </table>
 <h3 id="strava-streams"><em>strava streams</em></h3>
 <p><strong>Description</strong></p>
-<p>Query streams for an activity from Strava</p>
+<p>Query the Strava API for the data streams of a specific activity, such as GPS coordinates, altitude, and time</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streams<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
 </span></code></pre></div>
@@ -2639,7 +2640,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 </table>
 <h3 id="strava-streamsets"><em>strava streamsets</em></h3>
 <p><strong>Description</strong></p>
-<p>Return the set of available streams for query</p>
+<p>Query the Strava API for the set of available data streams that can be requested for an activity</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2676,6 +2677,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 </span></code></pre></div>
 <h3 id="strava-update"><em>strava update</em></h3>
 <p><strong>Description</strong></p>
+<p>Update attributes of a specific Strava activity such as name, sport type, gear, description, commute status, trainer status, and visibility</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>update<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
 </span></code></pre></div>
@@ -2754,16 +2756,16 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 </table>
 <h3 id="strava-webhook"><em>strava webhook</em></h3>
 <p><strong>Description</strong></p>
-<p>Manage webhook subscriptions</p>
+<p>Manage Strava webhook subscriptions for receiving event notifications</p>
 <h3 id="strava-webhook-list"><em>strava webhook list</em></h3>
 <p><strong>Description</strong></p>
-<p>List all active webhook subscriptions</p>
+<p>List all active Strava webhook subscriptions for the authenticated application</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="strava-webhook-subscribe"><em>strava webhook subscribe</em></h3>
 <p><strong>Description</strong></p>
-<p>Subscribe for webhook notifications</p>
+<p>Subscribe the application to receive Strava webhook event notifications at the specified callback URL</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>subscribe<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2782,7 +2784,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <td>url</td>
 <td></td>
 <td></td>
-<td>Address where webhook events will be sent (max length 255 characters</td>
+<td>Address where webhook events will be sent (max length 255 characters)</td>
 </tr>
 <tr>
 <td>verify</td>
@@ -2794,13 +2796,13 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 </table>
 <h3 id="strava-webhook-unsubscribe"><em>strava webhook unsubscribe</em></h3>
 <p><strong>Description</strong></p>
-<p>Unsubscribe an active webhook subscription (or all if specified)</p>
+<p>Unsubscribe from Strava webhook notifications; if no subscription ID is provided, all active subscriptions will be removed</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>unsubscribe<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="version"><em>version</em></h3>
 <p><strong>Description</strong></p>
-<p>Version</p>
+<p>Display the build version, commit hash, build time, and other build information for gravl</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>version<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2856,7 +2858,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 integration such as <a href="#cyclinganalytics">Cycling Analytics</a>.</p>
 <h3 id="zwift-activities"><em>zwift activities</em></h3>
 <p><strong>Description</strong></p>
-<p>Query activities for an athlete from Zwift</p>
+<p>Query the Zwift API for a list of activities for the authenticated athlete</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2881,19 +2883,19 @@ integration such as <a href="#cyclinganalytics">Cycling Analytics</a>.</p>
 </table>
 <h3 id="zwift-activity"><em>zwift activity</em></h3>
 <p><strong>Description</strong></p>
-<p>Query an activity from Zwift</p>
+<p>Query the Zwift API for a specific activity by its ID</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
 </span></code></pre></div>
 <h3 id="zwift-athlete"><em>zwift athlete</em></h3>
 <p><strong>Description</strong></p>
-<p>Query the athlete profile from Zwift</p>
+<p>Query the Zwift API for an athlete profile; defaults to the authenticated user if no username is specified</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="zwift-files"><em>zwift files</em></h3>
 <p><strong>Description</strong></p>
-<p>List all local Zwift files</p>
+<p>List all local Zwift FIT files; if no directories are specified, defaults to the standard Zwift Activities directory</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2920,7 +2922,7 @@ integration such as <a href="#cyclinganalytics">Cycling Analytics</a>.</p>
 </span></code></pre></div>
 <h3 id="zwift-refresh"><em>zwift refresh</em></h3>
 <p><strong>Description</strong></p>
-<p>Acquire a new refresh token</p>
+<p>Acquire a new access token by authenticating with Zwift credentials</p>
 <p><strong>Syntax</strong></p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>refresh<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
@@ -2954,7 +2956,7 @@ integration such as <a href="#cyclinganalytics">Cycling Analytics</a>.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 13, 2023 19:09:47 UTC">March 13, 2023</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 11, 2026 16:38:37 UTC">April 11, 2026</span>
   </span>
 
     
