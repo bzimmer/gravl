@@ -203,3 +203,48 @@ func TestTrips(t *testing.T) {
 		})
 	}
 }
+
+func TestAthleteError(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/users/current.json", func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "server error", http.StatusInternalServerError)
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "athlete api error",
+			Err:      "Internal Server Error",
+			Args:     []string{"gravl", "rwgps", "athlete"},
+			Counters: map[string]int{},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestTripBadID(t *testing.T) {
+	tests := []*internal.Harness{
+		{
+			Name:     "bad activity id",
+			Err:      "invalid syntax",
+			Args:     []string{"gravl", "rwgps", "activity", "not-a-number"},
+			Counters: map[string]int{},
+		},
+		{
+			Name:     "bad route id",
+			Err:      "invalid syntax",
+			Args:     []string{"gravl", "rwgps", "route", "not-a-number"},
+			Counters: map[string]int{},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, nil, command)
+		})
+	}
+}

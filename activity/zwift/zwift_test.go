@@ -87,6 +87,11 @@ func TestActivity(t *testing.T) {
 			Args:     []string{"gravl", "zwift", "activity", "9001"},
 			Counters: map[string]int{"gravl.zwift.activity": 1},
 		},
+		{
+			Name:     "no args",
+			Args:     []string{"gravl", "zwift", "activity"},
+			Counters: map[string]int{},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -148,11 +153,101 @@ func TestFiles(t *testing.T) {
 				return fp.Close()
 			},
 		},
+		{
+			Name: "files too small",
+			Args: []string{"gravl", "zwift", "files", "/foo/small"},
+			Counters: map[string]int{
+				"gravl.zwift.files.found":              2,
+				"gravl.zwift.files.directory":          1,
+				"gravl.zwift.files.skipping.too-small": 1,
+			},
+			Before: func(c *cli.Context) error {
+				a := assert.New(t)
+				fs := gravl.Runtime(c).Fs
+				a.NoError(fs.MkdirAll("/foo/small", 0755))
+				fp, err := fs.Create("/foo/small/tiny.fit")
+				a.NoError(err)
+				return fp.Close()
+			},
+		},
+		{
+			Name: "files non-FIT format",
+			Args: []string{"gravl", "zwift", "files", "/foo/gpx"},
+			Counters: map[string]int{
+				"gravl.zwift.files.found":         2,
+				"gravl.zwift.files.directory":     1,
+				"gravl.zwift.files.skipping.gpx":  1,
+			},
+			Before: func(c *cli.Context) error {
+				a := assert.New(t)
+				fs := gravl.Runtime(c).Fs
+				a.NoError(fs.MkdirAll("/foo/gpx", 0755))
+				fp, err := fs.Create("/foo/gpx/activity.gpx")
+				a.NoError(err)
+				content := make([]byte, 2048)
+				_, err = fp.Write(content)
+				a.NoError(err)
+				return fp.Close()
+			},
+		},
+		{
+			Name: "files valid FIT",
+			Args: []string{"gravl", "zwift", "files", "/foo/fit"},
+			Counters: map[string]int{
+				"gravl.zwift.files.found":     2,
+				"gravl.zwift.files.directory": 1,
+				"gravl.zwift.files.success":   1,
+			},
+			Before: func(c *cli.Context) error {
+				a := assert.New(t)
+				fs := gravl.Runtime(c).Fs
+				a.NoError(fs.MkdirAll("/foo/fit", 0755))
+				fp, err := fs.Create("/foo/fit/activity.fit")
+				a.NoError(err)
+				content := make([]byte, 2048)
+				_, err = fp.Write(content)
+				a.NoError(err)
+				return fp.Close()
+			},
+		},
+		{
+			Name: "files no args defaults to home dir",
+			Args: []string{"gravl", "zwift", "files"},
+			Counters: map[string]int{
+				"gravl.zwift.files.skipping.does-not-exist": 1,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			internal.Run(t, tt, nil, command)
+		})
+	}
+}
+
+func TestRefresh(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, _ *http.Request) {
+		data := []byte(`{"access_token":"abc123","token_type":"bearer","expires_in":3600,"refresh_token":"def456"}`)
+		w.Header().Set("Content-Type", "application/json")
+		_, err := w.Write(data)
+		a.NoError(err)
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "refresh success",
+			Args:     []string{"gravl", "zwift", "refresh"},
+			Counters: map[string]int{"gravl.zwift.refresh": 1},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
 		})
 	}
 }
