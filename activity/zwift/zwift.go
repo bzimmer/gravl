@@ -19,8 +19,10 @@ import (
 )
 
 const (
-	tooSmall = 1024
-	Provider = "zwift"
+	tooSmall       = 1024
+	Provider       = "zwift"
+	metricActivity = "activity"
+	metricSkipping = "skipping"
 )
 
 var before sync.Once //nolint:gochecknoglobals // once
@@ -93,7 +95,7 @@ func activities(c *cli.Context) error {
 	}
 	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	for _, act := range acts {
-		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
+		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metricActivity}, 1)
 		log.Info().
 			Time("date", act.StartDate.Time).
 			Int64("id", act.ID).
@@ -157,7 +159,7 @@ func entity(c *cli.Context, f func(context.Context, *zwift.Activity) error) erro
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "activity",
+		Name:      metricActivity,
 		Aliases:   []string{"a"},
 		Usage:     "Query an activity from Zwift",
 		ArgsUsage: "ACTIVITY_ID (...)",
@@ -191,7 +193,7 @@ func files(c *cli.Context) error { //nolint:gocognit
 		err := afero.Walk(fs, arg, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				if os.IsNotExist(err) {
-					met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "does-not-exist"}, 1)
+					met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "does-not-exist"}, 1)
 					log.Warn().Str("file", path).Msg("path does not exist")
 					return nil
 				}
@@ -204,18 +206,18 @@ func files(c *cli.Context) error { //nolint:gocognit
 			}
 			base := filepath.Base(path)
 			if base == "inProgressActivity.fit" {
-				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "in-progress"}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "in-progress"}, 1)
 				log.Warn().Str("file", path).Msg("skipping, activity in progress")
 				return nil
 			}
 			if info.Size() <= tooSmall {
-				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", "too-small"}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "too-small"}, 1)
 				log.Warn().Int64("size", info.Size()).Str("file", path).Msg("skipping, too small")
 				return nil
 			}
 			format := api.ToFormat(filepath.Ext(path))
 			if format != api.FormatFIT {
-				met.IncrCounter([]string{Provider, c.Command.Name, "skipping", format.String()}, 1)
+				met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, format.String()}, 1)
 				log.Info().Str("file", path).Msg("skipping, not a FIT file")
 				return nil
 			}
@@ -276,8 +278,7 @@ func Before(c *cli.Context) error {
 func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "zwift",
-		Category:    "activity",
-		Usage:       "Query Zwift for activities",
+		Category:    metricActivity,
 		Description: "Operations supported by the Zwift API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,

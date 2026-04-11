@@ -16,7 +16,10 @@ import (
 	"github.com/bzimmer/gravl/activity"
 )
 
-const Provider = "cyclinganalytics"
+const (
+	Provider       = "cyclinganalytics"
+	metricActivity = "activity"
+)
 
 var before sync.Once //nolint:gochecknoglobals // once
 
@@ -53,7 +56,7 @@ func activities(c *cli.Context) error {
 	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	enc := gravl.Runtime(c).Encoder
 	for _, ride := range rides {
-		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "activity"}, 1)
+		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metricActivity}, 1)
 		if err = enc.Encode(ride); err != nil {
 			return err
 		}
@@ -109,7 +112,7 @@ func ride(c *cli.Context) error {
 
 func rideCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activity",
+		Name:    metricActivity,
 		Aliases: []string{"a"},
 		Usage:   "Query an activity for the authenticated athlete",
 		Action:  ride,
@@ -162,7 +165,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "cyclinganalytics",
 		Aliases:     []string{"ca"},
-		Category:    "activity",
+		Category:    metricActivity,
 		Usage:       "Query CyclingAnalytics",
 		Description: "Operations supported by the CyclingAnalytics API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),

@@ -93,7 +93,7 @@ func (x *xfer) upload(ctx context.Context, export *api.File) (api.Upload, error)
 	if err != nil {
 		return nil, err
 	}
-	x.metrics.IncrCounter([]string{"upload", "file", "success"}, 1)
+	x.metrics.IncrCounter([]string{metricUpload, metricFile, metricSuccess}, 1)
 	return u, nil
 }
 
@@ -105,7 +105,7 @@ func (x *xfer) poll(ctx context.Context, uploadID api.UploadID) error {
 		if res.Err != nil {
 			return res.Err
 		}
-		x.metrics.IncrCounter([]string{"upload", "poll"}, 1)
+		x.metrics.IncrCounter([]string{metricUpload, "poll"}, 1)
 		log.Info().Int("iteration", i).Int64("id", int64(res.Upload.Identifier())).Msg("poll")
 		if err := x.encoder.Encode(res.Upload); err != nil {
 			return err
@@ -174,7 +174,7 @@ func upload(c *cli.Context) error {
 
 func uploadCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "upload",
+		Name:      metricUpload,
 		ArgsUsage: "{FILE | DIRECTORY} (...)",
 		Flags:     flags(cfg{to: true, poll: true}),
 		Action:    upload,

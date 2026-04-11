@@ -1,4 +1,4 @@
-package version //nolint:revive // legacy package name
+package version
 
 import (
 	"fmt"

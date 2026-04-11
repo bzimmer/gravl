@@ -14,6 +14,13 @@ import (
 	"github.com/bzimmer/gravl"
 )
 
+const (
+	metricFile    = "file"
+	metricSuccess = "success"
+	metricUpload  = "upload"
+	metricWalk    = "walk"
+)
+
 // write the contents of the export to a file if `output` is specified, else `stdout`
 // If the file is written to `output` then the metadata is written to `stdout`, else
 // only the file is written to `stdout`.
@@ -63,12 +70,12 @@ func formatWalkFunc(met *metrics.Metrics, path string, _ os.FileInfo) bool {
 	format := activity.ToFormat(filepath.Ext(path))
 	switch format {
 	case activity.FormatFIT, activity.FormatGPX, activity.FormatTCX:
-		met.IncrCounter([]string{"walk", "file", "success", format.String()}, 1)
+		met.IncrCounter([]string{metricWalk, metricFile, metricSuccess, format.String()}, 1)
 		return true
 	case activity.FormatOriginal:
 		// please the linter
 	}
-	met.IncrCounter([]string{"walk", "file", "skipping", "unsupported"}, 1)
+	met.IncrCounter([]string{metricWalk, metricFile, "skipping", "unsupported"}, 1)
 	return false
 }
 
@@ -87,7 +94,7 @@ func walk(c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult { /
 			if info.IsDir() {
 				return nil
 			}
-			met.IncrCounter([]string{"walk", "file", "attempt"}, 1)
+			met.IncrCounter([]string{metricWalk, metricFile, "attempt"}, 1)
 			for _, f := range funcs {
 				if !f(met, path, info) {
 					return nil
@@ -97,7 +104,7 @@ func walk(c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult { /
 			case <-ctx.Done():
 				return ctx.Err()
 			case files <- &walkResult{path: path}:
-				met.IncrCounter([]string{"walk", "file", "success"}, 1)
+				met.IncrCounter([]string{metricWalk, metricFile, metricSuccess}, 1)
 			}
 			return nil
 		})

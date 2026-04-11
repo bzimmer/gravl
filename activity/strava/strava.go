@@ -19,7 +19,11 @@ import (
 	"github.com/bzimmer/gravl/eval"
 )
 
-const Provider = "strava"
+const (
+	Provider          = "strava"
+	metricActivity    = "activity"
+	activityArgsUsage = "ACTIVITY_ID (...)"
+)
 
 var before sync.Once //nolint:gochecknoglobals // once
 
@@ -154,7 +158,7 @@ func activities(c *cli.Context) error {
 		if err != nil {
 			return false, err
 		}
-		met.IncrCounter([]string{Provider, "activity"}, 1)
+		met.IncrCounter([]string{Provider, metricActivity}, 1)
 		log.Info().
 			Time("date", act.StartDateLocal).
 			Int64("id", act.ID).
@@ -310,10 +314,10 @@ func streamFlag(streams ...string) cli.Flag {
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "activity",
+		Name:      metricActivity,
 		Aliases:   []string{"a"},
 		Usage:     "Query an activity from Strava",
-		ArgsUsage: "ACTIVITY_ID (...)",
+		ArgsUsage: activityArgsUsage,
 		Flags:     []cli.Flag{streamFlag()},
 		Action: func(c *cli.Context) error {
 			s := make(map[string]bool)
@@ -334,7 +338,7 @@ func activityCommand() *cli.Command {
 					Int64("id", act.ID).
 					Str("name", act.Name).
 					Str("type", act.Type).
-					Msg("activity")
+					Msg(metricActivity)
 				return act, nil
 			})
 		},
@@ -373,7 +377,7 @@ func updateFlags() []cli.Flag {
 func updateCommand() *cli.Command { //nolint:gocognit
 	return &cli.Command{
 		Name:      "update",
-		ArgsUsage: "ACTIVITY_ID (...)",
+		ArgsUsage: activityArgsUsage,
 		Flags:     updateFlags(),
 		Action: func(c *cli.Context) error {
 			met := gravl.Runtime(c).Metrics
@@ -446,7 +450,7 @@ func streamsCommand() *cli.Command {
 		Name:      "streams",
 		Aliases:   []string{"s"},
 		Usage:     "Query streams for an activity from Strava",
-		ArgsUsage: "ACTIVITY_ID (...)",
+		ArgsUsage: activityArgsUsage,
 		Flags:     []cli.Flag{streamFlag("latlng", "altitude", "time")},
 		Action: func(c *cli.Context) error {
 			s := make(map[string]bool)
@@ -484,7 +488,7 @@ func photosCommand() *cli.Command {
 		Name:      "photos",
 		Aliases:   []string{""},
 		Usage:     "Query photos from Strava",
-		ArgsUsage: "ACTIVITY_ID (...)",
+		ArgsUsage: activityArgsUsage,
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "size",
@@ -546,8 +550,7 @@ func Before(c *cli.Context) error {
 func Command() *cli.Command {
 	return &cli.Command{
 		Name:        Provider,
-		Category:    "activity",
-		Usage:       "Query Strava for rides and routes",
+		Category:    metricActivity,
 		Description: "Operations supported by the Strava API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,

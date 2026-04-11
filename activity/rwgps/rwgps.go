@@ -17,7 +17,10 @@ import (
 	"github.com/bzimmer/gravl/activity"
 )
 
-const Provider = "rwgps"
+const (
+	Provider       = "rwgps"
+	metricActivity = "activity"
+)
 
 var before sync.Once //nolint:gochecknoglobals // once
 
@@ -59,7 +62,7 @@ func trips(c *cli.Context, kind string) error {
 	var trips []*rwgps.Trip
 	switch kind {
 	case "trips":
-		metric = "activity"
+		metric = metricActivity
 		trips, err = client.Trips.Trips(ctx, user.ID, api.Pagination{Total: c.Int("count")})
 	case "routes":
 		metric = "route"
@@ -148,9 +151,7 @@ func entity(c *cli.Context, f func(context.Context, int64) (any, error)) error {
 
 func activityCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "activity",
-		Aliases: []string{"a"},
-		Usage:   "Query an activity from RideWithGPS",
+		Name: metricActivity,
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).RideWithGPS
 			return entity(c, func(ctx context.Context, id int64) (any, error) {
@@ -207,8 +208,7 @@ func Before(c *cli.Context) error {
 func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "rwgps",
-		Category:    "activity",
-		Usage:       "Query RideWithGPS for rides and routes",
+		Category:    metricActivity,
 		Description: "Operations supported by the RideWithGPS API",
 		Flags:       append(AuthFlags(), activity.RateLimitFlags()...),
 		Before:      Before,
