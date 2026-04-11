@@ -264,9 +264,7 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolin
 	}
 
 	concurrency := c.Int("concurrency")
-	if len(ids) < concurrency {
-		concurrency = len(ids)
-	}
+	concurrency = min(len(ids), concurrency)
 	if concurrency <= 0 {
 		concurrency = 1
 	}
