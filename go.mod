@@ -4,13 +4,13 @@ go 1.26.2
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bzimmer/activity v0.12.3
+	github.com/bzimmer/activity v0.13.0
 	github.com/bzimmer/manual v0.1.5
 	github.com/expr-lang/expr v1.17.8
 	github.com/fatih/color v1.19.0
 	github.com/hashicorp/go-metrics v0.5.4
 	github.com/martinlindhe/unit v0.0.0-20230420213220-4adfd7d0a0d6
-	github.com/rs/zerolog v1.35.0
+	github.com/rs/zerolog v1.35.1
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tj/go-naturaldate v1.3.0
@@ -27,7 +27,7 @@ require (
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.21 // indirect
+	github.com/mattn/go-isatty v0.0.22 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/twpayne/go-geom v1.6.1 // indirect
