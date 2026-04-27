@@ -34,11 +34,7 @@ func athlete(c *cli.Context) error {
 	}
 	log.Info().Int64("id", int64(user.ID)).Str("username", user.Name).Msg(c.Command.Name)
 	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-	err = gravl.Runtime(c).Encoder.Encode(user)
-	if err != nil {
-		return err
-	}
-	return nil
+	return gravl.Runtime(c).Encoder.Encode(user)
 }
 
 func athleteCommand() *cli.Command {

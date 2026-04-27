@@ -307,17 +307,14 @@ func qp(c *cli.Context) error {
 			return err
 		}
 		grp.Go(func() error {
-			var cancel func()
-			ctx, cancel = context.WithTimeout(ctx, dur)
+			ctx, cancel := context.WithTimeout(ctx, dur)
 			defer cancel()
-			var u api.Upload
-			var exp *api.Export
-			exp, err = expr.Export(ctx, activityID)
+			exp, err := expr.Export(ctx, activityID)
 			if err != nil {
 				return err
 			}
 			log.Info().Int64("id", activityID).Str("exp", exp.Name).Msg("export")
-			u, err = x.upload(ctx, exp.File)
+			u, err := x.upload(ctx, exp.File)
 			if err != nil {
 				return err
 			}

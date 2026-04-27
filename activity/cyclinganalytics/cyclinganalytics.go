@@ -201,5 +201,10 @@ func AuthFlags() []cli.Flag {
 			Usage:   "CyclingAnalytics access token",
 			EnvVars: []string{"CYCLINGANALYTICS_ACCESS_TOKEN"},
 		},
+		&cli.StringFlag{
+			Name:    "cyclinganalytics-refresh-token",
+			Usage:   "CyclingAnalytics refresh token",
+			EnvVars: []string{"CYCLINGANALYTICS_REFRESH_TOKEN"},
+		},
 	}
 }
