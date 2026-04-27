@@ -45,6 +45,11 @@ func TestAthlete(t *testing.T) {
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(ath))
 	})
+	mux.HandleFunc("/api/profiles/", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		_ = json.NewEncoder(w).Encode(map[string]any{"message": "Not Found"})
+	})
 
 	tests := []*internal.Harness{
 		{

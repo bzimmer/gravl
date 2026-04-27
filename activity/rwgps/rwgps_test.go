@@ -207,7 +207,9 @@ func TestTrips(t *testing.T) {
 func TestAthleteError(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/users/current.json", func(w http.ResponseWriter, _ *http.Request) {
-		http.Error(w, "server error", http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"message": "Internal Server Error"})
 	})
 
 	tests := []*internal.Harness{
