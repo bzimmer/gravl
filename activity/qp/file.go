@@ -37,7 +37,7 @@ func write(c *cli.Context, exp *activity.Export) error {
 	var fp afero.File
 	var filename = exp.Name
 	if c.IsSet("output") {
-		// if output is set then use the filename provided by the activity source
+		// if output is set then use the filename specified by the user
 		filename = c.String("output")
 	}
 	// if the file exists and overwrite is not set then error
