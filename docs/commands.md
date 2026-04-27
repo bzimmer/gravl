@@ -73,6 +73,7 @@ Operations supported by the CyclingAnalytics API
 |cyclinganalytics-client-id||CYCLINGANALYTICS_CLIENT_ID|CyclingAnalytics client id|
 |cyclinganalytics-client-secret||CYCLINGANALYTICS_CLIENT_SECRET|CyclingAnalytics client secret|
 |cyclinganalytics-access-token||CYCLINGANALYTICS_ACCESS_TOKEN|CyclingAnalytics access token|
+|cyclinganalytics-refresh-token||CYCLINGANALYTICS_REFRESH_TOKEN|CyclingAnalytics refresh token|
 |rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |rate-burst|||Maximum burst size for API request events|
 |concurrency|||Maximum concurrent API queries|
@@ -232,6 +233,7 @@ Copy and synchronize activities between different activity platforms
 |cyclinganalytics-client-id||CYCLINGANALYTICS_CLIENT_ID|CyclingAnalytics client id|
 |cyclinganalytics-client-secret||CYCLINGANALYTICS_CLIENT_SECRET|CyclingAnalytics client secret|
 |cyclinganalytics-access-token||CYCLINGANALYTICS_ACCESS_TOKEN|CyclingAnalytics access token|
+|cyclinganalytics-refresh-token||CYCLINGANALYTICS_REFRESH_TOKEN|CyclingAnalytics refresh token|
 |rwgps-client-id||RWGPS_CLIENT_ID|RideWithGPS client id|
 |rwgps-access-token||RWGPS_ACCESS_TOKEN|RideWithGPS access token|
 |strava-client-id||STRAVA_CLIENT_ID|Strava client id|
