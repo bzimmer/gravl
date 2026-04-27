@@ -497,7 +497,6 @@ func routeCommand() *cli.Command {
 func photosCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "photos",
-		Aliases:     []string{""},
 		Usage:       "Query photos from Strava",
 		Description: "Query the Strava API for the photos associated with a specific activity",
 		ArgsUsage:   activityArgsUsage,
@@ -544,6 +543,7 @@ func Before(c *cli.Context) error {
 		var client *strava.Client
 		client, err = strava.NewClient(
 			strava.WithTokenCredentials(
+				// setting the access token to the empty string results in an error, so we use the refresh token as a placeholder
 				c.String("strava-refresh-token"), c.String("strava-refresh-token"), time.Now().Add(-1*time.Minute)),
 			strava.WithClientCredentials(c.String("strava-client-id"), c.String("strava-client-secret")),
 			strava.WithAutoRefresh(c.Context),

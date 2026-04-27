@@ -64,7 +64,7 @@ func refresh(c *cli.Context) error {
 	client := gravl.Runtime(c).Zwift
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
-	username, password := c.String("zwift.username"), c.String("zwift.password")
+	username, password := c.String("zwift-username"), c.String("zwift-password")
 	token, err := client.Auth.Refresh(ctx, username, password)
 	if err != nil {
 		return err
