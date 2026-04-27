@@ -85,7 +85,7 @@ func (x *evaluator) run(acts ...*strava.Activity) ([]any, error) {
 	case []any:
 		return z, nil
 	default:
-		return nil, fmt.Errorf("expected type `[]any]` found `%z`", z)
+		return nil, fmt.Errorf("expected type `[]any` found `%T`", z)
 	}
 }
 
@@ -100,7 +100,7 @@ func (x *evaluator) Filter(_ context.Context, acts []*strava.Activity) ([]*strav
 		case *strava.Activity:
 			p[i] = v
 		default:
-			return nil, fmt.Errorf("expected type `*strava.Activity` found `%z`", v)
+			return nil, fmt.Errorf("expected type `*strava.Activity` found `%T`", v)
 		}
 	}
 	return p, nil
@@ -119,7 +119,7 @@ func (x *evaluator) Bool(ctx context.Context, act *strava.Activity) (bool, error
 	case bool:
 		return z, nil
 	default:
-		return false, fmt.Errorf("expected type `bool` found `%z`", z)
+		return false, fmt.Errorf("expected type `bool` found `%T`", z)
 	}
 }
 

@@ -307,21 +307,18 @@ func qp(c *cli.Context) error {
 			return err
 		}
 		grp.Go(func() error {
-			var cancel func()
-			ctx, cancel = context.WithTimeout(ctx, dur)
+			tctx, cancel := context.WithTimeout(ctx, dur)
 			defer cancel()
-			var u api.Upload
-			var exp *api.Export
-			exp, err = expr.Export(ctx, activityID)
+			exp, err := expr.Export(tctx, activityID) //nolint:govet // goroutine-local err intentionally shadows outer scope
 			if err != nil {
 				return err
 			}
 			log.Info().Int64("id", activityID).Str("exp", exp.Name).Msg("export")
-			u, err = x.upload(ctx, exp.File)
+			u, err := x.upload(tctx, exp.File)
 			if err != nil {
 				return err
 			}
-			return x.poll(ctx, u.Identifier())
+			return x.poll(tctx, u.Identifier())
 		})
 	}
 	return grp.Wait()

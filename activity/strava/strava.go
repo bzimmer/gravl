@@ -74,7 +74,6 @@ func refreshCommand() *cli.Command {
 
 func evaluator(c *cli.Context, evaluation string) (eval.Evaluator, error) {
 	if c.IsSet(evaluation) {
-		var ev eval.Evaluator
 		ev, err := gravl.Runtime(c).Evaluator(c.String(evaluation))
 		if err != nil {
 			return nil, err
