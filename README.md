@@ -42,6 +42,54 @@ Available image tags:
 brew install bzimmer/tap/gravl
 ```
 
+# Authentication
+
+Some activity clients require OAuth2 tokens to access the API on behalf of a user.
+gravl includes an `oauth` subcommand for Strava and CyclingAnalytics to start a local
+web server and guide you through the authorization flow.
+
+## Strava
+
+1. Register an application at [https://www.strava.com/settings/api](https://www.strava.com/settings/api)
+   to obtain a client ID and client secret.  Set the "Authorization Callback Domain" to `localhost`.
+2. Export the client credentials as environment variables:
+   ```sh
+   export STRAVA_CLIENT_ID=<your client id>
+   export STRAVA_CLIENT_SECRET=<your client secret>
+   ```
+3. Run the OAuth command to start the local authorization server:
+   ```sh
+   gravl strava oauth
+   ```
+4. Open a browser to [http://localhost:9001](http://localhost:9001).
+   You will be redirected to Strava to authorize the application.
+5. After authorizing, the browser will display a JSON document containing the access and refresh tokens.
+6. Copy the refresh token and set it as an environment variable:
+   ```sh
+   export STRAVA_REFRESH_TOKEN=<your refresh token>
+   ```
+
+## Cycling Analytics
+
+1. Register an application at [https://www.cyclinganalytics.com/api/docs](https://www.cyclinganalytics.com/api/docs)
+   to obtain a client ID and client secret.  Set the redirect URL to `http://localhost:9002/cyclinganalytics/auth/callback`.
+2. Export the client credentials as environment variables:
+   ```sh
+   export CYCLINGANALYTICS_CLIENT_ID=<your client id>
+   export CYCLINGANALYTICS_CLIENT_SECRET=<your client secret>
+   ```
+3. Run the OAuth command to start the local authorization server:
+   ```sh
+   gravl cyclinganalytics oauth
+   ```
+4. Open a browser to [http://localhost:9002](http://localhost:9002).
+   You will be redirected to Cycling Analytics to authorize the application.
+5. After authorizing, the browser will display a JSON document containing the access and refresh tokens.
+6. Copy the access token and set it as an environment variable:
+   ```sh
+   export CYCLINGANALYTICS_ACCESS_TOKEN=<your access token>
+   ```
+
 # Documentation
 
 * [manual](https://bzimmer.github.io/gravl/)
