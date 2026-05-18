@@ -38,6 +38,8 @@
 * [strava activities](#strava-activities)
 * [strava activity](#strava-activity)
 * [strava athlete](#strava-athlete)
+* [strava effort](#strava-effort)
+* [strava efforts](#strava-efforts)
 * [strava oauth](#strava-oauth)
 * [strava photos](#strava-photos)
 * [strava refresh](#strava-refresh)
@@ -633,7 +635,7 @@ Operations supported by the Strava API
 **Overview**
 
 The Strava client is comprised of general [API](https://developers.strava.com/) access supporting
-activities, routes, and streams.
+activities, routes, streams, and segment efforts.
 
 Additionally, there's full support for implementing `webhooks` but only only webhook management is
 available via the commandline (eg [`strava webhook list`](#strava-webhook-list),
@@ -809,6 +811,93 @@ Query the Strava API for the authenticated athlete's profile and display their a
 $ gravl strava athlete [flags]
 ```
 
+
+
+### *strava effort*
+
+**Description**
+
+Query the Strava API for a specific segment effort by its ID
+
+
+
+**Syntax**
+
+```sh
+$ gravl strava effort [flags] EFFORT_ID (...)
+```
+
+
+**Example**
+
+To query a specific segment effort:
+
+```sh
+$ gravl strava effort 229781
+{
+ "id": 229781,
+ "resource_state": 2,
+ "name": "Hawk Hill Effort",
+ "elapsed_time": 450,
+ "moving_time": 450,
+ "start_date": "2018-02-20T18:02:13Z",
+ "start_date_local": "2018-02-20T10:02:13Z",
+ "distance": 2684.8,
+ "start_index": 0,
+ "end_index": 450,
+ "kom_rank": 0,
+ "pr_rank": 0,
+ "hidden": false
+}
+```
+
+
+### *strava efforts*
+
+**Description**
+
+Query the Strava API for a list of segment efforts for the authenticated athlete, with optional date range filtering
+
+
+
+**Syntax**
+
+```sh
+$ gravl strava efforts [flags]
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|count|N||The number of segment efforts to query from Strava (the number returned will be <= N)|
+|after|since||Return results after the time specified|
+|before|||Return results before the time specified|
+
+**Example**
+
+To query the last 10 segment efforts for the authenticated athlete:
+
+```sh
+$ gravl strava efforts -N 10
+{
+ "id": 229781,
+ "resource_state": 2,
+ "name": "Hawk Hill Effort",
+ "elapsed_time": 450,
+ "moving_time": 450,
+ "start_date": "2018-02-20T18:02:13Z",
+ "start_date_local": "2018-02-20T10:02:13Z",
+ "distance": 2684.8,
+ "start_index": 0,
+ "end_index": 450,
+ "kom_rank": 0,
+ "pr_rank": 0,
+ "hidden": false
+}
+...
+```
 
 
 ### *strava oauth*
