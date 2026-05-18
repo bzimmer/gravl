@@ -22,6 +22,7 @@ import (
 const (
 	Provider          = "strava"
 	metricActivity    = "activity"
+	metricEffort      = "effort"
 	activityArgsUsage = "ACTIVITY_ID (...)"
 )
 
@@ -529,6 +530,74 @@ func streamSetsCommand() *cli.Command {
 	}
 }
 
+func effortCommand() *cli.Command {
+	return &cli.Command{
+		Name:        "effort",
+		Aliases:     []string{"e"},
+		Usage:       "Query a segment effort from Strava",
+		Description: "Query the Strava API for a specific segment effort by its ID",
+		ArgsUsage:   "EFFORT_ID (...)",
+		Action: func(c *cli.Context) error {
+			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
+				eff, err := client.Segment.SegmentEffort(ctx, id)
+				if err != nil {
+					return nil, err
+				}
+				log.Info().
+					Time("date", eff.StartDateLocal).
+					Int64("id", eff.ID).
+					Str("name", eff.Name).
+					Msg("effort")
+				return eff, nil
+			})
+		},
+	}
+}
+
+func effortsCommand() *cli.Command {
+	return &cli.Command{
+		Name:        "efforts",
+		Aliases:     []string{"E"},
+		Usage:       "Query segment efforts for an athlete from Strava",
+		Description: "Query the Strava API for a list of segment efforts for the authenticated athlete",
+		Flags: []cli.Flag{
+			&cli.IntFlag{
+				Name:    "count",
+				Aliases: []string{"N"},
+				Value:   0,
+				Usage:   "The number of segment efforts to query from Strava (the number returned will be <= N)",
+			},
+		},
+		Action: func(c *cli.Context) error {
+			client := gravl.Runtime(c).Strava
+			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+			defer cancel()
+
+			enc := gravl.Runtime(c).Encoder
+			met := gravl.Runtime(c).Metrics
+
+			met.IncrCounter([]string{Provider, c.Command.Name}, 1)
+			defer func(t time.Time) {
+				met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
+			}(time.Now())
+
+			effs, err := client.Segment.SegmentEfforts(ctx, api.Pagination{Total: c.Int("count")})
+			if err != nil {
+				return err
+			}
+			return strava.SegmentEffortsIter(effs, func(eff *strava.SegmentEffort) (bool, error) {
+				met.IncrCounter([]string{Provider, metricEffort}, 1)
+				log.Info().
+					Time("date", eff.StartDateLocal).
+					Int64("id", eff.ID).
+					Str("name", eff.Name).
+					Msg(c.Command.Name)
+				return true, enc.Encode(eff)
+			})
+		},
+	}
+}
+
 func oauthCommand() *cli.Command {
 	return activity.OAuthCommand(&activity.OAuthConfig{
 		Port:     9001,
@@ -573,6 +642,8 @@ func Command() *cli.Command {
 			activitiesCommand(),
 			activityCommand(),
 			athleteCommand(),
+			effortCommand(),
+			effortsCommand(),
 			oauthCommand(),
 			photosCommand(),
 			refreshCommand(),

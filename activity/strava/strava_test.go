@@ -449,3 +449,65 @@ func TestUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestEffort(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/segment_efforts/229781", func(w http.ResponseWriter, _ *http.Request) {
+		eff := &api.SegmentEffort{ID: 229781, Name: "Hawk Hill Effort"}
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(eff))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "effort",
+			Args:     []string{"gravl", "strava", "effort", "229781"},
+			Counters: map[string]int{"gravl.strava.effort": 1},
+		},
+		{
+			Name: "invalid syntax",
+			Args: []string{"gravl", "strava", "effort", "229781", "abcdef"},
+			Err:  "invalid syntax",
+		},
+		{
+			Name: "no arguments",
+			Args: []string{"gravl", "strava", "effort"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestEfforts(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/segment_efforts", func(w http.ResponseWriter, _ *http.Request) {
+		effs := []*api.SegmentEffort{{ID: 1, Name: "Effort 1"}, {ID: 2, Name: "Effort 2"}}
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(effs))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name: "efforts",
+			Args: []string{"gravl", "strava", "efforts", "-N", "2"},
+			Counters: map[string]int{
+				"gravl.strava.efforts": 1,
+				"gravl.strava.effort":  2,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
