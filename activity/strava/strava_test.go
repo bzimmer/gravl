@@ -503,6 +503,19 @@ func TestEfforts(t *testing.T) {
 				"gravl.strava.effort":  2,
 			},
 		},
+		{
+			Name: "efforts since invalid",
+			Args: []string{"gravl", "strava", "efforts", "-N", "2", "--since", "72h"},
+			Err:  "invalid date range",
+		},
+		{
+			Name: "efforts since",
+			Args: []string{"gravl", "strava", "efforts", "-N", "2", "--since", "2 weeks ago"},
+			Counters: map[string]int{
+				"gravl.strava.efforts": 1,
+				"gravl.strava.effort":  2,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

@@ -559,19 +559,24 @@ func effortsCommand() *cli.Command {
 		Name:        "efforts",
 		Aliases:     []string{"E"},
 		Usage:       "Query segment efforts for an athlete from Strava",
-		Description: "Query the Strava API for a list of segment efforts for the authenticated athlete",
-		Flags: []cli.Flag{
+		Description: "Query the Strava API for a list of segment efforts for the authenticated athlete, with optional date range filtering",
+		Flags: append([]cli.Flag{
 			&cli.IntFlag{
 				Name:    "count",
 				Aliases: []string{"N"},
 				Value:   0,
 				Usage:   "The number of segment efforts to query from Strava (the number returned will be <= N)",
 			},
-		},
+		}, activity.DateRangeFlags()...),
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).Strava
 			ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 			defer cancel()
+
+			opt, err := daterange(c)
+			if err != nil {
+				return err
+			}
 
 			enc := gravl.Runtime(c).Encoder
 			met := gravl.Runtime(c).Metrics
@@ -581,7 +586,7 @@ func effortsCommand() *cli.Command {
 				met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 			}(time.Now())
 
-			effs, err := client.Segment.SegmentEfforts(ctx, api.Pagination{Total: c.Int("count")})
+			effs, err := client.Segment.SegmentEfforts(ctx, api.Pagination{Total: c.Int("count")}, opt)
 			if err != nil {
 				return err
 			}
