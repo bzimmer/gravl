@@ -51,7 +51,7 @@ you through the authorization flow.
 ## Strava
 
 1. Register an application at [https://www.strava.com/settings/api](https://www.strava.com/settings/api)
-   to obtain a client ID and client secret.  Set the "Authorization Callback Domain" to `localhost`.
+   to obtain a client ID and client secret. Set the "Authorization Callback Domain" to `localhost`.
 2. Export the client credentials as environment variables:
    ```sh
    export STRAVA_CLIENT_ID=<your client id>
