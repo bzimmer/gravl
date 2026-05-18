@@ -635,7 +635,7 @@ Operations supported by the Strava API
 **Overview**
 
 The Strava client is comprised of general [API](https://developers.strava.com/) access supporting
-activities, routes, and streams.
+activities, routes, streams, and segment efforts.
 
 Additionally, there's full support for implementing `webhooks` but only only webhook management is
 available via the commandline (eg [`strava webhook list`](#strava-webhook-list),
@@ -827,6 +827,7 @@ Query the Strava API for a specific segment effort by its ID
 $ gravl strava effort [flags] EFFORT_ID (...)
 ```
 
+
 **Example**
 
 To query a specific segment effort:
@@ -855,7 +856,7 @@ $ gravl strava effort 229781
 
 **Description**
 
-Query the Strava API for a list of segment efforts for the authenticated athlete
+Query the Strava API for a list of segment efforts for the authenticated athlete, with optional date range filtering
 
 
 
@@ -871,6 +872,8 @@ $ gravl strava efforts [flags]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |count|N||The number of segment efforts to query from Strava (the number returned will be <= N)|
+|after|since||Return results after the time specified|
+|before|||Return results before the time specified|
 
 **Example**
 
