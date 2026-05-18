@@ -24,6 +24,7 @@ const (
 	metricActivity    = "activity"
 	metricEffort      = "effort"
 	activityArgsUsage = "ACTIVITY_ID (...)"
+	flagCount         = "count"
 )
 
 var before sync.Once //nolint:gochecknoglobals // once
@@ -143,7 +144,7 @@ func activities(c *cli.Context) error {
 		met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 	}(time.Now())
 
-	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int("count")}, opt)
+	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int(flagCount)}, opt)
 	return strava.ActivitiesIter(acts, func(act *strava.Activity) (bool, error) {
 		// filter
 		var ok bool
@@ -183,7 +184,7 @@ func activitiesCommand() *cli.Command {
 		Aliases:     []string{"A"},
 		Flags: append([]cli.Flag{
 			&cli.IntFlag{
-				Name:    "count",
+				Name:    flagCount,
 				Aliases: []string{"N"},
 				Value:   0,
 				Usage:   "The number of activities to query from Strava (the number returned will be <= N)",
@@ -211,7 +212,7 @@ func routes(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	routes, err := client.Route.Routes(ctx, athlete.ID, api.Pagination{Total: c.Int("count")})
+	routes, err := client.Route.Routes(ctx, athlete.ID, api.Pagination{Total: c.Int(flagCount)})
 	if err != nil {
 		return err
 	}
@@ -235,7 +236,7 @@ func routesCommand() *cli.Command {
 		Aliases:     []string{"R"},
 		Flags: []cli.Flag{
 			&cli.IntFlag{
-				Name:    "count",
+				Name:    flagCount,
 				Aliases: []string{"N"},
 				Value:   0,
 				Usage:   "The number of routes to query from Strava (the number returned will be <= N)",
@@ -562,7 +563,7 @@ func effortsCommand() *cli.Command {
 		Description: "Query the Strava API for a list of segment efforts for the authenticated athlete, with optional date range filtering",
 		Flags: append([]cli.Flag{
 			&cli.IntFlag{
-				Name:    "count",
+				Name:    flagCount,
 				Aliases: []string{"N"},
 				Value:   0,
 				Usage:   "The number of segment efforts to query from Strava (the number returned will be <= N)",
@@ -586,7 +587,7 @@ func effortsCommand() *cli.Command {
 				met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 			}(time.Now())
 
-			effs, err := client.Segment.SegmentEfforts(ctx, api.Pagination{Total: c.Int("count")}, opt)
+			effs, err := client.Segment.SegmentEfforts(ctx, api.Pagination{Total: c.Int(flagCount)}, opt)
 			if err != nil {
 				return err
 			}
