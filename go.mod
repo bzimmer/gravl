@@ -1,6 +1,6 @@
 module github.com/bzimmer/gravl
 
-go 1.26.2
+go 1.26.3
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
@@ -34,8 +34,8 @@ require (
 	github.com/twpayne/go-gpx v1.5.0 // indirect
 	github.com/twpayne/go-polyline v1.1.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
-	golang.org/x/net v0.53.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
