@@ -1,10 +1,8 @@
 package qp
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -83,14 +81,7 @@ type xfer struct {
 }
 
 func (x *xfer) upload(ctx context.Context, export *api.File) (api.Upload, error) {
-	out := new(bytes.Buffer)
-	_, err := io.Copy(out, export)
-	if err != nil {
-		return nil, err
-	}
-	file := &api.File{Reader: out, Format: export.Format, Name: export.Name}
-	defer file.Close()
-	u, err := x.uploader.Upload(ctx, file)
+	u, err := x.uploader.Upload(ctx, export)
 	if err != nil {
 		return nil, err
 	}
@@ -159,15 +150,22 @@ func upload(c *cli.Context) error {
 
 	args := c.Args()
 	for i := 0; i < args.Len(); i++ {
-		results := walk(c, args.Get(i))
-		for res := range results {
+		wctx, wcancel := context.WithCancel(c.Context)
+		var walkErr error
+		for res := range walk(wctx, c, args.Get(i)) {
 			if res.err != nil {
-				return res.err
+				walkErr = res.err
+				break
 			}
 			log.Info().Str("file", res.path).Msg("uploading")
 			if err = up(res); err != nil {
-				return err
+				walkErr = err
+				break
 			}
+		}
+		wcancel()
+		if walkErr != nil {
+			return walkErr
 		}
 	}
 	return nil
@@ -226,7 +224,7 @@ func statusCommand() *cli.Command {
 
 func list(c *cli.Context) error {
 	for i := 0; i < c.NArg(); i++ {
-		for path := range walk(c, c.Args().Get(i), formatWalkFunc) {
+		for path := range walk(c.Context, c, c.Args().Get(i), formatWalkFunc) {
 			if path.err != nil {
 				return path.err
 			}

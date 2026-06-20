@@ -25,7 +25,10 @@ const (
 	metricSkipping = "skipping"
 )
 
-var before sync.Once //nolint:gochecknoglobals // once
+var (
+	before    sync.Once //nolint:gochecknoglobals // once
+	errBefore error     //nolint:gochecknoglobals // paired with before
+)
 
 func athlete(c *cli.Context) error {
 	client := gravl.Runtime(c).Zwift
@@ -95,15 +98,18 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
+	met := gravl.Runtime(c).Metrics
+	enc := gravl.Runtime(c).Encoder
+	met.IncrCounter([]string{Provider, c.Command.Name}, 1)
+	metKey := []string{Provider, metricActivity}
 	for _, act := range acts {
-		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metricActivity}, 1)
+		met.IncrCounter(metKey, 1)
 		log.Info().
 			Time("date", act.StartDate.Time).
 			Int64("id", act.ID).
 			Str("name", act.Name).
 			Msg(c.Command.Name)
-		if err = gravl.Runtime(c).Encoder.Encode(act); err != nil {
+		if err = enc.Encode(act); err != nil {
 			return err
 		}
 	}
@@ -192,30 +198,36 @@ func files(c *cli.Context) error { //nolint:gocognit
 	fs := gravl.Runtime(c).Fs
 	enc := gravl.Runtime(c).Encoder
 	met := gravl.Runtime(c).Metrics
+	keyFound := []string{Provider, c.Command.Name, "found"}
+	keyDir := []string{Provider, c.Command.Name, "directory"}
+	keySuccess := []string{Provider, c.Command.Name, "success"}
+	keySkipNotExist := []string{Provider, c.Command.Name, metricSkipping, "does-not-exist"}
+	keySkipInProgress := []string{Provider, c.Command.Name, metricSkipping, "in-progress"}
+	keySkipTooSmall := []string{Provider, c.Command.Name, metricSkipping, "too-small"}
 	log.Info().Str("fs", fs.Name()).Msg("walk")
 	for _, arg := range args {
 		err := afero.Walk(fs, arg, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				if os.IsNotExist(err) {
-					met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "does-not-exist"}, 1)
+					met.IncrCounter(keySkipNotExist, 1)
 					log.Warn().Str("file", path).Msg("path does not exist")
 					return nil
 				}
 				return err
 			}
-			met.IncrCounter([]string{Provider, c.Command.Name, "found"}, 1)
+			met.IncrCounter(keyFound, 1)
 			if info.IsDir() {
-				met.IncrCounter([]string{Provider, c.Command.Name, "directory"}, 1)
+				met.IncrCounter(keyDir, 1)
 				return nil
 			}
 			base := filepath.Base(path)
 			if base == "inProgressActivity.fit" {
-				met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "in-progress"}, 1)
+				met.IncrCounter(keySkipInProgress, 1)
 				log.Warn().Str("file", path).Msg("skipping, activity in progress")
 				return nil
 			}
 			if info.Size() <= tooSmall {
-				met.IncrCounter([]string{Provider, c.Command.Name, metricSkipping, "too-small"}, 1)
+				met.IncrCounter(keySkipTooSmall, 1)
 				log.Warn().Int64("size", info.Size()).Str("file", path).Msg("skipping, too small")
 				return nil
 			}
@@ -225,7 +237,7 @@ func files(c *cli.Context) error { //nolint:gocognit
 				log.Info().Str("file", path).Msg("skipping, not a FIT file")
 				return nil
 			}
-			met.IncrCounter([]string{Provider, c.Command.Name, "success"}, 1)
+			met.IncrCounter(keySuccess, 1)
 			return enc.Encode(path)
 		})
 		if err != nil {
@@ -261,15 +273,14 @@ func AuthFlags() []cli.Flag {
 
 // Before configures the zwift client
 func Before(c *cli.Context) error {
-	var err error
 	before.Do(func() {
 		var client *zwift.Client
-		client, err = zwift.NewClient(
+		client, errBefore = zwift.NewClient(
 			zwift.WithTokenRefresh(c.String("zwift-username"), c.String("zwift-password")),
 			zwift.WithHTTPTracing(c.Bool("http-tracing")),
 			zwift.WithRateLimiter(rate.NewLimiter(
 				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-		if err != nil {
+		if errBefore != nil {
 			return
 		}
 		gravl.Runtime(c).Endpoints[Provider] = zwift.Endpoint()
@@ -277,7 +288,7 @@ func Before(c *cli.Context) error {
 		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created zwift client")
 	})
-	return err
+	return errBefore
 }
 
 func Command() *cli.Command {

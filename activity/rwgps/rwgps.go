@@ -22,7 +22,10 @@ const (
 	metricActivity = "activity"
 )
 
-var before sync.Once //nolint:gochecknoglobals // once
+var (
+	before    sync.Once //nolint:gochecknoglobals // once
+	errBefore error     //nolint:gochecknoglobals // paired with before
+)
 
 func athlete(c *cli.Context) error {
 	client := gravl.Runtime(c).RideWithGPS
@@ -71,9 +74,11 @@ func trips(c *cli.Context, kind string) error {
 		return err
 	}
 	enc := gravl.Runtime(c).Encoder
-	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
+	met := gravl.Runtime(c).Metrics
+	met.IncrCounter([]string{Provider, c.Command.Name}, 1)
+	metKey := []string{Provider, metric}
 	for i, trip := range trips {
-		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metric}, 1)
+		met.IncrCounter(metKey, 1)
 		log.Info().
 			Time("date", trip.DepartedAt).
 			Int64("id", trip.ID).
@@ -189,23 +194,22 @@ func routeCommand() *cli.Command {
 }
 
 func Before(c *cli.Context) error {
-	var err error
 	before.Do(func() {
 		var client *rwgps.Client
-		client, err = rwgps.NewClient(
+		client, errBefore = rwgps.NewClient(
 			rwgps.WithClientCredentials(c.String("rwgps-client-id"), ""),
 			rwgps.WithTokenCredentials(c.String("rwgps-access-token"), "", time.Time{}),
 			rwgps.WithHTTPTracing(c.Bool("http-tracing")),
 			rwgps.WithRateLimiter(rate.NewLimiter(
 				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-		if err != nil {
+		if errBefore != nil {
 			return
 		}
 		gravl.Runtime(c).RideWithGPS = client
 		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created rwgps client")
 	})
-	return err
+	return errBefore
 }
 
 func Command() *cli.Command {

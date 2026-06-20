@@ -51,8 +51,11 @@ func (enc encoder) Encode(v any) error {
 	if !ok {
 		return errors.New("did not receive encoder from pool")
 	}
-	defer enc.pool.Put(x)
-	return x.Encode(v)
+	err := x.Encode(v)
+	if err == nil {
+		enc.pool.Put(x)
+	}
+	return err
 }
 
 func initRuntime(c *cli.Context) error {

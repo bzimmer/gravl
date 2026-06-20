@@ -3,6 +3,7 @@ package strava
 import (
 	"context"
 	"errors"
+	"slices"
 	"strconv"
 	"sync"
 	"time"
@@ -25,7 +26,10 @@ const (
 	activityArgsUsage = "ACTIVITY_ID (...)"
 )
 
-var before sync.Once //nolint:gochecknoglobals // once
+var (
+	before    sync.Once //nolint:gochecknoglobals // once
+	errBefore error     //nolint:gochecknoglobals // paired with before
+)
 
 type entityFunc func(context.Context, *strava.Client, int64) (any, error)
 
@@ -142,6 +146,7 @@ func activities(c *cli.Context) error {
 		met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 	}(time.Now())
 
+	metKey := []string{Provider, metricActivity}
 	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int("count")}, opt)
 	return strava.ActivitiesIter(acts, func(act *strava.Activity) (bool, error) {
 		// filter
@@ -159,7 +164,7 @@ func activities(c *cli.Context) error {
 		if err != nil {
 			return false, err
 		}
-		met.IncrCounter([]string{Provider, metricActivity}, 1)
+		met.IncrCounter(metKey, 1)
 		log.Info().
 			Time("date", act.StartDateLocal).
 			Int64("id", act.ID).
@@ -271,6 +276,23 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolin
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
 
+	if len(ids) == 1 {
+		t := time.Now()
+		x := ids[0]
+		log.Info().Int64("id", x).Str("command", c.Command.Name).Msg("executing")
+		v, err := f(ctx, client, x)
+		if err != nil {
+			return err
+		}
+		met.IncrCounter([]string{Provider, c.Command.Name}, 1)
+		if err = enc.Encode(v); err != nil {
+			return err
+		}
+		met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
+		return nil
+	}
+
+	var mu sync.Mutex
 	argc := make(chan int64)
 	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
@@ -294,7 +316,10 @@ func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolin
 					return err
 				}
 				met.IncrCounter([]string{Provider, c.Command.Name}, 1)
-				if err = enc.Encode(v); err != nil {
+				mu.Lock()
+				err = enc.Encode(v)
+				mu.Unlock()
+				if err != nil {
 					return err
 				}
 				met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
@@ -327,13 +352,12 @@ func activityCommand() *cli.Command {
 		ArgsUsage:   activityArgsUsage,
 		Flags:       []cli.Flag{streamFlag()},
 		Action: func(c *cli.Context) error {
-			s := make(map[string]bool)
-			for _, x := range c.StringSlice("stream") {
-				s[x] = true
-			}
-			var streams []string
-			for stream := range s {
-				streams = append(streams, stream)
+			raw := c.StringSlice("stream")
+			streams := make([]string, 0, len(raw))
+			for _, s := range raw {
+				if !slices.Contains(streams, s) {
+					streams = append(streams, s)
+				}
 			}
 			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				act, err := client.Activity.Activity(ctx, id, streams...)
@@ -463,13 +487,12 @@ func streamsCommand() *cli.Command {
 		ArgsUsage:   activityArgsUsage,
 		Flags:       []cli.Flag{streamFlag("latlng", "altitude", "time")},
 		Action: func(c *cli.Context) error {
-			s := make(map[string]bool)
-			for _, x := range c.StringSlice("stream") {
-				s[x] = true
-			}
-			var streams []string
-			for stream := range s {
-				streams = append(streams, stream)
+			raw := c.StringSlice("stream")
+			streams := make([]string, 0, len(raw))
+			for _, s := range raw {
+				if !slices.Contains(streams, s) {
+					streams = append(streams, s)
+				}
 			}
 			log.Info().Strs("streams", streams).Msg(c.Command.Name)
 			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
@@ -538,10 +561,9 @@ func oauthCommand() *cli.Command {
 }
 
 func Before(c *cli.Context) error {
-	var err error
 	before.Do(func() {
 		var client *strava.Client
-		client, err = strava.NewClient(
+		client, errBefore = strava.NewClient(
 			strava.WithTokenCredentials(
 				// setting the access token to the empty string results in an error, so we use the refresh token as a placeholder
 				c.String("strava-refresh-token"), c.String("strava-refresh-token"), time.Now().Add(-1*time.Minute)),
@@ -550,7 +572,7 @@ func Before(c *cli.Context) error {
 			strava.WithHTTPTracing(c.Bool("http-tracing")),
 			strava.WithRateLimiter(rate.NewLimiter(
 				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-		if err != nil {
+		if errBefore != nil {
 			return
 		}
 		gravl.Runtime(c).Endpoints[Provider] = strava.Endpoint()
@@ -558,7 +580,7 @@ func Before(c *cli.Context) error {
 		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created strava client")
 	})
-	return err
+	return errBefore
 }
 
 func Command() *cli.Command {

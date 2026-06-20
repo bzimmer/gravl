@@ -21,7 +21,10 @@ const (
 	metricActivity = "activity"
 )
 
-var before sync.Once //nolint:gochecknoglobals // once
+var (
+	before    sync.Once //nolint:gochecknoglobals // once
+	errBefore error     //nolint:gochecknoglobals // paired with before
+)
 
 func athlete(c *cli.Context) error {
 	client := gravl.Runtime(c).CyclingAnalytics
@@ -54,10 +57,12 @@ func activities(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
+	met := gravl.Runtime(c).Metrics
+	met.IncrCounter([]string{Provider, c.Command.Name}, 1)
 	enc := gravl.Runtime(c).Encoder
+	metKey := []string{Provider, metricActivity}
 	for _, ride := range rides {
-		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, metricActivity}, 1)
+		met.IncrCounter(metKey, 1)
 		if err = enc.Encode(ride); err != nil {
 			return err
 		}
@@ -144,17 +149,16 @@ func oauthCommand() *cli.Command {
 }
 
 func Before(c *cli.Context) error {
-	var err error
 	before.Do(func() {
 		var client *cyclinganalytics.Client
-		client, err = cyclinganalytics.NewClient(
+		client, errBefore = cyclinganalytics.NewClient(
 			cyclinganalytics.WithTokenCredentials(
 				c.String("cyclinganalytics-access-token"), c.String("cyclinganalytics-refresh-token"), time.Time{}),
 			cyclinganalytics.WithAutoRefresh(c.Context),
 			cyclinganalytics.WithHTTPTracing(c.Bool("http-tracing")),
 			cyclinganalytics.WithRateLimiter(rate.NewLimiter(
 				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
-		if err != nil {
+		if errBefore != nil {
 			return
 		}
 		gravl.Runtime(c).Endpoints[Provider] = cyclinganalytics.Endpoint()
@@ -162,7 +166,7 @@ func Before(c *cli.Context) error {
 		gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, "client", "created"}, 1)
 		log.Info().Msg("created cyclinganalytics client")
 	})
-	return err
+	return errBefore
 }
 
 func Command() *cli.Command {

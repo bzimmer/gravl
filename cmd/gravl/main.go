@@ -37,6 +37,7 @@ func initSignal(cancel context.CancelFunc) cli.BeforeFunc {
 		go func() {
 			sigc := make(chan os.Signal, 1)
 			signal.Notify(sigc, os.Interrupt)
+			defer signal.Stop(sigc)
 			select {
 			case <-sigc:
 				log.Info().Msg("canceling...")
@@ -91,8 +92,11 @@ func (enc encoder) Encode(v any) error {
 	if !ok {
 		return errors.New("did not receive encoder from pool")
 	}
-	defer enc.pool.Put(x)
-	return x.Encode(v)
+	err := x.Encode(v)
+	if err == nil {
+		enc.pool.Put(x)
+	}
+	return err
 }
 
 func initRuntime(c *cli.Context) error {

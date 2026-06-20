@@ -1,6 +1,7 @@
 package qp
 
 import (
+	"context"
 	"io"
 	"os"
 	"path/filepath"
@@ -19,6 +20,12 @@ const (
 	metricSuccess = "success"
 	metricUpload  = "upload"
 	metricWalk    = "walk"
+)
+
+var (
+	metricKeyWalkAttempt   = []string{metricWalk, metricFile, "attempt"}                 //nolint:gochecknoglobals // key
+	metricKeyWalkSuccess   = []string{metricWalk, metricFile, metricSuccess}             //nolint:gochecknoglobals // key
+	metricKeyWalkSkipUnsup = []string{metricWalk, metricFile, "skipping", "unsupported"} //nolint:gochecknoglobals // key
 )
 
 // write the contents of the export to a file if `output` is specified, else `stdout`
@@ -75,14 +82,13 @@ func formatWalkFunc(met *metrics.Metrics, path string, _ os.FileInfo) bool {
 	case activity.FormatOriginal:
 		// please the linter
 	}
-	met.IncrCounter([]string{metricWalk, metricFile, "skipping", "unsupported"}, 1)
+	met.IncrCounter(metricKeyWalkSkipUnsup, 1)
 	return false
 }
 
 // walk identifies data files ready for uploading to an activity service
 // Only files of the format FIT, GPX, or TCX will be considered for uploading
-func walk(c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult { //nolint:gocognit
-	ctx := c.Context
+func walk(ctx context.Context, c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult { //nolint:gocognit
 	met := gravl.Runtime(c).Metrics
 	files := make(chan *walkResult)
 	go func() {
@@ -94,7 +100,7 @@ func walk(c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult { /
 			if info.IsDir() {
 				return nil
 			}
-			met.IncrCounter([]string{metricWalk, metricFile, "attempt"}, 1)
+			met.IncrCounter(metricKeyWalkAttempt, 1)
 			for _, f := range funcs {
 				if !f(met, path, info) {
 					return nil
@@ -104,7 +110,7 @@ func walk(c *cli.Context, name string, funcs ...walkFunc) <-chan *walkResult { /
 			case <-ctx.Done():
 				return ctx.Err()
 			case files <- &walkResult{path: path}:
-				met.IncrCounter([]string{metricWalk, metricFile, metricSuccess}, 1)
+				met.IncrCounter(metricKeyWalkSuccess, 1)
 			}
 			return nil
 		})
