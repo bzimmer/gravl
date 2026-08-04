@@ -1,0 +1,183 @@
+package hammerhead_test
+
+import (
+	"encoding/json"
+	"net/http"
+	"testing"
+	"time"
+
+	api "github.com/bzimmer/activity/hammerhead"
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/gravl"
+	"github.com/bzimmer/gravl/activity/hammerhead"
+	"github.com/bzimmer/gravl/internal"
+)
+
+func command(t *testing.T, baseURL string) *cli.Command {
+	t.Helper()
+	c := hammerhead.Command()
+	c.Before = func(c *cli.Context) error {
+		client, err := api.NewClient(
+			api.WithHTTPTracing(c.Bool("http-tracing")),
+			api.WithTokenCredentials("testtoken", "testrefresh", time.Now().Add(time.Hour)),
+			api.WithAPIURL(baseURL),
+			api.WithAuthURL(baseURL),
+		)
+		if err != nil {
+			t.Error(err)
+		}
+		gravl.Runtime(c).Hammerhead = client
+		return nil
+	}
+	return c
+}
+
+func TestBefore(t *testing.T) {
+	a := assert.New(t)
+	tests := []*internal.Harness{
+		{
+			Name:   "testbefore",
+			Args:   []string{"gravl", "testbefore"},
+			Before: hammerhead.Before,
+			Counters: map[string]int{
+				"gravl.hammerhead.client.created": 1,
+			},
+			Action: func(c *cli.Context) error {
+				a.NotNil(gravl.Runtime(c).Hammerhead)
+				ep, ok := gravl.Runtime(c).Endpoints[hammerhead.Provider]
+				a.True(ok)
+				a.NotEmpty(ep.AuthURL)
+				return nil
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			cmd := func(_ *testing.T, _ string) *cli.Command {
+				return &cli.Command{Name: tt.Name, Flags: hammerhead.AuthFlags(), Action: tt.Action}
+			}
+			internal.Run(t, tt, nil, cmd)
+		})
+	}
+}
+
+func TestActivities(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/activities", func(w http.ResponseWriter, _ *http.Request) {
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(&api.ActivitiesPage{
+			TotalItems:  2,
+			TotalPages:  1,
+			PerPage:     100,
+			CurrentPage: 1,
+			Data: []*api.ActivitySummary{
+				{ID: "act-001", Name: "Morning Ride", Duration: 3600},
+				{ID: "act-002", Name: "Evening Gravel", Duration: 5400},
+			},
+		}))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name: "activities list",
+			Args: []string{"gravl", "hammerhead", "activities"},
+			Counters: map[string]int{
+				"gravl.hammerhead.activities": 1,
+				"gravl.hammerhead.activity":   2,
+			},
+		},
+		{
+			Name: "activities with count",
+			Args: []string{"gravl", "hammerhead", "activities", "-N", "1"},
+			Counters: map[string]int{
+				"gravl.hammerhead.activities": 1,
+				"gravl.hammerhead.activity":   1,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestActivity(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/activities/act-001", func(w http.ResponseWriter, _ *http.Request) {
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(&api.Activity{
+			ActivitySummary: api.ActivitySummary{
+				ID:   "act-001",
+				Name: "Morning Ride",
+			},
+			ActivityType: api.ActivityTypeRide,
+		}))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "activity query",
+			Args:     []string{"gravl", "hammerhead", "activity", "act-001"},
+			Counters: map[string]int{"gravl.hammerhead.activity": 1},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestFile(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/activities/act-001/file", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/vnd.ant.fit")
+		_, _ = w.Write([]byte("FIT file content"))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "file download",
+			Args:     []string{"gravl", "hammerhead", "file", "act-001"},
+			Counters: map[string]int{"gravl.hammerhead.file": 1},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestActivityError(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/activities/missing", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "activity not found",
+			Err:      "Not Found",
+			Args:     []string{"gravl", "hammerhead", "activity", "missing"},
+			Counters: map[string]int{},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}

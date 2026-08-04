@@ -7,6 +7,7 @@ import (
 
 	"github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/cyclinganalytics"
+	"github.com/bzimmer/activity/hammerhead"
 	"github.com/bzimmer/activity/rwgps"
 	"github.com/bzimmer/activity/strava"
 	"github.com/bzimmer/activity/zwift"
@@ -43,6 +44,7 @@ type Rt struct {
 	Strava           *strava.Client
 	RideWithGPS      *rwgps.Client
 	CyclingAnalytics *cyclinganalytics.Client
+	Hammerhead       *hammerhead.Client
 
 	// Endpoints
 	Endpoints map[string]oauth2.Endpoint
