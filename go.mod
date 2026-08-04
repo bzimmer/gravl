@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bzimmer/activity v0.13.0
+	github.com/bzimmer/activity v0.13.1-0.20260804164155-b4afa7e9ff7d
 	github.com/bzimmer/manual v0.1.5
 	github.com/expr-lang/expr v1.17.8
 	github.com/fatih/color v1.19.0
@@ -39,5 +39,3 @@ require (
 	golang.org/x/text v0.38.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/bzimmer/activity => ../activity
