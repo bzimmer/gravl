@@ -10,7 +10,6 @@ import (
 	api "github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/hammerhead"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
@@ -127,15 +126,12 @@ func writeFile(c *cli.Context, f *api.File) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = fp.(afero.File).Close() }()
+	defer fp.Close()
 	_, err = io.Copy(fp, f)
 	if err != nil {
 		return err
 	}
-	return gravl.Runtime(c).Encoder.Encode(map[string]string{
-		"filename": filename,
-		"format":   f.Format.String(),
-	})
+	return gravl.Runtime(c).Encoder.Encode(f)
 }
 
 func fileCommand() *cli.Command {
