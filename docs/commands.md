@@ -20,6 +20,11 @@
 * [cyclinganalytics oauth](#cyclinganalytics-oauth)
 * [cyclinganalytics streamsets](#cyclinganalytics-streamsets)
 * [envvars](#envvars)
+* [hammerhead](#hammerhead)
+* [hammerhead activities](#hammerhead-activities)
+* [hammerhead activity](#hammerhead-activity)
+* [hammerhead file](#hammerhead-file)
+* [hammerhead oauth](#hammerhead-oauth)
 * [help](#help)
 * [qp](#qp)
 * [qp copy](#qp-copy)
@@ -200,6 +205,112 @@ Useful for creating a .env file for all possible environment variables
 $ gravl envvars [flags]
 ```
 
+
+
+### *hammerhead*
+
+**Description**
+
+Operations supported by the Hammerhead Karoo API
+
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|hammerhead-client-id||HAMMERHEAD_CLIENT_ID|Hammerhead client id|
+|hammerhead-client-secret||HAMMERHEAD_CLIENT_SECRET|Hammerhead client secret|
+|hammerhead-access-token||HAMMERHEAD_ACCESS_TOKEN|Hammerhead access token|
+|hammerhead-refresh-token||HAMMERHEAD_REFRESH_TOKEN|Hammerhead refresh token|
+|rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
+|rate-burst|||Maximum burst size for API request events|
+|concurrency|||Maximum concurrent API queries|
+
+
+### *hammerhead activities*
+
+**Description**
+
+Query the Hammerhead API for a list of activities for the authenticated athlete
+
+
+
+**Syntax**
+
+```sh
+$ gravl hammerhead activities [flags]
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|count|N||The number of activities to query from Hammerhead|
+|start-date|||Return activities on or after this date (YYYY-MM-DD)|
+
+
+### *hammerhead activity*
+
+**Description**
+
+Query the Hammerhead API for a specific activity by its ID
+
+
+
+**Syntax**
+
+```sh
+$ gravl hammerhead activity [flags]
+```
+
+
+
+### *hammerhead file*
+
+**Description**
+
+Download the original FIT file for a specific Hammerhead activity by its ID; streams to stdout if --output is not set
+
+
+
+**Syntax**
+
+```sh
+$ gravl hammerhead file [flags] ACTIVITY_ID (...)
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|overwrite|o||Overwrite the file if it exists; fail otherwise|
+|output|O||The filename to write the FIT file to; if not specified the contents are streamed to stdout|
+
+
+### *hammerhead oauth*
+
+**Description**
+
+Start a local OAuth server to acquire access and refresh tokens for the specified provider
+
+
+
+**Syntax**
+
+```sh
+$ gravl hammerhead oauth [flags]
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|origin|||Callback origin|
+|port|||Port on which to listen|
 
 
 ### *help*
