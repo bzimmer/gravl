@@ -2,12 +2,15 @@ package hammerhead
 
 import (
 	"context"
+	"io"
+	"os"
 	"sync"
 	"time"
 
 	api "github.com/bzimmer/activity"
 	"github.com/bzimmer/activity/hammerhead"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/time/rate"
 
@@ -103,15 +106,61 @@ func activityCommand() *cli.Command {
 	}
 }
 
+func writeFile(c *cli.Context, f *api.File) error {
+	if f == nil || f.Reader == nil {
+		return nil
+	}
+	if !c.IsSet("overwrite") && !c.IsSet("output") {
+		_, err := io.Copy(c.App.Writer, f)
+		return err
+	}
+	filename := f.Filename
+	if c.IsSet("output") {
+		filename = c.String("output")
+	}
+	fs := gravl.Runtime(c).Fs
+	if _, err := fs.Stat(filename); err == nil && !c.Bool("overwrite") {
+		log.Error().Str("filename", filename).Msg("file exists and -o flag not specified")
+		return os.ErrExist
+	}
+	fp, err := fs.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = fp.(afero.File).Close() }()
+	_, err = io.Copy(fp, f)
+	if err != nil {
+		return err
+	}
+	return gravl.Runtime(c).Encoder.Encode(map[string]string{
+		"filename": filename,
+		"format":   f.Format.String(),
+	})
+}
+
 func fileCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "file",
 		Aliases:     []string{"f"},
 		Usage:       "Download a FIT file for an activity from Hammerhead",
-		Description: "Download the original FIT file for a specific Hammerhead activity by its ID",
+		Description: "Download the original FIT file for a specific Hammerhead activity by its ID; streams to stdout if --output is not set",
+		ArgsUsage:   "ACTIVITY_ID (...)",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "overwrite",
+				Aliases: []string{"o"},
+				Value:   false,
+				Usage:   "Overwrite the file if it exists; fail otherwise",
+			},
+			&cli.StringFlag{
+				Name:    "output",
+				Aliases: []string{"O"},
+				Value:   "",
+				Usage:   "The filename to write the FIT file to; if not specified the contents are streamed to stdout",
+			},
+		},
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).Hammerhead
-			enc := gravl.Runtime(c).Encoder
 			args := c.Args()
 			for i := 0; i < args.Len(); i++ {
 				err := func() error {
@@ -125,11 +174,7 @@ func fileCommand() *cli.Command {
 					defer f.Close()
 					log.Info().Str("id", id).Str("filename", f.Filename).Msg(c.Command.Name)
 					gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-					return enc.Encode(map[string]string{
-						"id":       id,
-						"filename": f.Filename,
-						"format":   f.Format.String(),
-					})
+					return writeFile(c, f)
 				}()
 				if err != nil {
 					return err
