@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/oauth2"
 
 	"github.com/bzimmer/gravl"
 	"github.com/bzimmer/gravl/activity/hammerhead"
@@ -278,6 +279,56 @@ func TestRefresh(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestRefreshError(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth/token", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+
+	// commandExpired creates a client with an already-expired token and
+	// overrides the oauth2 endpoint to point at the test server. oauth2's
+	// ReuseTokenSource skips the endpoint when the token is still valid, so
+	// an expired token is needed to force an actual HTTP refresh request.
+	commandExpired := func(t *testing.T, baseURL string) *cli.Command {
+		t.Helper()
+		c := hammerhead.Command()
+		c.Before = func(c *cli.Context) error {
+			client, err := api.NewClient(
+				api.WithConfig(oauth2.Config{
+					Endpoint: oauth2.Endpoint{
+						TokenURL:  baseURL + "/oauth/token",
+						AuthStyle: oauth2.AuthStyleInParams,
+					},
+				}),
+				api.WithTokenCredentials("testtoken", "testrefresh", time.Now().Add(-time.Hour)),
+				api.WithAPIURL(baseURL),
+				api.WithAuthURL(baseURL),
+			)
+			if err != nil {
+				t.Error(err)
+			}
+			gravl.Runtime(c).Hammerhead = client
+			return nil
+		}
+		return c
+	}
+
+	tests := []*internal.Harness{
+		{
+			Name:     "refresh server error",
+			Err:      "Internal Server Error",
+			Args:     []string{"gravl", "hammerhead", "refresh"},
+			Counters: map[string]int{},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, commandExpired)
 		})
 	}
 }

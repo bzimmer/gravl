@@ -49,3 +49,11 @@ func TestSaveAndLoadCachedTokenRoundTrip(t *testing.T) {
 	a.Equal("access", loaded.AccessToken)
 	a.Equal("refresh", loaded.RefreshToken)
 }
+
+func TestSaveCachedTokenReadOnly(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	fs := afero.NewReadOnlyFs(afero.NewMemMapFs())
+	token := &oauth2.Token{AccessToken: "access", RefreshToken: "refresh"}
+	a.Error(saveCachedToken(fs, token))
+}
