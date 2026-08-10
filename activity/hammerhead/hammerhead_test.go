@@ -7,6 +7,7 @@ import (
 	"time"
 
 	api "github.com/bzimmer/activity/hammerhead"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 
@@ -150,6 +151,78 @@ func TestFile(t *testing.T) {
 			Name:     "file download",
 			Args:     []string{"gravl", "hammerhead", "file", "act-001"},
 			Counters: map[string]int{"gravl.hammerhead.file": 1},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestFileMultiple(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/activities/act-001/file", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/vnd.ant.fit")
+		_, _ = w.Write([]byte("FIT file content 1"))
+	})
+	mux.HandleFunc("/activities/act-002/file", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/vnd.ant.fit")
+		_, _ = w.Write([]byte("FIT file content 2"))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "multiple ids write to disk instead of stdout",
+			Args:     []string{"gravl", "hammerhead", "file", "act-001", "act-002"},
+			Counters: map[string]int{"gravl.hammerhead.file": 2},
+			After: func(c *cli.Context) error {
+				fs := gravl.Runtime(c).Fs
+				data, err := afero.ReadFile(fs, "act-001.fit")
+				a.NoError(err)
+				a.Equal("FIT file content 1", string(data))
+				data, err = afero.ReadFile(fs, "act-002.fit")
+				a.NoError(err)
+				a.Equal("FIT file content 2", string(data))
+				return nil
+			},
+		},
+		{
+			Name:     "output flag rejected with multiple ids",
+			Err:      "--output cannot be used with more than one ACTIVITY_ID",
+			Args:     []string{"gravl", "hammerhead", "file", "-O", "out.fit", "act-001", "act-002"},
+			Counters: map[string]int{},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func TestRefresh(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth/token", func(w http.ResponseWriter, _ *http.Request) {
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(map[string]any{
+			"access_token":  "newaccesstoken",
+			"token_type":    "bearer",
+			"expires_in":    3600,
+			"refresh_token": "newrefreshtoken",
+		}))
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name: "refresh",
+			Args: []string{"gravl", "hammerhead", "refresh"},
 		},
 	}
 	for _, tt := range tests {

@@ -25,6 +25,7 @@
 * [hammerhead activity](#hammerhead-activity)
 * [hammerhead file](#hammerhead-file)
 * [hammerhead oauth](#hammerhead-oauth)
+* [hammerhead refresh](#hammerhead-refresh)
 * [help](#help)
 * [qp](#qp)
 * [qp copy](#qp-copy)
@@ -271,7 +272,7 @@ $ gravl hammerhead activity [flags]
 
 **Description**
 
-Download the original FIT file for a specific Hammerhead activity by its ID; streams to stdout if --output is not set
+Download the original FIT file for a specific Hammerhead activity by its ID; streams to stdout if a single ACTIVITY_ID is given and --output is not set, otherwise writes each to its own file on disk
 
 
 
@@ -311,6 +312,22 @@ $ gravl hammerhead oauth [flags]
 |-|-|-|-|
 |origin|||Callback origin|
 |port|||Port on which to listen|
+
+
+### *hammerhead refresh*
+
+**Description**
+
+Exchange the existing refresh token for a new access and refresh token pair
+
+
+
+**Syntax**
+
+```sh
+$ gravl hammerhead refresh [flags]
+```
+
 
 
 ### *help*

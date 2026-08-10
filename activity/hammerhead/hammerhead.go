@@ -2,6 +2,7 @@ package hammerhead
 
 import (
 	"context"
+	"errors"
 	"io"
 	"os"
 	"sync"
@@ -26,6 +27,29 @@ var (
 	before    sync.Once //nolint:gochecknoglobals // once
 	errBefore error     //nolint:gochecknoglobals // paired with before
 )
+
+func refresh(c *cli.Context) error {
+	client := gravl.Runtime(c).Hammerhead
+	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
+	defer cancel()
+	token, err := client.Auth.Refresh(ctx)
+	if err != nil {
+		return err
+	}
+	if cacheErr := saveCachedToken(gravl.Runtime(c).Fs, token); cacheErr != nil {
+		log.Warn().Err(cacheErr).Msg("failed to cache refreshed hammerhead token")
+	}
+	return gravl.Runtime(c).Encoder.Encode(token)
+}
+
+func refreshCommand() *cli.Command {
+	return &cli.Command{
+		Name:        "refresh",
+		Usage:       "Acquire a new refresh token",
+		Description: "Exchange the existing refresh token for a new access and refresh token pair",
+		Action:      refresh,
+	}
+}
 
 func activities(c *cli.Context) error {
 	client := gravl.Runtime(c).Hammerhead
@@ -105,11 +129,11 @@ func activityCommand() *cli.Command {
 	}
 }
 
-func writeFile(c *cli.Context, f *api.File) error {
+func writeFile(c *cli.Context, f *api.File, forceDisk bool) error {
 	if f == nil || f.Reader == nil {
 		return nil
 	}
-	if !c.IsSet("overwrite") && !c.IsSet("output") {
+	if !forceDisk && !c.IsSet("overwrite") && !c.IsSet("output") {
 		_, err := io.Copy(c.App.Writer, f)
 		return err
 	}
@@ -136,11 +160,12 @@ func writeFile(c *cli.Context, f *api.File) error {
 
 func fileCommand() *cli.Command {
 	return &cli.Command{
-		Name:        "file",
-		Aliases:     []string{"f"},
-		Usage:       "Download a FIT file for an activity from Hammerhead",
-		Description: "Download the original FIT file for a specific Hammerhead activity by its ID; streams to stdout if --output is not set",
-		ArgsUsage:   "ACTIVITY_ID (...)",
+		Name:    "file",
+		Aliases: []string{"f"},
+		Usage:   "Download a FIT file for an activity from Hammerhead",
+		Description: "Download the original FIT file for a specific Hammerhead activity by its ID; streams to stdout " +
+			"if a single ACTIVITY_ID is given and --output is not set, otherwise writes each to its own file on disk",
+		ArgsUsage: "ACTIVITY_ID (...)",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "overwrite",
@@ -158,6 +183,10 @@ func fileCommand() *cli.Command {
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).Hammerhead
 			args := c.Args()
+			multiple := args.Len() > 1
+			if multiple && c.IsSet("output") {
+				return errors.New("--output cannot be used with more than one ACTIVITY_ID")
+			}
 			for i := 0; i < args.Len(); i++ {
 				err := func() error {
 					ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
@@ -170,7 +199,7 @@ func fileCommand() *cli.Command {
 					defer f.Close()
 					log.Info().Str("id", id).Str("filename", f.Filename).Msg(c.Command.Name)
 					gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-					return writeFile(c, f)
+					return writeFile(c, f, multiple)
 				}()
 				if err != nil {
 					return err
@@ -191,11 +220,42 @@ func oauthCommand() *cli.Command {
 
 func Before(c *cli.Context) error {
 	before.Do(func() {
+		fs := gravl.Runtime(c).Fs
+		accessToken := c.String("hammerhead-access-token")
+		refreshToken := c.String("hammerhead-refresh-token")
+		expiry := time.Now().Add(-1 * time.Minute)
+		// Hammerhead rotates the refresh token on every use, invalidating the
+		// previous one; a cached token (with its real expiry) is preferred
+		// over the static flag/env value so a rotated token from a prior
+		// invocation isn't discarded.
+		if cached := loadCachedToken(fs); cached != nil {
+			accessToken, refreshToken, expiry = cached.AccessToken, cached.RefreshToken, cached.Expiry
+		}
+
+		clientID := c.String("hammerhead-client-id")
+		clientSecret := c.String("hammerhead-client-secret")
+		// force (or confirm) a refresh here - a no-op if the cached access
+		// token is still valid - and cache whatever comes back so a rotated
+		// refresh token survives into the next invocation. Best-effort: if it
+		// fails (e.g. no credentials configured yet), fall through and let
+		// the client below surface the error lazily on first use, as before.
+		if bootstrap, err := hammerhead.NewClient(
+			hammerhead.WithClientCredentials(clientID, clientSecret),
+			hammerhead.WithTokenCredentials(accessToken, refreshToken, expiry)); err == nil {
+			if token, refreshErr := bootstrap.Auth.Refresh(c.Context); refreshErr == nil {
+				accessToken, refreshToken, expiry = token.AccessToken, token.RefreshToken, token.Expiry
+				if cacheErr := saveCachedToken(fs, token); cacheErr != nil {
+					log.Warn().Err(cacheErr).Msg("failed to cache refreshed hammerhead token")
+				}
+			} else {
+				log.Warn().Err(refreshErr).Msg("failed to eagerly refresh hammerhead token")
+			}
+		}
+
 		var client *hammerhead.Client
 		client, errBefore = hammerhead.NewClient(
-			hammerhead.WithClientCredentials(c.String("hammerhead-client-id"), c.String("hammerhead-client-secret")),
-			hammerhead.WithTokenCredentials(
-				c.String("hammerhead-access-token"), c.String("hammerhead-refresh-token"), time.Now().Add(-1*time.Minute)),
+			hammerhead.WithClientCredentials(clientID, clientSecret),
+			hammerhead.WithTokenCredentials(accessToken, refreshToken, expiry),
 			hammerhead.WithAutoRefresh(c.Context),
 			hammerhead.WithHTTPTracing(c.Bool("http-tracing")),
 			hammerhead.WithRateLimiter(rate.NewLimiter(
@@ -224,6 +284,7 @@ func Command() *cli.Command {
 			activityCommand(),
 			fileCommand(),
 			oauthCommand(),
+			refreshCommand(),
 		},
 	}
 }
