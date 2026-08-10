@@ -23,7 +23,7 @@
 * [hammerhead](#hammerhead)
 * [hammerhead activities](#hammerhead-activities)
 * [hammerhead activity](#hammerhead-activity)
-* [hammerhead file](#hammerhead-file)
+* [hammerhead export](#hammerhead-export)
 * [hammerhead oauth](#hammerhead-oauth)
 * [hammerhead refresh](#hammerhead-refresh)
 * [help](#help)
@@ -268,18 +268,18 @@ $ gravl hammerhead activity [flags]
 
 
 
-### *hammerhead file*
+### *hammerhead export*
 
 **Description**
 
-Download the original FIT file for a specific Hammerhead activity by its ID; streams to stdout if a single ACTIVITY_ID is given and --output is not set, otherwise writes each to its own file on disk
+Export the original FIT file for a specific Hammerhead activity by its ID; streams to stdout if a single ACTIVITY_ID is given and --output is not set, otherwise writes each to its own file on disk
 
 
 
 **Syntax**
 
 ```sh
-$ gravl hammerhead file [flags] ACTIVITY_ID (...)
+$ gravl hammerhead export [flags] ACTIVITY_ID (...)
 ```
 
 

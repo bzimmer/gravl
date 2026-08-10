@@ -139,18 +139,67 @@ func TestActivity(t *testing.T) {
 	}
 }
 
-func TestFile(t *testing.T) {
+func TestExport(t *testing.T) {
+	a := assert.New(t)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/activities/act-001/file", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/vnd.ant.fit")
 		_, _ = w.Write([]byte("FIT file content"))
 	})
+	mux.HandleFunc("/activities/bad/file", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
 
 	tests := []*internal.Harness{
 		{
-			Name:     "file download",
-			Args:     []string{"gravl", "hammerhead", "file", "act-001"},
-			Counters: map[string]int{"gravl.hammerhead.file": 1},
+			Name:     "export to stdout",
+			Args:     []string{"gravl", "hammerhead", "export", "act-001"},
+			Counters: map[string]int{"gravl.hammerhead.export": 1},
+		},
+		{
+			Name: "export to file",
+			Args: []string{"gravl", "hammerhead", "export", "-O", "/tmp/act-001.fit", "act-001"},
+			After: func(c *cli.Context) error {
+				stat, err := gravl.Runtime(c).Fs.Stat("/tmp/act-001.fit")
+				a.NoError(err)
+				a.NotNil(stat)
+				return nil
+			},
+			Counters: map[string]int{"gravl.hammerhead.export": 1},
+		},
+		{
+			Name: "export file exists error",
+			Args: []string{"gravl", "hammerhead", "export", "-O", "/tmp/existing.fit", "act-001"},
+			Before: func(c *cli.Context) error {
+				fp, err := gravl.Runtime(c).Fs.Create("/tmp/existing.fit")
+				a.NoError(err)
+				return fp.Close()
+			},
+			Err:      "file already exists",
+			Counters: map[string]int{},
+		},
+		{
+			Name: "export with overwrite",
+			Args: []string{"gravl", "hammerhead", "export", "-O", "/tmp/overwrite.fit", "-o", "act-001"},
+			Before: func(c *cli.Context) error {
+				fp, err := gravl.Runtime(c).Fs.Create("/tmp/overwrite.fit")
+				a.NoError(err)
+				return fp.Close()
+			},
+			After: func(c *cli.Context) error {
+				stat, err := gravl.Runtime(c).Fs.Stat("/tmp/overwrite.fit")
+				a.NoError(err)
+				a.NotNil(stat)
+				return nil
+			},
+			Counters: map[string]int{"gravl.hammerhead.export": 1},
+		},
+		{
+			Name:     "export error",
+			Args:     []string{"gravl", "hammerhead", "export", "bad"},
+			Err:      "Not Found",
+			Counters: map[string]int{},
 		},
 	}
 	for _, tt := range tests {
@@ -177,8 +226,8 @@ func TestFileMultiple(t *testing.T) {
 	tests := []*internal.Harness{
 		{
 			Name:     "multiple ids write to disk instead of stdout",
-			Args:     []string{"gravl", "hammerhead", "file", "act-001", "act-002"},
-			Counters: map[string]int{"gravl.hammerhead.file": 2},
+			Args:     []string{"gravl", "hammerhead", "export", "act-001", "act-002"},
+			Counters: map[string]int{"gravl.hammerhead.export": 2},
 			After: func(c *cli.Context) error {
 				fs := gravl.Runtime(c).Fs
 				data, err := afero.ReadFile(fs, "act-001.fit")
@@ -193,7 +242,7 @@ func TestFileMultiple(t *testing.T) {
 		{
 			Name:     "output flag rejected with multiple ids",
 			Err:      "--output cannot be used with more than one ACTIVITY_ID",
-			Args:     []string{"gravl", "hammerhead", "file", "-O", "out.fit", "act-001", "act-002"},
+			Args:     []string{"gravl", "hammerhead", "export", "-O", "out.fit", "act-001", "act-002"},
 			Counters: map[string]int{},
 		},
 	}
@@ -254,3 +303,26 @@ func TestActivityError(t *testing.T) {
 		})
 	}
 }
+
+func TestActivitiesError(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/activities", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+
+	tests := []*internal.Harness{
+		{
+			Name:     "activities server error",
+			Err:      "Internal Server Error",
+			Args:     []string{"gravl", "hammerhead", "activities"},
+			Counters: map[string]int{},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+

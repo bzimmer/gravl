@@ -158,12 +158,12 @@ func writeFile(c *cli.Context, f *api.File, forceDisk bool) error {
 	return gravl.Runtime(c).Encoder.Encode(f)
 }
 
-func fileCommand() *cli.Command {
+func exportCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "file",
-		Aliases: []string{"f"},
-		Usage:   "Download a FIT file for an activity from Hammerhead",
-		Description: "Download the original FIT file for a specific Hammerhead activity by its ID; streams to stdout " +
+		Name:    "export",
+		Aliases: []string{"e"},
+		Usage:   "Export a FIT file for an activity from Hammerhead",
+		Description: "Export the original FIT file for a specific Hammerhead activity by its ID; streams to stdout " +
 			"if a single ACTIVITY_ID is given and --output is not set, otherwise writes each to its own file on disk",
 		ArgsUsage: "ACTIVITY_ID (...)",
 		Flags: []cli.Flag{
@@ -282,7 +282,7 @@ func Command() *cli.Command {
 		Subcommands: []*cli.Command{
 			activitiesCommand(),
 			activityCommand(),
-			fileCommand(),
+			exportCommand(),
 			oauthCommand(),
 			refreshCommand(),
 		},
