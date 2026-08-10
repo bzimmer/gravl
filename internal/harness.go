@@ -110,10 +110,13 @@ func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
 	}
 }
 
+// walkfs is a diagnostic dump of the runtime filesystem for test output; it
+// tolerates per-path errors (e.g. afero.MemMapFs.Stat failing on entries
+// created via a relative path) rather than failing the whole test run.
 func walkfs(c *cli.Context) error {
 	return afero.Walk(runtime(c.App).Fs, "/", func(path string, _ fs.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return nil //nolint:nilerr // best-effort diagnostic, not a correctness check
 		}
 		fmt.Fprintf(c.App.ErrWriter, "%s\n", path)
 		return nil
