@@ -14,16 +14,22 @@ import (
 // rotates the refresh token on every use, so relying solely on a static
 // HAMMERHEAD_REFRESH_TOKEN env var works exactly once; the cache carries the
 // rotated token forward to the next invocation.
-func tokenCachePath() (string, error) {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
+//
+// dir overrides the directory; when empty the OS user config directory is used
+// (e.g. ~/.config/gravl on Linux).
+func tokenCachePath(dir string) (string, error) {
+	if dir == "" {
+		d, err := os.UserConfigDir()
+		if err != nil {
+			return "", err
+		}
+		dir = filepath.Join(d, "gravl")
 	}
-	return filepath.Join(dir, "gravl", Provider+"-token.json"), nil
+	return filepath.Join(dir, Provider+"-token.json"), nil
 }
 
-func loadCachedToken(fs afero.Fs) *oauth2.Token {
-	path, err := tokenCachePath()
+func loadCachedToken(fs afero.Fs, dir string) *oauth2.Token {
+	path, err := tokenCachePath(dir)
 	if err != nil {
 		return nil
 	}
@@ -38,8 +44,8 @@ func loadCachedToken(fs afero.Fs) *oauth2.Token {
 	return &token
 }
 
-func saveCachedToken(fs afero.Fs, token *oauth2.Token) error {
-	path, err := tokenCachePath()
+func saveCachedToken(fs afero.Fs, token *oauth2.Token, dir string) error {
+	path, err := tokenCachePath(dir)
 	if err != nil {
 		return err
 	}
