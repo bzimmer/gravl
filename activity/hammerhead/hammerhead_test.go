@@ -241,10 +241,19 @@ func TestFileMultiple(t *testing.T) {
 			},
 		},
 		{
-			Name:     "output flag rejected with multiple ids",
-			Err:      "--output cannot be used with more than one ACTIVITY_ID",
-			Args:     []string{"gravl", "hammerhead", "export", "-O", "out.fit", "act-001", "act-002"},
-			Counters: map[string]int{},
+			Name:     "multiple ids with output directory",
+			Args:     []string{"gravl", "hammerhead", "export", "-O", "/tmp/fits", "act-001", "act-002"},
+			Counters: map[string]int{"gravl.hammerhead.export": 2},
+			After: func(c *cli.Context) error {
+				fs := gravl.Runtime(c).Fs
+				data, err := afero.ReadFile(fs, "/tmp/fits/act-001.fit")
+				a.NoError(err)
+				a.Equal("FIT file content 1", string(data))
+				data, err = afero.ReadFile(fs, "/tmp/fits/act-002.fit")
+				a.NoError(err)
+				a.Equal("FIT file content 2", string(data))
+				return nil
+			},
 		},
 	}
 	for _, tt := range tests {

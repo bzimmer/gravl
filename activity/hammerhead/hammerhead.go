@@ -2,9 +2,9 @@ package hammerhead
 
 import (
 	"context"
-	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -129,16 +129,21 @@ func activityCommand() *cli.Command {
 	}
 }
 
-func writeFile(c *cli.Context, f *api.File, forceDisk bool) error {
+// writeFile writes f to disk. dir controls the destination:
+//   - empty string: single-ID mode — stream to stdout unless --output or --overwrite is set
+//   - non-empty string: multi-ID mode — write to filepath.Join(dir, f.Filename)
+func writeFile(c *cli.Context, f *api.File, dir string) error {
 	if f == nil || f.Reader == nil {
 		return nil
 	}
-	if !forceDisk && !c.IsSet("overwrite") && !c.IsSet("output") {
+	if dir == "" && !c.IsSet("overwrite") && !c.IsSet("output") {
 		_, err := io.Copy(c.App.Writer, f)
 		return err
 	}
 	filename := f.Filename
-	if c.IsSet("output") {
+	if dir != "" {
+		filename = filepath.Join(dir, f.Filename)
+	} else if c.IsSet("output") {
 		filename = c.String("output")
 	}
 	fs := gravl.Runtime(c).Fs
@@ -163,8 +168,10 @@ func exportCommand() *cli.Command {
 		Name:    "export",
 		Aliases: []string{"e"},
 		Usage:   "Export a FIT file for an activity from Hammerhead",
-		Description: "Export the original FIT file for a specific Hammerhead activity by its ID; streams to stdout " +
-			"if a single ACTIVITY_ID is given and --output is not set, otherwise writes each to its own file on disk",
+		Description: "Export the original FIT file for a specific Hammerhead activity by its ID. " +
+			"With a single ACTIVITY_ID and no --output, streams to stdout. " +
+			"With a single ACTIVITY_ID and --output FILE, writes to FILE. " +
+			"With multiple ACTIVITY_IDs, writes each to its own file; --output sets the destination directory.",
 		ArgsUsage: "ACTIVITY_ID (...)",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -177,15 +184,23 @@ func exportCommand() *cli.Command {
 				Name:    "output",
 				Aliases: []string{"O"},
 				Value:   "",
-				Usage:   "The filename to write the FIT file to; if not specified the contents are streamed to stdout",
+				Usage:   "For a single ID: the filename to write; for multiple IDs: the directory to write files into",
 			},
 		},
 		Action: func(c *cli.Context) error {
 			client := gravl.Runtime(c).Hammerhead
 			args := c.Args()
 			multiple := args.Len() > 1
-			if multiple && c.IsSet("output") {
-				return errors.New("--output cannot be used with more than one ACTIVITY_ID")
+			dir := ""
+			if multiple {
+				dir = "."
+				if c.IsSet("output") {
+					dir = c.String("output")
+					fs := gravl.Runtime(c).Fs
+					if err := fs.MkdirAll(dir, 0o755); err != nil {
+						return err
+					}
+				}
 			}
 			for i := 0; i < args.Len(); i++ {
 				err := func() error {
@@ -199,7 +214,7 @@ func exportCommand() *cli.Command {
 					defer f.Close()
 					log.Info().Str("id", id).Str("filename", f.Filename).Msg(c.Command.Name)
 					gravl.Runtime(c).Metrics.IncrCounter([]string{Provider, c.Command.Name}, 1)
-					return writeFile(c, f, multiple)
+					return writeFile(c, f, dir)
 				}()
 				if err != nil {
 					return err

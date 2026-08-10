@@ -272,7 +272,7 @@ $ gravl hammerhead activity [flags]
 
 **Description**
 
-Export the original FIT file for a specific Hammerhead activity by its ID; streams to stdout if a single ACTIVITY_ID is given and --output is not set, otherwise writes each to its own file on disk
+Export the original FIT file for a specific Hammerhead activity by its ID. With a single ACTIVITY_ID and no --output, streams to stdout. With a single ACTIVITY_ID and --output FILE, writes to FILE. With multiple ACTIVITY_IDs, writes each to its own file; --output sets the destination directory.
 
 
 
@@ -288,7 +288,7 @@ $ gravl hammerhead export [flags] ACTIVITY_ID (...)
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |overwrite|o||Overwrite the file if it exists; fail otherwise|
-|output|O||The filename to write the FIT file to; if not specified the contents are streamed to stdout|
+|output|O||For a single ID: the filename to write; for multiple IDs: the directory to write files into|
 
 
 ### *hammerhead oauth*
