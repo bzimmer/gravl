@@ -224,7 +224,7 @@ Operations supported by the Hammerhead Karoo API
 |hammerhead-client-secret||HAMMERHEAD_CLIENT_SECRET|Hammerhead client secret|
 |hammerhead-access-token||HAMMERHEAD_ACCESS_TOKEN|Hammerhead access token|
 |hammerhead-refresh-token||HAMMERHEAD_REFRESH_TOKEN|Hammerhead refresh token|
-|hammerhead-token-cache-dir||HAMMERHEAD_TOKEN_CACHE_DIR|Directory for the Hammerhead token cache file; defaults to the OS user config directory|
+|token-cache||HAMMERHEAD_TOKEN_CACHE|Directory for the Hammerhead token cache file; defaults to the OS user config directory|
 |rate-limit|||Minimum time interval between API request events (eg, 1ms, 2s, 5m, 3h)|
 |rate-burst|||Maximum burst size for API request events|
 |concurrency|||Maximum concurrent API queries|

@@ -36,7 +36,7 @@ func refresh(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	cacheDir := c.String("hammerhead-token-cache-dir")
+	cacheDir := c.String("token-cache")
 	if cacheErr := saveCachedToken(gravl.Runtime(c).Fs, token, cacheDir); cacheErr != nil {
 		log.Warn().Err(cacheErr).Msg("failed to cache refreshed hammerhead token")
 	}
@@ -244,7 +244,7 @@ func Before(c *cli.Context) error {
 		// previous one; a cached token (with its real expiry) is preferred
 		// over the static flag/env value so a rotated token from a prior
 		// invocation isn't discarded.
-		cacheDir := c.String("hammerhead-token-cache-dir")
+		cacheDir := c.String("token-cache")
 		if cached := loadCachedToken(fs, cacheDir); cached != nil {
 			accessToken, refreshToken, expiry = cached.AccessToken, cached.RefreshToken, cached.Expiry
 		}
@@ -329,9 +329,9 @@ func AuthFlags() []cli.Flag {
 			EnvVars: []string{"HAMMERHEAD_REFRESH_TOKEN"},
 		},
 		&cli.StringFlag{
-			Name:    "hammerhead-token-cache-dir",
+			Name:    "token-cache",
 			Usage:   "Directory for the Hammerhead token cache file; defaults to the OS user config directory",
-			EnvVars: []string{"HAMMERHEAD_TOKEN_CACHE_DIR"},
+			EnvVars: []string{"HAMMERHEAD_TOKEN_CACHE"},
 		},
 	}
 }
