@@ -1,10 +1,10 @@
 module github.com/bzimmer/gravl
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bzimmer/activity v0.13.0
+	github.com/bzimmer/activity v0.14.0
 	github.com/bzimmer/manual v0.1.5
 	github.com/expr-lang/expr v1.17.8
 	github.com/fatih/color v1.19.0

@@ -24,6 +24,7 @@ import (
 
 	"github.com/bzimmer/gravl"
 	"github.com/bzimmer/gravl/activity/cyclinganalytics"
+	"github.com/bzimmer/gravl/activity/hammerhead"
 	"github.com/bzimmer/gravl/activity/qp"
 	"github.com/bzimmer/gravl/activity/rwgps"
 	"github.com/bzimmer/gravl/activity/strava"
@@ -76,6 +77,13 @@ func initQP(c *cli.Context) error {
 			return nil, err
 		}
 		return gravl.Runtime(c).Zwift.Exporter(), nil
+	}
+	// hammerhead
+	gravl.Runtime(c).Exporters[hammerhead.Provider] = func(c *cli.Context) (activity.Exporter, error) {
+		if err := hammerhead.Before(c); err != nil {
+			return nil, err
+		}
+		return gravl.Runtime(c).Hammerhead.Exporter(), nil
 	}
 	return nil
 }
@@ -184,6 +192,7 @@ func flags() []cli.Flag {
 func commands() []*cli.Command {
 	return []*cli.Command{
 		cyclinganalytics.Command(),
+		hammerhead.Command(),
 		manual.Manual(),
 		manual.EnvVars(),
 		qp.Command(),
