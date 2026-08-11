@@ -140,7 +140,7 @@ func TestActivity(t *testing.T) {
 	}
 }
 
-func TestExport(t *testing.T) {
+func TestFile(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
@@ -154,24 +154,24 @@ func TestExport(t *testing.T) {
 
 	tests := []*internal.Harness{
 		{
-			Name:     "export to stdout",
-			Args:     []string{"gravl", "hammerhead", "export", "act-001"},
-			Counters: map[string]int{"gravl.hammerhead.export": 1},
+			Name:     "file to stdout",
+			Args:     []string{"gravl", "hammerhead", "file", "act-001"},
+			Counters: map[string]int{"gravl.hammerhead.file": 1},
 		},
 		{
-			Name: "export to file",
-			Args: []string{"gravl", "hammerhead", "export", "-O", "/tmp/act-001.fit", "act-001"},
+			Name: "file to disk",
+			Args: []string{"gravl", "hammerhead", "file", "-O", "/tmp/act-001.fit", "act-001"},
 			After: func(c *cli.Context) error {
 				stat, err := gravl.Runtime(c).Fs.Stat("/tmp/act-001.fit")
 				a.NoError(err)
 				a.NotNil(stat)
 				return nil
 			},
-			Counters: map[string]int{"gravl.hammerhead.export": 1},
+			Counters: map[string]int{"gravl.hammerhead.file": 1},
 		},
 		{
-			Name: "export file exists error",
-			Args: []string{"gravl", "hammerhead", "export", "-O", "/tmp/existing.fit", "act-001"},
+			Name: "file exists error",
+			Args: []string{"gravl", "hammerhead", "file", "-O", "/tmp/existing.fit", "act-001"},
 			Before: func(c *cli.Context) error {
 				fp, err := gravl.Runtime(c).Fs.Create("/tmp/existing.fit")
 				a.NoError(err)
@@ -181,8 +181,8 @@ func TestExport(t *testing.T) {
 			Counters: map[string]int{},
 		},
 		{
-			Name: "export with overwrite",
-			Args: []string{"gravl", "hammerhead", "export", "-O", "/tmp/overwrite.fit", "-o", "act-001"},
+			Name: "file with overwrite",
+			Args: []string{"gravl", "hammerhead", "file", "-O", "/tmp/overwrite.fit", "-o", "act-001"},
 			Before: func(c *cli.Context) error {
 				fp, err := gravl.Runtime(c).Fs.Create("/tmp/overwrite.fit")
 				a.NoError(err)
@@ -194,11 +194,11 @@ func TestExport(t *testing.T) {
 				a.NotNil(stat)
 				return nil
 			},
-			Counters: map[string]int{"gravl.hammerhead.export": 1},
+			Counters: map[string]int{"gravl.hammerhead.file": 1},
 		},
 		{
-			Name:     "export error",
-			Args:     []string{"gravl", "hammerhead", "export", "bad"},
+			Name:     "file error",
+			Args:     []string{"gravl", "hammerhead", "file", "bad"},
 			Err:      "Not Found",
 			Counters: map[string]int{},
 		},
@@ -227,8 +227,8 @@ func TestFileMultiple(t *testing.T) {
 	tests := []*internal.Harness{
 		{
 			Name:     "multiple ids write to disk instead of stdout",
-			Args:     []string{"gravl", "hammerhead", "export", "act-001", "act-002"},
-			Counters: map[string]int{"gravl.hammerhead.export": 2},
+			Args:     []string{"gravl", "hammerhead", "file", "act-001", "act-002"},
+			Counters: map[string]int{"gravl.hammerhead.file": 2},
 			After: func(c *cli.Context) error {
 				fs := gravl.Runtime(c).Fs
 				data, err := afero.ReadFile(fs, "act-001.fit")
@@ -242,8 +242,8 @@ func TestFileMultiple(t *testing.T) {
 		},
 		{
 			Name:     "multiple ids with output directory",
-			Args:     []string{"gravl", "hammerhead", "export", "-O", "/tmp/fits", "act-001", "act-002"},
-			Counters: map[string]int{"gravl.hammerhead.export": 2},
+			Args:     []string{"gravl", "hammerhead", "file", "-O", "/tmp/fits", "act-001", "act-002"},
+			Counters: map[string]int{"gravl.hammerhead.file": 2},
 			After: func(c *cli.Context) error {
 				fs := gravl.Runtime(c).Fs
 				data, err := afero.ReadFile(fs, "/tmp/fits/act-001.fit")
@@ -385,4 +385,3 @@ func TestActivitiesError(t *testing.T) {
 		})
 	}
 }
-

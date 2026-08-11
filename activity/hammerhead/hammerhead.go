@@ -21,6 +21,7 @@ import (
 const (
 	Provider       = "hammerhead"
 	metricActivity = "activity"
+	metricRefresh  = "refresh"
 )
 
 var (
@@ -45,7 +46,7 @@ func refresh(c *cli.Context) error {
 
 func refreshCommand() *cli.Command {
 	return &cli.Command{
-		Name:        "refresh",
+		Name:        metricRefresh,
 		Usage:       "Acquire a new refresh token",
 		Description: "Exchange the existing refresh token for a new access and refresh token pair",
 		Action:      refresh,
@@ -164,12 +165,12 @@ func writeFile(c *cli.Context, f *api.File, dir string) error {
 	return gravl.Runtime(c).Encoder.Encode(f)
 }
 
-func exportCommand() *cli.Command {
+func fileCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "export",
-		Aliases: []string{"e"},
-		Usage:   "Export a FIT file for an activity from Hammerhead",
-		Description: "Export the original FIT file for a specific Hammerhead activity by its ID. " +
+		Name:    "file",
+		Aliases: []string{"f"},
+		Usage:   "Download a FIT file for an activity from Hammerhead",
+		Description: "Download the original FIT file for a specific Hammerhead activity by its ID. " +
 			"With a single ACTIVITY_ID and no --output, streams to stdout. " +
 			"With a single ACTIVITY_ID and --output FILE, writes to FILE. " +
 			"With multiple ACTIVITY_IDs, writes each to its own file; --output sets the destination directory.",
@@ -299,7 +300,7 @@ func Command() *cli.Command {
 		Subcommands: []*cli.Command{
 			activitiesCommand(),
 			activityCommand(),
-			exportCommand(),
+			fileCommand(),
 			oauthCommand(),
 			refreshCommand(),
 		},
