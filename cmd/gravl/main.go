@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -203,6 +204,26 @@ func commands() []*cli.Command {
 	}
 }
 
+// exitTempFail is EX_TEMPFAIL from BSD's sysexits.h: a temporary failure the
+// caller should retry, distinct from an ordinary hard failure (exit code 1).
+const exitTempFail = 75
+
+// httpFault is satisfied by an error carrying the HTTP status code that produced
+// it, such as a provider's Fault type from github.com/bzimmer/activity.
+type httpFault interface {
+	HTTPStatusCode() int
+}
+
+// exitCode maps err to a process exit code, using exitTempFail when err is (or wraps)
+// an httpFault for an HTTP 429 so callers can distinguish "retry later" from a hard failure.
+func exitCode(err error) int {
+	var f httpFault
+	if errors.As(err, &f) && f.HTTPStatusCode() == http.StatusTooManyRequests {
+		return exitTempFail
+	}
+	return 1
+}
+
 func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
@@ -235,7 +256,7 @@ func main() {
 		}
 		if err != nil {
 			log.Error().Err(err).Msg(app.Name)
-			os.Exit(1)
+			os.Exit(exitCode(err))
 		}
 		os.Exit(0)
 	}()
