@@ -46,6 +46,7 @@
 * [strava athlete](#strava-athlete)
 * [strava oauth](#strava-oauth)
 * [strava photos](#strava-photos)
+* [strava ratelimits](#strava-ratelimits)
 * [strava refresh](#strava-refresh)
 * [strava route](#strava-route)
 * [strava routes](#strava-routes)
@@ -789,6 +790,7 @@ $ gravl strava activities [flags]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |count|N||The number of activities to query from Strava (the number returned will be <= N)|
+|page-size|||Results per request, at most 200|
 |filter|f||Expression for filtering activities to remove|
 |attribute|B||Evaluate the expression on an activity and return only those results|
 |after|since||Return results after the time specified|
@@ -819,7 +821,7 @@ Query the Strava API for a specific activity by its ID, optionally including dat
 **Syntax**
 
 ```sh
-$ gravl strava activity [flags] ACTIVITY_ID (...)
+$ gravl strava activity [flags] ACTIVITY_ID (...) | -
 ```
 
 
@@ -828,6 +830,8 @@ $ gravl strava activity [flags] ACTIVITY_ID (...)
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |stream|s||Streams to include in the activity|
+|output|O||Write each result to its own file, the path a Go template over the result (eg, 'archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json'); an existing file is skipped unless --overwrite is set|
+|overwrite|o||With --output, replace an existing file instead of skipping it|
 
 **Example**
 
@@ -974,7 +978,7 @@ Query the Strava API for the photos associated with a specific activity
 **Syntax**
 
 ```sh
-$ gravl strava photos [flags] ACTIVITY_ID (...)
+$ gravl strava photos [flags] ACTIVITY_ID (...) | -
 ```
 
 
@@ -983,6 +987,24 @@ $ gravl strava photos [flags] ACTIVITY_ID (...)
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |size|s||Maximum size in pixels of the photos to return|
+|output|O||Write each result to its own file, the path a Go template over the result (eg, 'archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json'); an existing file is skipped unless --overwrite is set|
+|overwrite|o||With --output, replace an existing file instead of skipping it|
+
+
+### *strava ratelimits*
+
+**Description**
+
+Make one request (the authenticated athlete) and report the rate limits and usage Strava returns in its response headers, for the 15-minute and daily windows
+
+
+
+**Syntax**
+
+```sh
+$ gravl strava ratelimits [flags]
+```
+
 
 
 ### *strava refresh*
@@ -1012,9 +1034,16 @@ Query the Strava API for a specific route by its ID
 **Syntax**
 
 ```sh
-$ gravl strava route [flags] ROUTE_ID (...)
+$ gravl strava route [flags] ROUTE_ID (...) | -
 ```
 
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|output|O||Write each result to its own file, the path a Go template over the result (eg, 'archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json'); an existing file is skipped unless --overwrite is set|
+|overwrite|o||With --output, replace an existing file instead of skipping it|
 
 
 ### *strava routes*
@@ -1037,6 +1066,7 @@ $ gravl strava routes [flags]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |count|N||The number of routes to query from Strava (the number returned will be <= N)|
+|page-size|||Results per request, at most 200|
 
 
 ### *strava streams*
@@ -1050,7 +1080,7 @@ Query the Strava API for the data streams of a specific activity, such as GPS co
 **Syntax**
 
 ```sh
-$ gravl strava streams [flags] ACTIVITY_ID (...)
+$ gravl strava streams [flags] ACTIVITY_ID (...) | -
 ```
 
 
@@ -1059,6 +1089,8 @@ $ gravl strava streams [flags] ACTIVITY_ID (...)
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |stream|s||Streams to include in the activity|
+|output|O||Write each result to its own file, the path a Go template over the result (eg, 'archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json'); an existing file is skipped unless --overwrite is set|
+|overwrite|o||With --output, replace an existing file instead of skipping it|
 
 
 ### *strava streamsets*
@@ -1126,7 +1158,7 @@ Update attributes of a specific Strava activity such as name, sport type, gear, 
 **Syntax**
 
 ```sh
-$ gravl strava update [flags] ACTIVITY_ID (...)
+$ gravl strava update [flags] ACTIVITY_ID (...) | -
 ```
 
 

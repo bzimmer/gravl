@@ -3,6 +3,7 @@ package strava
 import (
 	"context"
 	"errors"
+	"fmt"
 	"slices"
 	"strconv"
 	"sync"
@@ -23,7 +24,7 @@ import (
 const (
 	Provider          = "strava"
 	metricActivity    = "activity"
-	activityArgsUsage = "ACTIVITY_ID (...)"
+	activityArgsUsage = "ACTIVITY_ID (...) | -"
 )
 
 var (
@@ -146,8 +147,12 @@ func activities(c *cli.Context) error {
 		met.AddSample([]string{Provider, c.Command.Name}, float32(time.Since(t).Seconds()))
 	}(time.Now())
 
+	spec, err := pagination(c)
+	if err != nil {
+		return err
+	}
 	metKey := []string{Provider, metricActivity}
-	acts := client.Activity.Activities(ctx, api.Pagination{Total: c.Int("count")}, opt)
+	acts := client.Activity.Activities(ctx, spec, opt)
 	return strava.ActivitiesIter(acts, func(act *strava.Activity) (bool, error) {
 		// filter
 		var ok bool
@@ -192,6 +197,7 @@ func activitiesCommand() *cli.Command {
 				Value:   0,
 				Usage:   "The number of activities to query from Strava (the number returned will be <= N)",
 			},
+			pageSizeFlag(),
 			&cli.StringFlag{
 				Name:    "filter",
 				Aliases: []string{"f"},
@@ -207,7 +213,32 @@ func activitiesCommand() *cli.Command {
 	}
 }
 
+// maxPageSize is the most results Strava returns per page.
+const maxPageSize = 200
+
+func pageSizeFlag() cli.Flag {
+	return &cli.IntFlag{
+		Name:        "page-size",
+		Value:       0,
+		DefaultText: strconv.Itoa(strava.PageSize),
+		Usage:       fmt.Sprintf("Results per request, at most %d", maxPageSize),
+	}
+}
+
+// pagination returns the pagination spec for the --count and --page-size flags.
+func pagination(c *cli.Context) (api.Pagination, error) {
+	size := c.Int("page-size")
+	if size < 0 || size > maxPageSize {
+		return api.Pagination{}, fmt.Errorf("--page-size must be between 0 and %d", maxPageSize)
+	}
+	return api.Pagination{Total: c.Int("count"), Count: size}, nil
+}
+
 func routes(c *cli.Context) error {
+	spec, err := pagination(c)
+	if err != nil {
+		return err
+	}
 	client := gravl.Runtime(c).Strava
 	ctx, cancel := context.WithTimeout(c.Context, c.Duration("timeout"))
 	defer cancel()
@@ -215,7 +246,7 @@ func routes(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	routes, err := client.Route.Routes(ctx, athlete.ID, api.Pagination{Total: c.Int("count")})
+	routes, err := client.Route.Routes(ctx, athlete.ID, spec)
 	if err != nil {
 		return err
 	}
@@ -244,17 +275,31 @@ func routesCommand() *cli.Command {
 				Value:   0,
 				Usage:   "The number of routes to query from Strava (the number returned will be <= N)",
 			},
+			pageSizeFlag(),
 		},
 		Action: routes,
 	}
 }
 
 func entityWithArgs(c *cli.Context, f entityFunc, args []string) error { //nolint:gocognit
+	if len(args) == 1 && args[0] == "-" {
+		var err error
+		if args, err = readIDs(c.App.Reader); err != nil {
+			return err
+		}
+	}
 	if len(args) == 0 {
 		log.Info().Str("entity", c.Command.Name).Msg("no arguments provided")
 		return nil
 	}
 	enc := gravl.Runtime(c).Encoder
+	if c.String("output") != "" {
+		fenc, err := newFileEncoder(c)
+		if err != nil {
+			return err
+		}
+		enc = fenc
+	}
 	met := gravl.Runtime(c).Metrics
 	client := gravl.Runtime(c).Strava
 
@@ -350,7 +395,7 @@ func activityCommand() *cli.Command {
 		Usage:       "Query an activity from Strava",
 		Description: "Query the Strava API for a specific activity by its ID, optionally including data streams",
 		ArgsUsage:   activityArgsUsage,
-		Flags:       []cli.Flag{streamFlag()},
+		Flags:       append([]cli.Flag{streamFlag()}, outputFlags()...),
 		Action: func(c *cli.Context) error {
 			raw := c.StringSlice("stream")
 			streams := make([]string, 0, len(raw))
@@ -485,7 +530,7 @@ func streamsCommand() *cli.Command {
 		Usage:       "Query streams for an activity from Strava",
 		Description: "Query the Strava API for the data streams of a specific activity, such as GPS coordinates, altitude, and time",
 		ArgsUsage:   activityArgsUsage,
-		Flags:       []cli.Flag{streamFlag("latlng", "altitude", "time")},
+		Flags:       append([]cli.Flag{streamFlag("latlng", "altitude", "time")}, outputFlags()...),
 		Action: func(c *cli.Context) error {
 			raw := c.StringSlice("stream")
 			streams := make([]string, 0, len(raw))
@@ -508,7 +553,8 @@ func routeCommand() *cli.Command {
 		Aliases:     []string{"r"},
 		Usage:       "Query a route from Strava",
 		Description: "Query the Strava API for a specific route by its ID",
-		ArgsUsage:   "ROUTE_ID (...)",
+		ArgsUsage:   "ROUTE_ID (...) | -",
+		Flags:       outputFlags(),
 		Action: func(c *cli.Context) error {
 			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				return client.Route.Route(ctx, id)
@@ -523,14 +569,14 @@ func photosCommand() *cli.Command {
 		Usage:       "Query photos from Strava",
 		Description: "Query the Strava API for the photos associated with a specific activity",
 		ArgsUsage:   activityArgsUsage,
-		Flags: []cli.Flag{
+		Flags: append([]cli.Flag{
 			&cli.IntFlag{
 				Name:    "size",
 				Aliases: []string{"s"},
 				Value:   2048,
 				Usage:   "Maximum size in pixels of the photos to return",
 			},
-		},
+		}, outputFlags()...),
 		Action: func(c *cli.Context) error {
 			return entity(c, func(ctx context.Context, client *strava.Client, id int64) (any, error) {
 				return client.Activity.Photos(ctx, id, c.Int("size"))
@@ -568,7 +614,7 @@ func Before(c *cli.Context) error {
 				// setting the access token to the empty string results in an error, so we use the refresh token as a placeholder
 				c.String("strava-refresh-token"), c.String("strava-refresh-token"), time.Now().Add(-1*time.Minute)),
 			strava.WithClientCredentials(c.String("strava-client-id"), c.String("strava-client-secret")),
-			strava.WithAutoRefresh(c.Context),
+			strava.WithAutoRefresh(withRateLimitRecorder(c.Context)),
 			strava.WithHTTPTracing(c.Bool("http-tracing")),
 			strava.WithRateLimiter(rate.NewLimiter(
 				rate.Every(c.Duration("rate-limit")), c.Int("rate-burst"))))
@@ -597,6 +643,7 @@ func Command() *cli.Command {
 			athleteCommand(),
 			oauthCommand(),
 			photosCommand(),
+			ratelimitsCommand(),
 			refreshCommand(),
 			routeCommand(),
 			routesCommand(),

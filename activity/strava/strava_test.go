@@ -2,11 +2,14 @@ package strava_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 
 	api "github.com/bzimmer/activity/strava"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
@@ -27,7 +30,8 @@ func command(t *testing.T, baseURL string) *cli.Command {
 			api.WithHTTPTracing(c.Bool("http-tracing")),
 			api.WithConfig(oauth2.Config{Endpoint: endpoint}),
 			api.WithClientCredentials(c.String("strava-client-id"), "dummy"),
-			api.WithTokenCredentials("foo", "bar", time.Now().Add(time.Hour*24)))
+			api.WithTokenCredentials("foo", "bar", time.Now().Add(time.Hour*24)),
+			api.WithTransport(strava.RateLimitRecorder()))
 		if err != nil {
 			t.Error(err)
 		}
@@ -446,6 +450,251 @@ func TestUpdate(t *testing.T) {
 		tt := tt
 		t.Run(tt.Name, func(t *testing.T) {
 			internal.Run(t, tt, mux, command)
+		})
+	}
+}
+
+func activityHandler(a *assert.Assertions) http.Handler {
+	mux := http.NewServeMux()
+	for _, id := range []int64{12345, 54321} {
+		mux.HandleFunc(fmt.Sprintf("/activities/%d", id), func(w http.ResponseWriter, _ *http.Request) {
+			act := &api.Activity{
+				ID:             id,
+				Name:           fmt.Sprintf("activity %d", id),
+				StartDateLocal: time.Date(2026, time.October, 3, 23, 30, 0, 0, time.UTC),
+			}
+			a.NoError(json.NewEncoder(w).Encode(act))
+		})
+	}
+	return mux
+}
+
+func readActivity(a *assert.Assertions, fs afero.Fs, path string) *api.Activity {
+	data, err := afero.ReadFile(fs, path)
+	if !a.NoError(err) {
+		return nil
+	}
+	act := &api.Activity{}
+	a.NoError(json.Unmarshal(data, act))
+	return act
+}
+
+func TestStdin(t *testing.T) {
+	a := assert.New(t)
+	tests := []*internal.Harness{
+		{
+			Name:     "ids from stdin",
+			Args:     []string{"gravl", "strava", "activity", "-"},
+			Stdin:    "12345\n\n 54321 \n",
+			Counters: map[string]int{"gravl.strava.activity": 2},
+		},
+		{
+			Name:  "invalid id on stdin",
+			Args:  []string{"gravl", "strava", "activity", "-"},
+			Stdin: "12345\nabc\n",
+			Err:   "invalid syntax",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, activityHandler(a), command)
+		})
+	}
+}
+
+func TestOutput(t *testing.T) {
+	a := assert.New(t)
+	template := `/archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json`
+	seed := func(c *cli.Context) error {
+		// an existing file, as a previous run would have left it
+		return afero.WriteFile(gravl.Runtime(c).Fs, "/archive/2026-10/12345.json", []byte(`{"id":12345,"name":"old"}`), 0o644)
+	}
+	tests := []*internal.Harness{
+		{
+			Name: "one file per result",
+			Args: []string{"gravl", "strava", "activity", "-O", template, "12345", "54321"},
+			After: func(c *cli.Context) error {
+				fs := gravl.Runtime(c).Fs
+				for _, id := range []int64{12345, 54321} {
+					act := readActivity(a, fs, fmt.Sprintf("/archive/2026-10/%d.json", id))
+					a.Equal(id, act.ID)
+				}
+				// no temporary files left behind
+				entries, err := afero.ReadDir(fs, "/archive/2026-10")
+				a.NoError(err)
+				a.Len(entries, 2)
+				return nil
+			},
+		},
+		{
+			Name:     "existing file skipped",
+			Args:     []string{"gravl", "strava", "activity", "-O", template, "12345", "54321"},
+			Before:   seed,
+			Counters: map[string]int{"gravl.strava.activity.skipped": 1},
+			After: func(c *cli.Context) error {
+				fs := gravl.Runtime(c).Fs
+				a.Equal("old", readActivity(a, fs, "/archive/2026-10/12345.json").Name)
+				a.Equal("activity 54321", readActivity(a, fs, "/archive/2026-10/54321.json").Name)
+				return nil
+			},
+		},
+		{
+			Name:   "existing file overwritten",
+			Args:   []string{"gravl", "strava", "activity", "-O", template, "-o", "12345"},
+			Before: seed,
+			After: func(c *cli.Context) error {
+				a.Equal("activity 12345", readActivity(a, gravl.Runtime(c).Fs, "/archive/2026-10/12345.json").Name)
+				return nil
+			},
+		},
+		{
+			Name: "bad template",
+			Args: []string{"gravl", "strava", "activity", "-O", "{{.ID", "12345"},
+			Err:  "parsing --output template",
+		},
+		{
+			Name: "unknown field",
+			Args: []string{"gravl", "strava", "activity", "-O", "{{.Nope}}", "12345"},
+			Err:  "rendering --output template",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			internal.Run(t, tt, activityHandler(a), command)
+		})
+	}
+}
+
+func TestRateLimits(t *testing.T) {
+	a := assert.New(t)
+	headers := func(read bool) http.Handler {
+		mux := http.NewServeMux()
+		mux.HandleFunc("/athlete", func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("X-RateLimit-Limit", "600,6000")
+			w.Header().Set("X-RateLimit-Usage", "12,932")
+			if read {
+				w.Header().Set("X-ReadRateLimit-Limit", "300,3000")
+				w.Header().Set("X-ReadRateLimit-Usage", "6,466")
+			}
+			a.NoError(json.NewEncoder(w).Encode(&api.Athlete{}))
+		})
+		return mux
+	}
+	limits := func(limit15, limitDaily, usage15, usageDaily int) strava.Limits {
+		return strava.Limits{
+			Limit: strava.Window{FifteenMinute: limit15, Daily: limitDaily},
+			Usage: strava.Window{FifteenMinute: usage15, Daily: usageDaily},
+		}
+	}
+	read := limits(300, 3000, 6, 466)
+	tests := []struct {
+		name     string
+		read     bool
+		expected *strava.RateLimits
+	}{
+		{
+			name: "overall and read",
+			read: true,
+			expected: &strava.RateLimits{
+				Overall: limits(600, 6000, 12, 932),
+				Read:    &read,
+			},
+		},
+		{
+			name: "overall only",
+			expected: &strava.RateLimits{
+				Overall: limits(600, 6000, 12, 932),
+			},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tt := &internal.Harness{
+				Name:     tc.name,
+				Args:     []string{"gravl", "strava", "ratelimits"},
+				Counters: map[string]int{"gravl.strava.ratelimits": 1},
+				After: func(_ *cli.Context) error {
+					a.Equal(tc.expected, strava.RateLimitRecorder().RateLimits())
+					return nil
+				},
+			}
+			internal.Run(t, tt, headers(tc.read), command)
+		})
+	}
+}
+
+func TestPageSize(t *testing.T) {
+	a := assert.New(t)
+	// pages of `per_page` activities, then an empty page
+	paged := func(perPage *[]string, pages int) http.Handler {
+		mux := http.NewServeMux()
+		mux.HandleFunc("/athlete", func(w http.ResponseWriter, _ *http.Request) {
+			a.NoError(json.NewEncoder(w).Encode(&api.Athlete{ID: 8542982}))
+		})
+		handler := func(w http.ResponseWriter, r *http.Request) {
+			*perPage = append(*perPage, r.URL.Query().Get("per_page"))
+			n := 0
+			if page, _ := strconv.Atoi(r.URL.Query().Get("page")); page <= pages {
+				n, _ = strconv.Atoi(r.URL.Query().Get("per_page"))
+			}
+			if r.URL.Path == "/athlete/activities" {
+				acts := make([]*api.Activity, n)
+				for i := range acts {
+					acts[i] = &api.Activity{}
+				}
+				a.NoError(json.NewEncoder(w).Encode(acts))
+				return
+			}
+			rtes := make([]*api.Route, n)
+			for i := range rtes {
+				rtes[i] = &api.Route{}
+			}
+			a.NoError(json.NewEncoder(w).Encode(rtes))
+		}
+		mux.HandleFunc("/athlete/activities", handler)
+		mux.HandleFunc("/athletes/8542982/routes", handler)
+		return mux
+	}
+	tests := []struct {
+		name    string
+		args    []string
+		perPage []string
+		err     string
+	}{
+		{
+			name:    "activities default",
+			args:    []string{"gravl", "strava", "activities"},
+			perPage: []string{"100", "100", "100"},
+		},
+		{
+			name:    "activities 200",
+			args:    []string{"gravl", "strava", "activities", "--page-size", "200"},
+			perPage: []string{"200", "200", "200"},
+		},
+		{
+			name:    "routes 200",
+			args:    []string{"gravl", "strava", "routes", "--page-size", "200"},
+			perPage: []string{"200", "200", "200"},
+		},
+		{
+			name: "too large",
+			args: []string{"gravl", "strava", "activities", "--page-size", "201"},
+			err:  "--page-size must be between 0 and 200",
+		},
+		{
+			name: "negative",
+			args: []string{"gravl", "strava", "routes", "--page-size", "-1"},
+			err:  "--page-size must be between 0 and 200",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var perPage []string
+			tt := &internal.Harness{Name: tc.name, Args: tc.args, Err: tc.err}
+			internal.Run(t, tt, paged(&perPage, 2), command)
+			if tc.err == "" {
+				a.Equal(tc.perPage, perPage)
+			}
 		})
 	}
 }

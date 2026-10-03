@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -29,10 +30,13 @@ import (
 type Harness struct {
 	Name, Err string
 	Args      []string
-	Counters  map[string]int
-	Before    cli.BeforeFunc
-	After     cli.AfterFunc
-	Action    cli.ActionFunc
+	Stdin     string
+	// AnyErr expects the command to fail, whatever the error says
+	AnyErr   bool
+	Counters map[string]int
+	Before   cli.BeforeFunc
+	After    cli.AfterFunc
+	Action   cli.ActionFunc
 }
 
 func runtime(app *cli.App) *gravl.Rt {
@@ -144,14 +148,41 @@ func RunContext(
 	defer svr.Close()
 
 	app := NewTestApp(t, tt, cmd(t, svr.URL))
+	if tt.Stdin != "" {
+		app.Reader = strings.NewReader(tt.Stdin)
+	}
 	err := app.RunContext(ctx, tt.Args)
-	switch tt.Err == "" {
-	case true:
+	switch {
+	case tt.AnyErr:
+		a.Error(err)
+	case tt.Err == "":
 		a.NoError(err)
-	case false:
+	default:
 		a.Error(err)
 		a.Contains(err.Error(), tt.Err)
 	}
+}
+
+// ErrEncode is the error FailEncoding's encoder returns.
+var ErrEncode = errors.New("encode failure")
+
+type failingEncoder struct{}
+
+func (failingEncoder) Encode(any) error { return ErrEncode }
+
+// FailEncoding replaces the runtime's encoder with one failing every call.
+func FailEncoding(c *cli.Context) error {
+	gravl.Runtime(c).Encoder = failingEncoder{}
+	return nil
+}
+
+// FailingAPI answers every request with an HTTP 500 and a JSON fault.
+func FailingAPI(t *testing.T) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		assert.NoError(t, json.NewEncoder(w).Encode(map[string]any{"message": "provider is down"}))
+	})
 }
 
 func NewTestApp(t *testing.T, tt *Harness, cmd *cli.Command) *cli.App {
