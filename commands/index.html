@@ -782,6 +782,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#strava-ratelimits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        strava ratelimits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#strava-refresh" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1394,6 +1405,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#strava-ratelimits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        strava ratelimits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#strava-refresh" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1690,6 +1712,7 @@
 <li><a href="#strava-athlete">strava athlete</a></li>
 <li><a href="#strava-oauth">strava oauth</a></li>
 <li><a href="#strava-photos">strava photos</a></li>
+<li><a href="#strava-ratelimits">strava ratelimits</a></li>
 <li><a href="#strava-refresh">strava refresh</a></li>
 <li><a href="#strava-route">strava route</a></li>
 <li><a href="#strava-routes">strava routes</a></li>
@@ -2687,6 +2710,12 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <td>The number of activities to query from Strava (the number returned will be &lt;= N)</td>
 </tr>
 <tr>
+<td>page-size</td>
+<td></td>
+<td></td>
+<td>Results per request, at most 200</td>
+</tr>
+<tr>
 <td>filter</td>
 <td>f</td>
 <td></td>
@@ -2725,7 +2754,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <p><strong>Description</strong></p>
 <p>Query the Strava API for a specific activity by its ID, optionally including data streams</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>-
 </span></code></pre></div>
 <p><strong>Flags</strong></p>
 <table>
@@ -2743,6 +2772,18 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <td>s</td>
 <td></td>
 <td>Streams to include in the activity</td>
+</tr>
+<tr>
+<td>output</td>
+<td>O</td>
+<td></td>
+<td>Write each result to its own file, the path a Go template over the result (eg, 'archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json'); an existing file is skipped unless --overwrite is set</td>
+</tr>
+<tr>
+<td>overwrite</td>
+<td>o</td>
+<td></td>
+<td>With --output, replace an existing file instead of skipping it</td>
 </tr>
 </tbody>
 </table>
@@ -2874,7 +2915,7 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <p><strong>Description</strong></p>
 <p>Query the Strava API for the photos associated with a specific activity</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>photos<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>photos<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>-
 </span></code></pre></div>
 <p><strong>Flags</strong></p>
 <table>
@@ -2893,25 +2934,68 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <td></td>
 <td>Maximum size in pixels of the photos to return</td>
 </tr>
+<tr>
+<td>output</td>
+<td>O</td>
+<td></td>
+<td>Write each result to its own file, the path a Go template over the result (eg, 'archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json'); an existing file is skipped unless --overwrite is set</td>
+</tr>
+<tr>
+<td>overwrite</td>
+<td>o</td>
+<td></td>
+<td>With --output, replace an existing file instead of skipping it</td>
+</tr>
 </tbody>
 </table>
+<h3 id="strava-ratelimits"><em>strava ratelimits</em></h3>
+<p><strong>Description</strong></p>
+<p>Make one request (the authenticated athlete) and report the rate limits and usage Strava returns in its response headers, for the 15-minute and daily windows</p>
+<p><strong>Syntax</strong></p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>ratelimits<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</span></code></pre></div>
 <h3 id="strava-refresh"><em>strava refresh</em></h3>
 <p><strong>Description</strong></p>
 <p>Exchange the existing refresh token for a new access and refresh token pair</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-35-1"><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>refresh<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>refresh<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="strava-route"><em>strava route</em></h3>
 <p><strong>Description</strong></p>
 <p>Query the Strava API for a specific route by its ID</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-36-1"><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>route<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ROUTE_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>route<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ROUTE_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>-
 </span></code></pre></div>
+<p><strong>Flags</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Aliases</th>
+<th>EnvVars</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>output</td>
+<td>O</td>
+<td></td>
+<td>Write each result to its own file, the path a Go template over the result (eg, 'archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json'); an existing file is skipped unless --overwrite is set</td>
+</tr>
+<tr>
+<td>overwrite</td>
+<td>o</td>
+<td></td>
+<td>With --output, replace an existing file instead of skipping it</td>
+</tr>
+</tbody>
+</table>
 <h3 id="strava-routes"><em>strava routes</em></h3>
 <p><strong>Description</strong></p>
 <p>Query the Strava API for a list of planned routes for the authenticated athlete</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-37-1"><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>routes<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>routes<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <p><strong>Flags</strong></p>
 <table>
@@ -2930,13 +3014,19 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <td></td>
 <td>The number of routes to query from Strava (the number returned will be &lt;= N)</td>
 </tr>
+<tr>
+<td>page-size</td>
+<td></td>
+<td></td>
+<td>Results per request, at most 200</td>
+</tr>
 </tbody>
 </table>
 <h3 id="strava-streams"><em>strava streams</em></h3>
 <p><strong>Description</strong></p>
 <p>Query the Strava API for the data streams of a specific activity, such as GPS coordinates, altitude, and time</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-38-1"><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streams<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streams<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>-
 </span></code></pre></div>
 <p><strong>Flags</strong></p>
 <table>
@@ -2955,50 +3045,62 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <td></td>
 <td>Streams to include in the activity</td>
 </tr>
+<tr>
+<td>output</td>
+<td>O</td>
+<td></td>
+<td>Write each result to its own file, the path a Go template over the result (eg, 'archive/{{.StartDateLocal.Format "2006-01"}}/{{.ID}}.json'); an existing file is skipped unless --overwrite is set</td>
+</tr>
+<tr>
+<td>overwrite</td>
+<td>o</td>
+<td></td>
+<td>With --output, replace an existing file instead of skipping it</td>
+</tr>
 </tbody>
 </table>
 <h3 id="strava-streamsets"><em>strava streamsets</em></h3>
 <p><strong>Description</strong></p>
 <p>Query the Strava API for the set of available data streams that can be requested for an activity</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-39-1"><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <p><strong>Example</strong></p>
 <p>Query the available streams for query with <code>activity</code>.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-40-1"><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets
-</span><span id="__span-40-2"><a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="o">{</span>
-</span><span id="__span-40-3"><a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="w"> </span><span class="s2">"altitude"</span>:<span class="w"> </span><span class="s2">"The sequence of altitude values for this stream, in meters [float]"</span>,
-</span><span id="__span-40-4"><a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="w"> </span><span class="s2">"cadence"</span>:<span class="w"> </span><span class="s2">"The sequence of cadence values for this stream, in rotations per minute [integer]"</span>,
-</span><span id="__span-40-5"><a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a><span class="w"> </span><span class="s2">"distance"</span>:<span class="w"> </span><span class="s2">"The sequence of distance values for this stream, in meters [float]"</span>,
-</span><span id="__span-40-6"><a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a><span class="w"> </span><span class="s2">"grade_smooth"</span>:<span class="w"> </span><span class="s2">"The sequence of grade values for this stream, as percents of a grade [float]"</span>,
-</span><span id="__span-40-7"><a id="__codelineno-40-7" name="__codelineno-40-7" href="#__codelineno-40-7"></a><span class="w"> </span><span class="s2">"heartrate"</span>:<span class="w"> </span><span class="s2">"The sequence of heart rate values for this stream, in beats per minute [integer]"</span>,
-</span><span id="__span-40-8"><a id="__codelineno-40-8" name="__codelineno-40-8" href="#__codelineno-40-8"></a><span class="w"> </span><span class="s2">"latlng"</span>:<span class="w"> </span><span class="s2">"The sequence of lat/long values for this stream [float, float]"</span>,
-</span><span id="__span-40-9"><a id="__codelineno-40-9" name="__codelineno-40-9" href="#__codelineno-40-9"></a><span class="w"> </span><span class="s2">"moving"</span>:<span class="w"> </span><span class="s2">"The sequence of moving values for this stream, as boolean values [boolean]"</span>,
-</span><span id="__span-40-10"><a id="__codelineno-40-10" name="__codelineno-40-10" href="#__codelineno-40-10"></a><span class="w"> </span><span class="s2">"temp"</span>:<span class="w"> </span><span class="s2">"The sequence of temperature values for this stream, in celsius degrees [float]"</span>,
-</span><span id="__span-40-11"><a id="__codelineno-40-11" name="__codelineno-40-11" href="#__codelineno-40-11"></a><span class="w"> </span><span class="s2">"time"</span>:<span class="w"> </span><span class="s2">"The sequence of time values for this stream, in seconds [integer]"</span>,
-</span><span id="__span-40-12"><a id="__codelineno-40-12" name="__codelineno-40-12" href="#__codelineno-40-12"></a><span class="w"> </span><span class="s2">"velocity_smooth"</span>:<span class="w"> </span><span class="s2">"The sequence of velocity values for this stream, in meters per second [float]"</span>,
-</span><span id="__span-40-13"><a id="__codelineno-40-13" name="__codelineno-40-13" href="#__codelineno-40-13"></a><span class="w"> </span><span class="s2">"watts"</span>:<span class="w"> </span><span class="s2">"The sequence of power values for this stream, in watts [integer]"</span>
-</span><span id="__span-40-14"><a id="__codelineno-40-14" name="__codelineno-40-14" href="#__codelineno-40-14"></a><span class="o">}</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets
+</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="o">{</span>
+</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="w"> </span><span class="s2">"altitude"</span>:<span class="w"> </span><span class="s2">"The sequence of altitude values for this stream, in meters [float]"</span>,
+</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="w"> </span><span class="s2">"cadence"</span>:<span class="w"> </span><span class="s2">"The sequence of cadence values for this stream, in rotations per minute [integer]"</span>,
+</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="w"> </span><span class="s2">"distance"</span>:<span class="w"> </span><span class="s2">"The sequence of distance values for this stream, in meters [float]"</span>,
+</span><span id="__span-41-6"><a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a><span class="w"> </span><span class="s2">"grade_smooth"</span>:<span class="w"> </span><span class="s2">"The sequence of grade values for this stream, as percents of a grade [float]"</span>,
+</span><span id="__span-41-7"><a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a><span class="w"> </span><span class="s2">"heartrate"</span>:<span class="w"> </span><span class="s2">"The sequence of heart rate values for this stream, in beats per minute [integer]"</span>,
+</span><span id="__span-41-8"><a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a><span class="w"> </span><span class="s2">"latlng"</span>:<span class="w"> </span><span class="s2">"The sequence of lat/long values for this stream [float, float]"</span>,
+</span><span id="__span-41-9"><a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a><span class="w"> </span><span class="s2">"moving"</span>:<span class="w"> </span><span class="s2">"The sequence of moving values for this stream, as boolean values [boolean]"</span>,
+</span><span id="__span-41-10"><a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a><span class="w"> </span><span class="s2">"temp"</span>:<span class="w"> </span><span class="s2">"The sequence of temperature values for this stream, in celsius degrees [float]"</span>,
+</span><span id="__span-41-11"><a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a><span class="w"> </span><span class="s2">"time"</span>:<span class="w"> </span><span class="s2">"The sequence of time values for this stream, in seconds [integer]"</span>,
+</span><span id="__span-41-12"><a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a><span class="w"> </span><span class="s2">"velocity_smooth"</span>:<span class="w"> </span><span class="s2">"The sequence of velocity values for this stream, in meters per second [float]"</span>,
+</span><span id="__span-41-13"><a id="__codelineno-41-13" name="__codelineno-41-13" href="#__codelineno-41-13"></a><span class="w"> </span><span class="s2">"watts"</span>:<span class="w"> </span><span class="s2">"The sequence of power values for this stream, in watts [integer]"</span>
+</span><span id="__span-41-14"><a id="__codelineno-41-14" name="__codelineno-41-14" href="#__codelineno-41-14"></a><span class="o">}</span>
 </span></code></pre></div>
 <p>To get just the stream names:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-41-1"><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">"keys | .[]"</span>
-</span><span id="__span-41-2"><a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>altitude
-</span><span id="__span-41-3"><a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>cadence
-</span><span id="__span-41-4"><a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a>distance
-</span><span id="__span-41-5"><a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a>grade_smooth
-</span><span id="__span-41-6"><a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a>heartrate
-</span><span id="__span-41-7"><a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a>latlng
-</span><span id="__span-41-8"><a id="__codelineno-41-8" name="__codelineno-41-8" href="#__codelineno-41-8"></a>moving
-</span><span id="__span-41-9"><a id="__codelineno-41-9" name="__codelineno-41-9" href="#__codelineno-41-9"></a>temp
-</span><span id="__span-41-10"><a id="__codelineno-41-10" name="__codelineno-41-10" href="#__codelineno-41-10"></a><span class="nb">time</span>
-</span><span id="__span-41-11"><a id="__codelineno-41-11" name="__codelineno-41-11" href="#__codelineno-41-11"></a>velocity_smooth
-</span><span id="__span-41-12"><a id="__codelineno-41-12" name="__codelineno-41-12" href="#__codelineno-41-12"></a>watts
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>streamsets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">"keys | .[]"</span>
+</span><span id="__span-42-2"><a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>altitude
+</span><span id="__span-42-3"><a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>cadence
+</span><span id="__span-42-4"><a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>distance
+</span><span id="__span-42-5"><a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>grade_smooth
+</span><span id="__span-42-6"><a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>heartrate
+</span><span id="__span-42-7"><a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>latlng
+</span><span id="__span-42-8"><a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a>moving
+</span><span id="__span-42-9"><a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a>temp
+</span><span id="__span-42-10"><a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a><span class="nb">time</span>
+</span><span id="__span-42-11"><a id="__codelineno-42-11" name="__codelineno-42-11" href="#__codelineno-42-11"></a>velocity_smooth
+</span><span id="__span-42-12"><a id="__codelineno-42-12" name="__codelineno-42-12" href="#__codelineno-42-12"></a>watts
 </span></code></pre></div>
 <h3 id="strava-update"><em>strava update</em></h3>
 <p><strong>Description</strong></p>
 <p>Update attributes of a specific Strava activity such as name, sport type, gear, description, commute status, trainer status, and visibility</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-42-1"><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>update<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>update<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>-
 </span></code></pre></div>
 <p><strong>Flags</strong></p>
 <table>
@@ -3080,13 +3182,13 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <p><strong>Description</strong></p>
 <p>List all active Strava webhook subscriptions for the authenticated application</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-43-1"><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="strava-webhook-subscribe"><em>strava webhook subscribe</em></h3>
 <p><strong>Description</strong></p>
 <p>Subscribe the application to receive Strava webhook event notifications at the specified callback URL</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-44-1"><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>subscribe<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>subscribe<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <p><strong>Flags</strong></p>
 <table>
@@ -3117,13 +3219,13 @@ available via the commandline (eg <a href="#strava-webhook-list"><code>strava we
 <p><strong>Description</strong></p>
 <p>Unsubscribe from Strava webhook notifications; if no subscription ID is provided, all active subscriptions will be removed</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-45-1"><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>unsubscribe<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>webhook<span class="w"> </span>unsubscribe<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="version"><em>version</em></h3>
 <p><strong>Description</strong></p>
 <p>Display the build version, commit hash, build time, and other build information for gravl</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-46-1"><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>version<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>version<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="zwift"><em>zwift</em></h3>
 <p><strong>Description</strong></p>
@@ -3179,7 +3281,7 @@ integration such as <a href="#cyclinganalytics">Cycling Analytics</a>.</p>
 <p><strong>Description</strong></p>
 <p>Query the Zwift API for a list of activities for the authenticated athlete</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-47-1"><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>activities<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <p><strong>Flags</strong></p>
 <table>
@@ -3204,56 +3306,56 @@ integration such as <a href="#cyclinganalytics">Cycling Analytics</a>.</p>
 <p><strong>Description</strong></p>
 <p>Query the Zwift API for a specific activity by its ID</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-48-1"><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>activity<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span><span class="w"> </span>ACTIVITY_ID<span class="w"> </span><span class="o">(</span>...<span class="o">)</span>
 </span></code></pre></div>
 <h3 id="zwift-athlete"><em>zwift athlete</em></h3>
 <p><strong>Description</strong></p>
 <p>Query the Zwift API for an athlete profile; defaults to the authenticated user if no username is specified</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-49-1"><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>athlete<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="zwift-files"><em>zwift files</em></h3>
 <p><strong>Description</strong></p>
 <p>List all local Zwift FIT files; if no directories are specified, defaults to the standard Zwift Activities directory</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-50-1"><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <p><strong>Example</strong></p>
 <p>List all local files from the Zwift app's directory. Any files less than 1K in size or named <code>inProgressActivity.fit</code> will be ignored.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-51-1"><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files
-</span><span id="__span-51-2"><a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-39-52.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
-</span><span id="__span-51-3"><a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-14-13.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
-</span><span id="__span-51-4"><a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>activity<span class="w"> </span><span class="k">in</span><span class="w"> </span>progress<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/inProgressActivity.fit
-</span><span id="__span-51-5"><a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a><span class="o">[</span>
-</span><span id="__span-51-6"><a id="__codelineno-51-6" name="__codelineno-51-6" href="#__codelineno-51-6"></a><span class="w"> </span><span class="s2">"/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-40-53.fit"</span>,
-</span><span id="__span-51-7"><a id="__codelineno-51-7" name="__codelineno-51-7" href="#__codelineno-51-7"></a><span class="w"> </span><span class="s2">"/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-15-16.fit"</span>
-</span><span id="__span-51-8"><a id="__codelineno-51-8" name="__codelineno-51-8" href="#__codelineno-51-8"></a><span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files
+</span><span id="__span-52-2"><a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-39-52.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
+</span><span id="__span-52-3"><a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-14-13.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
+</span><span id="__span-52-4"><a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a><span class="m">2021</span>-02-19T19:39:25-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>activity<span class="w"> </span><span class="k">in</span><span class="w"> </span>progress<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/inProgressActivity.fit
+</span><span id="__span-52-5"><a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a><span class="o">[</span>
+</span><span id="__span-52-6"><a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a><span class="w"> </span><span class="s2">"/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-40-53.fit"</span>,
+</span><span id="__span-52-7"><a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a><span class="w"> </span><span class="s2">"/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-15-16.fit"</span>
+</span><span id="__span-52-8"><a id="__codelineno-52-8" name="__codelineno-52-8" href="#__codelineno-52-8"></a><span class="o">]</span>
 </span></code></pre></div>
 <p>This command can be easily combined with <code>jq</code> to upload files to CyclingAnalytics, Strava, or any other site.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-52-1"><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">".[]"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>upload<span class="w"> </span>-n
-</span><span id="__span-52-2"><a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-39-52.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
-</span><span id="__span-52-3"><a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-14-13.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
-</span><span id="__span-52-4"><a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>activity<span class="w"> </span><span class="k">in</span><span class="w"> </span>progress<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/inProgressActivity.fit
-</span><span id="__span-52-5"><a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>collecting<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-40-53.fit
-</span><span id="__span-52-6"><a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>uploading<span class="w"> </span><span class="nv">dryrun</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">file</span><span class="o">=</span><span class="m">2021</span>-01-12-18-40-53.fit
-</span><span id="__span-52-7"><a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>collecting<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-15-16.fit
-</span><span id="__span-52-8"><a id="__codelineno-52-8" name="__codelineno-52-8" href="#__codelineno-52-8"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>uploading<span class="w"> </span><span class="nv">dryrun</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">file</span><span class="o">=</span><span class="m">2021</span>-01-26-18-15-16.fit
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>files<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">".[]"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>gravl<span class="w"> </span>strava<span class="w"> </span>upload<span class="w"> </span>-n
+</span><span id="__span-53-2"><a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-39-52.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
+</span><span id="__span-53-3"><a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>too<span class="w"> </span>small<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-14-13.fit<span class="w"> </span><span class="nv">size</span><span class="o">=</span><span class="m">584</span>
+</span><span id="__span-53-4"><a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>WRN<span class="w"> </span>skipping,<span class="w"> </span>activity<span class="w"> </span><span class="k">in</span><span class="w"> </span>progress<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/inProgressActivity.fit
+</span><span id="__span-53-5"><a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>collecting<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-12-18-40-53.fit
+</span><span id="__span-53-6"><a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>uploading<span class="w"> </span><span class="nv">dryrun</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">file</span><span class="o">=</span><span class="m">2021</span>-01-12-18-40-53.fit
+</span><span id="__span-53-7"><a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>collecting<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/Users/bzimmer/Documents/Zwift/Activities/2021-01-26-18-15-16.fit
+</span><span id="__span-53-8"><a id="__codelineno-53-8" name="__codelineno-53-8" href="#__codelineno-53-8"></a><span class="m">2021</span>-02-19T19:41:50-08:00<span class="w"> </span>INF<span class="w"> </span>uploading<span class="w"> </span><span class="nv">dryrun</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="nv">file</span><span class="o">=</span><span class="m">2021</span>-01-26-18-15-16.fit
 </span></code></pre></div>
 <h3 id="zwift-refresh"><em>zwift refresh</em></h3>
 <p><strong>Description</strong></p>
 <p>Acquire a new access token by authenticating with Zwift credentials</p>
 <p><strong>Syntax</strong></p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-53-1"><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>refresh<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>refresh<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </span></code></pre></div>
 <p><strong>Example</strong></p>
 <p>Query for a new refresh token from Zwift.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>refresh
-</span><span id="__span-54-2"><a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="o">{</span>
-</span><span id="__span-54-3"><a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a><span class="w">    </span><span class="s2">"access_token"</span>:<span class="w"> </span><span class="s2">"12345"</span>,
-</span><span id="__span-54-4"><a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a><span class="w">    </span><span class="s2">"token_type"</span>:<span class="w"> </span><span class="s2">"bearer"</span>,
-</span><span id="__span-54-5"><a id="__codelineno-54-5" name="__codelineno-54-5" href="#__codelineno-54-5"></a><span class="w">    </span><span class="s2">"refresh_token"</span>:<span class="w"> </span><span class="s2">"67890"</span>,
-</span><span id="__span-54-6"><a id="__codelineno-54-6" name="__codelineno-54-6" href="#__codelineno-54-6"></a><span class="w">    </span><span class="s2">"expiry"</span>:<span class="w"> </span><span class="s2">"2021-02-20T01:29:05.964572-08:00"</span>
-</span><span id="__span-54-7"><a id="__codelineno-54-7" name="__codelineno-54-7" href="#__codelineno-54-7"></a><span class="o">}</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-55-1"><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>$<span class="w"> </span>gravl<span class="w"> </span>zwift<span class="w"> </span>refresh
+</span><span id="__span-55-2"><a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a><span class="o">{</span>
+</span><span id="__span-55-3"><a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a><span class="w">    </span><span class="s2">"access_token"</span>:<span class="w"> </span><span class="s2">"12345"</span>,
+</span><span id="__span-55-4"><a id="__codelineno-55-4" name="__codelineno-55-4" href="#__codelineno-55-4"></a><span class="w">    </span><span class="s2">"token_type"</span>:<span class="w"> </span><span class="s2">"bearer"</span>,
+</span><span id="__span-55-5"><a id="__codelineno-55-5" name="__codelineno-55-5" href="#__codelineno-55-5"></a><span class="w">    </span><span class="s2">"refresh_token"</span>:<span class="w"> </span><span class="s2">"67890"</span>,
+</span><span id="__span-55-6"><a id="__codelineno-55-6" name="__codelineno-55-6" href="#__codelineno-55-6"></a><span class="w">    </span><span class="s2">"expiry"</span>:<span class="w"> </span><span class="s2">"2021-02-20T01:29:05.964572-08:00"</span>
+</span><span id="__span-55-7"><a id="__codelineno-55-7" name="__codelineno-55-7" href="#__codelineno-55-7"></a><span class="o">}</span>
 </span></code></pre></div>
 
 
@@ -3275,7 +3377,7 @@ integration such as <a href="#cyclinganalytics">Cycling Analytics</a>.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 11, 2026 18:09:22 UTC">August 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 11:55:21 UTC">October 3, 2026</span>
   </span>
 
     
