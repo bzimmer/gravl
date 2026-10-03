@@ -83,3 +83,17 @@ func TestSaveAndLoadCachedTokenCustomDir(t *testing.T) {
 	// default path should be empty
 	a.Nil(loadCachedToken(fs, ""))
 }
+
+func TestTokenCacheWithoutConfigDir(t *testing.T) {
+	// with neither HOME nor XDG_CONFIG_HOME there is no default cache directory
+	t.Setenv("HOME", "")
+	t.Setenv("XDG_CONFIG_HOME", "")
+	a := assert.New(t)
+	fs := afero.NewMemMapFs()
+	_, err := tokenCachePath("")
+	a.Error(err)
+	a.Nil(loadCachedToken(fs, ""))
+	a.Error(saveCachedToken(fs, &oauth2.Token{RefreshToken: "refresh"}, ""))
+	// an explicit directory still works
+	a.NoError(saveCachedToken(fs, &oauth2.Token{RefreshToken: "refresh"}, "/explicit"))
+}

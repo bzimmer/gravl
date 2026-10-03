@@ -2,10 +2,12 @@ package gravl_test
 
 import (
 	"encoding/json"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/rs/zerolog/log"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/gravl"
@@ -73,4 +75,49 @@ func TestRuntime(t *testing.T) {
 			})
 		})
 	}
+}
+
+func TestBeforesAftersErrors(t *testing.T) {
+	a := assert.New(t)
+	failure := errors.New("hook failed")
+	var calls []string
+	hook := func(name string, err error) func(*cli.Context) error {
+		return func(*cli.Context) error {
+			calls = append(calls, name)
+			return err
+		}
+	}
+	tests := []struct {
+		name     string
+		run      func(*cli.Context) error
+		expected []string
+	}{
+		{
+			name:     "befores skip nil and stop at the first error",
+			run:      gravl.Befores(nil, hook("one", nil), hook("two", failure), hook("three", nil)),
+			expected: []string{"one", "two"},
+		},
+		{
+			name:     "afters skip nil and stop at the first error",
+			run:      gravl.Afters(hook("one", nil), nil, hook("two", failure), hook("three", nil)),
+			expected: []string{"one", "two"},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(_ *testing.T) {
+			calls = nil
+			a.ErrorIs(tc.run(nil), failure)
+			a.Equal(tc.expected, calls)
+		})
+	}
+}
+
+func TestToken(t *testing.T) {
+	a := assert.New(t)
+	x, err := gravl.Token(16)
+	a.NoError(err)
+	y, err := gravl.Token(16)
+	a.NoError(err)
+	a.Len(x, 24)
+	a.NotEqual(x, y)
 }

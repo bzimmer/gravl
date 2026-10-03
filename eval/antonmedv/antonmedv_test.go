@@ -1,6 +1,7 @@
 package antonmedv_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -138,4 +139,47 @@ func TestEvaluator(t *testing.T) {
 	yal, err = q.Eval(t.Context(), acts[0])
 	a.NoError(err)
 	a.Equal([]any{"Hike", unit.Length(100000)}, yal)
+}
+
+func TestRuntimeErrors(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	acts := activities()
+
+	// an index out of range fails at run time, not at compile time
+	e, err := antonmedv.Evaluator(".Laps[5].Name")
+	a.NoError(err)
+	v, err := e.Eval(t.Context(), acts[0])
+	a.Nil(v)
+	a.Error(err)
+	ok, err := e.Bool(t.Context(), acts[0])
+	a.False(ok)
+	a.Error(err)
+
+	f, err := antonmedv.Filterer(".Laps[5].Name == 'x'")
+	a.NoError(err)
+	res, err := f.Filter(t.Context(), acts)
+	a.Nil(res)
+	a.Error(err)
+}
+
+func TestTypeErrors(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	acts := activities()
+
+	// an evaluator's results are not activities, so it cannot filter
+	e, err := antonmedv.Evaluator(".Type")
+	a.NoError(err)
+	f, ok := e.(interface {
+		Filter(context.Context, []*strava.Activity) ([]*strava.Activity, error)
+	})
+	a.True(ok)
+	res, err := f.Filter(t.Context(), acts)
+	a.Nil(res)
+	a.ErrorContains(err, "expected type `*strava.Activity`")
+
+	b, err := e.Bool(t.Context(), acts[0])
+	a.False(b)
+	a.ErrorContains(err, "expected type `bool`")
 }

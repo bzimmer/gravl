@@ -224,11 +224,9 @@ func exitCode(err error) int {
 	return 1
 }
 
-func main() {
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-	app := &cli.App{
+// newApp builds the gravl application; cancel is called on an interrupt.
+func newApp(cancel context.CancelFunc) *cli.App {
+	return &cli.App{
 		Name:        "gravl",
 		HelpName:    "gravl",
 		Usage:       "command line access to activity platforms",
@@ -237,12 +235,23 @@ func main() {
 		Commands:    commands(),
 		Before:      gravl.Befores(initSignal(cancel), initLogging, initRuntime, initQP),
 		After: func(c *cli.Context) error {
-			t := gravl.Runtime(c).Start
-			met := gravl.Runtime(c).Metrics
-			met.AddSample([]string{"runtime"}, float32(time.Since(t).Seconds()))
+			// a failed Before (eg, an invalid --verbosity) leaves no runtime, and
+			// urfave/cli runs After anyway; let the Before error surface instead
+			rt, ok := c.App.Metadata[gravl.RuntimeKey].(*gravl.Rt)
+			if !ok {
+				return nil
+			}
+			rt.Metrics.AddSample([]string{"runtime"}, float32(time.Since(rt.Start).Seconds()))
 			return gravl.Stats(c)
 		},
 	}
+}
+
+func main() {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	app := newApp(cancel)
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
@@ -252,6 +261,7 @@ func main() {
 			default:
 				err = fmt.Errorf("%v", v)
 			}
+			log.Error().Err(err).Msg("panic")
 			os.Exit(1)
 		}
 		if err != nil {

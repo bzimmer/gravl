@@ -145,3 +145,30 @@ func TestAuthCallbackHandler(t *testing.T) {
 		})
 	}
 }
+
+func TestAuthCallbackHandlerMalformedQuery(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	handler := web.AuthCallbackHandler(&oauth2.Config{}, "foo-state-bar")
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/callback", http.NoBody)
+	req.URL.RawQuery = "state=%zz"
+	w := httptest.NewRecorder()
+	handler(w, req)
+	a.Equal(http.StatusInternalServerError, w.Code)
+}
+
+func TestAuthCallbackHandlerWriteError(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+	svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"access_token":"99881100332255","token_type":"bearer","expires_in":3600}`))
+	}))
+	defer svr.Close()
+	cfg := &oauth2.Config{Endpoint: oauth2.Endpoint{TokenURL: svr.URL}}
+	handler := web.AuthCallbackHandler(cfg, "foo-state-bar")
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/callback?state=foo-state-bar&code=c", http.NoBody)
+	inner := httptest.NewRecorder()
+	handler(&errorWriter{rec: inner}, req)
+	a.Equal(http.StatusInternalServerError, inner.Code)
+}
